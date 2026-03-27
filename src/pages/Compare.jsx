@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import { Search, X, Check, Minus, MessageSquare, ExternalLink, RefreshCcw, Star, ArrowRight, Loader2 } from 'lucide-react';
+import SkeletonLoader from '../components/SkeletonLoader';
 import { Link } from 'react-router-dom';
 
 const Compare = () => {
@@ -10,6 +11,10 @@ const Compare = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [availableTools, setAvailableTools] = useState([]);
     const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        document.title = "Compare AI Tools | ServicesHUB";
+    }, []);
 
     useEffect(() => {
         if (!isSelectingFor) return;
@@ -53,8 +58,26 @@ const Compare = () => {
                     <button onClick={() => slot === 1 ? setTool1(null) : setTool2(null)} style={{ position: 'absolute', top: '15px', right: '15px', background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>
                         <X size={20} />
                     </button>
-                    <div className="tool-logo-large" style={{ width: '80px', height: '80px', margin: '0 auto 1.5rem', background: 'var(--gradient)', borderRadius: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2rem', fontWeight: '900', color: 'white' }}>
-                        {tool.name.charAt(0)}
+                    <div className="tool-logo-large" style={{ 
+                        width: '80px', 
+                        height: '80px', 
+                        margin: '0 auto 1.5rem', 
+                        background: 'rgba(255,255,255,0.03)', 
+                        borderRadius: '20px', 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        justifyContent: 'center', 
+                        fontSize: '2rem', 
+                        fontWeight: '900', 
+                        color: 'white',
+                        overflow: 'hidden',
+                        border: '1px solid var(--border)'
+                    }}>
+                        {tool.image_url ? (
+                            <img src={tool.image_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        ) : (
+                            tool.name.charAt(0)
+                        )}
                     </div>
                     <h3 style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>{tool.name}</h3>
                     <div style={{ color: 'var(--primary)', fontWeight: '700', fontSize: '0.9rem', marginBottom: '1.5rem' }}>{tool.categories?.name}</div>
@@ -173,7 +196,9 @@ const Compare = () => {
 
                         <div className="tool-select-list" style={{ maxHeight: '400px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                             {loading ? (
-                                <div style={{ textAlign: 'center', padding: '1rem' }}><Loader2 className="animate-spin" size={24} /></div>
+                                [1,2,3,4].map(i => (
+                                    <div key={i} className="skeleton" style={{ height: '45px', borderRadius: '10px', marginBottom: '0.5rem' }}></div>
+                                ))
                             ) : availableTools.map(t => (
                                 <button 
                                     key={t.id} 

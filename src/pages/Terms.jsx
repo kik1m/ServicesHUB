@@ -1,7 +1,30 @@
-import React from 'react';
-import { Shield, FileText, Scale, Clock } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { FileText, Clock, Scale, ShieldAlert, AlertTriangle, CheckCircle2 } from 'lucide-react';
+import SkeletonLoader from '../components/SkeletonLoader';
 
 const Terms = () => {
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const timer = setTimeout(() => setLoading(false), 500);
+        return () => clearTimeout(timer);
+    }, []);
+
+    if (loading) {
+        return (
+            <div className="page-wrapper">
+                <header className="page-header hero-section" style={{ minHeight: '35vh', paddingBottom: '40px' }}>
+                    <div className="hero-content">
+                        <SkeletonLoader type="title" width="40%" style={{ margin: '0 auto' }} />
+                        <SkeletonLoader type="text" width="200px" style={{ margin: '1rem auto' }} />
+                    </div>
+                </header>
+                <section className="main-section" style={{ maxWidth: '800px', margin: '0 auto' }}>
+                    <SkeletonLoader height="400px" borderRadius="16px" />
+                </section>
+            </div>
+        );
+    }
     return (
         <div className="page-wrapper legal-page">
             <header className="page-header hero-section" style={{ minHeight: '35vh', paddingBottom: '30px' }}>

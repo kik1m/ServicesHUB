@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Sparkles, ArrowRight, Zap, Shield, Cpu, PenTool, Code, Globe } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
 import { getIcon } from '../utils/iconMap';
+import SkeletonLoader from '../components/SkeletonLoader';
 
 const UsersGroup = () => (
     <div className="users-group" style={{ display: 'flex', alignItems: 'center', marginLeft: '1rem' }}>
@@ -19,6 +20,13 @@ const Home = () => {
     const [categories, setCategories] = useState([]);
     const [featuredTools, setFeaturedTools] = useState([]);
     const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        document.title = "ServicesHUB | The Ultimate AI & SaaS Tools Directory";
+        // Meta description
+        const metaDesc = document.querySelector('meta[name="description"]');
+        if (metaDesc) metaDesc.setAttribute('content', 'Discover and compare the worlds most innovative AI and SaaS tools. Curated for founders, developers, and creators.');
+    }, []);
 
     useEffect(() => {
         const fetchHomeData = async () => {
@@ -84,7 +92,9 @@ const Home = () => {
                 
                 <div className="categories-grid-small">
                     {loading ? (
-                        <div style={{ color: 'var(--text-muted)', padding: '2rem' }}>Loading Categories...</div>
+                        [1,2,3,4].map(i => (
+                            <div key={i} className="glass-card skeleton" style={{ height: '80px', borderRadius: '20px' }}></div>
+                        ))
                     ) : (
                         categories.map((cat, i) => (
                             <Link to={`/category/${cat.slug}`} key={i} className="glass-card category-item-small">
@@ -112,22 +122,30 @@ const Home = () => {
                 
                 <div className="featured-tools-grid">
                     {loading ? (
-                         <div style={{ color: 'var(--text-muted)', padding: '2rem' }}>Loading Tools...</div>
+                         [1,2,3].map(i => (
+                            <SkeletonLoader key={i} type="card" />
+                         ))
                     ) : (
                         featuredTools.map((tool, i) => (
                             <div key={i} className="glass-card tool-preview-card">
                                 <div className="tool-logo-box" style={{ 
                                     width: '60px', 
                                     height: '60px', 
-                                    background: 'var(--gradient)', 
+                                    background: 'rgba(255, 255, 255, 0.03)', 
                                     borderRadius: '16px', 
                                     display: 'flex', 
                                     alignItems: 'center', 
                                     justifyContent: 'center', 
                                     color: 'white',
-                                    marginBottom: '1.5rem'
+                                    marginBottom: '1.5rem',
+                                    overflow: 'hidden',
+                                    border: '1px solid var(--border)'
                                 }}>
-                                    {getIcon(tool.icon_name || 'Zap')}
+                                    {tool.image_url ? (
+                                        <img src={tool.image_url} alt={tool.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                    ) : (
+                                        getIcon(tool.icon_name || 'Zap')
+                                    )}
                                 </div>
                                 <div className="tool-tag">{tool.categories?.name}</div>
                                 <h3>{tool.name}</h3>

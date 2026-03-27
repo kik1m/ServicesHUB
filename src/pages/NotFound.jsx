@@ -1,8 +1,23 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Ghost, Home, Search } from 'lucide-react';
+import SkeletonLoader from '../components/SkeletonLoader';
 
 const NotFound = () => {
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const timer = setTimeout(() => setLoading(false), 400);
+        return () => clearTimeout(timer);
+    }, []);
+
+    if (loading) {
+        return (
+            <div className="not-found-page" style={{ minHeight: '80vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <SkeletonLoader height="400px" width="600px" borderRadius="24px" />
+            </div>
+        );
+    }
     return (
         <div className="not-found-page" style={{ 
             minHeight: '80vh', 

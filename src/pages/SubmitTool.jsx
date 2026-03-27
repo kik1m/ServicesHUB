@@ -1,7 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabaseClient';
-import { LayoutGrid, ArrowRight, ArrowLeft, Upload, CheckCircle2, Globe, Send, ShieldCheck, Zap, Loader2, AlertCircle } from 'lucide-react';
-import { useNavigate, Link } from 'react-router-dom';
+import { 
+    LayoutGrid, ArrowRight, ArrowLeft, Upload, CheckCircle2, 
+    Globe, Send, ShieldCheck, Zap, Loader2, AlertCircle, 
+    X, Image as ImageIcon
+} from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import CustomSelect from '../components/CustomSelect';
+import { useToast } from '../context/ToastContext';
+import { sendNotification } from '../utils/notifications';
 
 const SubmitTool = () => {
     const [step, setStep] = useState(1);
@@ -9,16 +16,20 @@ const SubmitTool = () => {
     const [categories, setCategories] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const [uploading, setUploading] = useState(false);
+    const [imagePreview, setImagePreview] = useState(null);
     const navigate = useNavigate();
+    const { showToast } = useToast();
 
     const [formData, setFormData] = useState({
         name: '',
-        website_url: '',
+        url: '',
         short_description: '',
         description: '',
         category_id: '',
         pricing_type: 'Free',
-        icon_name: 'Zap'
+        icon_name: 'Zap',
+        image_url: ''
     });
 
     useEffect(() => {
@@ -27,7 +38,9 @@ const SubmitTool = () => {
             const { data } = await supabase.from('categories').select('*');
             if (data) {
                 setCategories(data);
-                if (data.length > 0) setFormData(prev => ({ ...prev, category_id: data[0].id }));
+                if (data.length > 0 && !formData.category_id) {
+                    setFormData(prev => ({ ...prev, category_id: data[0].id }));
+                }
             }
         };
         fetchCategories();
@@ -38,7 +51,50 @@ const SubmitTool = () => {
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-    const nextStep = () => setStep(prev => prev + 1);
+    const handleFileChange = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        // Preview
+        const reader = new FileReader();
+        reader.onloadend = () => setImagePreview(reader.result);
+        reader.readAsDataURL(file);
+
+        // Upload
+        setUploading(true);
+        try {
+            const fileExt = file.name.split('.').pop();
+            const fileName = `${Math.random()}.${fileExt}`;
+            const filePath = `tool-thumbnails/${fileName}`;
+
+            const { error: uploadError, data } = await supabase.storage
+                .from('tool-images')
+                .upload(filePath, file);
+
+            if (uploadError) throw uploadError;
+
+            const { data: { publicUrl } } = supabase.storage
+                .from('tool-images')
+                .getPublicUrl(filePath);
+
+            setFormData(prev => ({ ...prev, image_url: publicUrl }));
+        } catch (err) {
+            console.error('Upload error:', err);
+            setError('Failed to upload image. Make sure the bucket "tool-images" exists and is public.');
+        } finally {
+            setUploading(false);
+        }
+    };
+
+    const nextStep = () => {
+        if (step === 1 && (!formData.name || !formData.url || !formData.short_description)) {
+            setError("Please fill all required fields");
+            return;
+        }
+        setError(null);
+        setStep(prev => prev + 1);
+    };
+    
     const prevStep = () => setStep(prev => prev - 1);
 
     const handleSubmit = async (e) => {
@@ -53,7 +109,6 @@ const SubmitTool = () => {
                 return;
             }
 
-            // Generate Slug
             const slug = formData.name.toLowerCase().replace(/[^a-z0-9]/g, '-');
 
             const { error: insertError } = await supabase
@@ -69,6 +124,15 @@ const SubmitTool = () => {
 
             if (insertError) throw insertError;
 
+            // Persistent Notification
+            await sendNotification(
+                user.id,
+                'Submission Received',
+                `Your tool "${formData.name}" has been submitted and is under review.`,
+                'info'
+            );
+
+            showToast('Tool submitted successfully! 🎉', 'success');
             setIsSuccess(true);
             window.scrollTo(0, 0);
         } catch (err) {
@@ -114,14 +178,12 @@ const SubmitTool = () => {
             </header>
 
             <section className="main-section" style={{ maxWidth: '800px' }}>
-                {/* Error Alert */}
                 {error && (
                     <div className="glass-card" style={{ padding: '1.5rem', marginBottom: '2rem', border: '1px solid #ff475733', color: '#ff4757', display: 'flex', gap: '1rem', alignItems: 'center' }}>
                         <AlertCircle size={20} /> {error}
                     </div>
                 )}
 
-                {/* Progress Bar */}
                 <div className="progress-container" style={{ marginBottom: '4rem' }}>
                     <div className="progress-labels" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem', color: 'var(--text-muted)', fontSize: '0.85rem', fontWeight: '600' }}>
                         <span style={{ color: step >= 1 ? 'var(--primary)' : '' }}>BASICS</span>
@@ -152,7 +214,7 @@ const SubmitTool = () => {
                                 </div>
                                 <div className="form-group" style={{ marginBottom: '2rem' }}>
                                     <label style={{ display: 'block', marginBottom: '0.8rem', fontWeight: '600', color: 'var(--text-muted)' }}>Website URL</label>
-                                    <input name="website_url" type="url" value={formData.website_url} onChange={handleChange} placeholder="https://yourtool.com" style={{ width: '100%', padding: '15px', borderRadius: '12px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'white', fontSize: '1rem', outline: 'none' }} required />
+                                    <input name="url" type="url" value={formData.url} onChange={handleChange} placeholder="https://yourtool.com" style={{ width: '100%', padding: '15px', borderRadius: '12px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'white', fontSize: '1rem', outline: 'none' }} required />
                                 </div>
                                 <div className="form-group">
                                     <label style={{ display: 'block', marginBottom: '0.8rem', fontWeight: '600', color: 'var(--text-muted)' }}>One-Sentence Pitch</label>
@@ -166,15 +228,44 @@ const SubmitTool = () => {
                                 <h3 style={{ fontSize: '1.5rem', marginBottom: '2rem', display: 'flex', alignItems: 'center', gap: '10px' }}>
                                     <LayoutGrid size={24} color="var(--primary)" /> Content & Niche
                                 </h3>
+                                
+                                <CustomSelect 
+                                    label="Category"
+                                    options={categories}
+                                    value={formData.category_id}
+                                    onChange={(val) => setFormData(prev => ({ ...prev, category_id: val }))}
+                                    placeholder="Select a category"
+                                />
+
                                 <div className="form-group" style={{ marginBottom: '2rem' }}>
-                                    <label style={{ display: 'block', marginBottom: '0.8rem', fontWeight: '600', color: 'var(--text-muted)' }}>Category</label>
-                                    <select name="category_id" value={formData.category_id} onChange={handleChange} style={{ width: '100%', padding: '15px', borderRadius: '12px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'white', fontSize: '1rem', outline: 'none' }}>
-                                        {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                                    </select>
-                                </div>
-                                <div className="form-group">
                                     <label style={{ display: 'block', marginBottom: '0.8rem', fontWeight: '600', color: 'var(--text-muted)' }}>Full Description</label>
-                                    <textarea name="description" value={formData.description} onChange={handleChange} rows="5" placeholder="Describe what your tool does, its key benefits, and who it's for..." style={{ width: '100%', padding: '15px', borderRadius: '12px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'white', fontSize: '1rem', outline: 'none', resize: 'vertical' }} required></textarea>
+                                    <textarea name="description" value={formData.description} onChange={handleChange} rows="5" placeholder="Describe what your tool does..." style={{ width: '100%', padding: '15px', borderRadius: '12px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'white', fontSize: '1rem', outline: 'none', resize: 'vertical' }} required></textarea>
+                                </div>
+
+                                <div className="form-group">
+                                    <label style={{ display: 'block', marginBottom: '0.8rem', fontWeight: '600', color: 'var(--text-muted)' }}>Tool Thumbnail / Icon</label>
+                                    <div className="file-upload-wrapper">
+                                        {imagePreview ? (
+                                            <div className="preview-img-container">
+                                                <img src={imagePreview} alt="Preview" />
+                                                <button type="button" className="remove-upload-btn" onClick={() => { setImagePreview(null); setFormData(prev => ({ ...prev, image_url: '' })) }}>
+                                                    <X size={16} />
+                                                </button>
+                                            </div>
+                                        ) : (
+                                            <label className="file-upload-label">
+                                                <input type="file" accept="image/*" onChange={handleFileChange} style={{ display: 'none' }} />
+                                                <div className="prop-icon-bg">
+                                                    {uploading ? <Loader2 className="animate-spin" /> : <ImageIcon size={24} />}
+                                                </div>
+                                                <div style={{ textAlign: 'center' }}>
+                                                    <p style={{ fontWeight: '700', marginBottom: '4px' }}>Click to upload</p>
+                                                    <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>PNG, JPG or WebP (Max 2MB)</p>
+                                                </div>
+                                            </label>
+                                        )}
+                                    </div>
+                                    {formData.image_url && <p style={{ fontSize: '0.8rem', color: '#00ffaa', marginTop: '10px', display: 'flex', alignItems: 'center', gap: '5px' }}><CheckCircle2 size={14} /> Image uploaded successfully</p>}
                                 </div>
                             </div>
                         )}
@@ -213,15 +304,17 @@ const SubmitTool = () => {
                                 </h3>
                                 <div className="review-box" style={{ background: 'rgba(255,255,255,0.02)', padding: '2rem', borderRadius: '16px', border: '1px solid var(--border)' }}>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem', paddingBottom: '1.5rem', borderBottom: '1px solid var(--border)' }}>
-                                        <div style={{ width: '50px', height: '50px', background: 'var(--gradient)', borderRadius: '12px' }}></div>
+                                        <div style={{ width: '60px', height: '60px', background: 'var(--bg-card)', borderRadius: '12px', overflow: 'hidden', border: '1px solid var(--border)' }}>
+                                            {imagePreview ? <img src={imagePreview} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="" /> : <Zap color="var(--primary)" style={{ margin: '18px' }} />}
+                                        </div>
                                         <div>
-                                            <h4 style={{ fontSize: '1.2rem' }}>{formData.name || 'Your SaaS Product'}</h4>
+                                            <h4 style={{ fontSize: '1.24rem', fontWeight: '800' }}>{formData.name || 'Your SaaS Product'}</h4>
                                             <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Pricing: {formData.pricing_type}</p>
                                         </div>
                                     </div>
                                     <ul style={{ listStyle: 'none', color: 'var(--text-muted)', fontSize: '0.9rem', display: 'flex', flexDirection: 'column', gap: '12px' }}>
                                         <li style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><CheckCircle2 size={16} color="#00ffaa" /> Detailed description added</li>
-                                        <li style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><CheckCircle2 size={16} color="#00ffaa" /> Correct category selected</li>
+                                        <li style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><CheckCircle2 size={16} color="#00ffaa" /> {imagePreview ? 'Custom thumbnail uploaded' : 'Using default icon'}</li>
                                         <li style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><CheckCircle2 size={16} color="#00ffaa" /> Website links verified</li>
                                     </ul>
                                 </div>
@@ -236,11 +329,11 @@ const SubmitTool = () => {
                             ) : <div></div>}
                             
                             {step < 4 ? (
-                                <button type="button" onClick={nextStep} className="btn-primary">
-                                    Continue <ArrowRight size={18} />
+                                <button type="button" onClick={nextStep} className="btn-primary" disabled={uploading}>
+                                    {uploading ? <Loader2 className="animate-spin" size={18} /> : <>Continue <ArrowRight size={18} /></>}
                                 </button>
                             ) : (
-                                <button type="submit" disabled={loading} className="btn-primary" style={{ background: 'var(--primary)', boxShadow: '0 0 20px var(--primary-glow)', display: 'flex', gap: '10px', alignItems: 'center' }}>
+                                <button type="submit" disabled={loading || uploading} className="btn-primary" style={{ background: 'var(--primary)', boxShadow: '0 0 20px var(--primary-glow)', display: 'flex', gap: '10px', alignItems: 'center' }}>
                                     {loading ? <Loader2 className="animate-spin" size={18} /> : <Send size={18} />}
                                     Submit Tool
                                 </button>

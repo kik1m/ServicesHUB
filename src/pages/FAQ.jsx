@@ -1,10 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import SkeletonLoader from '../components/SkeletonLoader';
 import { HelpCircle, ChevronDown, ChevronUp, MessageSquare, Zap, Shield, Search } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const FAQ = () => {
+    const [loading, setLoading] = useState(true);
     const [activeIndex, setActiveIndex] = useState(null);
     const [searchQuery, setSearchQuery] = useState('');
+
+    useEffect(() => {
+        const timer = setTimeout(() => setLoading(false), 500);
+        return () => clearTimeout(timer);
+    }, []);
 
     const faqs = [
         {
@@ -36,6 +43,23 @@ const FAQ = () => {
     const toggleAccordion = (index) => {
         setActiveIndex(activeIndex === index ? null : index);
     };
+
+    if (loading) {
+        return (
+            <div className="page-wrapper">
+                <header className="page-header hero-section" style={{ minHeight: '35vh', paddingBottom: '40px' }}>
+                    <div className="hero-content">
+                        <SkeletonLoader type="title" width="40%" style={{ margin: '0 auto' }} />
+                    </div>
+                </header>
+                <section className="main-section" style={{ maxWidth: '800px', margin: '0 auto' }}>
+                    {[1,2,3,4,5].map(i => (
+                        <SkeletonLoader key={i} height="80px" borderRadius="16px" style={{ marginBottom: '1rem' }} />
+                    ))}
+                </section>
+            </div>
+        );
+    }
 
     return (
         <div className="page-wrapper faq-page">

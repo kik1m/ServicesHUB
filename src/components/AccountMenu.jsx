@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { LayoutDashboard, UserCircle, Settings, LogOut, Shield, Loader2 } from 'lucide-react';
+import { LayoutDashboard, UserCircle, Settings, LogOut, Shield, Loader2, Heart } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
 
 const AccountMenu = ({ onClose, handleLogout }) => {
@@ -43,6 +43,10 @@ const AccountMenu = ({ onClose, handleLogout }) => {
 
             <Link to="/dashboard" onClick={onClose} className="account-menu-item">
                 <LayoutDashboard size={18} /> Dashboard
+            </Link>
+
+            <Link to="/profile" onClick={onClose} className="account-menu-item">
+                <Heart size={18} /> My Favorites
             </Link>
 
             <Link to="/profile" onClick={onClose} className="account-menu-item">

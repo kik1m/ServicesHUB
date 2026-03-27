@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Calendar, User, ArrowLeft, Clock, Share2, Facebook, Twitter, Linkedin, Loader2 } from 'lucide-react';
+import SkeletonLoader from '../components/SkeletonLoader';
 import { supabase } from '../lib/supabaseClient';
 
 const BlogPost = () => {
@@ -23,6 +24,37 @@ const BlogPost = () => {
                 
                 if (postError) throw postError;
                 setPost(postData);
+
+                // Enhanced SEO
+                if (postData) {
+                    const title = `${postData.title} | ServicesHUB Magazine`;
+                    const description = postData.excerpt || postData.title;
+                    const imageUrl = postData.image_url || 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=1200&auto=format&fit=crop&q=60';
+                    const url = window.location.href;
+
+                    document.title = title;
+                    
+                    const updateMeta = (name, content, attr = 'name') => {
+                        let element = document.querySelector(`meta[${attr}="${name}"]`);
+                        if (!element) {
+                            element = document.createElement('meta');
+                            element.setAttribute(attr, name);
+                            document.head.appendChild(element);
+                        }
+                        element.setAttribute('content', content);
+                    };
+
+                    updateMeta('description', description);
+                    updateMeta('og:title', title, 'property');
+                    updateMeta('og:description', description, 'property');
+                    updateMeta('og:image', imageUrl, 'property');
+                    updateMeta('og:url', url, 'property');
+                    updateMeta('og:type', 'article', 'property');
+                    updateMeta('twitter:card', 'summary_large_image');
+                    updateMeta('twitter:title', title);
+                    updateMeta('twitter:description', description);
+                    updateMeta('twitter:image', imageUrl);
+                }
 
                 // Fetch Related
                 if (postData) {
@@ -47,8 +79,24 @@ const BlogPost = () => {
 
     if (loading) {
         return (
-            <div className="page-wrapper" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
-                <Loader2 className="animate-spin" size={48} color="var(--primary)" />
+            <div className="page-wrapper blog-post-page">
+                <header className="page-header hero-section" style={{ padding: '80px 5% 60px', borderRadius: '0 0 50px 50px' }}>
+                    <div className="hero-content" style={{ maxWidth: '900px', textAlign: 'left' }}>
+                        <SkeletonLoader type="text" width="100px" style={{ marginBottom: '2rem' }} />
+                        <SkeletonLoader type="title" width="80%" style={{ marginBottom: '1.5rem' }} />
+                        <div style={{ display: 'flex', gap: '2rem' }}>
+                            <SkeletonLoader type="text" width="150px" height="40px" borderRadius="100px" />
+                            <SkeletonLoader type="text" width="150px" height="40px" borderRadius="100px" />
+                        </div>
+                    </div>
+                </header>
+                <section className="main-section" style={{ maxWidth: '1200px', margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 340px', gap: '4rem' }}>
+                    <div>
+                        <SkeletonLoader type="image" height="500px" borderRadius="30px" style={{ marginBottom: '4rem' }} />
+                        <SkeletonLoader type="text" height="400px" />
+                    </div>
+                    <SkeletonLoader type="text" height="300px" borderRadius="24px" />
+                </section>
             </div>
         );
     }

@@ -1,89 +1,102 @@
 import React from 'react';
-import { ExternalLink } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { ArrowUpRight, Star, MessageSquare, Zap, LayoutGrid, Cpu, Code, Palette, Globe } from 'lucide-react';
+
+const iconMap = {
+    Zap: Zap,
+    LayoutGrid: LayoutGrid,
+    Cpu: Cpu,
+    Code: Code,
+    Palette: Palette,
+    Globe: Globe
+};
 
 const ToolCard = ({ tool }) => {
+    const renderIcon = () => {
+        if (tool.image_url) {
+            return <img src={tool.image_url} alt={tool.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />;
+        }
+        const IconComponent = iconMap[tool.icon_name] || Zap;
+        return <IconComponent size={24} color="var(--primary)" />;
+    };
+
     return (
-        <div className="glass-card" style={{ 
-            padding: '1.5rem', 
-            transition: '0.3s',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '1rem',
-            height: '100%'
+        <Link to={`/tool/${tool.slug}`} className="glass-card tool-card" style={{ 
+            textDecoration: 'none', 
+            textAlign: 'left', 
+            display: 'flex', 
+            flexDirection: 'column', 
+            gap: '1.2rem',
+            padding: '1.5rem',
+            height: '100%',
+            transition: '0.3s'
         }}>
-            <div style={{ display: 'flex', gap: '15px', alignItems: 'flex-start' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                 <div style={{ 
-                    width: '56px', 
-                    height: '56px', 
+                    width: '60px', 
+                    height: '60px', 
+                    background: 'rgba(255, 255, 255, 0.03)', 
                     borderRadius: '16px', 
-                    background: 'var(--gradient)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justify: 'center',
-                    fontSize: '1.2rem',
-                    fontWeight: '800',
-                    color: 'white',
-                    flexShrink: 0
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'center', 
+                    overflow: 'hidden', 
+                    border: '1px solid var(--border)' 
                 }}>
-                    {tool.name.charAt(0)}
+                    {renderIcon()}
                 </div>
-                <div style={{ flexGrow: 1 }}>
-                    <h4 style={{ fontSize: '1.1rem', fontWeight: '800', margin: '0 0 4px 0' }}>{tool.name}</h4>
-                    <span style={{ 
-                        fontSize: '0.75rem', 
-                        padding: '4px 10px', 
-                        borderRadius: '20px', 
-                        background: 'rgba(0, 243, 255, 0.1)', 
-                        color: 'var(--secondary)', 
-                        fontWeight: '700',
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.5px'
-                    }}>
-                        {tool.category}
-                    </span>
+                <div className="tool-tag" style={{ 
+                    fontSize: '0.7rem', 
+                    padding: '4px 10px', 
+                    borderRadius: '100px', 
+                    background: 'rgba(0, 210, 255, 0.1)', 
+                    color: 'var(--secondary)',
+                    border: '1px solid rgba(0, 210, 255, 0.2)'
+                }}>
+                    {tool.pricing_type || 'Free'}
                 </div>
             </div>
-
-            <p style={{ 
-                fontSize: '0.85rem', 
-                color: 'var(--text-muted)', 
-                lineHeight: '1.6',
-                flexGrow: 1,
-                marginBottom: '1rem'
-            }}>
-                {tool.description}
-            </p>
+            
+            <div style={{ flex: 1 }}>
+                <h3 style={{ fontSize: '1.25rem', fontWeight: '800', marginBottom: '8px', color: 'white' }}>{tool.name}</h3>
+                <p style={{ 
+                    color: 'var(--text-muted)', 
+                    fontSize: '0.9rem', 
+                    lineHeight: '1.5',
+                    display: '-webkit-box',
+                    WebkitLineClamp: '2',
+                    WebkitBoxOrient: 'vertical',
+                    overflow: 'hidden'
+                }}>
+                    {tool.short_description || tool.description}
+                </p>
+            </div>
 
             <div style={{ 
                 display: 'flex', 
                 justifyContent: 'space-between', 
-                alignItems: 'center',
-                paddingTop: '1.25rem',
-                borderTop: '1px solid var(--border)'
+                alignItems: 'center', 
+                marginTop: 'auto', 
+                paddingTop: '1rem', 
+                borderTop: '1px solid var(--border)' 
             }}>
-                <span style={{ 
-                    fontSize: '0.8rem', 
-                    fontWeight: '600', 
-                    color: 'var(--text-muted)' 
-                }}>
-                    {tool.type}
-                </span>
-                <button style={{ 
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '6px',
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#ffcc00', fontWeight: '700', fontSize: '0.85rem' }}>
+                        <Star size={14} fill="#ffcc00" /> {tool.rating?.toFixed(1) || '5.0'}
+                    </div>
+                </div>
+                <div style={{ 
                     color: 'var(--primary)', 
-                    background: 'transparent', 
-                    border: 'none', 
                     fontWeight: '700', 
                     fontSize: '0.85rem', 
-                    cursor: 'pointer',
-                    transition: '0.2s'
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    gap: '5px' 
                 }}>
-                    VIEW <ExternalLink size={14} />
-                </button>
+                    View Details <ArrowUpRight size={14} />
+                </div>
             </div>
-        </div>
+        </Link>
     );
 };
 

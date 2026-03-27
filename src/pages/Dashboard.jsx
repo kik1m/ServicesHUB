@@ -1,10 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { LayoutGrid, Plus, TrendingUp, Settings, Trash2, Edit3, ExternalLink, Loader2, AlertCircle } from 'lucide-react';
+import { LayoutGrid, Plus, TrendingUp, Settings, Trash2, Edit3, ExternalLink, Loader2, AlertCircle, Zap } from 'lucide-react';
+import SkeletonLoader from '../components/SkeletonLoader';
 import { Link, useNavigate } from 'react-router-dom';
+import { useToast } from '../context/ToastContext';
 import { supabase } from '../lib/supabaseClient';
+import { useAuth } from '../context/AuthContext';
 
 const Dashboard = () => {
     const navigate = useNavigate();
+    const { showToast } = useToast();
+    const { user, loading: authLoading } = useAuth();
     const [isLoading, setIsLoading] = useState(true);
     const [userTools, setUserTools] = useState([]);
     const [profile, setProfile] = useState(null);
@@ -12,14 +17,14 @@ const Dashboard = () => {
 
     useEffect(() => {
         const fetchDashboardData = async () => {
+            if (authLoading) return;
+            if (!user) {
+                navigate('/auth');
+                return;
+            }
+
             setIsLoading(true);
             try {
-                const { data: { user } } = await supabase.auth.getUser();
-                
-                if (!user) {
-                    navigate('/auth');
-                    return;
-                }
 
                 // Fetch Profile for membership/stats
                 const { data: profileData } = await supabase
@@ -50,10 +55,32 @@ const Dashboard = () => {
         fetchDashboardData();
     }, [navigate]);
 
+    const handleDeleteTool = async (id, name) => {
+        if (!window.confirm(`Are you sure you want to delete "${name}"? This action cannot be undone.`)) return;
+        
+        try {
+            const { error } = await supabase.from('tools').delete().eq('id', id);
+            if (error) throw error;
+            setUserTools(prev => prev.filter(t => t.id !== id));
+            showToast('Tool deleted successfully.', 'success');
+        } catch (err) {
+            showToast('Error deleting tool: ' + err.message, 'error');
+        }
+    };
+
     if (isLoading) {
         return (
-            <div className="page-wrapper" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
-                <Loader2 className="animate-spin" size={48} color="var(--primary)" />
+            <div className="dashboard-page" style={{ padding: '120px 5% 60px' }}>
+                <div style={{ marginBottom: '2.5rem', display: 'flex', justifyContent: 'space-between' }}>
+                    <SkeletonLoader type="title" width="300px" />
+                    <SkeletonLoader type="text" width="150px" height="45px" borderRadius="12px" />
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1.5rem', marginBottom: '3rem' }}>
+                    <SkeletonLoader height="140px" borderRadius="24px" />
+                    <SkeletonLoader height="140px" borderRadius="24px" />
+                    <SkeletonLoader height="140px" borderRadius="24px" />
+                </div>
+                <SkeletonLoader height="400px" borderRadius="24px" />
             </div>
         );
     }
@@ -119,7 +146,14 @@ const Dashboard = () => {
                         {userTools.length > 0 ? (
                             userTools.map(tool => (
                                 <tr key={tool.id} style={{ borderBottom: '1px solid var(--border)' }}>
-                                    <td style={{ padding: '1.5rem', fontWeight: '600' }}>{tool.name}</td>
+                                    <td style={{ padding: '1.5rem', fontWeight: '600' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                            <div style={{ width: '32px', height: '32px', background: 'rgba(255,255,255,0.05)', borderRadius: '6px', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid var(--border)' }}>
+                                                {tool.image_url ? <img src={tool.image_url} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <Zap size={14} color="var(--primary)" />}
+                                            </div>
+                                            {tool.name}
+                                        </div>
+                                    </td>
                                     <td style={{ padding: '1.5rem' }}>
                                         <span style={{ 
                                             padding: '4px 10px', borderRadius: '100px', fontSize: '0.75rem',
@@ -145,7 +179,13 @@ const Dashboard = () => {
                                                 <Edit3 size={18} />
                                             </Link>
                                             <Link to={`/tool/${tool.slug}`} title="View" style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}><ExternalLink size={18} /></Link>
-                                            <button title="Delete" style={{ background: 'transparent', border: 'none', color: 'rgba(255, 80, 80, 0.6)', cursor: 'pointer' }}><Trash2 size={18} /></button>
+                                            <button 
+                                                onClick={() => handleDeleteTool(tool.id, tool.name)}
+                                                title="Delete" 
+                                                style={{ background: 'transparent', border: 'none', color: 'rgba(255, 80, 80, 0.6)', cursor: 'pointer' }}
+                                            >
+                                                <Trash2 size={18} />
+                                            </button>
                                         </div>
                                     </td>
                                 </tr>

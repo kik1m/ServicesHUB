@@ -1,25 +1,31 @@
 import React, { useState, useEffect } from 'react';
-import { User, Settings, Heart, MessageSquare, Award, Clock, Star, Edit3, LayoutGrid, LogOut, Loader2 } from 'lucide-react';
+import { User, Settings, Heart, MessageSquare, Award, Clock, Star, Edit3, LayoutGrid, LogOut, Loader2, Globe, Twitter, Linkedin } from 'lucide-react';
+import SkeletonLoader from '../components/SkeletonLoader';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { supabase } from '../lib/supabaseClient';
+import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
 
 const Profile = () => {
     const navigate = useNavigate();
+    const { user, loading: authLoading, signOut } = useAuth();
+    const { showToast } = useToast();
     const [profile, setProfile] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [favorites, setFavorites] = useState([]);
     const [upgrading, setUpgrading] = useState(false);
 
     useEffect(() => {
         const getProfile = async () => {
+            if (authLoading) return;
+            if (!user) {
+                navigate('/auth');
+                return;
+            }
+
             setLoading(true);
             try {
-                const { data: { user } } = await supabase.auth.getUser();
-                
-                if (!user) {
-                    navigate('/auth');
-                    return;
-                }
 
                 let { data, error } = await supabase
                     .from('profiles')
@@ -45,11 +51,29 @@ const Profile = () => {
                     if (insertError) throw insertError;
                     data = newProfile;
                     error = null;
+
+                    // Create Welcome Notification
+                    await supabase.from('notifications').insert([{
+                        user_id: user.id,
+                        title: 'أهلاً بك في ServicesHUB! 🎉',
+                        message: 'شكرًا لانضمامك إلينا. يمكنك الآن استكشاف أفضل الأدوات البرمجية وحفظ مفضلاتك والمزيد.',
+                        type: 'info',
+                        is_unread: true
+                    }]);
                 } else if (error) {
                     throw error;
                 }
 
                 setProfile(data);
+
+                // Fetch Favorites
+                if (user) {
+                    const { data: favs } = await supabase
+                        .from('favorites')
+                        .select('*, tools(*, categories(name))')
+                        .eq('user_id', user.id);
+                    setFavorites(favs || []);
+                }
             } catch (error) {
                 console.error('Error fetching profile:', error);
             } finally {
@@ -61,13 +85,13 @@ const Profile = () => {
     }, [navigate]);
 
     const handleSignOut = async () => {
-        await supabase.auth.signOut();
+        await signOut();
         navigate('/');
     };
 
     const handleUpgrade = async () => {
         if (!profile) {
-            alert('بيانات الملف الشخصي غير مكتملة، يرجى تحديث الصفحة.');
+            showToast('بيانات الملف الشخصي غير مكتملة، يرجى تحديث الصفحة.', 'error');
             return;
         }
 
@@ -76,10 +100,8 @@ const Profile = () => {
             console.log('Initiating upgrade for user:', profile.id);
             const { data: { session } } = await supabase.auth.getSession();
             
-            // Allow calling production API from localhost for testing
-            const apiBase = import.meta.env.DEV ? 'https://services-hub-kohl.vercel.app' : '';
-            
-            const { data } = await axios.post(`${apiBase}/api/create-checkout-session`, {
+            // Use relative path for Stripe API to work in both Local and Production
+            const { data } = await axios.post(`/api/create-checkout-session`, {
                 userId: profile.id,
                 planName: 'Premium',
                 priceAmount: 20
@@ -90,7 +112,7 @@ const Profile = () => {
             }
         } catch (error) {
             console.error('Upgrade Error Detail:', error.response?.data || error.message);
-            alert('فشل بدء عملية الترقية: ' + (error.response?.data?.error || 'يرجى المحاولة لاحقاً'));
+            showToast('فشل بدء عملية الترقية: ' + (error.response?.data?.error || 'يرجى المحاولة لاحقاً'), 'error');
         } finally {
             setUpgrading(false);
         }
@@ -98,8 +120,27 @@ const Profile = () => {
 
     if (loading) {
         return (
-            <div className="page-wrapper" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
-                <Loader2 className="animate-spin" size={48} color="var(--primary)" />
+            <div className="page-wrapper dashboard-wrapper">
+                 <header className="page-header hero-section" style={{ minHeight: '35vh', paddingBottom: '30px' }}>
+                    <div className="hero-content">
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                             <SkeletonLoader type="avatar" />
+                             <SkeletonLoader type="title" width="40%" style={{ marginTop: '1.5rem', marginBottom: '0.5rem' }} />
+                             <SkeletonLoader type="text" width="20%" />
+                        </div>
+                    </div>
+                </header>
+                <section className="main-section profile-content">
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1.5rem', marginBottom: '3rem' }}>
+                        <SkeletonLoader height="120px" borderRadius="16px" />
+                        <SkeletonLoader height="120px" borderRadius="16px" />
+                        <SkeletonLoader height="120px" borderRadius="16px" />
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '2rem' }}>
+                        <SkeletonLoader height="400px" borderRadius="24px" />
+                        <SkeletonLoader height="400px" borderRadius="24px" />
+                    </div>
+                </section>
             </div>
         );
     }
@@ -145,9 +186,9 @@ const Profile = () => {
                     marginBottom: '3rem'
                 }}>
                     <div className="glass-card stat-card-premium" style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', padding: '2rem' }}>
-                        <div className="cat-icon-wrapper" style={{ padding: '1rem', background: 'rgba(255,255,255,0.03)', borderRadius: '14px' }}><Heart size={24} /></div>
+                        <div className="cat-icon-wrapper" style={{ padding: '1rem', background: 'rgba(255,255,255,0.03)', borderRadius: '14px' }}><Heart size={24} color={favorites.length > 0 ? '#ff4757' : 'inherit'} /></div>
                         <div>
-                            <h4 style={{ fontSize: '1.8rem', fontWeight: '900' }}>--</h4>
+                            <h4 style={{ fontSize: '1.8rem', fontWeight: '900' }}>{favorites.length}</h4>
                             <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Saved Tools</p>
                         </div>
                     </div>
@@ -170,11 +211,74 @@ const Profile = () => {
                 <div className="profile-layout-secondary" style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '2rem' }}>
                     <div className="activity-feed">
                         <div className="section-header-row" style={{ marginBottom: '1.5rem' }}>
+                            <h3 style={{ fontSize: '1.5rem', fontWeight: '800' }}>My <span className="gradient-text">Favorites</span></h3>
+                        </div>
+                        
+                        {favorites.length > 0 ? (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '3rem' }}>
+                                {favorites.map(fav => fav.tools && (
+                                    <Link key={fav.id} to={`/tool/${fav.tools?.slug || fav.id}`} className="glass-card" style={{ 
+                                        padding: '1.5rem', 
+                                        display: 'flex', 
+                                        alignItems: 'center', 
+                                        gap: '1.5rem', 
+                                        textDecoration: 'none', 
+                                        color: 'inherit',
+                                        transition: '0.2s',
+                                        border: '1px solid var(--border)'
+                                    }}>
+                                        <div style={{ width: '50px', height: '50px', borderRadius: '12px', background: 'rgba(255,255,255,0.03)', overflow: 'hidden', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                            {fav.tools?.image_url ? (
+                                                <img src={fav.tools.image_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                            ) : (
+                                                <LayoutGrid size={24} color="var(--primary)" />
+                                            )}
+                                        </div>
+                                        <div style={{ flex: 1 }}>
+                                            <h4 style={{ margin: 0, fontSize: '1.1rem' }}>{fav.tools?.name || 'Unknown Tool'}</h4>
+                                            <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-muted)' }}>{fav.tools?.categories?.name || 'Misc'}</p>
+                                        </div>
+                                        <Star size={16} fill="#ffcc00" color="#ffcc00" />
+                                    </Link>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="glass-card" style={{ padding: '3rem', textAlign: 'center', marginBottom: '3rem', color: 'var(--text-muted)' }}>
+                                <Heart size={40} style={{ opacity: 0.2, marginBottom: '1rem' }} />
+                                <p>You haven't saved any tools yet.</p>
+                                <Link to="/tools" className="btn-text" style={{ color: 'var(--primary)' }}>Explore Tools</Link>
+                            </div>
+                        )}
+
+                        <div className="section-header-row" style={{ marginBottom: '1.5rem' }}>
                             <h3 style={{ fontSize: '1.5rem', fontWeight: '800' }}>Account <span className="gradient-text">Bio</span></h3>
                         </div>
-                        <div className="glass-card activity-list" style={{ padding: '2rem', fontSize: '1.1rem', color: 'var(--text-muted)', lineHeight: '1.7' }}>
+                        <div className="glass-card activity-list" style={{ padding: '2rem', fontSize: '1.1rem', color: 'var(--text-muted)', lineHeight: '1.7', marginBottom: '2rem' }}>
                             {profile?.bio || "No biography provided yet. Tell the community about yourself!"}
                         </div>
+
+                        {(profile?.website_url || profile?.twitter_url || profile?.linkedin_url) && (
+                            <div className="social-presence">
+                                <h3 style={{ fontSize: '1.25rem', fontWeight: '800', marginBottom: '1.5rem' }}>Social <span className="gradient-text">Presence</span></h3>
+                                <div style={{ display: 'flex', gap: '1rem' }}>
+                                    {profile?.website_url && (
+                                        <a href={profile.website_url} target="_blank" rel="noopener noreferrer" className="glass-card" style={{ padding: '0.8rem 1.5rem', display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none', color: 'white', border: '1px solid var(--border)' }}>
+                                            <Globe size={18} color="var(--primary)" /> Website
+                                        </a>
+                                    )}
+                                    {profile?.twitter_url && (
+                                        <a href={profile.twitter_url} target="_blank" rel="noopener noreferrer" className="glass-card" style={{ padding: '0.8rem 1.5rem', display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none', color: 'white', border: '1px solid var(--border)' }}>
+                                            <Twitter size={18} color="#1DA1F2" /> Twitter
+                                        </a>
+                                    )}
+                                    {profile?.linkedin_url && (
+                                        <a href={profile.linkedin_url} target="_blank" rel="noopener noreferrer" className="glass-card" style={{ padding: '0.8rem 1.5rem', display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none', color: 'white', border: '1px solid var(--border)' }}>
+                                            <Linkedin size={18} color="#0077B5" /> LinkedIn
+                                        </a>
+                                    )}
+                                </div>
+                            </div>
+                        )}
                     </div>
 
                     <div className="profile-sidebar">

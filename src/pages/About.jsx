@@ -1,7 +1,35 @@
-import React from 'react';
 import { Rocket, Target, Shield, Users, ArrowRight, CheckCircle2 } from 'lucide-react';
+import SkeletonLoader from '../components/SkeletonLoader';
+import { useState, useEffect } from 'react';
 
 const About = () => {
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const timer = setTimeout(() => setLoading(false), 600);
+        return () => clearTimeout(timer);
+    }, []);
+
+    if (loading) {
+        return (
+            <div className="page-wrapper">
+                <header className="page-header hero-section" style={{ minHeight: '40vh', paddingBottom: '40px' }}>
+                    <div className="hero-content">
+                        <SkeletonLoader type="text" width="100px" style={{ margin: '0 auto 1rem' }} />
+                        <SkeletonLoader type="title" width="60%" style={{ margin: '0 auto' }} />
+                    </div>
+                </header>
+                <section className="main-section" style={{ maxWidth: '1000px', margin: '0 auto' }}>
+                    <SkeletonLoader height="300px" borderRadius="24px" style={{ marginBottom: '2rem' }} />
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
+                        <SkeletonLoader height="200px" borderRadius="24px" />
+                        <SkeletonLoader height="200px" borderRadius="24px" />
+                    </div>
+                </section>
+            </div>
+        );
+    }
+
     return (
         <div className="page-wrapper">
             <header className="page-header hero-section" style={{ minHeight: '40vh', paddingBottom: '40px' }}>

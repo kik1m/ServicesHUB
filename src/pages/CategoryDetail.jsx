@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabaseClient';
 import { getIcon } from '../utils/iconMap';
-import { ArrowLeft, Star, ArrowRight, Sparkles, LayoutGrid, Loader2 } from 'lucide-react';
+import { ArrowLeft, Star, ArrowRight, Sparkles, LayoutGrid } from 'lucide-react';
+import SkeletonLoader from '../components/SkeletonLoader';
 
 const CategoryDetail = () => {
     const { id: slug } = useParams();
@@ -26,6 +27,11 @@ const CategoryDetail = () => {
                 
                 if (catError) throw catError;
                 setCategory(catData);
+                
+                // SEO
+                if (catData) {
+                    document.title = `Best ${catData.name} Tools | ServicesHUB`;
+                }
 
                 // Fetch Tools
                 if (catData) {
@@ -48,8 +54,21 @@ const CategoryDetail = () => {
 
     if (loading) {
         return (
-            <div className="page-wrapper" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
-                <Loader2 className="animate-spin" size={48} color="var(--primary)" />
+            <div className="page-wrapper">
+                <header className="page-header hero-section" style={{ minHeight: '35vh', paddingBottom: '40px' }}>
+                    <div className="hero-content">
+                        <SkeletonLoader type="text" width="100px" style={{ margin: '0 auto 1.5rem' }} />
+                        <SkeletonLoader type="title" width="60%" style={{ margin: '0 auto 1.5rem' }} />
+                        <SkeletonLoader type="text" width="40%" style={{ margin: '0 auto' }} />
+                    </div>
+                </header>
+                <section className="main-section">
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '1.5rem' }}>
+                        {[1,2,3,4,5,6].map(i => (
+                            <SkeletonLoader key={i} type="card" />
+                        ))}
+                    </div>
+                </section>
             </div>
         );
     }
@@ -136,15 +155,21 @@ const CategoryDetail = () => {
                             <div key={tool.id} className="glass-card tool-card-premium">
                                 <div className="tool-card-image" style={{ 
                                     height: '160px', 
-                                    background: 'var(--gradient)', 
+                                    background: 'rgba(255,255,255,0.03)', 
                                     borderRadius: '16px',
                                     marginBottom: '1.5rem',
                                     display: 'flex',
                                     alignItems: 'center',
                                     justifyContent: 'center',
-                                    color: 'white'
+                                    color: 'white',
+                                    overflow: 'hidden',
+                                    border: '1px solid var(--border)'
                                 }}>
-                                     {getIcon(tool.icon_name || 'Zap', 50)}
+                                     {tool.image_url ? (
+                                         <img src={tool.image_url} alt={tool.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                     ) : (
+                                         getIcon(tool.icon_name || 'Zap', 50)
+                                     )}
                                 </div>
                                 <div className="tool-card-meta" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
                                     <span className="tool-tag">{category.name}</span>

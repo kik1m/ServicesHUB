@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom';
 import { supabase } from '../lib/supabaseClient';
 import ToolCard from '../components/ToolCard';
 import { Search as SearchIcon, Filter, SlidersHorizontal, ChevronDown, Check, Loader2 } from 'lucide-react';
+import SkeletonLoader from '../components/SkeletonLoader';
 
 const Search = () => {
     const [isLoading, setIsLoading] = useState(true);
@@ -159,8 +160,10 @@ const Search = () => {
                         </div>
 
                         {isLoading ? (
-                            <div style={{ display: 'flex', justifyContent: 'center', padding: '5rem' }}>
-                                <Loader2 className="animate-spin" size={48} color="var(--primary)" />
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '1.5rem' }}>
+                                {[1,2,3,4,5,6].map(i => (
+                                    <SkeletonLoader key={i} type="card" />
+                                ))}
                             </div>
                         ) : results.length > 0 ? (
                             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '1.5rem' }}>

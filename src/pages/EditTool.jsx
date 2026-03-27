@@ -1,11 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { supabase } from '../lib/supabaseClient';
+import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
+import { sendNotification } from '../utils/notifications';
 import { Save, ArrowLeft, Upload, Globe, MessageSquare, Tag, AlignLeft, Loader2, AlertCircle } from 'lucide-react';
+import SkeletonLoader from '../components/SkeletonLoader';
 
 const EditTool = () => {
     const { id } = useParams();
     const navigate = useNavigate();
+    const { user, loading: authLoading } = useAuth();
+    const { showToast } = useToast();
     const [formData, setFormData] = useState(null);
     const [categories, setCategories] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -14,13 +20,14 @@ const EditTool = () => {
 
     useEffect(() => {
         const fetchData = async () => {
+            if (authLoading) return;
+            if (!user) {
+                navigate('/auth');
+                return;
+            }
+
             setLoading(true);
             try {
-                const { data: { user } } = await supabase.auth.getUser();
-                if (!user) {
-                    navigate('/auth');
-                    return;
-                }
 
                 // Fetch Categories
                 const { data: catData } = await supabase.from('categories').select('*');
@@ -48,7 +55,7 @@ const EditTool = () => {
                     short_description: tool.short_description,
                     description: tool.description,
                     category_id: tool.category_id,
-                    website_url: tool.website_url,
+                    url: tool.url,
                     pricing_type: tool.pricing_type,
                     image_url: tool.image_url
                 });
@@ -77,7 +84,17 @@ const EditTool = () => {
                 .eq('id', id);
 
             if (updateError) throw updateError;
-            navigate('/success');
+            
+            // Persistent Notification
+            await sendNotification(
+                user.id,
+                'Update Received',
+                `Your changes to "${formData.name}" have been saved and are under review.`,
+                'info'
+            );
+            
+            showToast('Changes saved and under review! 🎉', 'success');
+            navigate('/dashboard');
         } catch (err) {
             console.error('Update tool error:', err);
             setError(err.message);
@@ -86,7 +103,22 @@ const EditTool = () => {
         }
     };
 
-    if (loading) return <div style={{ padding: '120px 5%', textAlign: 'center' }}><Loader2 className="animate-spin" size={48} color="var(--primary)" /></div>;
+    if (loading) {
+        return (
+            <div className="edit-tool-page" style={{ padding: '120px 5% 60px' }}>
+                <div className="container" style={{ maxWidth: '800px', margin: '0 auto' }}>
+                    <div style={{ display: 'flex', gap: '1rem', marginBottom: '2.5rem' }}>
+                        <SkeletonLoader circle width="48px" height="48px" />
+                        <div>
+                            <SkeletonLoader type="title" width="200px" />
+                            <SkeletonLoader type="text" width="150px" />
+                        </div>
+                    </div>
+                    <SkeletonLoader height="500px" borderRadius="24px" />
+                </div>
+            </div>
+        );
+    }
 
     if (error) return (
         <div style={{ padding: '120px 5%', textAlign: 'center' }}>
@@ -132,8 +164,8 @@ const EditTool = () => {
                                 type="url" 
                                 className="nav-search-wrapper" 
                                 style={{ width: '100%', padding: '15px', color: 'white', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)' }}
-                                value={formData.website_url}
-                                onChange={(e) => setFormData({...formData, website_url: e.target.value})}
+                                value={formData.url}
+                                onChange={(e) => setFormData({...formData, url: e.target.value})}
                                 required
                             />
                         </div>

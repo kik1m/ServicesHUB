@@ -3,10 +3,14 @@ import { Target, Zap, TrendingUp, Sparkles, CheckCircle2, ShieldCheck, ArrowRigh
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabaseClient';
 import axios from 'axios';
+import { useToast } from '../context/ToastContext';
+import SkeletonLoader from '../components/SkeletonLoader';
+import CustomSelect from '../components/CustomSelect';
 
 const Promote = () => {
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
+    const { showToast } = useToast();
     const toolId = searchParams.get('toolId');
     const [toolName, setToolName] = useState('');
     const [userTools, setUserTools] = useState([]);
@@ -79,7 +83,7 @@ const Promote = () => {
 
     const handlePromote = async (plan) => {
         if (!selectedToolId) {
-            alert('Please select a tool to promote first.');
+            showToast('Please select a tool to promote first.', 'info');
             return;
         }
 
@@ -91,8 +95,8 @@ const Promote = () => {
                 return;
             }
 
-            const apiBase = import.meta.env.DEV ? 'https://services-hub-kohl.vercel.app' : '';
-            const { data } = await axios.post(`${apiBase}/api/create-checkout-session`, {
+            // Use relative path for Stripe API to work in both Local and Production
+            const { data } = await axios.post(`/api/create-checkout-session`, {
                 userId: user.id,
                 toolId: selectedToolId,
                 planName: plan.name,
@@ -105,7 +109,7 @@ const Promote = () => {
             }
         } catch (err) {
             console.error('Promotion session error:', err);
-            alert('Failed to initiate checkout. Please try again.');
+            showToast('Failed to initiate checkout. Please try again.', 'error');
         } finally {
             setLoadingPlan(null);
         }
@@ -137,18 +141,16 @@ const Promote = () => {
                     ) : (
                         <div style={{ maxWidth: '400px' }}>
                             {loadingTools ? (
-                                <Loader2 className="animate-spin" size={24} />
+                                <SkeletonLoader height="50px" width="100%" borderRadius="12px" />
                             ) : userTools.length > 0 ? (
-                                <select 
-                                    value={selectedToolId} 
-                                    onChange={(e) => setSelectedToolId(e.target.value)}
-                                    style={{ width: '100%', padding: '1rem', borderRadius: '12px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'white', fontSize: '1rem', outline: 'none' }}
-                                >
-                                    <option value="">-- Choose one of your tools --</option>
-                                    {userTools.map(t => (
-                                        <option key={t.id} value={t.id}>{t.name}</option>
-                                    ))}
-                                </select>
+                                <CustomSelect 
+                                    options={userTools}
+                                    value={selectedToolId}
+                                    onChange={(val) => setSelectedToolId(val)}
+                                    placeholder="-- Choose one of your tools --"
+                                    icon={Zap}
+                                    style={{ marginBottom: '0' }}
+                                />
                             ) : (
                                 <p style={{ color: '#ff4757', fontSize: '0.9rem' }}>
                                     You don't have any approved tools yet. <Link to="/submit" style={{ color: 'var(--primary)' }}>Submit a tool first</Link>.

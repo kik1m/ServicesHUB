@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Mail, Lock, User, ArrowRight, Github, Chrome, Sparkles, Loader2 } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
 import { useNavigate } from 'react-router-dom';
+import { useToast } from '../context/ToastContext';
 
 const Auth = () => {
     const [isLogin, setIsLogin] = useState(true);
@@ -11,6 +12,7 @@ const Auth = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const navigate = useNavigate();
+    const { showToast } = useToast();
 
     const handleAuth = async (e) => {
         e.preventDefault();
@@ -42,7 +44,7 @@ const Auth = () => {
                     if (profileError) console.error('Error creating profile:', profileError);
                 }
                 
-                alert('Success! Please check your email for confirmation.');
+                showToast('Success! Please check your email for confirmation.', 'success');
                 setIsLogin(true);
             }
         } catch (err) {

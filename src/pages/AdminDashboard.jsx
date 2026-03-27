@@ -1,10 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabaseClient';
-import { Users, Zap, CheckCircle, Clock, ArrowUpRight, Loader2, AlertCircle, FileText, PlusCircle, Trash2, LayoutGrid } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+import { Users, Zap, CheckCircle, Clock, ArrowUpRight, Loader2, AlertCircle, FileText, PlusCircle, Trash2, LayoutGrid, Image as ImageIcon, X } from 'lucide-react';
+import SkeletonLoader from '../components/SkeletonLoader';
+import { useToast } from '../context/ToastContext';
+import { sendNotification } from '../utils/notifications';
 import { useNavigate, Link } from 'react-router-dom';
+import CustomSelect from '../components/CustomSelect';
 
 const AdminDashboard = () => {
     const navigate = useNavigate();
+    const { user, loading: authLoading } = useAuth();
+    const { showToast } = useToast();
     const [loading, setLoading] = useState(true);
     const [pendingTools, setPendingTools] = useState([]);
     const [featuredTools, setFeaturedTools] = useState([]);
@@ -21,16 +28,45 @@ const AdminDashboard = () => {
     const [newTool, setNewTool] = useState({ name: '', description: '', url: '', category_id: '', pricing_type: 'Free', image_url: '' });
     const [toolCategories, setToolCategories] = useState([]);
     const [submitting, setSubmitting] = useState(false);
+    const [uploading, setUploading] = useState(false);
+
+    const handleFileUpload = async (file, bucket = 'tool-images', folder = 'tool-thumbnails') => {
+        setUploading(true);
+        try {
+            const fileExt = file.name.split('.').pop();
+            const fileName = `${Math.random()}.${fileExt}`;
+            const filePath = `${folder}/${fileName}`;
+
+            const { error: uploadError } = await supabase.storage
+                .from(bucket)
+                .upload(filePath, file);
+
+            if (uploadError) throw uploadError;
+
+            const { data: { publicUrl } } = supabase.storage
+                .from(bucket)
+                .getPublicUrl(filePath);
+
+            return publicUrl;
+        } catch (err) {
+            console.error('Upload error:', err);
+            showToast('Upload failed: ' + err.message, 'error');
+            return null;
+        } finally {
+            setUploading(false);
+        }
+    };
 
     useEffect(() => {
         const checkAdminAndFetchData = async () => {
+            if (authLoading) return;
+            if (!user) {
+                navigate('/auth');
+                return;
+            }
+
             setLoading(true);
             try {
-                const { data: { user } } = await supabase.auth.getUser();
-                if (!user) {
-                    navigate('/auth');
-                    return;
-                }
 
                 const { data: profile } = await supabase
                     .from('profiles')
@@ -99,34 +135,52 @@ const AdminDashboard = () => {
         checkAdminAndFetchData();
     }, [navigate]);
 
-    const handleApprove = async (id) => {
+    const handleApprove = async (tool) => {
         try {
             const { error } = await supabase
                 .from('tools')
                 .update({ is_approved: true })
-                .eq('id', id);
+                .eq('id', tool.id);
             
             if (error) throw error;
-            setPendingTools(prev => prev.filter(t => t.id !== id));
-            alert('Tool approved!');
+
+            // Persistent Notification to tool owner
+            await sendNotification(
+                tool.user_id,
+                'Tool Approved! 🎉',
+                `Great news! Your tool "${tool.name}" has been approved and is now live.`,
+                'approval'
+            );
+
+            setPendingTools(prev => prev.filter(t => t.id !== tool.id));
+            showToast('Tool approved and user notified! 🎉', 'success');
         } catch (err) {
-            alert('Error approving tool: ' + err.message);
+            showToast('Error approving tool: ' + err.message, 'error');
         }
     };
 
-    const handleReject = async (id) => {
-        if (!window.confirm('Are you sure you want to reject and delete this tool?')) return;
+    const handleReject = async (tool) => {
+        if (!window.confirm(`Are you sure you want to reject and delete "${tool.name}"?`)) return;
         try {
             const { error } = await supabase
                 .from('tools')
                 .delete()
-                .eq('id', id);
+                .eq('id', tool.id);
             
             if (error) throw error;
-            setPendingTools(prev => prev.filter(t => t.id !== id));
-            alert('Tool rejected and removed.');
+
+            // Persistent Notification to tool owner
+            await sendNotification(
+                tool.user_id,
+                'Tool Submission Update',
+                `We're sorry, but your submission "${tool.name}" was not approved at this time.`,
+                'rejection'
+            );
+
+            setPendingTools(prev => prev.filter(t => t.id !== tool.id));
+            showToast('Tool rejected and user notified.', 'info');
         } catch (err) {
-            alert('Error rejecting tool: ' + err.message);
+            showToast('Error rejecting tool: ' + err.message, 'error');
         }
     };
 
@@ -140,8 +194,9 @@ const AdminDashboard = () => {
             
             if (error) throw error;
             setFeaturedTools(prev => prev.filter(t => t.id !== id));
+            showToast('Featured status removed.', 'success');
         } catch (err) {
-            alert('Error removing feature: ' + err.message);
+            showToast('Error removing feature: ' + err.message, 'error');
         }
     };
 
@@ -153,9 +208,9 @@ const AdminDashboard = () => {
             if (error) throw error;
             setBlogPosts([data[0], ...blogPosts]);
             setNewPost({ title: '', excerpt: '', content: '', category: '', image_url: '' });
-            alert('Blog post published!');
+            showToast('Blog post published! 🎉', 'success');
         } catch (err) {
-            alert('Error creating blog: ' + err.message);
+            showToast('Error creating blog: ' + err.message, 'error');
         } finally {
             setSubmitting(false);
         }
@@ -167,8 +222,9 @@ const AdminDashboard = () => {
             const { error } = await supabase.from('blog_posts').delete().eq('id', id);
             if (error) throw error;
             setBlogPosts(prev => prev.filter(p => p.id !== id));
+            showToast('Article deleted.', 'info');
         } catch (err) {
-            alert('Error deleting: ' + err.message);
+            showToast('Error deleting: ' + err.message, 'error');
         }
     };
 
@@ -184,11 +240,11 @@ const AdminDashboard = () => {
             }]).select();
             
             if (error) throw error;
-            alert('Tool added and approved successfully!');
+            showToast('Tool added and approved successfully! 🎉', 'success');
             setNewTool({ name: '', description: '', url: '', category_id: '', pricing_type: 'Free', image_url: '' });
             // Update stats
         } catch (err) {
-            alert('Error adding tool: ' + err.message);
+            showToast('Error adding tool: ' + err.message, 'error');
         } finally {
             setSubmitting(false);
         }
@@ -202,9 +258,9 @@ const AdminDashboard = () => {
             if (error) throw error;
             setToolCategories([...toolCategories, data[0]]);
             setNewCategory({ name: '', slug: '', icon: '' });
-            alert('Category added!');
+            showToast('Category added! 🎉', 'success');
         } catch (err) {
-            alert('Error: ' + err.message);
+            showToast('Error: ' + err.message, 'error');
         } finally {
             setSubmitting(false);
         }
@@ -216,15 +272,31 @@ const AdminDashboard = () => {
             const { error } = await supabase.from('categories').delete().eq('id', id);
             if (error) throw error;
             setToolCategories(prev => prev.filter(c => c.id !== id));
+            showToast('Category deleted.', 'info');
         } catch (err) {
-            alert('Error: ' + err.message);
+            showToast('Error: ' + err.message, 'error');
         }
     };
 
     if (loading) {
         return (
-            <div className="page-wrapper" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
-                <Loader2 className="animate-spin" size={48} color="var(--primary)" />
+            <div className="admin-page" style={{ padding: '120px 5% 60px' }}>
+                <div style={{ marginBottom: '3rem' }}>
+                    <SkeletonLoader type="title" width="400px" />
+                    <SkeletonLoader type="text" width="300px" />
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.5rem', marginBottom: '3rem' }}>
+                    <SkeletonLoader height="100px" borderRadius="16px" />
+                    <SkeletonLoader height="100px" borderRadius="16px" />
+                    <SkeletonLoader height="100px" borderRadius="16px" />
+                    <SkeletonLoader height="100px" borderRadius="16px" />
+                </div>
+                <div style={{ display: 'flex', gap: '1rem', marginBottom: '2.5rem' }}>
+                    <SkeletonLoader width="150px" height="40px" borderRadius="10px" />
+                    <SkeletonLoader width="150px" height="40px" borderRadius="10px" />
+                    <SkeletonLoader width="150px" height="40px" borderRadius="10px" />
+                </div>
+                <SkeletonLoader height="500px" borderRadius="24px" />
             </div>
         );
     }
@@ -302,15 +374,17 @@ const AdminDashboard = () => {
                                             border: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center'
                                         }}>
                                             <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
-                                                <div style={{ width: '45px', height: '45px', background: 'var(--gradient)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{tool.name.charAt(0)}</div>
+                                                <div style={{ width: '45px', height: '45px', background: 'rgba(255,255,255,0.05)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', border: '1px solid var(--border)' }}>
+                                                    {tool.image_url ? <img src={tool.image_url} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : tool.name.charAt(0)}
+                                                </div>
                                                 <div>
                                                     <h4 style={{ fontSize: '1rem', fontWeight: '700' }}>{tool.name}</h4>
                                                     <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{tool.categories?.name} • {new Date(tool.created_at).toLocaleDateString()}</p>
                                                 </div>
                                             </div>
                                             <div style={{ display: 'flex', gap: '10px' }}>
-                                                <button onClick={() => handleApprove(tool.id)} className="btn-primary-slim" style={{ background: '#00ff88', color: '#000', fontWeight: '800' }}>Approve</button>
-                                                <button onClick={() => handleReject(tool.id)} style={{ background: 'rgba(255, 80, 80, 0.1)', color: '#ff5050' }} className="btn-primary-slim">Reject</button>
+                                                <button onClick={() => handleApprove(tool)} className="btn-primary-slim" style={{ background: '#00ff88', color: '#000', fontWeight: '800' }}>Approve</button>
+                                                <button onClick={() => handleReject(tool)} style={{ background: 'rgba(255, 80, 80, 0.1)', color: '#ff5050' }} className="btn-primary-slim">Reject</button>
                                             </div>
                                         </div>
                                     ))}
@@ -340,14 +414,36 @@ const AdminDashboard = () => {
                                     <h3 style={{ fontSize: '1.1rem', fontWeight: '800', marginBottom: '1.5rem' }}>Create New Article</h3>
                                     <form onSubmit={handleCreateBlogPost} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                                         <input type="text" placeholder="Title" required value={newPost.title} onChange={e => setNewPost({...newPost, title: e.target.value})} className="nav-search-wrapper" style={{ width: '100%', padding: '12px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'white' }} />
-                                        <select value={newPost.category} onChange={e => setNewPost({...newPost, category: e.target.value})} required className="nav-search-wrapper" style={{ width: '100%', padding: '12px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'white' }}>
-                                            <option value="">Select Category</option>
-                                            {blogCategories.map(c => <option key={c.id} value={c.name}>{c.name}</option>)}
-                                        </select>
-                                        <input type="text" placeholder="Image URL (Unsplash)" value={newPost.image_url} onChange={e => setNewPost({...newPost, image_url: e.target.value})} className="nav-search-wrapper" style={{ width: '100%', padding: '12px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'white' }} />
+                                        
+                                        <CustomSelect 
+                                            options={blogCategories}
+                                            value={newPost.category}
+                                            onChange={(val) => setNewPost({...newPost, category: val})}
+                                            placeholder="Select Blog Category"
+                                            style={{ marginBottom: '0' }}
+                                        />
+
+                                        <div className="file-upload-wrapper" style={{ padding: '1rem' }}>
+                                            {newPost.image_url ? (
+                                                <div className="preview-img-container" style={{ height: '120px' }}>
+                                                    <img src={newPost.image_url} alt="Preview" style={{ height: '100%', objectFit: 'cover' }} />
+                                                    <button type="button" className="remove-upload-btn" onClick={() => setNewPost({...newPost, image_url: ''})}><X size={14} /></button>
+                                                </div>
+                                            ) : (
+                                                <label className="file-upload-label" style={{ padding: '1rem', minHeight: '100px' }}>
+                                                    <input type="file" accept="image/*" onChange={async (e) => {
+                                                        const url = await handleFileUpload(e.target.files[0], 'tool-images', 'blog-images');
+                                                        if (url) setNewPost({...newPost, image_url: url});
+                                                    }} style={{ display: 'none' }} />
+                                                    <ImageIcon size={20} color="var(--primary)" />
+                                                    <span style={{ fontSize: '0.8rem' }}>Upload Header Image</span>
+                                                </label>
+                                            )}
+                                        </div>
+
                                         <textarea placeholder="Short Excerpt..." rows="3" value={newPost.excerpt} onChange={e => setNewPost({...newPost, excerpt: e.target.value})} className="nav-search-wrapper" style={{ width: '100%', padding: '12px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'white' }}></textarea>
                                         <textarea placeholder="Article Content (HTML/Text)..." rows="6" value={newPost.content} onChange={e => setNewPost({...newPost, content: e.target.value})} className="nav-search-wrapper" style={{ width: '100%', padding: '12px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'white' }}></textarea>
-                                        <button type="submit" disabled={submitting} className="btn-primary" style={{ width: '100%' }}>{submitting ? <Loader2 className="animate-spin" size={20} /> : 'Publish Article'}</button>
+                                        <button type="submit" disabled={submitting || uploading} className="btn-primary" style={{ width: '100%' }}>{(submitting || uploading) ? <Loader2 className="animate-spin" size={20} /> : 'Publish Article'}</button>
                                     </form>
                                 </div>
                                 <div>
@@ -370,22 +466,51 @@ const AdminDashboard = () => {
                         {activeTab === 'add-tool' && (
                             <div style={{ maxWidth: '600px', margin: '0 auto' }}>
                                 <h2 style={{ fontSize: '1.25rem', fontWeight: '700', marginBottom: '2rem' }}>Direct Tool Addition</h2>
-                                <form onSubmit={handleDirectAddTool} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                                    <input type="text" placeholder="Tool Name" required value={newTool.name} onChange={e => setNewTool({...newTool, name: e.target.value})} className="nav-search-wrapper" style={{ width: '100%', padding: '12px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'white' }} />
-                                    <input type="text" placeholder="Tool URL" required value={newTool.url} onChange={e => setNewTool({...newTool, url: e.target.value})} className="nav-search-wrapper" style={{ width: '100%', padding: '12px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'white' }} />
-                                    <select value={newTool.pricing_type} onChange={e => setNewTool({...newTool, pricing_type: e.target.value})} className="nav-search-wrapper" style={{ width: '100%', padding: '12px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'white' }}>
-                                        <option value="Free">Free</option>
-                                        <option value="Paid">Paid</option>
-                                        <option value="Freemium">Freemium</option>
-                                    </select>
-                                    <select value={newTool.category_id} onChange={e => setNewTool({...newTool, category_id: e.target.value})} required className="nav-search-wrapper" style={{ width: '100%', padding: '12px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'white' }}>
-                                        <option value="">Select Category</option>
-                                        {toolCategories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                                    </select>
-                                    <input type="text" placeholder="Image/Icon URL" value={newTool.image_url} onChange={e => setNewTool({...newTool, image_url: e.target.value})} className="nav-search-wrapper" style={{ gridColumn: 'span 2', width: '100%', padding: '12px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'white' }} />
-                                    <textarea placeholder="Tool Description..." rows="4" value={newTool.description} onChange={e => setNewTool({...newTool, description: e.target.value})} className="nav-search-wrapper" style={{ gridColumn: 'span 2', width: '100%', padding: '12px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'white' }}></textarea>
-                                    <button type="submit" disabled={submitting} className="btn-primary" style={{ gridColumn: 'span 2', marginTop: '1rem' }}>{submitting ? <Loader2 className="animate-spin" size={20} /> : 'Add Approved Tool'}</button>
-                                </form>
+                                    <form onSubmit={handleDirectAddTool} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                                        <input type="text" placeholder="Tool Name" required value={newTool.name} onChange={e => setNewTool({...newTool, name: e.target.value})} className="nav-search-wrapper" style={{ width: '100%', padding: '12px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'white' }} />
+                                        <input type="text" placeholder="Tool URL" required value={newTool.url} onChange={e => setNewTool({...newTool, url: e.target.value})} className="nav-search-wrapper" style={{ width: '100%', padding: '12px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'white' }} />
+                                        
+                                        <CustomSelect 
+                                            options={[
+                                                { label: 'Free', value: 'Free' },
+                                                { label: 'Paid', value: 'Paid' },
+                                                { label: 'Freemium', value: 'Freemium' }
+                                            ]}
+                                            value={newTool.pricing_type}
+                                            onChange={(val) => setNewTool({...newTool, pricing_type: val})}
+                                            placeholder="Pricing"
+                                            style={{ marginBottom: '0' }}
+                                        />
+
+                                        <CustomSelect 
+                                            options={toolCategories}
+                                            value={newTool.category_id}
+                                            onChange={(val) => setNewTool({...newTool, category_id: val})}
+                                            placeholder="Select Category"
+                                            style={{ marginBottom: '0' }}
+                                        />
+
+                                        <div className="file-upload-wrapper" style={{ gridColumn: 'span 2', padding: '1rem' }}>
+                                            {newTool.image_url ? (
+                                                <div className="preview-img-container" style={{ height: '80px', width: '80px' }}>
+                                                    <img src={newTool.image_url} alt="Preview" />
+                                                    <button type="button" className="remove-upload-btn" onClick={() => setNewTool({...newTool, image_url: ''})}><X size={14} /></button>
+                                                </div>
+                                            ) : (
+                                                <label className="file-upload-label" style={{ padding: '0.8rem', minHeight: '60px' }}>
+                                                    <input type="file" accept="image/*" onChange={async (e) => {
+                                                        const url = await handleFileUpload(e.target.files[0]);
+                                                        if (url) setNewTool({...newTool, image_url: url});
+                                                    }} style={{ display: 'none' }} />
+                                                    <ImageIcon size={18} color="var(--primary)" />
+                                                    <span style={{ fontSize: '0.8rem' }}>Upload Tool Thumbnail</span>
+                                                </label>
+                                            )}
+                                        </div>
+
+                                        <textarea placeholder="Tool Description..." rows="4" value={newTool.description} onChange={e => setNewTool({...newTool, description: e.target.value})} className="nav-search-wrapper" style={{ gridColumn: 'span 2', width: '100%', padding: '12px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'white' }}></textarea>
+                                        <button type="submit" disabled={submitting || uploading} className="btn-primary" style={{ gridColumn: 'span 2', marginTop: '1rem' }}>{(submitting || uploading) ? <Loader2 className="animate-spin" size={20} /> : 'Add Approved Tool'}</button>
+                                    </form>
                             </div>
                         )}
 

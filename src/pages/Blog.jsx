@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Search, Calendar, User, ArrowRight, Tag, BookOpen, Loader2 } from 'lucide-react';
+import SkeletonLoader from '../components/SkeletonLoader';
 import { supabase } from '../lib/supabaseClient';
 
 const Blog = () => {
@@ -14,6 +15,21 @@ const Blog = () => {
         const fetchInitialData = async () => {
             const { data: catData } = await supabase.from('blog_categories').select('name');
             if (catData) setCategories(['All', ...catData.map(c => c.name)]);
+            
+            // SEO
+            document.title = "ServicesHUB Magazine | AI & SaaS Insights";
+            const updateMeta = (name, content, attr = 'name') => {
+                let element = document.querySelector(`meta[${attr}="${name}"]`);
+                if (!element) {
+                    element = document.createElement('meta');
+                    element.setAttribute(attr, name);
+                    document.head.appendChild(element);
+                }
+                element.setAttribute('content', content);
+            };
+            updateMeta('description', 'Expert guides, industry news, and SaaS growth strategies for the AI revolution.');
+            updateMeta('og:title', 'ServicesHUB Magazine | AI & SaaS Insights', 'property');
+            updateMeta('og:description', 'Stay ahead of the curve with our expert analysis and latest trends in the world of AI tools.', 'property');
         };
         fetchInitialData();
     }, []);
@@ -101,8 +117,14 @@ const Blog = () => {
 
                 {/* Posts Grid */}
                 {loading ? (
-                    <div style={{ display: 'flex', justifyContent: 'center', padding: '5rem' }}>
-                        <Loader2 className="animate-spin" size={48} color="var(--primary)" />
+                    <div className="blog-posts-grid" style={{ 
+                        display: 'grid', 
+                        gridTemplateColumns: 'repeat(auto-fill, minmax(360px, 1fr))', 
+                        gap: '2.5rem' 
+                    }}>
+                        {[1,2,3,4,5,6].map(i => (
+                            <SkeletonLoader key={i} type="card" height="450px" />
+                        ))}
                     </div>
                 ) : posts.length > 0 ? (
                     <div className="blog-posts-grid" style={{ 

@@ -1,7 +1,47 @@
-import React from 'react';
-import { Mail, Phone, MapPin, Send, MessageCircle, Github, Twitter, Linkedin } from 'lucide-react';
+import { Mail, Phone, MapPin, Send, MessageCircle, Github, Twitter, Linkedin, Loader2 } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import SkeletonLoader from '../components/SkeletonLoader';
+import { useToast } from '../context/ToastContext';
 
 const Contact = () => {
+    const [loading, setLoading] = useState(true);
+    const [submitting, setSubmitting] = useState(false);
+    const { showToast } = useToast();
+
+    useEffect(() => {
+        const timer = setTimeout(() => setLoading(false), 500);
+        return () => clearTimeout(timer);
+    }, []);
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        setSubmitting(true);
+        setTimeout(() => {
+            showToast('Message sent! We will get back to you soon. 📩', 'success');
+            setSubmitting(false);
+            e.target.reset();
+        }, 1500);
+    };
+
+    if (loading) {
+        return (
+            <div className="page-wrapper contact-page">
+                <header className="page-header hero-section" style={{ minHeight: '40vh', paddingBottom: '40px' }}>
+                    <div className="hero-content">
+                        <SkeletonLoader type="text" width="100px" style={{ margin: '0 auto 1rem' }} />
+                        <SkeletonLoader type="title" width="50%" style={{ margin: '0 auto' }} />
+                    </div>
+                </header>
+                <section className="main-section" style={{ maxWidth: '1200px', margin: '0 auto' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '2rem' }}>
+                        <SkeletonLoader height="400px" borderRadius="24px" />
+                        <SkeletonLoader height="600px" borderRadius="24px" />
+                    </div>
+                </section>
+            </div>
+        );
+    }
+
     return (
         <div className="page-wrapper contact-page">
             <header className="page-header hero-section" style={{ minHeight: '40vh', paddingBottom: '40px' }}>
@@ -62,15 +102,15 @@ const Contact = () => {
 
                     {/* Contact Form */}
                     <div className="glass-card contact-form-card" style={{ padding: 'var(--card-padding, 4rem)' }}>
-                        <form onSubmit={(e) => e.preventDefault()}>
+                        <form onSubmit={handleSubmit}>
                             <div className="form-row-dual">
                                 <div className="form-group">
                                     <label style={{ display: 'block', marginBottom: '0.8rem', fontSize: '0.9rem', color: 'var(--text-muted)' }}>Full Name</label>
-                                    <input type="text" placeholder="John Doe" style={{ width: '100%', padding: '15px', borderRadius: '12px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'white', outline: 'none' }} />
+                                    <input type="text" placeholder="John Doe" style={{ width: '100%', padding: '15px', borderRadius: '12px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'white', outline: 'none' }} required />
                                 </div>
                                 <div className="form-group">
                                     <label style={{ display: 'block', marginBottom: '0.8rem', fontSize: '0.9rem', color: 'var(--text-muted)' }}>Email Address</label>
-                                    <input type="email" placeholder="john@example.com" style={{ width: '100%', padding: '15px', borderRadius: '12px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'white', outline: 'none' }} />
+                                    <input type="email" placeholder="john@example.com" style={{ width: '100%', padding: '15px', borderRadius: '12px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'white', outline: 'none' }} required />
                                 </div>
                             </div>
                             
@@ -86,11 +126,11 @@ const Contact = () => {
 
                             <div className="form-group" style={{ marginBottom: '2.5rem' }}>
                                 <label style={{ display: 'block', marginBottom: '0.8rem', fontSize: '0.9rem', color: 'var(--text-muted)' }}>Message</label>
-                                <textarea rows="6" placeholder="How can we help you today?" style={{ width: '100%', padding: '15px', borderRadius: '12px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'white', outline: 'none', resize: 'vertical' }}></textarea>
+                                <textarea rows="6" placeholder="How can we help you today?" style={{ width: '100%', padding: '15px', borderRadius: '12px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'white', outline: 'none', resize: 'vertical' }} required></textarea>
                             </div>
 
-                            <button className="btn-primary" style={{ width: '100%', height: '56px' }}>
-                                Send Message <Send size={20} />
+                            <button className="btn-primary" style={{ width: '100%', height: '56px' }} disabled={submitting}>
+                                {submitting ? <Loader2 className="animate-spin" size={20} /> : <>Send Message <Send size={20} /></>}
                             </button>
                         </form>
                     </div>

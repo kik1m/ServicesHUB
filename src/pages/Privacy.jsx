@@ -1,7 +1,31 @@
-import React from 'react';
-import { Shield, Eye, Lock, Globe } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Shield, Clock, Lock, Eye, Trash2, FileText } from 'lucide-react';
+import SkeletonLoader from '../components/SkeletonLoader';
 
 const Privacy = () => {
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const timer = setTimeout(() => setLoading(false), 500);
+        return () => clearTimeout(timer);
+    }, []);
+
+    if (loading) {
+        return (
+            <div className="page-wrapper">
+                <header className="page-header hero-section" style={{ minHeight: '35vh', paddingBottom: '40px' }}>
+                    <div className="hero-content">
+                        <SkeletonLoader type="title" width="40%" style={{ margin: '0 auto' }} />
+                        <SkeletonLoader type="text" width="200px" style={{ margin: '1rem auto' }} />
+                    </div>
+                </header>
+                <section className="main-section" style={{ maxWidth: '800px', margin: '0 auto' }}>
+                    <SkeletonLoader height="300px" borderRadius="16px" style={{ marginBottom: '2rem' }} />
+                    <SkeletonLoader height="200px" borderRadius="16px" style={{ marginBottom: '2rem' }} />
+                </section>
+            </div>
+        );
+    }
     return (
         <div className="page-wrapper legal-page">
             <header className="page-header hero-section" style={{ minHeight: '35vh', paddingBottom: '30px' }}>

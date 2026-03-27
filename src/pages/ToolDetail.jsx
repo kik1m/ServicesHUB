@@ -3,56 +3,161 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabaseClient';
 import { getIcon } from '../utils/iconMap';
 import { ArrowLeft, ExternalLink, Star, Share2, Heart, ShieldCheck, CheckCircle2, LayoutGrid, Zap, Loader2 } from 'lucide-react';
+import SkeletonLoader from '../components/SkeletonLoader';
+import { useToast } from '../context/ToastContext';
+import { useAuth } from '../context/AuthContext';
+import { sendNotification } from '../utils/notifications';
 
 const ToolDetail = () => {
-    const { id: slug } = useParams();
+    const { id } = useParams();
     const navigate = useNavigate();
+    const { user } = useAuth(); // Get user from AuthContext
+    const { showToast } = useToast(); // Get showToast from ToastContext
     const [tool, setTool] = useState(null);
     const [relatedTools, setRelatedTools] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [isFavorited, setIsFavorited] = useState(false);
+    // const [user, setUser] = useState(null); // Removed, now using user from AuthContext
 
-    // Scroll to top on load
     useEffect(() => {
         window.scrollTo(0, 0);
-        
-        const fetchToolData = async () => {
+        const fetchData = async () => {
             setLoading(true);
             try {
-                // Fetch current tool
-                const { data: toolData, error: toolError } = await supabase
+                // Get Current User
+                const { data: { user: authUser } } = await supabase.auth.getUser();
+                // setUser(authUser); // Removed redundant local state setting
+
+                // Fetch Tool
+                const { data, error } = await supabase
                     .from('tools')
-                    .select('*, categories(*)')
-                    .eq('slug', slug)
+                    .select('*, categories(name)')
+                    .eq('slug', id)
                     .single();
                 
-                if (toolError) throw toolError;
-                setTool(toolData);
+                if (error) throw error;
+                setTool(data);
 
-                // Fetch related tools
-                if (toolData) {
-                    const { data: relatedData } = await supabase
-                        .from('tools')
-                        .select('*, categories(name)')
-                        .eq('category_id', toolData.category_id)
-                        .neq('id', toolData.id)
-                        .eq('is_approved', true)
-                        .limit(3);
-                    setRelatedTools(relatedData || []);
+                // Check if favorited
+                if (authUser && data) {
+                    const { data: favData } = await supabase
+                        .from('favorites')
+                        .select('*')
+                        .eq('user_id', authUser.id)
+                        .eq('tool_id', data.id)
+                        .single();
+                    if (favData) setIsFavorited(true);
+                }
+
+                // Related tools...
+                const { data: related } = await supabase
+                    .from('tools')
+                    .select('*, categories(name)')
+                    .eq('category_id', data.category_id)
+                    .neq('id', data.id)
+                    .limit(3);
+                setRelatedTools(related || []);
+
+                // SEO
+                if (data) {
+                    document.title = `${data.name} - ${data.short_description} | ServicesHUB`;
+                    const metaDesc = document.querySelector('meta[name="description"]');
+                    if (metaDesc) metaDesc.setAttribute('content', data.description?.substring(0, 160) || data.short_description);
                 }
             } catch (error) {
-                console.error('Error fetching tool details:', error);
+                console.error('Error fetching tool detail:', error);
             } finally {
                 setLoading(false);
             }
         };
+        fetchData();
+    }, [id]);
 
-        fetchToolData();
-    }, [slug]);
+    const toggleFavorite = async () => {
+        if (!user) {
+            navigate('/auth');
+            return;
+        }
+
+        try {
+            if (isFavorited) {
+                const { error } = await supabase
+                    .from('favorites')
+                    .delete()
+                    .eq('user_id', user.id)
+                    .eq('tool_id', tool.id);
+                if (error) throw error;
+                setIsFavorited(false);
+                showToast('Removed from favorites', 'info');
+            } else {
+                const { error } = await supabase
+                    .from('favorites')
+                    .insert([{ user_id: user.id, tool_id: tool.id }]);
+                if (error) throw error;
+                setIsFavorited(true);
+                
+                // Persistent Notification
+                await sendNotification(
+                    user.id, 
+                    'Added to Favorites', 
+                    `You added ${tool.name} to your favorites list.`,
+                    'info'
+                );
+
+                showToast('Success! Added to your favorites. 🎉', 'success');
+            }
+        } catch (error) {
+            console.error('Error toggling favorite:', error);
+            showToast('Failed to save favorite.', 'error');
+        }
+    };
+
+    const handleShare = async () => {
+        if (navigator.share) {
+            try {
+                await navigator.share({
+                    title: tool.name,
+                    text: tool.short_description,
+                    url: window.location.href,
+                });
+            } catch (err) {
+                console.error('Share failed:', err);
+            }
+        } else {
+            // Fallback: Copy to clipboard
+            navigator.clipboard.writeText(window.location.href);
+            showToast('Link copied to clipboard! 📋', 'success');
+        }
+    };
 
     if (loading) {
         return (
-            <div className="page-wrapper" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
-                <Loader2 className="animate-spin" size={48} color="var(--primary)" />
+            <div className="page-wrapper tool-detail-page">
+                <header className="tool-detail-header" style={{ paddingTop: '140px', paddingBottom: '60px', borderBottom: '1px solid var(--border)' }}>
+                    <div className="main-section">
+                        <div className="tool-header-flex" style={{ display: 'flex', gap: '3rem', alignItems: 'center' }}>
+                            <SkeletonLoader type="avatar" width="140px" height="140px" borderRadius="24px" />
+                            <div style={{ flex: 1 }}>
+                                <SkeletonLoader type="text" width="100px" height="20px" style={{ marginBottom: '1rem' }} />
+                                <SkeletonLoader type="title" width="60%" style={{ marginBottom: '1rem' }} />
+                                <SkeletonLoader type="text" width="80%" height="24px" />
+                            </div>
+                        </div>
+                    </div>
+                </header>
+                <section className="main-section" style={{ paddingTop: '5rem' }}>
+                    <div className="tool-grid-layout" style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '4rem' }}>
+                        <div>
+                            <SkeletonLoader type="title" width="40%" style={{ marginBottom: '2rem' }} />
+                            <SkeletonLoader type="text" height="100px" style={{ marginBottom: '4rem' }} />
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
+                                <SkeletonLoader height="150px" />
+                                <SkeletonLoader height="150px" />
+                            </div>
+                        </div>
+                        <SkeletonLoader height="400px" borderRadius="24px" />
+                    </div>
+                </section>
             </div>
         );
     }
@@ -76,16 +181,25 @@ const ToolDetail = () => {
                     
                     <div className="tool-header-flex" style={{ display: 'flex', gap: '3rem', alignItems: 'center', flexWrap: 'wrap' }}>
                         <div className="tool-logo-large glass-card" style={{ 
-                            width: '120px', 
-                            height: '120px', 
+                            width: '140px', 
+                            height: '140px', 
+                            background: 'rgba(255, 255, 255, 0.03)', 
+                            borderRadius: '24px', 
                             display: 'flex', 
                             alignItems: 'center', 
                             justifyContent: 'center', 
-                            background: 'var(--gradient)',
+                            fontSize: '3rem', 
+                            fontWeight: '900', 
                             color: 'white',
-                            borderRadius: '30px'
+                            overflow: 'hidden',
+                            padding: '0',
+                            border: '1px solid var(--border)'
                         }}>
-                             {getIcon(tool.icon_name || 'Zap', 60)}
+                             {tool.image_url ? (
+                                 <img src={tool.image_url} alt={tool.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                             ) : (
+                                 getIcon(tool.icon_name || 'Zap', 60)
+                             )}
                         </div>
                         <div className="tool-header-info" style={{ flex: 1 }}>
                             <div className="badge">{tool.categories?.name}</div>
@@ -96,7 +210,18 @@ const ToolDetail = () => {
                              <a href={tool.url} target="_blank" rel="noopener noreferrer" className="btn-primary" style={{ padding: '1.2rem 2.5rem' }}>
                                 Visit Website <ExternalLink size={18} />
                             </a>
-                            <button className="icon-btn" style={{ height: '62px', width: '62px', borderRadius: '16px' }}><Heart size={24} /></button>
+                            <button 
+                                className="icon-btn" 
+                                onClick={toggleFavorite}
+                                title={isFavorited ? "Remove from favorites" : "Add to favorites"}
+                                style={{ 
+                                    height: '62px', width: '62px', borderRadius: '16px',
+                                    color: isFavorited ? '#ff4757' : 'white',
+                                    borderColor: isFavorited ? '#ff475733' : ''
+                                }}
+                            >
+                                <Heart size={24} fill={isFavorited ? '#ff4757' : 'none'} />
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -156,8 +281,24 @@ const ToolDetail = () => {
                             <div className="share-section">
                                 <p style={{ fontSize: '0.9rem', marginBottom: '1rem', fontWeight: '700' }}>Share this tool</p>
                                 <div style={{ display: 'flex', gap: '0.8rem' }}>
-                                    <button className="icon-btn" style={{ flex: 1, borderRadius: '12px' }}><Share2 size={18} /></button>
-                                    <button className="icon-btn" style={{ flex: 1, borderRadius: '12px' }}><Zap size={18} /></button>
+                                    <button 
+                                        className="icon-btn" 
+                                        onClick={handleShare}
+                                        style={{ flex: 1, borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+                                    >
+                                        <Share2 size={18} /> Share
+                                    </button>
+                                    <button 
+                                        className="icon-btn" 
+                                        onClick={toggleFavorite}
+                                        style={{ 
+                                            flex: 1, borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', 
+                                            color: isFavorited ? '#ff4757' : '',
+                                            background: isFavorited ? 'rgba(255, 71, 87, 0.05)' : ''
+                                        }}
+                                    >
+                                        <Heart size={18} fill={isFavorited ? '#ff4757' : 'none'} /> {isFavorited ? 'Saved' : 'Save'}
+                                    </button>
                                 </div>
                             </div>
                         </div>

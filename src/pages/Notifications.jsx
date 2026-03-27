@@ -1,22 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabaseClient';
+import { useAuth } from '../context/AuthContext';
 import { Bell, CheckCircle, Info, Rss, ArrowLeft, Trash2, Loader2, AlertTriangle } from 'lucide-react';
+import SkeletonLoader from '../components/SkeletonLoader';
 import { Link } from 'react-router-dom';
 
 const Notifications = () => {
+    const { user, loading: authLoading } = useAuth();
     const [notifications, setNotifications] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [user, setUser] = useState(null);
 
     useEffect(() => {
-        const fetchUserData = async () => {
-            const { data: { user } } = await supabase.auth.getUser();
-            setUser(user);
-            if (user) fetchNotifications(user.id);
-            else setLoading(false);
-        };
-        fetchUserData();
-    }, []);
+        if (authLoading) return;
+        if (user) fetchNotifications(user.id);
+        else setLoading(false);
+    }, [user, authLoading]);
 
     const fetchNotifications = async (userId) => {
         setLoading(true);
@@ -103,7 +101,15 @@ const Notifications = () => {
 
                 <div className="notifications-list" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                     {loading ? (
-                        <div style={{ textAlign: 'center', padding: '5rem' }}><Loader2 className="animate-spin" size={48} color="var(--primary)" /></div>
+                        [1,2,3,4].map(i => (
+                            <div key={i} className="glass-card" style={{ padding: '1.5rem', display: 'flex', gap: '20px', border: '1px solid var(--border)' }}>
+                                <SkeletonLoader type="avatar" width="44px" height="44px" borderRadius="12px" />
+                                <div style={{ flex: 1 }}>
+                                    <SkeletonLoader type="title" width="40%" height="20px" style={{ marginBottom: '10px' }} />
+                                    <SkeletonLoader type="text" height="40px" />
+                                </div>
+                            </div>
+                        ))
                     ) : notifications.length > 0 ? (
                         notifications.map(notif => (
                             <div key={notif.id} className="glass-card" style={{ 

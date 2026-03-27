@@ -1,8 +1,46 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
 import { CheckCircle, ArrowLeft, Plus } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { useToast } from '../context/ToastContext';
+import { sendNotification } from '../utils/notifications';
+import { supabase } from '../lib/supabaseClient';
+import { useAuth } from '../context/AuthContext';
+import SkeletonLoader from '../components/SkeletonLoader';
+import { Link } from 'react-router-dom';
 
 const Success = () => {
+    const { user, loading: authLoading } = useAuth();
+    const [loading, setLoading] = useState(true);
+    const { showToast } = useToast();
+
+    useEffect(() => {
+        const handleSuccess = async () => {
+            if (authLoading) return;
+            
+            document.title = "Payment Successful | ServicesHUB";
+            
+            if (user) {
+                // Send persistent notification for subscription
+                await sendNotification(
+                    user.id,
+                    'Subscription Activated! 💎',
+                    'Congratulations! Your premium membership is now active. Explore advanced tools and metrics.',
+                    'subscription'
+                );
+                showToast('Premium account activated!', 'success');
+            }
+            setLoading(false);
+        };
+        handleSuccess();
+    }, [user, authLoading]);
+
+    if (loading) {
+        return (
+            <div className="success-page" style={{ minHeight: '80vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <SkeletonLoader height="400px" width="500px" borderRadius="24px" />
+            </div>
+        );
+    }
+
     return (
         <div className="success-page" style={{ 
             minHeight: '80vh', 

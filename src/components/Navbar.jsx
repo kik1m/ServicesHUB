@@ -1,34 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, User, LogIn, LayoutGrid, Zap, Menu, X, Sparkles, Info, Rss, RefreshCcw, ChevronDown, Bell, Settings, LogOut } from 'lucide-react';
+import { Search, User, LogIn, LayoutGrid, Zap, Menu, X, Sparkles, Info, Rss, RefreshCcw, ChevronDown, Bell, Settings, LogOut, Heart } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
+import { useAuth } from '../context/AuthContext';
 import NotificationPanel from './NotificationPanel';
 import AccountMenu from './AccountMenu';
 
 const Navbar = () => {
+    const { user, signOut } = useAuth();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isMoreOpen, setIsMoreOpen] = useState(false);
     const [isNotifOpen, setIsNotifOpen] = useState(false);
     const [isAccountOpen, setIsAccountOpen] = useState(false);
-    const [user, setUser] = useState(null);
     const [unreadCount, setUnreadCount] = useState(0);
     const navigate = useNavigate();
 
     useEffect(() => {
-        // Auth Listener
-        const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-            setUser(session?.user ?? null);
-            if (session?.user) fetchUnreadCount(session.user.id);
-        });
-
-        // Initial Session Check
-        supabase.auth.getSession().then(({ data: { session } }) => {
-            setUser(session?.user ?? null);
-            if (session?.user) fetchUnreadCount(session.user.id);
-        });
-
-        return () => subscription.unsubscribe();
-    }, []);
+        if (user) fetchUnreadCount(user.id);
+    }, [user]);
 
     // Locking Body Scroll when Menu is Open
     useEffect(() => {
@@ -50,7 +39,7 @@ const Navbar = () => {
     };
 
     const handleLogout = async () => {
-        await supabase.auth.signOut();
+        await signOut();
         navigate('/');
         setIsMenuOpen(false);
         setIsAccountOpen(false);
@@ -86,6 +75,8 @@ const Navbar = () => {
                             <Link to="/profile" className="mobile-only-link-direct" style={{ fontWeight: 800, color: 'var(--primary)' }} onClick={() => setIsMenuOpen(false)}>
                                 <User size={18} /> My Account
                             </Link>
+                            <Link to="/dashboard" className="mobile-only-link-direct" onClick={() => setIsMenuOpen(false)}><LayoutGrid size={18} /> Dashboard</Link>
+                            <Link to="/profile" className="mobile-only-link-direct" onClick={() => setIsMenuOpen(false)}><Heart size={18} /> My Favorites</Link>
                             <div className="mobile-only-divider" style={{ opacity: 0.5 }}></div>
                         </>
                     ) : (
@@ -94,11 +85,11 @@ const Navbar = () => {
                         </Link>
                     )}
 
-                    <Link to="/tools" onClick={() => setIsMenuOpen(false)}><Sparkles size={18} /> Tools</Link>
+                    <Link to="/tools" onClick={() => setIsMenuOpen(false)}><Sparkles size={18} /> Explore Tools</Link>
                     <Link to="/compare" onClick={() => setIsMenuOpen(false)}><RefreshCcw size={18} /> Compare</Link>
                     
                     <Link to="/categories" className="mobile-only-link-direct" onClick={() => setIsMenuOpen(false)}><LayoutGrid size={18} /> Categories</Link>
-                    <Link to="/blog" className="mobile-only-link-direct" onClick={() => setIsMenuOpen(false)}><Rss size={18} /> Blog</Link>
+                    <Link to="/blog" className="mobile-only-link-direct" onClick={() => setIsMenuOpen(false)}><Rss size={18} /> Blog Hub</Link>
                     
                     {user && (
                         <>

@@ -1,16 +1,35 @@
 import React, { useState, useEffect } from 'react';
-import { Sparkles, ArrowRight, Star, Loader2 } from 'lucide-react';
-import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabaseClient';
-import { getIcon } from '../utils/iconMap';
+import {
+    Search, Filter, SlidersHorizontal, ArrowUpRight,
+    Star, MessageSquare, Zap, LayoutGrid, Cpu,
+    Code, Palette, Globe
+} from 'lucide-react';
+import { Link } from 'react-router-dom';
+import CustomSelect from '../components/CustomSelect';
+import SkeletonLoader from '../components/SkeletonLoader';
 
 const Tools = () => {
     const [tools, setTools] = useState([]);
     const [categories, setCategories] = useState([]);
     const [selectedCategory, setSelectedCategory] = useState('All');
     const [priceFilter, setPriceFilter] = useState('All');
-    const [sortBy, setSortBy] = useState('newest');
+    const [sortBy, setSortBy] = useState('Newest');
     const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        document.title = "Discover 500+ AI Tools | ServicesHUB Directory";
+    }, []);
+
+    // Icons Mapping
+    const iconMap = {
+        Zap: Zap,
+        LayoutGrid: LayoutGrid,
+        Cpu: Cpu,
+        Code: Code,
+        Palette: Palette,
+        Globe: Globe
+    };
 
     // Fetch Categories once on mount
     useEffect(() => {
@@ -34,7 +53,7 @@ const Tools = () => {
                     .from('tools')
                     .select('*, categories(name)')
                     .eq('is_approved', true);
-                
+
                 if (selectedCategory !== 'All') {
                     const catObj = categories.find(c => c.name === selectedCategory);
                     if (catObj) {
@@ -46,9 +65,9 @@ const Tools = () => {
                     query = query.eq('pricing_type', priceFilter);
                 }
 
-                if (sortBy === 'newest') {
+                if (sortBy === 'Newest') {
                     query = query.order('created_at', { ascending: false });
-                } else if (sortBy === 'rating') {
+                } else if (sortBy === 'Rating') {
                     query = query.order('rating', { ascending: false });
                 }
 
@@ -66,130 +85,108 @@ const Tools = () => {
         fetchTools();
     }, [selectedCategory, priceFilter, sortBy, categories.length]);
 
+    const renderIcon = (tool) => {
+        if (tool.image_url) {
+            return <img src={tool.image_url} alt={tool.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />;
+        }
+        const IconComponent = iconMap[tool.icon_name] || Zap;
+        return <IconComponent size={28} color="var(--primary)" />;
+    };
+
     return (
         <div className="page-wrapper">
-            <header className="page-header hero-section" style={{ minHeight: '40vh', paddingBottom: '40px' }}>
+            <header className="hero-section" style={{ minHeight: '40vh', paddingBottom: '60px' }}>
                 <div className="hero-content">
-                    <div className="badge">DIRECTORY</div>
                     <h1 className="hero-title">Explore All <span className="gradient-text">Tools</span></h1>
                     <p className="hero-subtitle">Discover the most powerful AI and SaaS solutions curated for professionals.</p>
                 </div>
             </header>
 
-            <section className="main-section">
-                <div className="filter-bar" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '3rem', flexWrap: 'wrap', gap: '1rem' }}>
-                    <div className="filter-tabs" style={{ display: 'flex', gap: '0.8rem', overflowX: 'auto', paddingBottom: '10px' }}>
-                        <button 
-                            className={`tab-btn ${selectedCategory === 'All' ? 'active' : ''}`}
-                            onClick={() => setSelectedCategory('All')}
-                            style={{
-                                padding: '0.6rem 1.2rem',
-                                borderRadius: '100px',
-                                border: '1px solid rgba(255,255,255,0.1)',
-                                background: selectedCategory === 'All' ? 'var(--primary)' : 'rgba(255,255,255,0.03)',
-                                color: 'white',
-                                cursor: 'pointer',
-                                fontSize: '0.9rem',
-                                fontWeight: '600',
-                                whiteSpace: 'nowrap'
-                            }}
-                        >
-                            All Tools
-                        </button>
-                        {categories.map(cat => (
-                            <button 
-                                key={cat.id} 
-                                className={`tab-btn ${selectedCategory === cat.name ? 'active' : ''}`}
-                                onClick={() => setSelectedCategory(cat.name)}
+            <main className="main-section">
+                <div className="filter-bar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3rem', flexWrap: 'wrap', gap: '1.5rem' }}>
+                    <div className="category-tabs" style={{ display: 'flex', gap: '0.8rem', flexWrap: 'wrap' }}>
+                        {['All', ...categories.map(c => c.name)].map(cat => (
+                            <button
+                                key={cat}
+                                onClick={() => setSelectedCategory(cat)}
+                                className={`tab-btn ${selectedCategory === cat ? 'active' : ''}`}
                                 style={{
-                                    padding: '0.6rem 1.2rem',
-                                    borderRadius: '100px',
-                                    border: '1px solid rgba(255,255,255,0.1)',
-                                    background: selectedCategory === cat.name ? 'var(--primary)' : 'rgba(255,255,255,0.03)',
-                                    color: 'white',
-                                    cursor: 'pointer',
-                                    fontSize: '0.9rem',
-                                    fontWeight: '600',
-                                    whiteSpace: 'nowrap'
+                                    padding: '10px 22px', borderRadius: '100px', border: '1px solid var(--border)',
+                                    background: selectedCategory === cat ? 'var(--primary)' : 'rgba(255,255,255,0.03)',
+                                    color: 'white', cursor: 'pointer', transition: '0.3s', fontWeight: '700', fontSize: '0.9rem'
                                 }}
                             >
-                                {cat.name}
+                                {cat === 'All' ? 'All Tools' : cat}
                             </button>
                         ))}
                     </div>
-
-                    <div className="filter-options" style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-                        <select 
-                            value={priceFilter} 
-                            onChange={(e) => setPriceFilter(e.target.value)}
-                            style={{ padding: '0.6rem 1rem', borderRadius: '10px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'white', fontSize: '0.85rem', outline: 'none' }}
-                        >
-                            <option value="All">All Pricing</option>
-                            <option value="Free">Free</option>
-                            <option value="Freemium">Freemium</option>
-                            <option value="Paid">Paid</option>
-                        </select>
-
-                        <select 
-                            value={sortBy} 
-                            onChange={(e) => setSortBy(e.target.value)}
-                            style={{ padding: '0.6rem 1rem', borderRadius: '10px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'white', fontSize: '0.85rem', outline: 'none' }}
-                        >
-                            <option value="newest">Newest</option>
-                            <option value="rating">Top Rated</option>
-                        </select>
+                    <div className="sort-filters" style={{ display: 'flex', gap: '1rem' }}>
+                        <CustomSelect 
+                            options={[
+                                { label: 'All Pricing', name: 'All' },
+                                { label: 'Free', name: 'Free' },
+                                { label: 'Freemium', name: 'Freemium' },
+                                { label: 'Paid', name: 'Paid' }
+                            ]}
+                            value={priceFilter}
+                            onChange={(val) => setPriceFilter(val)}
+                            placeholder="Price"
+                        />
+                        <CustomSelect 
+                            options={[
+                                { label: 'Newest', name: 'Newest' },
+                                { label: 'Top Rated', name: 'Rating' }
+                            ]}
+                            value={sortBy}
+                            onChange={(val) => setSortBy(val)}
+                            placeholder="Sort By"
+                        />
                     </div>
                 </div>
 
-                {loading ? (
-                    <div style={{ display: 'flex', justifyContent: 'center', padding: '5rem' }}>
-                        <Loader2 className="animate-spin" size={40} color="var(--primary)" />
-                    </div>
-                ) : (
-                    <div className="tools-grid-main" style={{ 
-                        display: 'grid', 
-                        gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
-                        gap: '2.5rem'
-                    }}>
-                        {tools.length > 0 ? (
-                            tools.map(tool => (
-                                <div key={tool.id} className="glass-card tool-card-premium">
-                                    <div className="tool-card-image" style={{ 
-                                        height: '160px', 
-                                        background: 'var(--gradient)', 
-                                        borderRadius: '16px',
-                                        marginBottom: '1.5rem',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        color: 'white'
-                                    }}>
-                                        {getIcon(tool.icon_name || 'Zap', 50)}
+                <div className="tools-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: '2.5rem' }}>
+                    {loading ? (
+                        [1,2,3,4,5,6].map(i => (
+                            <SkeletonLoader key={i} type="card" />
+                        ))
+                    ) : tools.length > 0 ? (
+                        tools.map(tool => (
+                            <Link to={`/tool/${tool.slug}`} key={tool.id} className="glass-card tool-card" style={{ textDecoration: 'none', textAlign: 'left', display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                                    <div style={{ width: '64px', height: '64px', background: 'rgba(0, 136, 204, 0.08)', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', border: '1px solid var(--border)' }}>
+                                        {renderIcon(tool)}
                                     </div>
-                                    <div className="tool-card-meta" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                                        <span className="tool-tag">{tool.categories?.name}</span>
-                                        <div className="rating" style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#ffcc00', fontSize: '0.9rem' }}>
-                                            <Star size={14} fill="#ffcc00" /> {tool.rating}
+                                    <div className="tool-tag">{tool.pricing_type}</div>
+                                </div>
+                                <div>
+                                    <h3 style={{ fontSize: '1.4rem', fontWeight: '800', marginBottom: '8px', color: 'white' }}>{tool.name}</h3>
+                                    <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem', lineHeights: '1.5', display: '-webkit-box', WebkitLineClamp: '2', WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                                        {tool.short_description}
+                                    </p>
+                                </div>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto', paddingTop: '1rem', borderTop: '1px solid var(--border)' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '5px', color: '#ffcc00', fontWeight: '700' }}>
+                                            <Star size={16} fill="#ffcc00" /> {tool.rating?.toFixed(1)}
+                                        </div>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '5px', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
+                                            <MessageSquare size={16} /> {tool.reviews_count}
                                         </div>
                                     </div>
-                                    <h3 style={{ fontSize: '1.4rem', fontWeight: '800', marginBottom: '0.5rem' }}>{tool.name}</h3>
-                                    <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem', marginBottom: '2rem' }}>{tool.short_description}</p>
-                                    <div className="tool-card-actions" style={{ display: 'flex', gap: '1rem' }}>
-                                        <Link to={`/tool/${tool.slug}`} className="btn-primary" style={{ flex: 1, textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                            View Details <ArrowRight size={16} />
-                                        </Link>
-                                        <button className="icon-btn" style={{ borderRadius: '12px' }}><Sparkles size={18} /></button>
+                                    <div style={{ color: 'var(--primary)', fontWeight: '700', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                        View Details <ArrowUpRight size={16} />
                                     </div>
                                 </div>
-                            ))
-                        ) : (
-                            <div style={{ gridColumn: '1/-1', textAlign: 'center', padding: '4rem', color: 'var(--text-muted)' }}>
-                                No tools found in this category yet.
-                            </div>
-                        )}
-                    </div>
-                )}
-            </section>
+                            </Link>
+                        ))
+                    ) : (
+                        <div style={{ gridColumn: '1/-1', textAlign: 'center', padding: '5rem', color: 'var(--text-muted)' }}>
+                            <Zap size={48} style={{ marginBottom: '1rem', opacity: 0.2 }} />
+                            <p>No tools found matching your criteria.</p>
+                        </div>
+                    )}
+                </div>
+            </main>
         </div>
     );
 };
