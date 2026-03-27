@@ -60,7 +60,8 @@ const Footer = () => {
 
             <div className="footer-bottom" style={{ maxWidth: '1400px', margin: '4rem auto 0', paddingTop: '2rem', borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
                 <p>© 2026 ServicesHUB. Built with excellence for the AI community.</p>
-                <div style={{ display: 'flex', gap: '2rem' }}>
+                <div style={{ display: 'flex', gap: '2rem', alignItems: 'center' }}>
+                    <span style={{ padding: '4px 12px', background: 'rgba(0, 255, 170, 0.1)', color: '#00ffaa', borderRadius: '20px', fontSize: '0.75rem', fontWeight: 'bold', border: '1px solid rgba(0, 255, 170, 0.2)' }}>Production Ready</span>
                     <span>Service Status: <span style={{ color: '#00ffaa' }}>Online</span></span>
                 </div>
             </div>
