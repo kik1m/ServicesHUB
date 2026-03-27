@@ -27,6 +27,7 @@ import AdminDashboard from './pages/AdminDashboard';
 import Settings from './pages/Settings';
 import Search from './pages/Search';
 import Compare from './pages/Compare';
+import ResetPassword from './pages/ResetPassword';
 import './App.css';
 
 function App() {
@@ -57,8 +58,9 @@ function App() {
             <Route path="/notifications" element={<Notifications />} />
             <Route path="/edit-tool/:id" element={<EditTool />} />
             <Route path="/admin" element={<AdminDashboard />} />
-            <Route path="/settings" element={<Settings />} />
+             <Route path="/settings" element={<Settings />} />
             <Route path="/search" element={<Search />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/success" element={<Success />} />
             <Route path="*" element={<NotFound />} />
           </Routes>

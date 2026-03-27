@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabaseClient';
 import ToolCard from '../components/ToolCard';
 import { Search as SearchIcon, Filter, SlidersHorizontal, ChevronDown, Check, Loader2 } from 'lucide-react';
 import SkeletonLoader from '../components/SkeletonLoader';
+import CustomSelect from '../components/CustomSelect';
 
 const Search = () => {
     const [isLoading, setIsLoading] = useState(true);
@@ -145,17 +146,19 @@ const Search = () => {
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
                             <p style={{ color: 'var(--text-muted)' }}>Showing <span style={{ color: 'white', fontWeight: '700' }}>{results.length}</span> tools</p>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                <SlidersHorizontal size={16} color="var(--text-muted)" />
-                                <select 
-                                    className="nav-search-wrapper" 
-                                    style={{ padding: '8px 15px', borderRadius: '10px', fontSize: '0.85rem', color: 'white', background: 'rgba(255,255,255,0.05)' }}
-                                    value={sortBy}
-                                    onChange={(e) => setSortBy(e.target.value)}
-                                >
-                                    <option value="Newest">Newest First</option>
-                                    <option value="Popular">Most Popular</option>
-                                    <option value="Rating">Highest Rated</option>
-                                </select>
+                                <div style={{ minWidth: '180px' }}>
+                                    <CustomSelect 
+                                        options={[
+                                            { id: 'Newest', name: 'Newest First' },
+                                            { id: 'Popular', name: 'Most Popular' },
+                                            { id: 'Rating', name: 'Highest Rated' }
+                                        ]}
+                                        value={sortBy}
+                                        onChange={(val) => setSortBy(val)}
+                                        placeholder="Sort By"
+                                        style={{ marginBottom: '0' }}
+                                    />
+                                </div>
                             </div>
                         </div>
 

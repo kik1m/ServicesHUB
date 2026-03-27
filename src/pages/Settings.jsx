@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabaseClient';
-import { User, Lock, Bell, Link as LinkIcon, Save, Camera, ShieldCheck, Mail, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
+import { User, Lock, Bell, Link as LinkIcon, Save, Camera, ShieldCheck, Mail, Loader2, CheckCircle, AlertCircle, Eye, EyeOff } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import SkeletonLoader from '../components/SkeletonLoader';
 import { useToast } from '../context/ToastContext';
@@ -20,6 +20,8 @@ const Settings = () => {
         new: '',
         confirm: ''
     });
+    const [showNewPassword, setShowNewPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [socialLinks, setSocialLinks] = useState({
         website: '',
         twitter: '',
@@ -340,25 +342,43 @@ const Settings = () => {
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                                     <div className="input-group">
                                         <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.9rem', color: 'var(--text-muted)' }}>New Password</label>
-                                        <input 
-                                            type="password" 
-                                            placeholder="••••••••" 
-                                            className="nav-search-wrapper" 
-                                            style={{ width: '100%', padding: '12px', background: 'rgba(255,255,255,0.03)', color: 'white', border: '1px solid var(--border)' }} 
-                                            value={passwords.new}
-                                            onChange={(e) => setPasswords({...passwords, new: e.target.value})}
-                                        />
+                                        <div className="nav-search-wrapper" style={{ padding: '0 15px', background: 'rgba(255,255,255,0.03)', display: 'flex', alignItems: 'center' }}>
+                                            <Lock size={18} color="var(--text-muted)" />
+                                            <input 
+                                                type={showNewPassword ? "text" : "password"} 
+                                                placeholder="••••••••" 
+                                                style={{ width: '100%', padding: '12px', background: 'transparent', color: 'white', border: 'none', outline: 'none' }} 
+                                                value={passwords.new}
+                                                onChange={(e) => setPasswords({...passwords, new: e.target.value})}
+                                            />
+                                            <button 
+                                                type="button" 
+                                                onClick={() => setShowNewPassword(!showNewPassword)}
+                                                style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}
+                                            >
+                                                {showNewPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                            </button>
+                                        </div>
                                     </div>
                                     <div className="input-group">
                                         <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.9rem', color: 'var(--text-muted)' }}>Confirm New Password</label>
-                                        <input 
-                                            type="password" 
-                                            placeholder="••••••••" 
-                                            className="nav-search-wrapper" 
-                                            style={{ width: '100%', padding: '12px', background: 'rgba(255,255,255,0.03)', color: 'white', border: '1px solid var(--border)' }} 
-                                            value={passwords.confirm}
-                                            onChange={(e) => setPasswords({...passwords, confirm: e.target.value})}
-                                        />
+                                        <div className="nav-search-wrapper" style={{ padding: '0 15px', background: 'rgba(255,255,255,0.03)', display: 'flex', alignItems: 'center' }}>
+                                            <Lock size={18} color="var(--text-muted)" />
+                                            <input 
+                                                type={showConfirmPassword ? "text" : "password"} 
+                                                placeholder="••••••••" 
+                                                style={{ width: '100%', padding: '12px', background: 'transparent', color: 'white', border: 'none', outline: 'none' }} 
+                                                value={passwords.confirm}
+                                                onChange={(e) => setPasswords({...passwords, confirm: e.target.value})}
+                                            />
+                                            <button 
+                                                type="button" 
+                                                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                                style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}
+                                            >
+                                                {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                            </button>
+                                        </div>
                                     </div>
                                     <button onClick={handlePasswordUpdate} className="btn-primary" disabled={saving}>
                                         {saving ? <Loader2 className="animate-spin" size={20} /> : <Lock size={20} />} Update Password

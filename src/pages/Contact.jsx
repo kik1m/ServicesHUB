@@ -2,10 +2,12 @@ import { Mail, Phone, MapPin, Send, MessageCircle, Github, Twitter, Linkedin, Lo
 import { useState, useEffect } from 'react';
 import SkeletonLoader from '../components/SkeletonLoader';
 import { useToast } from '../context/ToastContext';
+import CustomSelect from '../components/CustomSelect';
 
 const Contact = () => {
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
+    const [subject, setSubject] = useState('General Inquiry');
     const { showToast } = useToast();
 
     useEffect(() => {
@@ -116,12 +118,18 @@ const Contact = () => {
                             
                             <div className="form-group" style={{ marginBottom: '1.5rem' }}>
                                 <label style={{ display: 'block', marginBottom: '0.8rem', fontSize: '0.9rem', color: 'var(--text-muted)' }}>Subject</label>
-                                <select style={{ width: '100%', padding: '15px', borderRadius: '12px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'white', outline: 'none' }}>
-                                    <option>General Inquiry</option>
-                                    <option>Tool Submission Question</option>
-                                    <option>Partnership/Advertising</option>
-                                    <option>Technical Bug Report</option>
-                                </select>
+                                <CustomSelect 
+                                    options={[
+                                        { id: 'General Inquiry', name: 'General Inquiry' },
+                                        { id: 'Tool Submission Question', name: 'Tool Submission Question' },
+                                        { id: 'Partnership/Advertising', name: 'Partnership/Advertising' },
+                                        { id: 'Technical Bug Report', name: 'Technical Bug Report' }
+                                    ]}
+                                    value={subject}
+                                    onChange={(val) => setSubject(val)}
+                                    placeholder="Select subject"
+                                    style={{ marginBottom: '0' }}
+                                />
                             </div>
 
                             <div className="form-group" style={{ marginBottom: '2.5rem' }}>

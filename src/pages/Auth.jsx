@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Mail, Lock, User, ArrowRight, Github, Chrome, Sparkles, Loader2 } from 'lucide-react';
+import { Mail, Lock, User, ArrowRight, Github, Chrome, Sparkles, Loader2, Eye, EyeOff, AlertCircle } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '../context/ToastContext';
@@ -11,6 +11,9 @@ const Auth = () => {
     const [fullName, setFullName] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const [showPassword, setShowPassword] = useState(false);
+    const [forgotPasswordMode, setForgotPasswordMode] = useState(false);
+    const [resetEmailSent, setResetEmailSent] = useState(false);
     const navigate = useNavigate();
     const { showToast } = useToast();
 
@@ -47,6 +50,24 @@ const Auth = () => {
                 showToast('Success! Please check your email for confirmation.', 'success');
                 setIsLogin(true);
             }
+        } catch (err) {
+            setError(err.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleForgotPassword = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+        setError(null);
+        try {
+            const { error } = await supabase.auth.resetPasswordForEmail(email, {
+                redirectTo: `${window.location.origin}/reset-password`,
+            });
+            if (error) throw error;
+            setResetEmailSent(true);
+            showToast('Reset link sent to your email! 📧', 'success');
         } catch (err) {
             setError(err.message);
         } finally {
@@ -123,59 +144,116 @@ const Auth = () => {
                     </div>
                 )}
 
-                <form className="auth-form" onSubmit={handleAuth} style={{ position: 'relative', zIndex: 1 }}>
-                    {!isLogin && (
-                        <div className="input-group" style={{ marginBottom: '1.2rem' }}>
+                {forgotPasswordMode ? (
+                    <form onSubmit={handleForgotPassword} style={{ position: 'relative', zIndex: 1 }}>
+                        <div className="input-group" style={{ marginBottom: '2rem' }}>
                             <div className="nav-search-wrapper" style={{ padding: '12px 15px', background: 'rgba(255,255,255,0.03)' }}>
-                                <User className="search-icon" size={18} />
+                                <Mail className="search-icon" size={18} />
                                 <input 
-                                    type="text" 
-                                    placeholder="Full Name" 
-                                    value={fullName}
-                                    onChange={(e) => setFullName(e.target.value)}
+                                    type="email" 
+                                    placeholder="Enter your email" 
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
                                     required
                                     style={{ width: '100%', border: 'none', background: 'transparent', color: 'white', paddingLeft: '10px' }} 
                                 />
                             </div>
                         </div>
-                    )}
 
-                    <div className="input-group" style={{ marginBottom: '1.2rem' }}>
-                        <div className="nav-search-wrapper" style={{ padding: '12px 15px', background: 'rgba(255,255,255,0.03)' }}>
-                            <Mail className="search-icon" size={18} />
-                            <input 
-                                type="email" 
-                                placeholder="Email Address" 
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                required
-                                style={{ width: '100%', border: 'none', background: 'transparent', color: 'white', paddingLeft: '10px' }} 
-                            />
-                        </div>
-                    </div>
-
-                    <div className="input-group" style={{ marginBottom: '2rem' }}>
-                        <div className="nav-search-wrapper" style={{ padding: '12px 15px', background: 'rgba(255,255,255,0.03)' }}>
-                            <Lock className="search-icon" size={18} />
-                            <input 
-                                type="password" 
-                                placeholder="Password" 
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                required
-                                style={{ width: '100%', border: 'none', background: 'transparent', color: 'white', paddingLeft: '10px' }} 
-                            />
-                        </div>
-                    </div>
-
-                    <button className="btn-primary" style={{ width: '100%' }} disabled={loading}>
-                        {loading ? (
-                            <Loader2 className="animate-spin" size={20} />
+                        {resetEmailSent ? (
+                            <div style={{ padding: '1.5rem', background: 'rgba(0, 210, 255, 0.05)', borderRadius: '15px', textAlign: 'center', marginBottom: '2rem' }}>
+                                <Sparkles size={32} color="var(--secondary)" style={{ marginBottom: '1rem' }} />
+                                <h4 style={{ marginBottom: '0.5rem' }}>Check your inbox!</h4>
+                                <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>We've sent a recovery link to <strong>{email}</strong>.</p>
+                            </div>
                         ) : (
-                            <>{isLogin ? 'Login Now' : 'Create Account'} <ArrowRight size={20} /></>
+                            <button className="btn-primary" style={{ width: '100%' }} disabled={loading}>
+                                {loading ? <Loader2 className="animate-spin" size={20} /> : <>Send Reset Link <Mail size={20} /></>}
+                            </button>
                         )}
-                    </button>
-                </form>
+
+                        <button 
+                            type="button" 
+                            onClick={() => setForgotPasswordMode(false)}
+                            style={{ background: 'none', border: 'none', color: 'var(--text-muted)', marginTop: '1.5rem', cursor: 'pointer', fontSize: '0.9rem' }}
+                        >
+                            Back to Login
+                        </button>
+                    </form>
+                ) : (
+                    <form className="auth-form" onSubmit={handleAuth} style={{ position: 'relative', zIndex: 1 }}>
+                        {!isLogin && (
+                            <div className="input-group" style={{ marginBottom: '1.2rem' }}>
+                                <div className="nav-search-wrapper" style={{ padding: '12px 15px', background: 'rgba(255,255,255,0.03)' }}>
+                                    <User className="search-icon" size={18} />
+                                    <input 
+                                        type="text" 
+                                        placeholder="Full Name" 
+                                        value={fullName}
+                                        onChange={(e) => setFullName(e.target.value)}
+                                        required
+                                        style={{ width: '100%', border: 'none', background: 'transparent', color: 'white', paddingLeft: '10px' }} 
+                                    />
+                                </div>
+                            </div>
+                        )}
+
+                        <div className="input-group" style={{ marginBottom: '1.2rem' }}>
+                            <div className="nav-search-wrapper" style={{ padding: '12px 15px', background: 'rgba(255,255,255,0.03)' }}>
+                                <Mail className="search-icon" size={18} />
+                                <input 
+                                    type="email" 
+                                    placeholder="Email Address" 
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    required
+                                    style={{ width: '100%', border: 'none', background: 'transparent', color: 'white', paddingLeft: '10px' }} 
+                                />
+                            </div>
+                        </div>
+
+                        <div className="input-group" style={{ marginBottom: '0.8rem' }}>
+                            <div className="nav-search-wrapper" style={{ padding: '12px 15px', background: 'rgba(255,255,255,0.03)' }}>
+                                <Lock className="search-icon" size={18} />
+                                <input 
+                                    type={showPassword ? "text" : "password"} 
+                                    placeholder="Password" 
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    required
+                                    style={{ width: '100%', border: 'none', background: 'transparent', color: 'white', paddingLeft: '10px' }} 
+                                />
+                                <button 
+                                    type="button" 
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '0 5px' }}
+                                >
+                                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                </button>
+                            </div>
+                        </div>
+
+                        {isLogin && (
+                            <div style={{ textAlign: 'right', marginBottom: '2rem' }}>
+                                <button 
+                                    type="button"
+                                    onClick={() => setForgotPasswordMode(true)}
+                                    style={{ background: 'none', border: 'none', color: 'var(--primary)', fontSize: '0.85rem', fontWeight: '600', cursor: 'pointer' }}
+                                >
+                                    Forgot Password?
+                                </button>
+                            </div>
+                        )}
+
+                        <button className="btn-primary" style={{ width: '100%', marginTop: !isLogin ? '1rem' : '0' }} disabled={loading}>
+                            {loading ? (
+                                <Loader2 className="animate-spin" size={20} />
+                            ) : (
+                                <>{isLogin ? 'Login Now' : 'Create Account'} <ArrowRight size={20} /></>
+                            )}
+                        </button>
+                    </form>
+                )}
 
                 <div className="social-auth" style={{ marginTop: '2.5rem', position: 'relative', zIndex: 1 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '15px', color: 'rgba(255,255,255,0.2)', marginBottom: '2rem' }}>

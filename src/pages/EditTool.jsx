@@ -4,8 +4,8 @@ import { supabase } from '../lib/supabaseClient';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { sendNotification } from '../utils/notifications';
-import { Save, ArrowLeft, Upload, Globe, MessageSquare, Tag, AlignLeft, Loader2, AlertCircle } from 'lucide-react';
 import SkeletonLoader from '../components/SkeletonLoader';
+import CustomSelect from '../components/CustomSelect';
 
 const EditTool = () => {
     const { id } = useParams();
@@ -175,34 +175,30 @@ const EditTool = () => {
                                 <label style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px', fontSize: '0.9rem', fontWeight: '600' }}>
                                     <Tag size={16} color="var(--primary)" /> Category
                                 </label>
-                                <select 
-                                    className="nav-search-wrapper" 
-                                    style={{ width: '100%', padding: '15px', color: 'white', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', appearance: 'none' }}
+                                <CustomSelect 
+                                    options={categories}
                                     value={formData.category_id}
-                                    onChange={(e) => setFormData({...formData, category_id: e.target.value})}
-                                    required
-                                >
-                                    {categories.map(cat => (
-                                        <option key={cat.id} value={cat.id} style={{ background: '#111' }}>{cat.name}</option>
-                                    ))}
-                                </select>
+                                    onChange={(val) => setFormData({...formData, category_id: val})}
+                                    placeholder="Select category"
+                                    style={{ marginBottom: '0' }}
+                                />
                             </div>
 
                             <div className="input-group">
                                 <label style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px', fontSize: '0.9rem', fontWeight: '600' }}>
                                     <Tag size={16} color="var(--primary)" /> Pricing
                                 </label>
-                                <select 
-                                    className="nav-search-wrapper" 
-                                    style={{ width: '100%', padding: '15px', color: 'white', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', appearance: 'none' }}
+                                <CustomSelect 
+                                    options={[
+                                        { id: 'Free', name: 'Free' },
+                                        { id: 'Freemium', name: 'Freemium' },
+                                        { id: 'Paid', name: 'Paid' }
+                                    ]}
                                     value={formData.pricing_type}
-                                    onChange={(e) => setFormData({...formData, pricing_type: e.target.value})}
-                                    required
-                                >
-                                    <option value="Free" style={{ background: '#111' }}>Free</option>
-                                    <option value="Freemium" style={{ background: '#111' }}>Freemium</option>
-                                    <option value="Paid" style={{ background: '#111' }}>Paid</option>
-                                </select>
+                                    onChange={(val) => setFormData({...formData, pricing_type: val})}
+                                    placeholder="Select pricing"
+                                    style={{ marginBottom: '0' }}
+                                />
                             </div>
                         </div>
 
