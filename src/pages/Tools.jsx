@@ -12,24 +12,34 @@ const Tools = () => {
     const [sortBy, setSortBy] = useState('newest');
     const [loading, setLoading] = useState(true);
 
+    // Fetch Categories once on mount
     useEffect(() => {
-        const fetchData = async () => {
+        const fetchCategories = async () => {
+            try {
+                const { data } = await supabase.from('categories').select('*');
+                setCategories(data || []);
+            } catch (error) {
+                console.error('Error fetching categories:', error);
+            }
+        };
+        fetchCategories();
+    }, []);
+
+    // Fetch Tools when filters or categories change
+    useEffect(() => {
+        const fetchTools = async () => {
             setLoading(true);
             try {
-                // Fetch Categories
-                const { data: catData } = await supabase
-                    .from('categories')
-                    .select('*');
-                setCategories(catData || []);
-
-                // Fetch Tools
                 let query = supabase
                     .from('tools')
                     .select('*, categories(name)')
                     .eq('is_approved', true);
                 
                 if (selectedCategory !== 'All') {
-                    query = query.eq('category_id', categories.find(c => c.name === selectedCategory)?.id);
+                    const catObj = categories.find(c => c.name === selectedCategory);
+                    if (catObj) {
+                        query = query.eq('category_id', catObj.id);
+                    }
                 }
 
                 if (priceFilter !== 'All') {
@@ -42,8 +52,8 @@ const Tools = () => {
                     query = query.order('rating', { ascending: false });
                 }
 
-                const { data: toolData } = await query;
-                setTools(toolData || []);
+                const { data } = await query;
+                setTools(data || []);
             } catch (error) {
                 console.error('Error fetching tools:', error);
             } finally {
@@ -51,8 +61,10 @@ const Tools = () => {
             }
         };
 
-        fetchData();
-    }, [selectedCategory, priceFilter, sortBy, categories]);
+        // Only fetch tools if we have categories loaded or if we are viewing 'All'
+        // This prevents multiple fetches on initial mount
+        fetchTools();
+    }, [selectedCategory, priceFilter, sortBy, categories.length]);
 
     return (
         <div className="page-wrapper">
