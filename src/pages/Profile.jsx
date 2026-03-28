@@ -89,33 +89,8 @@ const Profile = () => {
         navigate('/');
     };
 
-    const handleUpgrade = async () => {
-        if (!profile) {
-            showToast('بيانات الملف الشخصي غير مكتملة، يرجى تحديث الصفحة.', 'error');
-            return;
-        }
-
-        setUpgrading(true);
-        try {
-            console.log('Initiating upgrade for user:', profile.id);
-            const { data: { session } } = await supabase.auth.getSession();
-            
-            // Use relative path for Stripe API to work in both Local and Production
-            const { data } = await axios.post(`/api/create-checkout-session`, {
-                userId: profile.id,
-                planName: 'Premium',
-                priceAmount: 20
-            });
-
-            if (data.url) {
-                window.location.href = data.url;
-            }
-        } catch (error) {
-            console.error('Upgrade Error Detail:', error.response?.data || error.message);
-            showToast('فشل بدء عملية الترقية: ' + (error.response?.data?.error || 'يرجى المحاولة لاحقاً'), 'error');
-        } finally {
-            setUpgrading(false);
-        }
+    const handleUpgrade = () => {
+        navigate('/premium');
     };
 
     if (loading) {
@@ -168,8 +143,9 @@ const Profile = () => {
                                  <User size={64} />
                              )}
                         </div>
-                        <h1 className="hero-title" style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>
-                            {profile?.full_name || 'Service'} <span className="gradient-text">Member</span>
+                        <h1 className="hero-title" style={{ fontSize: '2.5rem', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                            {profile?.full_name || 'Member'}
+                            {user?.is_premium && <Award size={24} color="#FFD700" title="Premium Member" />}
                         </h1>
                         <p className="section-desc" style={{ fontSize: '0.9rem' }}>
                             {profile?.role || 'User'} • Member since {new Date(profile?.updated_at).toLocaleDateString()}
@@ -199,10 +175,14 @@ const Profile = () => {
                             <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Account Status</p>
                         </div>
                     </div>
-                    <div className="glass-card stat-card-premium" style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', padding: '2rem' }}>
-                        <div className="cat-icon-wrapper" style={{ padding: '1rem', background: 'rgba(255,255,255,0.03)', borderRadius: '14px' }}><Award size={24} /></div>
+                    <div className="glass-card stat-card-premium" style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', padding: '2rem', border: user?.is_premium ? '1px solid rgba(255, 215, 0, 0.3)' : '1px solid var(--border)' }}>
+                        <div className="cat-icon-wrapper" style={{ padding: '1rem', background: 'rgba(255,255,255,0.03)', borderRadius: '14px' }}>
+                            <Award size={24} color={user?.is_premium ? '#FFD700' : 'inherit'} />
+                        </div>
                         <div>
-                            <h4 style={{ fontSize: '1.8rem', fontWeight: '900' }}>{profile?.membership || 'Free'}</h4>
+                            <h4 style={{ fontSize: '1.8rem', fontWeight: '900', color: user?.is_premium ? '#FFD700' : 'white' }}>
+                                {user?.is_premium ? 'Premium 💎' : 'Free'}
+                            </h4>
                             <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Plan Tier</p>
                         </div>
                     </div>
@@ -286,10 +266,9 @@ const Profile = () => {
                             <h3 style={{ fontSize: '1.5rem', fontWeight: '800' }}>Actions</h3>
                         </div>
                         <div className="glass-card settings-sidebar-card" style={{ padding: '1.5rem' }}>
-                            {profile?.membership !== 'Premium' && (
+                            {!user?.is_premium && (
                                 <button 
                                     onClick={handleUpgrade}
-                                    disabled={upgrading}
                                     className="btn-primary" 
                                     style={{ 
                                         width: '100%', 
@@ -303,8 +282,7 @@ const Profile = () => {
                                         fontWeight: 'bold'
                                     }}
                                 >
-                                    {upgrading ? <Loader2 className="animate-spin" size={16} /> : <Award size={16} />} 
-                                    {upgrading ? 'Processing...' : 'Upgrade to Premium'}
+                                    <Award size={16} /> Upgrade to Premium
                                 </button>
                             )}
                             <Link to="/dashboard" className="btn-primary" style={{ width: '100%', marginBottom: '1rem', display: 'flex', justifyContent: 'center', gap: '8px', textDecoration: 'none' }}>

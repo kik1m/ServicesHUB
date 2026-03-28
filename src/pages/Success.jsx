@@ -11,6 +11,9 @@ const Success = () => {
     const { user, loading: authLoading } = useAuth();
     const [loading, setLoading] = useState(true);
     const { showToast } = useToast();
+    const [searchParams] = useState(new URLSearchParams(window.location.search));
+    const type = searchParams.get('type');
+    const toolName = searchParams.get('toolName');
 
     useEffect(() => {
         const handleSuccess = async () => {
@@ -19,14 +22,16 @@ const Success = () => {
             document.title = "Payment Successful | ServicesHUB";
             
             if (user) {
-                // Send persistent notification for subscription
-                await sendNotification(
-                    user.id,
-                    'Subscription Activated! 💎',
-                    'Congratulations! Your premium membership is now active. Explore advanced tools and metrics.',
-                    'subscription'
-                );
-                showToast('Premium account activated!', 'success');
+                const message = type === 'account_premium' 
+                    ? 'Premium account activated! 💎' 
+                    : `Promotion activated for ${toolName || 'your tool'}! 🚀`;
+                
+                const notifBody = type === 'account_premium'
+                    ? 'Congratulations! Your lifetime premium membership is now active.'
+                    : `Your tool "${toolName || 'the tool'}" is now featured on the homepage.`;
+
+                await sendNotification(user.id, message, notifBody, 'subscription');
+                showToast(message, 'success');
             }
             setLoading(false);
         };
@@ -64,10 +69,13 @@ const Success = () => {
                 </div>
                 
                 <h1 style={{ fontSize: '2.5rem', fontWeight: '900', marginBottom: '1rem' }}>
-                    Welcome to <span className="gradient-text">Premium!</span>
+                    {type === 'account_premium' ? <>Welcome to <span className="gradient-text">Premium!</span></> : <>Promotion <span className="gradient-text">Activated!</span></>}
                 </h1>
                 <p style={{ color: 'var(--text-muted)', marginBottom: '2.5rem', fontSize: '1.2rem', lineHeight: '1.6' }}>
-                    Authentication successful! Your account has been upgraded. You now have full access to all premium tools, advanced analytics, and priority support.
+                    {type === 'account_premium' 
+                        ? "Authentication successful! Your account has been upgraded to Lifetime Premium. You now have unlimited submissions and priority support."
+                        : `Success! Your tool ${toolName ? `"${toolName}"` : ""} has been promoted. It will now appear in the featured sections across the platform.`
+                    }
                 </p>
 
                 <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>

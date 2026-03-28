@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Sparkles, ArrowRight, Zap, Shield, Cpu, PenTool, Code, Globe } from 'lucide-react';
+import { Sparkles, ArrowRight, Zap, Shield, Cpu, PenTool, Code, Globe, CheckCircle2 } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
 import { getIcon } from '../utils/iconMap';
 import SkeletonLoader from '../components/SkeletonLoader';
@@ -37,11 +37,13 @@ const Home = () => {
                     .select('*')
                     .limit(4);
                 
-                // Fetch Featured Tools with Category Info
+                // Fetch Featured Tools with Category Info (only active ones)
+                const now = new Date().toISOString();
                 const { data: toolData } = await supabase
                     .from('tools')
                     .select('*, categories(name)')
                     .eq('is_featured', true)
+                    .gt('featured_until', now)
                     .limit(3);
 
                 setCategories(catData || []);
@@ -147,8 +149,13 @@ const Home = () => {
                                         getIcon(tool.icon_name || 'Zap')
                                     )}
                                 </div>
-                                <div className="tool-tag">{tool.categories?.name}</div>
-                                <h3>{tool.name}</h3>
+                                <div className="tool-tag" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    {tool.categories?.name}
+                                    {tool.is_verified && <CheckCircle2 size={14} color="#00d2ff" style={{ marginLeft: '5px' }} title="Verified Tool" />}
+                                </div>
+                                <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                    {tool.name}
+                                </h3>
                                 <p>{tool.short_description}</p>
                                 <Link to={`/tool/${tool.slug}`} className="btn-text">View Details <ArrowRight size={16} /></Link>
                             </div>

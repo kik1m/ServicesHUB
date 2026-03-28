@@ -11,7 +11,7 @@ export default async function handler(req, res) {
     console.log('Stripe Key length:', process.env.STRIPE_SECRET_KEY ? process.env.STRIPE_SECRET_KEY.length : 0);
 
     try {
-        const { userId, planName, priceAmount, itemType = 'membership', toolId = null } = req.body;
+        const { userId, planName, priceAmount, itemType = 'membership', toolId = null, toolName = null } = req.body;
 
         if (!userId || !planName || !priceAmount) {
             console.error('Missing required fields:', { userId, planName, priceAmount });
@@ -37,7 +37,7 @@ export default async function handler(req, res) {
                 },
             ],
             mode: 'payment',
-            success_url: `${req.headers.origin}/success?session_id={CHECKOUT_SESSION_ID}`,
+            success_url: `${req.headers.origin}/success?session_id={CHECKOUT_SESSION_ID}&type=${itemType}&toolName=${encodeURIComponent(toolName || '')}`,
             cancel_url: itemType === 'tool_promotion' ? `${req.headers.origin}/promote` : `${req.headers.origin}/profile`,
             metadata: {
                 userId: userId,

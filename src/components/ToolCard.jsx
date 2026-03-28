@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowUpRight, Star, MessageSquare, Zap, LayoutGrid, Cpu, Code, Palette, Globe } from 'lucide-react';
+import { ArrowUpRight, Star, MessageSquare, Zap, LayoutGrid, Cpu, Code, Palette, Globe, CheckCircle2, TrendingUp } from 'lucide-react';
 
 const iconMap = {
     Zap: Zap,
@@ -45,20 +45,40 @@ const ToolCard = ({ tool }) => {
                 }}>
                     {renderIcon()}
                 </div>
-                <div className="tool-tag" style={{ 
-                    fontSize: '0.7rem', 
-                    padding: '4px 10px', 
-                    borderRadius: '100px', 
-                    background: 'rgba(0, 210, 255, 0.1)', 
-                    color: 'var(--secondary)',
-                    border: '1px solid rgba(0, 210, 255, 0.2)'
-                }}>
-                    {tool.pricing_type || 'Free'}
+                <div style={{ display: 'flex', gap: '8px' }}>
+                    {tool.is_featured && (
+                        <div className="tool-tag" style={{ 
+                            fontSize: '0.7rem', 
+                            padding: '4px 10px', 
+                            borderRadius: '100px', 
+                            background: 'rgba(255, 215, 0, 0.1)', 
+                            color: '#FFD700',
+                            border: '1px solid rgba(255, 215, 0, 0.2)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '4px'
+                        }}>
+                            <TrendingUp size={10} /> Featured
+                        </div>
+                    )}
+                    <div className="tool-tag" style={{ 
+                        fontSize: '0.7rem', 
+                        padding: '4px 10px', 
+                        borderRadius: '100px', 
+                        background: 'rgba(0, 210, 255, 0.1)', 
+                        color: 'var(--secondary)',
+                        border: '1px solid rgba(0, 210, 255, 0.2)'
+                    }}>
+                        {tool.pricing_type || 'Free'}
+                    </div>
                 </div>
             </div>
             
             <div style={{ flex: 1 }}>
-                <h3 style={{ fontSize: '1.25rem', fontWeight: '800', marginBottom: '8px', color: 'white' }}>{tool.name}</h3>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                    <h3 style={{ fontSize: '1.25rem', fontWeight: '800', margin: 0, color: 'white' }}>{tool.name}</h3>
+                    {tool.is_verified && <CheckCircle2 size={18} color="#00d2ff" fill="rgba(0,210,255,0.1)" title="Verified Tool" />}
+                </div>
                 <p style={{ 
                     color: 'var(--text-muted)', 
                     fontSize: '0.9rem', 

@@ -20,21 +20,12 @@ const Promote = () => {
 
     const plans = [
         {
-            name: "Standard",
-            price: "Free",
-            amount: 0,
-            desc: "Basic listing in the directory",
-            features: ["Standard listing", "Internal Search discovery", "Category placement", "Basic analytics"],
-            recommended: false,
-            cta: "Submit Tool"
-        },
-        {
             name: "Featured",
             price: "$49",
             amount: 49,
-            period: "/week",
-            desc: "Boost your tool to the front page",
-            features: ["Homepage Featured slot", "Highlight in Category", "Newsletter mention", "Social media post", "Verified Badge"],
+            period: "/month",
+            desc: "Boost your tool for 30 days",
+            features: ["Homepage Featured slot (30 days)", "Highlight in Category", "Newsletter mention", "Social media post", "Verified Badge"],
             recommended: true,
             cta: "Get Featured"
         },
@@ -43,10 +34,10 @@ const Promote = () => {
             price: "$149",
             amount: 149,
             period: "/month",
-            desc: "Maximum visibility for serious tools",
-            features: ["Permanent Featured status", "Direct Backlink (SEO)", "Dedicated Blog Article", "Custom Banner Ads", "Priority support"],
+            desc: "Maximum visibility for your tool",
+            features: ["Permanent Featured status (Monthly)", "Direct Backlink (SEO)", "Dedicated Blog Article", "Custom Banner Ads", "Priority review for this tool"],
             recommended: false,
-            cta: "Get Started"
+            cta: "Upgrade Tool"
         }
     ];
 
@@ -99,6 +90,7 @@ const Promote = () => {
             const { data } = await axios.post(`/api/create-checkout-session`, {
                 userId: user.id,
                 toolId: selectedToolId,
+                toolName: toolName,
                 planName: plan.name,
                 priceAmount: plan.amount,
                 itemType: 'tool_promotion'
@@ -135,8 +127,13 @@ const Promote = () => {
                     </h2>
                     
                     {toolName ? (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', color: 'var(--primary)', fontWeight: '700', fontSize: '1.2rem' }}>
-                            <Zap size={24} /> {toolName}
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', color: 'var(--primary)', fontWeight: '700', fontSize: '1.2rem' }}>
+                                <Zap size={24} /> {toolName}
+                            </div>
+                            <div style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>
+                                Promoting this specific tool only
+                            </div>
                         </div>
                     ) : (
                         <div style={{ maxWidth: '400px' }}>

@@ -121,12 +121,19 @@ const Dashboard = () => {
                     </div>
                     <div style={{ fontSize: '2.5rem', fontWeight: '800' }}>{userTools.filter(t => t.is_approved).length}</div>
                 </div>
-                <div className="glass-card" style={{ padding: '2rem' }}>
+                <div className="glass-card" style={{ padding: '2rem', border: user?.is_premium ? '1px solid rgba(255, 215, 0, 0.3)' : '1px solid var(--border)' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
                         <span style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>Account type</span>
-                        <Settings size={20} color="var(--primary)" />
+                        <Settings size={20} color={user?.is_premium ? '#FFD700' : 'var(--primary)'} />
                     </div>
-                    <div style={{ fontSize: '1.8rem', fontWeight: '800', color: 'var(--secondary)' }}>{profile?.membership?.toUpperCase() || 'FREE'}</div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <div style={{ fontSize: '1.8rem', fontWeight: '800', color: user?.is_premium ? '#FFD700' : 'white' }}>
+                            {user?.is_premium ? 'PREMIUM 💎' : 'FREE'}
+                        </div>
+                        {!user?.is_premium && (
+                            <Link to="/premium" style={{ fontSize: '0.75rem', color: 'var(--secondary)', textDecoration: 'underline' }}>Upgrade</Link>
+                        )}
+                    </div>
                 </div>
             </div>
 
@@ -170,10 +177,18 @@ const Dashboard = () => {
                                         <div style={{ display: 'flex', gap: '1rem' }}>
                                             <button 
                                                 onClick={() => navigate(`/promote?toolId=${tool.id}`)}
-                                                title="Promote Tool" 
-                                                style={{ background: 'transparent', border: 'none', color: 'var(--primary)', cursor: 'pointer' }}
+                                                className="btn-outline"
+                                                style={{ 
+                                                    padding: '6px 12px', 
+                                                    fontSize: '0.75rem', 
+                                                    display: 'flex', 
+                                                    alignItems: 'center', 
+                                                    gap: '5px',
+                                                    borderColor: 'var(--primary)',
+                                                    color: 'white'
+                                                }}
                                             >
-                                                <Zap size={18} />
+                                                <Zap size={14} color="var(--primary)" /> Promote
                                             </button>
                                             <Link to={`/edit-tool/${tool.id}`} title="Edit" style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>
                                                 <Edit3 size={18} />

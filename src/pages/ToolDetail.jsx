@@ -203,7 +203,10 @@ const ToolDetail = () => {
                         </div>
                         <div className="tool-header-info" style={{ flex: 1 }}>
                             <div className="badge">{tool.categories?.name}</div>
-                            <h1 className="hero-title" style={{ fontSize: '3.5rem', marginBottom: '1rem', textAlign: 'left' }}>{tool.name}</h1>
+                            <h1 className="hero-title" style={{ fontSize: '3.5rem', marginBottom: '1rem', textAlign: 'left', display: 'flex', alignItems: 'center', gap: '15px' }}>
+                                {tool.name}
+                                {tool.is_verified && <CheckCircle2 size={32} color="#00d2ff" fill="rgba(0,210,255,0.1)" title="Verified Tool" />}
+                            </h1>
                             <p className="tool-short-desc" style={{ fontSize: '1.2rem', color: 'var(--text-muted)', maxWidth: '700px' }}>{tool.short_description}</p>
                         </div>
                         <div className="tool-header-actions" style={{ display: 'flex', gap: '1rem' }}>

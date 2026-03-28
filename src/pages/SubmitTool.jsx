@@ -46,6 +46,27 @@ const SubmitTool = () => {
         fetchCategories();
     }, [step]);
 
+    const [toolCount, setToolCount] = useState(0);
+    const [isLimitReached, setIsLimitReached] = useState(false);
+
+    useEffect(() => {
+        const checkLimit = async () => {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user) {
+                const { count } = await supabase
+                    .from('tools')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('user_id', user.id);
+                
+                setToolCount(count || 0);
+                if ((count || 0) >= 2 && !user.is_premium) {
+                    setIsLimitReached(true);
+                }
+            }
+        };
+        checkLimit();
+    }, [user]);
+
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
@@ -326,17 +347,29 @@ const SubmitTool = () => {
                                 <button type="button" onClick={prevStep} className="btn-secondary">
                                     <ArrowLeft size={18} /> Back
                                 </button>
-                            ) : <div></div>}
+                            ) : (
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: isLimitReached ? '#ff4757' : 'var(--text-muted)', fontSize: '0.9rem' }}>
+                                    <Star size={16} fill={user?.is_premium ? 'var(--primary)' : 'none'} />
+                                    Submissions: {toolCount}/2 
+                                    {isLimitReached && <span style={{ marginLeft: '10px' }}>(Limit Reached)</span>}
+                                </div>
+                            )}
                             
                             {step < 4 ? (
                                 <button type="button" onClick={nextStep} className="btn-primary" disabled={uploading}>
                                     {uploading ? <Loader2 className="animate-spin" size={18} /> : <>Continue <ArrowRight size={18} /></>}
                                 </button>
                             ) : (
-                                <button type="submit" disabled={loading || uploading} className="btn-primary" style={{ background: 'var(--primary)', boxShadow: '0 0 20px var(--primary-glow)', display: 'flex', gap: '10px', alignItems: 'center' }}>
-                                    {loading ? <Loader2 className="animate-spin" size={18} /> : <Send size={18} />}
-                                    Submit Tool
-                                </button>
+                                isLimitReached ? (
+                                    <Link to="/premium" className="btn-primary" style={{ background: 'linear-gradient(90deg, #FFD700, #FFA500)', color: 'black', textDecoration: 'none', display: 'flex', gap: '10px', alignItems: 'center' }}>
+                                        <Award size={18} /> Upgrade to Premium
+                                    </Link>
+                                ) : (
+                                    <button type="submit" disabled={loading || uploading} className="btn-primary" style={{ background: 'var(--primary)', boxShadow: '0 0 20px var(--primary-glow)', display: 'flex', gap: '10px', alignItems: 'center' }}>
+                                        {loading ? <Loader2 className="animate-spin" size={18} /> : <Send size={18} />}
+                                        Submit Tool
+                                    </button>
+                                )
                             )}
                         </div>
                     </form>

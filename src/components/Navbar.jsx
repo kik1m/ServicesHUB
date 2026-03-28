@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, User, LogIn, LayoutGrid, Zap, Menu, X, Sparkles, Info, Rss, RefreshCcw, ChevronDown, Bell, Settings, LogOut, Heart } from 'lucide-react';
+import { Search, User, LogIn, LayoutGrid, Zap, Menu, X, Sparkles, Info, Rss, RefreshCcw, ChevronDown, Bell, Settings, LogOut, Heart, Star } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
 import { useAuth } from '../context/AuthContext';
 import NotificationPanel from './NotificationPanel';
@@ -127,6 +127,24 @@ const Navbar = () => {
                 </div>
 
                 <div className="nav-actions">
+                    {user && !user.is_premium && (
+                        <Link to="/premium" className="premium-nav-btn desktop-only" style={{ 
+                            padding: '10px 15px', 
+                            borderRadius: '12px', 
+                            background: 'linear-gradient(90deg, #FFD700, #FFA500)', 
+                            color: 'black', 
+                            fontWeight: '800', 
+                            textDecoration: 'none',
+                            fontSize: '0.85rem',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '5px',
+                            marginRight: '10px',
+                            boxShadow: '0 0 15px rgba(255, 215, 0, 0.2)'
+                        }}>
+                             <Star size={14} fill="currentColor" /> Go Premium
+                        </Link>
+                    )}
                     <Link to="/submit" className="btn-primary-slim">Submit Tool</Link>
                     
                     {!user ? (

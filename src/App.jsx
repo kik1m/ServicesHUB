@@ -17,6 +17,7 @@ import Privacy from './pages/Privacy';
 import Blog from './pages/Blog';
 import BlogPost from './pages/BlogPost';
 import FAQ from './pages/FAQ';
+import Premium from './pages/Premium';
 import Promote from './pages/Promote';
 import Success from './pages/Success';
 import NotFound from './pages/NotFound';
@@ -52,6 +53,7 @@ function App() {
             <Route path="/blog" element={<Blog />} />
             <Route path="/blog/:id" element={<BlogPost />} />
             <Route path="/faq" element={<FAQ />} />
+            <Route path="/premium" element={<Premium />} />
             <Route path="/promote" element={<Promote />} />
             <Route path="/compare" element={<Compare />} />
             <Route path="/dashboard" element={<Dashboard />} />

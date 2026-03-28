@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { LayoutDashboard, UserCircle, Settings, LogOut, Shield, Loader2, Heart } from 'lucide-react';
+import { LayoutDashboard, UserCircle, Settings, LogOut, Shield, Loader2, Heart, Award } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
 
 const AccountMenu = ({ onClose, handleLogout }) => {
@@ -35,7 +35,10 @@ const AccountMenu = ({ onClose, handleLogout }) => {
                     <Loader2 className="animate-spin" size={16} />
                 ) : (
                     <>
-                        <p style={{ fontSize: '0.85rem', fontWeight: '800', margin: 0 }}>{profile?.full_name || 'User'}</p>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <p style={{ fontSize: '0.85rem', fontWeight: '800', margin: 0 }}>{profile?.full_name || 'User'}</p>
+                            {profile?.is_premium && <Award size={14} color="#FFD700" title="Premium Member" />}
+                        </div>
                         <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis' }}>{profile?.email}</p>
                     </>
                 )}

@@ -43,8 +43,8 @@ export default async function handler(req, res) {
         const { userId, planName, itemType = 'membership', toolId = null } = session.metadata;
 
         if (itemType === 'tool_promotion' && toolId) {
-            // Handle Tool Promotion (Featured/Enterprise)
-            const durationDays = planName === 'Featured' ? 7 : 30;
+            // Handle Tool Promotion (Featured/Enterprise) - Both are 30 days (1 month)
+            const durationDays = 30;
             const featuredUntil = new Date();
             featuredUntil.setDate(featuredUntil.getDate() + durationDays);
 
@@ -52,6 +52,7 @@ export default async function handler(req, res) {
                 .from('tools')
                 .update({ 
                     is_featured: true,
+                    is_verified: true, // Promoted tools get verified
                     featured_until: featuredUntil.toISOString(),
                     updated_at: new Date().toISOString()
                 })
@@ -62,8 +63,25 @@ export default async function handler(req, res) {
                 return res.status(500).json({ error: 'Failed to update tool status' });
             }
             console.log(`Tool ${toolId} promoted to ${planName} until ${featuredUntil.toISOString()}`);
+        } else if (itemType === 'account_premium') {
+            // Handle Account Premium (Lifetime)
+            const { error: profileError } = await supabase
+                .from('profiles')
+                .update({ 
+                    is_premium: true,
+                    premium_since: new Date().toISOString(),
+                    membership: 'premium',
+                    updated_at: new Date().toISOString()
+                })
+                .eq('id', userId);
+
+            if (profileError) {
+                console.error('Error updating premium profile:', profileError);
+                return res.status(500).json({ error: 'Failed to update premium profile' });
+            }
+            console.log(`User ${userId} upgraded to Lifetime Premium`);
         } else {
-            // Handle User Membership (Premium)
+            // Handle User Membership (Legacy or other)
             const { error: profileError } = await supabase
                 .from('profiles')
                 .update({ 

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import { useAuth } from '../context/AuthContext';
-import { Users, Zap, CheckCircle, Clock, ArrowUpRight, Loader2, AlertCircle, FileText, PlusCircle, Trash2, LayoutGrid, Image as ImageIcon, X } from 'lucide-react';
+import { Users, Zap, CheckCircle, Clock, ArrowUpRight, Loader2, AlertCircle, FileText, PlusCircle, Trash2, LayoutGrid, Image as ImageIcon, X, CheckCircle2, Award } from 'lucide-react';
 import SkeletonLoader from '../components/SkeletonLoader';
 import { useToast } from '../context/ToastContext';
 import { sendNotification } from '../utils/notifications';
@@ -20,7 +20,8 @@ const AdminDashboard = () => {
     const [stats, setStats] = useState([]);
     const [isAdmin, setIsAdmin] = useState(false);
     const [error, setError] = useState(null);
-    const [activeTab, setActiveTab] = useState('pending'); // 'pending', 'featured', 'blogs', 'add-tool', 'categories'
+    const [activeTab, setActiveTab] = useState('pending'); // 'pending', 'featured', 'blogs', 'add-tool', 'categories', 'users'
+    const [allUsers, setAllUsers] = useState([]);
     
     // Form States
     const [newPost, setNewPost] = useState({ title: '', excerpt: '', content: '', category: '', image_url: '' });
@@ -111,6 +112,10 @@ const AdminDashboard = () => {
 
                 const { data: toolCats } = await supabase.from('categories').select('*');
                 setToolCategories(toolCats || []);
+
+                // Fetch All Users
+                const { data: usersData } = await supabase.from('profiles').select('*').order('created_at', { ascending: false });
+                setAllUsers(usersData || []);
 
                 // Fetch Platform Stats
                 const { count: toolsCount } = await supabase.from('tools').select('*', { count: 'exact', head: true });
@@ -339,6 +344,7 @@ const AdminDashboard = () => {
                         { id: 'featured', label: 'Featured Tools', icon: <Zap size={16} /> },
                         { id: 'blogs', label: 'Blog Manager', icon: <FileText size={16} /> },
                         { id: 'categories', label: 'Categories', icon: <LayoutGrid size={16} /> },
+                        { id: 'users', label: 'Users Manager', icon: <Users size={16} /> },
                         { id: 'add-tool', label: 'Quick Add Tool', icon: <PlusCircle size={16} /> }
                     ].map(tab => (
                         <button 
@@ -399,9 +405,14 @@ const AdminDashboard = () => {
                                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1.5rem' }}>
                                     {featuredTools.map(tool => (
                                         <div key={tool.id} className="glass-card" style={{ padding: '1.5rem', background: 'rgba(255,255,255,0.01)' }}>
-                                            <h4 style={{ fontWeight: '800', marginBottom: '5px' }}>{tool.name}</h4>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '10px' }}>
+                                                <h4 style={{ fontWeight: '800', marginBottom: 0 }}>{tool.name}</h4>
+                                                {tool.is_verified && <CheckCircle2 size={16} color="#00d2ff" title="Verified" />}
+                                            </div>
                                             <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '1rem' }}>Expires: {new Date(tool.featured_until).toLocaleDateString()}</p>
-                                            <button onClick={() => handleRemoveFeature(tool.id)} style={{ width: '100%', background: 'rgba(255,80,80,0.1)', color: '#ff5050', border: 'none', padding: '8px', borderRadius: '8px', cursor: 'pointer' }}>Remove Status</button>
+                                            <div style={{ display: 'flex', gap: '8px' }}>
+                                                <button onClick={() => handleRemoveFeature(tool.id)} style={{ flex: 1, background: 'rgba(255,80,80,0.1)', color: '#ff5050', border: 'none', padding: '8px', borderRadius: '8px', cursor: 'pointer', fontSize: '0.8rem' }}>Remove Feature</button>
+                                            </div>
                                         </div>
                                     ))}
                                 </div>
@@ -513,7 +524,6 @@ const AdminDashboard = () => {
                                     </form>
                             </div>
                         )}
-
                         {activeTab === 'categories' && (
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr', gap: '3rem' }}>
                                 <div>
@@ -535,6 +545,32 @@ const AdminDashboard = () => {
                                             </div>
                                         ))}
                                     </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {activeTab === 'users' && (
+                            <div>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+                                    <h2 style={{ fontSize: '1.25rem', fontWeight: '700' }}>Users Manager</h2>
+                                    <span style={{ fontSize: '0.8rem', color: 'var(--primary)', fontWeight: '700' }}>{allUsers.length} TOTAL USERS</span>
+                                </div>
+                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.5rem' }}>
+                                    {allUsers.map(u => (
+                                        <div key={u.id} className="glass-card" style={{ padding: '1.5rem', display: 'flex', gap: '15px', alignItems: 'center', border: u.is_premium ? '1px solid rgba(255, 215, 0, 0.3)' : '1px solid var(--border)' }}>
+                                            <div style={{ width: '50px', height: '50px', background: 'var(--gradient)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 'bold', fontSize: '1.2rem' }}>
+                                                {u.avatar_url ? <img src={u.avatar_url} style={{ width: '100%', height: '100%', borderRadius: 'inherit', objectFit: 'cover' }} /> : u.full_name?.charAt(0) || 'U'}
+                                            </div>
+                                            <div style={{ flex: 1 }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                    <h5 style={{ fontWeight: '700', margin: 0 }}>{u.full_name || 'Anonymous'}</h5>
+                                                    {u.is_premium && <Award size={14} color="#FFD700" title="Premium" />}
+                                                </div>
+                                                <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', margin: '2px 0' }}>{u.role}</p>
+                                                <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', margin: 0 }}>Joined {new Date(u.created_at).toLocaleDateString()}</p>
+                                            </div>
+                                        </div>
+                                    ))}
                                 </div>
                             </div>
                         )}

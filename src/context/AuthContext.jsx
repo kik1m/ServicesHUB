@@ -9,17 +9,32 @@ export const AuthProvider = ({ children }) => {
 
     useEffect(() => {
         // Initial session check
+        const fetchProfile = async (userId) => {
+            const { data } = await supabase.from('profiles').select('is_premium, role').eq('id', userId).single();
+            return data || { is_premium: false, role: 'user' };
+        };
+
         const initAuth = async () => {
             const { data: { session } } = await supabase.auth.getSession();
-            setUser(session?.user ?? null);
+            if (session?.user) {
+                const profile = await fetchProfile(session.user.id);
+                setUser({ ...session.user, ...profile });
+            } else {
+                setUser(null);
+            }
             setLoading(false);
         };
 
         initAuth();
 
         // Listen for changes
-        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-            setUser(session?.user ?? null);
+        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+            if (session?.user) {
+                const profile = await fetchProfile(session.user.id);
+                setUser({ ...session.user, ...profile });
+            } else {
+                setUser(null);
+            }
             setLoading(false);
         });
 
