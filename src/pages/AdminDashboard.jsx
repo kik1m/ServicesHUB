@@ -24,7 +24,7 @@ const AdminDashboard = () => {
     
     // Form States
     const [newPost, setNewPost] = useState({ title: '', excerpt: '', content: '', category: '', image_url: '' });
-    const [newCategory, setNewCategory] = useState({ name: '', slug: '', icon: '' });
+    const [newCategory, setNewCategory] = useState({ name: '', slug: '', icon_name: '' });
     const [newTool, setNewTool] = useState({ name: '', description: '', url: '', category_id: '', pricing_type: 'Free', image_url: '' });
     const [toolCategories, setToolCategories] = useState([]);
     const [submitting, setSubmitting] = useState(false);
@@ -257,7 +257,7 @@ const AdminDashboard = () => {
             const { data, error } = await supabase.from('categories').insert([newCategory]).select();
             if (error) throw error;
             setToolCategories([...toolCategories, data[0]]);
-            setNewCategory({ name: '', slug: '', icon: '' });
+            setNewCategory({ name: '', slug: '', icon_name: '' });
             showToast('Category added! 🎉', 'success');
         } catch (err) {
             showToast('Error: ' + err.message, 'error');
@@ -521,7 +521,7 @@ const AdminDashboard = () => {
                                     <form onSubmit={handleCreateCategory} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                                         <input type="text" placeholder="Category Name (e.g. Video AI)" required value={newCategory.name} onChange={e => setNewCategory({...newCategory, name: e.target.value})} className="nav-search-wrapper" style={{ width: '100%', padding: '12px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'white' }} />
                                         <input type="text" placeholder="Slug (e.g. video-ai)" required value={newCategory.slug} onChange={e => setNewCategory({...newCategory, slug: e.target.value})} className="nav-search-wrapper" style={{ width: '100%', padding: '12px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'white' }} />
-                                        <input type="text" placeholder="Icon Name (Lucide)" value={newCategory.icon} onChange={e => setNewCategory({...newCategory, icon: e.target.value})} className="nav-search-wrapper" style={{ width: '100%', padding: '12px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'white' }} />
+                                        <input type="text" placeholder="Icon Name (Lucide)" value={newCategory.icon_name} onChange={e => setNewCategory({...newCategory, icon_name: e.target.value})} className="nav-search-wrapper" style={{ width: '100%', padding: '12px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'white' }} />
                                         <button type="submit" disabled={submitting} className="btn-primary" style={{ width: '100%' }}>{submitting ? <Loader2 className="animate-spin" size={20} /> : 'Add Category'}</button>
                                     </form>
                                 </div>
