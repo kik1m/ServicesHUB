@@ -30,27 +30,36 @@ const Home = () => {
 
     useEffect(() => {
         const fetchHomeData = async () => {
+            const timeout = setTimeout(() => {
+                if (loading) setLoading(false);
+            }, 6000); // 6s safety timeout
+
             try {
                 // Fetch Categories
-                const { data: catData } = await supabase
+                const { data: catData, error: catError } = await supabase
                     .from('categories')
                     .select('*')
                     .limit(4);
                 
-                // Fetch Featured Tools with Category Info (only active ones)
+                if (catError) console.error('Categories Fetch Error:', catError);
+                
+                // Fetch Featured Tools (Active ones)
                 const now = new Date().toISOString();
-                const { data: toolData } = await supabase
+                const { data: toolData, error: toolError } = await supabase
                     .from('tools')
                     .select('*, categories(name)')
                     .eq('is_featured', true)
                     .gt('featured_until', now)
                     .limit(3);
 
+                if (toolError) console.error('Featured Tools Fetch Error:', toolError);
+
                 setCategories(catData || []);
                 setFeaturedTools(toolData || []);
             } catch (error) {
-                console.error('Error fetching home data:', error);
+                console.error('Home Data Fetch Exception:', error);
             } finally {
+                clearTimeout(timeout);
                 setLoading(false);
             }
         };
@@ -127,7 +136,7 @@ const Home = () => {
                          [1,2,3].map(i => (
                             <SkeletonLoader key={i} type="card" />
                          ))
-                    ) : (
+                    ) : featuredTools.length > 0 ? (
                         featuredTools.map((tool, i) => (
                             <div key={i} className="glass-card tool-preview-card">
                                 <div className="tool-logo-box" style={{ 
@@ -160,6 +169,12 @@ const Home = () => {
                                 <Link to={`/tool/${tool.slug}`} className="btn-text">View Details <ArrowRight size={16} /></Link>
                             </div>
                         ))
+                    ) : (
+                        <div className="glass-card" style={{ gridColumn: '1 / -1', padding: '3rem', textAlign: 'center', color: 'var(--text-muted)' }}>
+                             <Zap size={40} style={{ opacity: 0.2, marginBottom: '1rem' }} />
+                             <p>No featured tools at the moment. Check back later!</p>
+                             <Link to="/tools" className="btn-text" style={{ color: 'var(--primary)', marginTop: '1rem', display: 'inline-block' }}>Browse All Tools</Link>
+                        </div>
                     )}
                 </div>
             </section>

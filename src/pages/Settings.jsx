@@ -32,9 +32,14 @@ const Settings = () => {
         newsletter: false
     });
     const { showToast } = useToast();
-    const navigate = useNavigate();
 
     useEffect(() => {
+        if (authLoading) return;
+        if (!authUser) {
+            navigate('/auth');
+            return;
+        }
+        
         const fetchProfile = async () => {
             setLoading(true);
             const { data: { user } } = await supabase.auth.getUser();

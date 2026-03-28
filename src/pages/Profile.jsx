@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { User, Settings, Heart, MessageSquare, Award, Clock, Star, Edit3, LayoutGrid, LogOut, Loader2, Globe, Twitter, Linkedin } from 'lucide-react';
+import { User, Settings, Heart, MessageSquare, Award, Clock, Star, Edit3, LayoutGrid, LogOut, Loader2, Globe, Twitter, Linkedin, CheckCircle2, TrendingUp } from 'lucide-react';
 import SkeletonLoader from '../components/SkeletonLoader';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -11,13 +11,22 @@ const Profile = () => {
     const navigate = useNavigate();
     const { user, loading: authLoading, signOut } = useAuth();
     const { showToast } = useToast();
+
+    useEffect(() => {
+        if (authLoading) return;
+        if (!user) {
+            navigate('/auth');
+        }
+    }, [user, authLoading, navigate]);
+
     const [profile, setProfile] = useState(null);
     const [loading, setLoading] = useState(true);
     const [favorites, setFavorites] = useState([]);
+    const [userTools, setUserTools] = useState([]);
     const [upgrading, setUpgrading] = useState(false);
 
     useEffect(() => {
-        const getProfile = async () => {
+        const fetchProfileData = async () => {
             if (authLoading) return;
             if (!user) {
                 navigate('/auth');
@@ -25,64 +34,50 @@ const Profile = () => {
             }
 
             setLoading(true);
-            try {
+            const timeout = setTimeout(() => {
+                if (loading) setLoading(false);
+            }, 6000);
 
-                let { data, error } = await supabase
+            try {
+                // Fetch User Profile
+                const { data: profileData, error: profileError } = await supabase
                     .from('profiles')
                     .select('*')
                     .eq('id', user.id)
                     .single();
-                
-                // If profile doesn't exist, create it
-                if (error && error.code === 'PGRST116') {
-                    const { data: newProfile, error: insertError } = await supabase
-                        .from('profiles')
-                        .insert([
-                            { 
-                                id: user.id, 
-                                full_name: user.user_metadata.full_name || user.email.split('@')[0], 
-                                avatar_url: user.user_metadata.avatar_url,
-                                membership: 'Free'
-                            }
-                        ])
-                        .select()
-                        .single();
-                    
-                    if (insertError) throw insertError;
-                    data = newProfile;
-                    error = null;
 
-                    // Create Welcome Notification
-                    await supabase.from('notifications').insert([{
-                        user_id: user.id,
-                        title: 'أهلاً بك في ServicesHUB! 🎉',
-                        message: 'شكرًا لانضمامك إلينا. يمكنك الآن استكشاف أفضل الأدوات البرمجية وحفظ مفضلاتك والمزيد.',
-                        type: 'info',
-                        is_unread: true
-                    }]);
-                } else if (error) {
-                    throw error;
-                }
+                if (profileError) console.error('Profile Fetch Error:', profileError);
+                setProfile(profileData || {});
 
-                setProfile(data);
+                // Fetch User Tools (Submitted)
+                const { data: toolsData, error: toolsError } = await supabase
+                    .from('tools')
+                    .select('*, categories(name)')
+                    .eq('user_id', user.id)
+                    .order('created_at', { ascending: false });
+
+                if (toolsError) console.error('Tools Fetch Error:', toolsError);
+                setUserTools(toolsData || []);
 
                 // Fetch Favorites
-                if (user) {
-                    const { data: favs } = await supabase
-                        .from('favorites')
-                        .select('*, tools(*, categories(name))')
-                        .eq('user_id', user.id);
-                    setFavorites(favs || []);
-                }
+                const { data: favsData, error: favsError } = await supabase
+                    .from('favorites')
+                    .select('*, tools(*, categories(*))')
+                    .eq('user_id', user.id);
+
+                if (favsError) console.error('Favorites Fetch Error:', favsError);
+                setFavorites(favsData || []);
+
             } catch (error) {
-                console.error('Error fetching profile:', error);
+                console.error('Profile Data Fetch Exception:', error);
             } finally {
+                clearTimeout(timeout);
                 setLoading(false);
             }
         };
 
-        getProfile();
-    }, [navigate]);
+        fetchProfileData();
+    }, [user, authLoading, navigate]);
 
     const handleSignOut = async () => {
         await signOut();
@@ -215,8 +210,22 @@ const Profile = () => {
                                             )}
                                         </div>
                                         <div style={{ flex: 1 }}>
-                                            <h4 style={{ margin: 0, fontSize: '1.1rem' }}>{fav.tools?.name || 'Unknown Tool'}</h4>
-                                            <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-muted)' }}>{fav.tools?.categories?.name || 'Misc'}</p>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                <h4 style={{ margin: 0, fontSize: '1.1rem' }}>{fav.tools?.name || 'Unknown Tool'}</h4>
+                                                {fav.tools?.is_verified && <CheckCircle2 size={14} color="#00d2ff" title="Verified Tool" />}
+                                            </div>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '4px' }}>
+                                                <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-muted)' }}>{fav.tools?.categories?.name || 'Misc'}</p>
+                                                {fav.tools?.is_featured && (
+                                                    <span style={{ 
+                                                        fontSize: '0.65rem', color: '#FFD700', background: 'rgba(255, 215, 0, 0.1)', 
+                                                        padding: '2px 6px', borderRadius: '4px', border: '1px solid rgba(255, 215, 0, 0.2)',
+                                                        display: 'flex', alignItems: 'center', gap: '3px'
+                                                    }}>
+                                                        <TrendingUp size={10} /> Featured
+                                                    </span>
+                                                )}
+                                            </div>
                                         </div>
                                         <Star size={16} fill="#ffcc00" color="#ffcc00" />
                                     </Link>

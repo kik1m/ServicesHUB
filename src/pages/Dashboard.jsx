@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { LayoutGrid, Plus, TrendingUp, Settings, Trash2, Edit3, ExternalLink, Loader2, AlertCircle, Zap } from 'lucide-react';
+import { LayoutGrid, Plus, TrendingUp, Settings, Trash2, Edit3, ExternalLink, Loader2, AlertCircle, Zap, CheckCircle2 } from 'lucide-react';
 import SkeletonLoader from '../components/SkeletonLoader';
 import { Link, useNavigate } from 'react-router-dom';
 import { useToast } from '../context/ToastContext';
@@ -24,17 +24,22 @@ const Dashboard = () => {
             }
 
             setIsLoading(true);
-            try {
+            const timeout = setTimeout(() => {
+                if (isLoading) setIsLoading(false);
+            }, 6000);
 
-                // Fetch Profile for membership/stats
-                const { data: profileData } = await supabase
+            try {
+                // Fetch Profile
+                const { data: profileData, error: profileError } = await supabase
                     .from('profiles')
                     .select('*')
                     .eq('id', user.id)
                     .single();
+                
+                if (profileError) console.error('Profile Fetch Error:', profileError);
                 setProfile(profileData);
 
-                // Fetch Tools submitted by this user
+                // Fetch Tools
                 const { data: toolsData, error: toolsError } = await supabase
                     .from('tools')
                     .select('*')
@@ -48,12 +53,13 @@ const Dashboard = () => {
                 console.error('Dashboard Fetch Error:', err);
                 setError(err.message);
             } finally {
+                clearTimeout(timeout);
                 setIsLoading(false);
             }
         };
 
         fetchDashboardData();
-    }, [navigate]);
+    }, [user, authLoading, navigate]);
 
     const handleDeleteTool = async (id, name) => {
         if (!window.confirm(`Are you sure you want to delete "${name}"? This action cannot be undone.`)) return;
@@ -144,6 +150,7 @@ const Dashboard = () => {
                         <tr style={{ borderBottom: '1px solid var(--border)' }}>
                             <th style={{ padding: '1.5rem', color: 'var(--text-muted)' }}>Tool Name</th>
                             <th style={{ padding: '1.5rem', color: 'var(--text-muted)' }}>Status</th>
+                            <th style={{ padding: '1.5rem', color: 'var(--text-muted)' }}>Marketing</th>
                             <th style={{ padding: '1.5rem', color: 'var(--text-muted)' }}>Date</th>
                             <th style={{ padding: '1.5rem', color: 'var(--text-muted)' }}>Pricing</th>
                             <th style={{ padding: '1.5rem', color: 'var(--text-muted)' }}>Actions</th>
@@ -170,6 +177,33 @@ const Dashboard = () => {
                                         }}>
                                             {tool.is_approved ? 'Published' : 'Pending'}
                                         </span>
+                                    </td>
+                                    <td style={{ padding: '1.5rem' }}>
+                                        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                                            {tool.is_featured && (
+                                                <span style={{ 
+                                                    padding: '2px 8px', borderRadius: '4px', fontSize: '0.65rem',
+                                                    background: 'rgba(255, 215, 0, 0.1)', color: '#FFD700',
+                                                    border: '1px solid rgba(255, 215, 0, 0.2)',
+                                                    display: 'flex', alignItems: 'center', gap: '4px'
+                                                }}>
+                                                    <TrendingUp size={10} /> Featured
+                                                </span>
+                                            )}
+                                            {tool.is_verified && (
+                                                <span style={{ 
+                                                    padding: '2px 8px', borderRadius: '4px', fontSize: '0.65rem',
+                                                    background: 'rgba(0, 210, 255, 0.1)', color: 'var(--secondary)',
+                                                    border: '1px solid rgba(0, 210, 255, 0.2)',
+                                                    display: 'flex', alignItems: 'center', gap: '4px'
+                                                }}>
+                                                    <CheckCircle2 size={10} /> Verified
+                                                </span>
+                                            )}
+                                            {!tool.is_featured && !tool.is_verified && (
+                                                <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>Standard</span>
+                                            )}
+                                        </div>
                                     </td>
                                     <td style={{ padding: '1.5rem' }}>{new Date(tool.created_at).toLocaleDateString()}</td>
                                     <td style={{ padding: '1.5rem' }}>{tool.pricing_type}</td>

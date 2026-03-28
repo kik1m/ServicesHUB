@@ -13,7 +13,7 @@ import { sendNotification } from '../utils/notifications';
 
 const SubmitTool = () => {
     const navigate = useNavigate();
-    const { user } = useAuth();
+    const { user, loading: authLoading } = useAuth();
     const { showToast } = useToast();
     const [step, setStep] = useState(1);
     const [isSuccess, setIsSuccess] = useState(false);
@@ -22,6 +22,7 @@ const SubmitTool = () => {
     const [error, setError] = useState(null);
     const [uploading, setUploading] = useState(false);
     const [imagePreview, setImagePreview] = useState(null);
+    const [isLoading, setIsLoading] = useState(true);
     const [toolCount, setToolCount] = useState(0);
     const [isLimitReached, setIsLimitReached] = useState(false);
 
@@ -52,25 +53,37 @@ const SubmitTool = () => {
 
     useEffect(() => {
         const checkLimit = async () => {
-            // Get user again because sometimes context isn't ready immediately on mount
-            const { data: { user: authUser } } = await supabase.auth.getUser();
-            if (authUser) {
+            if (authLoading) return;
+            if (!user) {
+                navigate('/auth');
+                return;
+            }
+
+            setIsLoading(true);
+            try {
                 // Get profile to check is_premium correctly
-                const { data: profile } = await supabase.from('profiles').select('is_premium').eq('id', authUser.id).single();
+                const { data: profile, error: profileError } = await supabase.from('profiles').select('is_premium').eq('id', user.id).single();
+                if (profileError) console.error('Limit Check Profile Error:', profileError);
                 
-                const { count } = await supabase
+                const { count, error: countError } = await supabase
                     .from('tools')
                     .select('*', { count: 'exact', head: true })
-                    .eq('user_id', authUser.id);
+                    .eq('user_id', user.id);
                 
+                if (countError) console.error('Limit Check Count Error:', countError);
+
                 setToolCount(count || 0);
                 if ((count || 0) >= 2 && !profile?.is_premium) {
                     setIsLimitReached(true);
                 }
+            } catch (err) {
+                console.error('Limit check exception:', err);
+            } finally {
+                setIsLoading(false);
             }
         };
         checkLimit();
-    }, [user]);
+    }, [user, authLoading, navigate]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;

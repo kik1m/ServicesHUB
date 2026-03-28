@@ -6,11 +6,21 @@ import axios from 'axios';
 import { useToast } from '../context/ToastContext';
 import SkeletonLoader from '../components/SkeletonLoader';
 import CustomSelect from '../components/CustomSelect';
+import { useAuth } from '../context/AuthContext';
 
 const Promote = () => {
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
+    const { user, loading: authLoading } = useAuth();
     const { showToast } = useToast();
+
+    useEffect(() => {
+        if (authLoading) return;
+        if (!user) {
+            navigate('/auth');
+        }
+    }, [user, authLoading, navigate]);
+
     const toolId = searchParams.get('toolId');
     const [toolName, setToolName] = useState('');
     const [userTools, setUserTools] = useState([]);
