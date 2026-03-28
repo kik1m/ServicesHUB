@@ -3,14 +3,18 @@ import { supabase } from '../lib/supabaseClient';
 import { 
     LayoutGrid, ArrowRight, ArrowLeft, Upload, CheckCircle2, 
     Globe, Send, ShieldCheck, Zap, Loader2, AlertCircle, 
-    X, Image as ImageIcon
+    X, Image as ImageIcon, Star, Award
 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import CustomSelect from '../components/CustomSelect';
 import { useToast } from '../context/ToastContext';
 import { sendNotification } from '../utils/notifications';
 
 const SubmitTool = () => {
+    const navigate = useNavigate();
+    const { user } = useAuth();
+    const { showToast } = useToast();
     const [step, setStep] = useState(1);
     const [isSuccess, setIsSuccess] = useState(false);
     const [categories, setCategories] = useState([]);
@@ -18,8 +22,8 @@ const SubmitTool = () => {
     const [error, setError] = useState(null);
     const [uploading, setUploading] = useState(false);
     const [imagePreview, setImagePreview] = useState(null);
-    const navigate = useNavigate();
-    const { showToast } = useToast();
+    const [toolCount, setToolCount] = useState(0);
+    const [isLimitReached, setIsLimitReached] = useState(false);
 
     const [formData, setFormData] = useState({
         name: '',
@@ -46,20 +50,21 @@ const SubmitTool = () => {
         fetchCategories();
     }, [step]);
 
-    const [toolCount, setToolCount] = useState(0);
-    const [isLimitReached, setIsLimitReached] = useState(false);
-
     useEffect(() => {
         const checkLimit = async () => {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (user) {
+            // Get user again because sometimes context isn't ready immediately on mount
+            const { data: { user: authUser } } = await supabase.auth.getUser();
+            if (authUser) {
+                // Get profile to check is_premium correctly
+                const { data: profile } = await supabase.from('profiles').select('is_premium').eq('id', authUser.id).single();
+                
                 const { count } = await supabase
                     .from('tools')
                     .select('*', { count: 'exact', head: true })
-                    .eq('user_id', user.id);
+                    .eq('user_id', authUser.id);
                 
                 setToolCount(count || 0);
-                if ((count || 0) >= 2 && !user.is_premium) {
+                if ((count || 0) >= 2 && !profile?.is_premium) {
                     setIsLimitReached(true);
                 }
             }

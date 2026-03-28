@@ -1,17 +1,17 @@
-import { CheckCircle, ArrowLeft, Plus } from 'lucide-react';
+import { CheckCircle2, ArrowLeft, Plus } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useToast } from '../context/ToastContext';
 import { sendNotification } from '../utils/notifications';
 import { supabase } from '../lib/supabaseClient';
 import { useAuth } from '../context/AuthContext';
 import SkeletonLoader from '../components/SkeletonLoader';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 
 const Success = () => {
     const { user, loading: authLoading } = useAuth();
     const [loading, setLoading] = useState(true);
     const { showToast } = useToast();
-    const [searchParams] = useState(new URLSearchParams(window.location.search));
+    const [searchParams] = useSearchParams();
     const type = searchParams.get('type');
     const toolName = searchParams.get('toolName');
 
@@ -65,7 +65,7 @@ const Success = () => {
                     color: 'var(--secondary)',
                     animation: 'pulse 2s infinite'
                 }}>
-                    <CheckCircle size={100} />
+                    <CheckCircle2 size={100} />
                 </div>
                 
                 <h1 style={{ fontSize: '2.5rem', fontWeight: '900', marginBottom: '1rem' }}>
