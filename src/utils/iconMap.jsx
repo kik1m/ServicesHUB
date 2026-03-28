@@ -19,7 +19,14 @@ import {
     Terminal,
     Video,
     Music,
-    Palette
+    Palette,
+    Box,
+    MousePointer2,
+    Component,
+    Layers,
+    Rocket,
+    Bot,
+    Wand2
 } from 'lucide-react';
 
 const icons = {
@@ -41,7 +48,14 @@ const icons = {
     Terminal: <Terminal size={24} />,
     Video: <Video size={24} />,
     Music: <Music size={24} />,
-    Palette: <Palette size={24} />
+    Palette: <Palette size={24} />,
+    Box: <Box size={24} />,
+    MousePointer2: <MousePointer2 size={24} />,
+    Component: <Component size={24} />,
+    Layers: <Layers size={24} />,
+    Rocket: <Rocket size={24} />,
+    Bot: <Bot size={24} />,
+    Wand2: <Wand2 size={24} />
 };
 
 export const getIcon = (name, size = 24) => {
