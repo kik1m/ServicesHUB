@@ -179,29 +179,44 @@ const Dashboard = () => {
                                         </span>
                                     </td>
                                     <td style={{ padding: '1.5rem' }}>
-                                        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                                            {tool.is_featured && (
-                                                <span style={{ 
-                                                    padding: '2px 8px', borderRadius: '4px', fontSize: '0.65rem',
-                                                    background: 'rgba(255, 215, 0, 0.1)', color: '#FFD700',
-                                                    border: '1px solid rgba(255, 215, 0, 0.2)',
-                                                    display: 'flex', alignItems: 'center', gap: '4px'
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                                                {tool.is_featured && (
+                                                    <span style={{ 
+                                                        padding: '2px 8px', borderRadius: '4px', fontSize: '0.65rem',
+                                                        background: 'rgba(255, 215, 0, 0.1)', color: '#FFD700',
+                                                        border: '1px solid rgba(255, 215, 0, 0.2)',
+                                                        display: 'flex', alignItems: 'center', gap: '4px'
+                                                    }}>
+                                                        <TrendingUp size={10} /> Featured
+                                                    </span>
+                                                )}
+                                                {tool.is_verified && (
+                                                    <span style={{ 
+                                                        padding: '2px 8px', borderRadius: '4px', fontSize: '0.65rem',
+                                                        background: 'rgba(0, 210, 255, 0.1)', color: 'var(--secondary)',
+                                                        border: '1px solid rgba(0, 210, 255, 0.2)',
+                                                        display: 'flex', alignItems: 'center', gap: '4px'
+                                                    }}>
+                                                        <CheckCircle2 size={10} /> Verified
+                                                    </span>
+                                                )}
+                                                {!tool.is_featured && !tool.is_verified && (
+                                                    <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>Standard</span>
+                                                )}
+                                            </div>
+                                            {tool.is_featured && tool.featured_until && (
+                                                <div style={{ 
+                                                    fontSize: '0.65rem', 
+                                                    color: 'var(--text-muted)',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    gap: '4px',
+                                                    marginTop: '2px'
                                                 }}>
-                                                    <TrendingUp size={10} /> Featured
-                                                </span>
-                                            )}
-                                            {tool.is_verified && (
-                                                <span style={{ 
-                                                    padding: '2px 8px', borderRadius: '4px', fontSize: '0.65rem',
-                                                    background: 'rgba(0, 210, 255, 0.1)', color: 'var(--secondary)',
-                                                    border: '1px solid rgba(0, 210, 255, 0.2)',
-                                                    display: 'flex', alignItems: 'center', gap: '4px'
-                                                }}>
-                                                    <CheckCircle2 size={10} /> Verified
-                                                </span>
-                                            )}
-                                            {!tool.is_featured && !tool.is_verified && (
-                                                <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>Standard</span>
+                                                    <AlertCircle size={10} />
+                                                    Expires: {new Date(tool.featured_until).toLocaleDateString()}
+                                                </div>
                                             )}
                                         </div>
                                     </td>

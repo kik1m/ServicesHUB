@@ -5,7 +5,10 @@ import { useNavigate } from 'react-router-dom';
 import SkeletonLoader from '../components/SkeletonLoader';
 import { useToast } from '../context/ToastContext';
 
+import { useAuth } from '../context/AuthContext';
+
 const Settings = () => {
+    const { user: authUser, loading: authLoading } = useAuth();
     const [activeTab, setActiveTab] = useState('profile');
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);

@@ -48,16 +48,19 @@ const Premium = () => {
             </header>
 
             <section className="main-section" style={{ maxWidth: '1000px', marginTop: '-100px', zIndex: 10, position: 'relative' }}>
-                <div className="glass-card premium-hero-card" style={{ 
-                    padding: '4rem', 
-                    borderRadius: '40px', 
+                <div className="glass-card premium-hero-card" style={{
+                    padding: '2.5rem',
+                    borderRadius: '40px',
                     border: '2px solid rgba(255, 215, 0, 0.3)',
-                    background: 'rgba(10, 10, 15, 0.8)',
+                    background: 'var(--bg-card)',
                     boxShadow: '0 20px 80px rgba(255, 215, 0, 0.1)',
+                    backdropFilter: 'blur(20px)',
                     display: 'grid',
                     gridTemplateColumns: '1.2fr 1fr',
-                    gap: '4rem',
-                    alignItems: 'center'
+                    gap: '2rem',
+                    alignItems: 'center',
+                    maxWidth: '100%',
+                    margin: '0 auto'
                 }}>
                     <div className="premium-details">
                         <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '2rem' }}>
@@ -107,32 +110,32 @@ const Premium = () => {
                         </ul>
                     </div>
 
-                    <div className="premium-pricing" style={{ 
-                        background: 'rgba(255, 255, 255, 0.02)', 
-                        padding: '3rem', 
-                        borderRadius: '30px', 
+                    <div className="premium-pricing" style={{
+                        background: 'rgba(var(--primary-rgb), 0.05)',
+                        padding: '2rem',
+                        borderRadius: '30px',
                         border: '1px solid var(--border)',
-                        textAlign: 'center' 
+                        textAlign: 'center'
                     }}>
                         <p style={{ color: 'var(--text-muted)', fontWeight: '700', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '2px' }}>One-Time Payment</p>
                         <div style={{ marginBottom: '2.5rem' }}>
                             <span style={{ fontSize: '4.5rem', fontWeight: '900', color: 'white' }}>$120</span>
                             <span style={{ color: 'var(--text-muted)', display: 'block' }}>Lifetime Access</span>
                         </div>
-                        
+
                         {user?.is_premium ? (
                             <div style={{ padding: '15px', background: 'rgba(0, 255, 170, 0.1)', color: '#00ffaa', borderRadius: '15px', fontWeight: '700' }}>
                                 Account Already Premium 💎
                             </div>
                         ) : (
-                            <button 
-                                onClick={handleUpgrade} 
+                            <button
+                                onClick={handleUpgrade}
                                 disabled={loading}
-                                className="btn-primary" 
-                                style={{ 
-                                    width: '100%', 
-                                    padding: '20px', 
-                                    fontSize: '1.1rem', 
+                                className="btn-primary"
+                                style={{
+                                    width: '100%',
+                                    padding: '20px',
+                                    fontSize: '1.1rem',
                                     background: 'linear-gradient(90deg, #FFD700, #FFA500)',
                                     color: 'black',
                                     display: 'flex',

@@ -7,6 +7,7 @@ import { useToast } from '../context/ToastContext';
 import SkeletonLoader from '../components/SkeletonLoader';
 import CustomSelect from '../components/CustomSelect';
 import { useAuth } from '../context/AuthContext';
+import SmartBanner from '../components/SmartBanner';
 
 const Promote = () => {
     const [searchParams] = useSearchParams();
@@ -73,12 +74,12 @@ const Promote = () => {
                     .select('id, name')
                     .eq('user_id', user.id)
                     .eq('is_approved', true);
-                
+
                 setUserTools(data || []);
                 setLoadingTools(false);
             }
         };
-        
+
         initializePromote();
     }, [toolId, navigate]);
 
@@ -119,6 +120,7 @@ const Promote = () => {
 
     return (
         <div className="page-wrapper promote-page">
+            <SmartBanner />
             <header className="page-header hero-section" style={{ minHeight: '40vh', paddingBottom: '30px' }}>
                 <div className="hero-content">
                     <div className="badge">PARTNERSHIPS & ADS</div>
@@ -135,7 +137,7 @@ const Promote = () => {
                     <h2 style={{ fontSize: '1.2rem', fontWeight: '800', marginBottom: '1.5rem' }}>
                         {toolName ? "Target Tool" : "1. Select a Tool to Promote"}
                     </h2>
-                    
+
                     {toolName ? (
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', color: 'var(--primary)', fontWeight: '700', fontSize: '1.2rem' }}>
@@ -150,7 +152,7 @@ const Promote = () => {
                             {loadingTools ? (
                                 <SkeletonLoader height="50px" width="100%" borderRadius="12px" />
                             ) : userTools.length > 0 ? (
-                                <CustomSelect 
+                                <CustomSelect
                                     options={userTools}
                                     value={selectedToolId}
                                     onChange={(val) => setSelectedToolId(val)}
@@ -166,28 +168,28 @@ const Promote = () => {
                         </div>
                     )}
                 </div>
-                
+
                 <h2 style={{ fontSize: '1.2rem', fontWeight: '800', marginBottom: '2rem' }}>2. Choose a Promotion Plan</h2>
-                <div className="pricing-grid" style={{ 
-                    display: 'grid', 
-                    gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', 
+                <div className="pricing-grid" style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
                     gap: '2rem',
                     alignItems: 'center'
                 }}>
                     {plans.map((plan, idx) => (
-                        <div key={idx} className={`pricing-card glass-card ${plan.recommended ? 'premium-glow' : ''}`} style={{ 
-                            padding: '3.5rem 2.5rem',
+                        <div key={idx} className={`pricing-card glass-card ${plan.recommended ? 'premium-glow' : ''}`} style={{
+                            padding: '2.5rem 2rem',
                             position: 'relative',
                             border: plan.recommended ? '2px solid var(--primary)' : '1px solid var(--border)',
-                            background: plan.recommended ? 'rgba(0,136,204,0.05)' : 'rgba(255,255,255,0.02)',
+                            background: plan.recommended ? 'rgba(0,136,204,0.05)' : 'var(--bg-card)',
                             transform: plan.recommended ? 'scale(1.05)' : 'scale(1)',
                             zIndex: plan.recommended ? 2 : 1
                         }}>
                             {plan.recommended && (
-                                <div style={{ 
-                                    position: 'absolute', 
-                                    top: '-15px', 
-                                    left: '50%', 
+                                <div style={{
+                                    position: 'absolute',
+                                    top: '-15px',
+                                    left: '50%',
                                     transform: 'translateX(-50%)',
                                     background: 'var(--gradient)',
                                     color: 'white',
@@ -197,10 +199,10 @@ const Promote = () => {
                                     fontWeight: '800'
                                 }}>MOST POPULAR</div>
                             )}
-                            
+
                             <h4 style={{ fontSize: '1.5rem', fontWeight: '800', marginBottom: '0.5rem' }}>{plan.name}</h4>
                             <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: '2rem' }}>{plan.desc}</p>
-                            
+
                             <div className="price" style={{ marginBottom: '2.5rem' }}>
                                 <span style={{ fontSize: '3.5rem', fontWeight: '900' }}>{plan.price}</span>
                                 {plan.period && <span style={{ color: 'var(--text-muted)', fontSize: '1.2rem' }}>{plan.period}</span>}
@@ -215,18 +217,18 @@ const Promote = () => {
                             </div>
 
                             {plan.amount > 0 ? (
-                                <button 
-                                    onClick={() => handlePromote(plan)} 
+                                <button
+                                    onClick={() => handlePromote(plan)}
                                     disabled={loadingPlan === plan.name || !selectedToolId}
-                                    className={plan.recommended ? "btn-primary" : "btn-secondary"} 
+                                    className={plan.recommended ? "btn-primary" : "btn-secondary"}
                                     style={{ width: '100%', display: 'flex', justifyContent: 'center', cursor: selectedToolId ? 'pointer' : 'not-allowed', opacity: selectedToolId ? 1 : 0.5 }}
                                 >
                                     {loadingPlan === plan.name ? <Loader2 className="animate-spin" size={20} /> : <>{plan.cta} <ArrowRight size={18} style={{ marginLeft: '10px' }} /></>}
                                 </button>
                             ) : (
-                                <Link 
-                                    to="/submit" 
-                                    className={plan.recommended ? "btn-primary" : "btn-secondary"} 
+                                <Link
+                                    to="/submit"
+                                    className={plan.recommended ? "btn-primary" : "btn-secondary"}
                                     style={{ width: '100%', display: 'flex', justifyContent: 'center' }}
                                 >
                                     {plan.cta} <ArrowRight size={18} style={{ marginLeft: '10px' }} />
@@ -238,13 +240,13 @@ const Promote = () => {
 
                 {/* Final Trust Section */}
                 <div style={{ textAlign: 'center', marginTop: '8rem', padding: '4rem', background: 'rgba(0,0,0,0.2)', borderRadius: '40px', border: '1px solid var(--border)' }}>
-                     <ShieldCheck size={48} color="var(--primary)" style={{ marginBottom: '1.5rem', opacity: 0.5 }} />
-                     <h2 style={{ marginBottom: '1.5rem' }}>Ready to Scale Your SaaS?</h2>
-                     <p style={{ maxWidth: '600px', margin: '0 auto 2.5rem', color: 'var(--text-muted)', lineHeight: '1.7' }}>
-                        Join over 500+ founders who have grown their user base through ServicesHUB. 
+                    <ShieldCheck size={48} color="var(--primary)" style={{ marginBottom: '1.5rem', opacity: 0.5 }} />
+                    <h2 style={{ marginBottom: '1.5rem' }}>Ready to Scale Your SaaS?</h2>
+                    <p style={{ maxWidth: '600px', margin: '0 auto 2.5rem', color: 'var(--text-muted)', lineHeight: '1.7' }}>
+                        Join over 500+ founders who have grown their user base through ServicesHUB.
                         Our team is dedicated to professional, ethical, and high-impact tool promotion.
-                     </p>
-                     <Link to="/contact" className="btn-primary" style={{ padding: '15px 40px' }}>Schedule a Consultation</Link>
+                    </p>
+                    <Link to="/contact" className="btn-primary" style={{ padding: '15px 40px' }}>Schedule a Consultation</Link>
                 </div>
             </section>
         </div>

@@ -47,28 +47,11 @@ const ToolCard = ({ tool }) => {
                 </div>
                 <div style={{ display: 'flex', gap: '8px' }}>
                     {tool.is_featured && (
-                        <div className="tool-tag" style={{ 
-                            fontSize: '0.7rem', 
-                            padding: '4px 10px', 
-                            borderRadius: '100px', 
-                            background: 'rgba(255, 215, 0, 0.1)', 
-                            color: '#FFD700',
-                            border: '1px solid rgba(255, 215, 0, 0.2)',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '4px'
-                        }}>
-                            <TrendingUp size={10} /> Featured
+                        <div className="featured-badge" title="Featured Tool">
+                            <TrendingUp size={10} style={{ marginRight: '4px' }} /> Featured
                         </div>
                     )}
-                    <div className="tool-tag" style={{ 
-                        fontSize: '0.7rem', 
-                        padding: '4px 10px', 
-                        borderRadius: '100px', 
-                        background: 'rgba(0, 210, 255, 0.1)', 
-                        color: 'var(--secondary)',
-                        border: '1px solid rgba(0, 210, 255, 0.2)'
-                    }}>
+                    <div className="tool-tag">
                         {tool.pricing_type || 'Free'}
                     </div>
                 </div>
@@ -77,7 +60,11 @@ const ToolCard = ({ tool }) => {
             <div style={{ flex: 1 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
                     <h3 style={{ fontSize: '1.25rem', fontWeight: '800', margin: 0, color: 'white' }}>{tool.name}</h3>
-                    {tool.is_verified && <CheckCircle2 size={18} color="#00d2ff" fill="rgba(0,210,255,0.1)" title="Verified Tool" />}
+                    {tool.is_verified && (
+                        <div className="verified-badge" style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '2px 8px' }}>
+                            <CheckCircle2 size={12} fill="rgba(0,210,255,0.2)" /> Verified
+                        </div>
+                    )}
                 </div>
                 <p style={{ 
                     color: 'var(--text-muted)', 

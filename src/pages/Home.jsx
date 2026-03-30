@@ -4,11 +4,13 @@ import { Sparkles, ArrowRight, Zap, Shield, Cpu, PenTool, Code, Globe, CheckCirc
 import { supabase } from '../lib/supabaseClient';
 import { getIcon } from '../utils/iconMap';
 import SkeletonLoader from '../components/SkeletonLoader';
+import SmartBanner from '../components/SmartBanner';
+import VideoGuide from '../components/VideoGuide';
 
 const UsersGroup = () => (
     <div className="users-group" style={{ display: 'flex', alignItems: 'center', marginLeft: '1rem' }}>
-        {[1,2,3,4].map(i => (
-            <div key={i} style={{ 
+        {[1, 2, 3, 4].map(i => (
+            <div key={i} style={{
                 width: '32px', height: '32px', borderRadius: '50%', border: '2px solid var(--bg-dark)',
                 background: 'var(--gradient)', marginLeft: '-12px', overflow: 'hidden'
             }}></div>
@@ -40,9 +42,9 @@ const Home = () => {
                     .from('categories')
                     .select('*')
                     .limit(4);
-                
+
                 if (catError) console.error('Categories Fetch Error:', catError);
-                
+
                 // Fetch Featured Tools (Active ones)
                 const now = new Date().toISOString();
                 const { data: toolData, error: toolError } = await supabase
@@ -69,6 +71,7 @@ const Home = () => {
 
     return (
         <div className="home-container">
+            <SmartBanner />
             {/* Hero Section */}
             <header className="hero-section">
                 <div className="hero-content">
@@ -79,7 +82,7 @@ const Home = () => {
                     <p className="hero-subtitle">
                         Stop searching, start building. We curate the world's most innovative AI and SaaS tools to help you scale faster than ever.
                     </p>
-                    
+
                     <div className="hero-cta">
                         <Link to="/tools" className="btn-primary main-cta-btn">
                             Explore Tools <ArrowRight size={20} />
@@ -100,10 +103,10 @@ const Home = () => {
                     </div>
                     <Link to="/categories" className="view-all-link">View All Categories <ArrowRight size={18} /></Link>
                 </div>
-                
+
                 <div className="categories-grid-small">
                     {loading ? (
-                        [1,2,3,4].map(i => (
+                        [1, 2, 3, 4].map(i => (
                             <div key={i} className="glass-card skeleton" style={{ height: '80px', borderRadius: '20px' }}></div>
                         ))
                     ) : (
@@ -130,23 +133,23 @@ const Home = () => {
                     </div>
                     <Link to="/tools" className="view-all-link">Explore All Tools <ArrowRight size={18} /></Link>
                 </div>
-                
+
                 <div className="featured-tools-grid">
                     {loading ? (
-                         [1,2,3].map(i => (
+                        [1, 2, 3].map(i => (
                             <SkeletonLoader key={i} type="card" />
-                         ))
+                        ))
                     ) : featuredTools.length > 0 ? (
                         featuredTools.map((tool, i) => (
                             <div key={i} className="glass-card tool-preview-card">
-                                <div className="tool-logo-box" style={{ 
-                                    width: '60px', 
-                                    height: '60px', 
-                                    background: 'rgba(255, 255, 255, 0.03)', 
-                                    borderRadius: '16px', 
-                                    display: 'flex', 
-                                    alignItems: 'center', 
-                                    justifyContent: 'center', 
+                                <div className="tool-logo-box" style={{
+                                    width: '60px',
+                                    height: '60px',
+                                    background: 'rgba(255, 255, 255, 0.03)',
+                                    borderRadius: '16px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
                                     color: 'white',
                                     marginBottom: '1.5rem',
                                     overflow: 'hidden',
@@ -171,9 +174,9 @@ const Home = () => {
                         ))
                     ) : (
                         <div className="glass-card" style={{ gridColumn: '1 / -1', padding: '3rem', textAlign: 'center', color: 'var(--text-muted)' }}>
-                             <Zap size={40} style={{ opacity: 0.2, marginBottom: '1rem' }} />
-                             <p>No featured tools at the moment. Check back later!</p>
-                             <Link to="/tools" className="btn-text" style={{ color: 'var(--primary)', marginTop: '1rem', display: 'inline-block' }}>Browse All Tools</Link>
+                            <Zap size={40} style={{ opacity: 0.2, marginBottom: '1rem' }} />
+                            <p>No featured tools at the moment. Check back later!</p>
+                            <Link to="/tools" className="btn-text" style={{ color: 'var(--primary)', marginTop: '1rem', display: 'inline-block' }}>Browse All Tools</Link>
                         </div>
                     )}
                 </div>
@@ -204,6 +207,8 @@ const Home = () => {
                     </div>
                 </div>
             </section>
+
+            <VideoGuide />
         </div>
     );
 };

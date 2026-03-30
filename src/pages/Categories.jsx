@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabaseClient';
 import { getIcon } from '../utils/iconMap';
 import SkeletonLoader from '../components/SkeletonLoader';
+import SmartBanner from '../components/SmartBanner';
 
 const Categories = () => {
     const [categories, setCategories] = useState([]);
@@ -34,6 +35,7 @@ const Categories = () => {
     if (loading) {
         return (
             <div className="page-wrapper">
+            <SmartBanner />
                 <header className="page-header hero-section" style={{ minHeight: '35vh', paddingBottom: '40px' }}>
                     <div className="hero-content">
                         <SkeletonLoader type="text" width="100px" style={{ margin: '0 auto 1.5rem' }} />
@@ -58,6 +60,7 @@ const Categories = () => {
 
     return (
         <div className="page-wrapper">
+            <SmartBanner />
              <header className="page-header hero-section" style={{ minHeight: '35vh', paddingBottom: '40px' }}>
                 <div className="hero-content">
                     <div className="badge">CATEGORIES</div>

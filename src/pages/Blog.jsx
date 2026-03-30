@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Search, Calendar, User, ArrowRight, Tag, BookOpen, Loader2 } from 'lucide-react';
 import SkeletonLoader from '../components/SkeletonLoader';
 import { supabase } from '../lib/supabaseClient';
+import SmartBanner from '../components/SmartBanner';
 
 const Blog = () => {
     const [searchQuery, setSearchQuery] = useState('');
@@ -15,7 +16,7 @@ const Blog = () => {
         const fetchInitialData = async () => {
             const { data: catData } = await supabase.from('blog_categories').select('name');
             if (catData) setCategories(['All', ...catData.map(c => c.name)]);
-            
+
             // SEO
             document.title = "ServicesHUB Magazine | AI & SaaS Insights";
             const updateMeta = (name, content, attr = 'name') => {
@@ -39,7 +40,7 @@ const Blog = () => {
             setLoading(true);
             try {
                 let query = supabase.from('blog_posts').select('*');
-                
+
                 if (searchQuery) {
                     query = query.or(`title.ilike.%${searchQuery}%,excerpt.ilike.%${searchQuery}%`);
                 }
@@ -64,6 +65,7 @@ const Blog = () => {
 
     return (
         <div className="page-wrapper blog-page">
+            <SmartBanner />
             <header className="page-header hero-section" style={{ minHeight: '40vh', paddingBottom: '40px' }}>
                 <div className="hero-content">
                     <div className="badge">SERVICESHUB MAGAZINE</div>
@@ -73,9 +75,9 @@ const Blog = () => {
                     <div className="search-container" style={{ maxWidth: '600px', margin: '3rem auto 0' }}>
                         <div className="nav-search-wrapper" style={{ padding: '15px 25px', background: 'rgba(255,255,255,0.05)' }}>
                             <Search className="search-icon" />
-                            <input 
-                                type="text" 
-                                placeholder="Search articles..." 
+                            <input
+                                type="text"
+                                placeholder="Search articles..."
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 style={{ width: '100%', border: 'none', background: 'transparent', color: 'white', fontSize: '1.1rem', outline: 'none' }}
@@ -87,15 +89,15 @@ const Blog = () => {
 
             <section className="main-section">
                 {/* Category Filters */}
-                <div className="category-filters" style={{ 
-                    display: 'flex', 
-                    justifyContent: 'center', 
-                    gap: '1rem', 
+                <div className="category-filters" style={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    gap: '1rem',
                     marginBottom: '4rem',
                     flexWrap: 'wrap'
                 }}>
                     {categories.map(cat => (
-                        <button 
+                        <button
                             key={cat}
                             onClick={() => setSelectedCategory(cat)}
                             className={`filter-btn ${selectedCategory === cat ? 'active' : ''}`}
@@ -117,38 +119,38 @@ const Blog = () => {
 
                 {/* Posts Grid */}
                 {loading ? (
-                    <div className="blog-posts-grid" style={{ 
-                        display: 'grid', 
-                        gridTemplateColumns: 'repeat(auto-fill, minmax(360px, 1fr))', 
-                        gap: '2.5rem' 
+                    <div className="blog-posts-grid" style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(auto-fill, minmax(360px, 1fr))',
+                        gap: '2.5rem'
                     }}>
-                        {[1,2,3,4,5,6].map(i => (
+                        {[1, 2, 3, 4, 5, 6].map(i => (
                             <SkeletonLoader key={i} type="card" height="450px" />
                         ))}
                     </div>
                 ) : posts.length > 0 ? (
-                    <div className="blog-posts-grid" style={{ 
-                        display: 'grid', 
-                        gridTemplateColumns: 'repeat(auto-fill, minmax(360px, 1fr))', 
-                        gap: '2.5rem' 
+                    <div className="blog-posts-grid" style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(auto-fill, minmax(360px, 1fr))',
+                        gap: '2.5rem'
                     }}>
                         {posts.map(post => (
-                            <Link key={post.id} to={`/blog/${post.id}`} className="blog-card glass-card" style={{ 
-                                textDecoration: 'none', 
+                            <Link key={post.id} to={`/blog/${post.id}`} className="blog-card glass-card" style={{
+                                textDecoration: 'none',
                                 color: 'inherit',
                                 overflow: 'hidden',
                                 display: 'flex',
                                 flexDirection: 'column'
                             }}>
-                                <div className="blog-card-image" style={{ 
-                                    height: '240px', 
+                                <div className="blog-card-image" style={{
+                                    height: '240px',
                                     overflow: 'hidden',
                                     position: 'relative'
                                 }}>
                                     <img src={post.image_url || 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800&auto=format&fit=crop&q=60'} alt={post.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                                    <div style={{ 
-                                        position: 'absolute', 
-                                        top: '1.5rem', 
+                                    <div style={{
+                                        position: 'absolute',
+                                        top: '1.5rem',
                                         left: '1.5rem',
                                         background: 'var(--primary)',
                                         padding: '5px 15px',
@@ -159,7 +161,7 @@ const Blog = () => {
                                         {post.category}
                                     </div>
                                 </div>
-                                
+
                                 <div className="blog-card-content" style={{ padding: '2rem' }}>
                                     <div className="blog-meta" style={{ display: 'flex', gap: '1.5rem', marginBottom: '1rem', fontSize: '0.85rem', color: 'var(--text-muted)' }}>
                                         <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><Calendar size={14} /> {new Date(post.created_at).toLocaleDateString()}</span>

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import { Search, X, Check, Minus, MessageSquare, ExternalLink, RefreshCcw, Star, ArrowRight, Loader2 } from 'lucide-react';
 import SkeletonLoader from '../components/SkeletonLoader';
-import { Link } from 'react-router-dom';
+import SmartBanner from '../components/SmartBanner';
 
 const Compare = () => {
     const [tool1, setTool1] = useState(null);
@@ -132,6 +132,7 @@ const Compare = () => {
 
     return (
         <div className="page-wrapper compare-page">
+            <SmartBanner />
             <header className="page-header hero-section" style={{ minHeight: '35vh', paddingBottom: '40px' }}>
                 <div className="hero-content">
                     <div className="badge">DECISION TOOL</div>

@@ -8,6 +8,7 @@ import {
 import { Link } from 'react-router-dom';
 import CustomSelect from '../components/CustomSelect';
 import SkeletonLoader from '../components/SkeletonLoader';
+import SmartBanner from '../components/SmartBanner';
 
 const Tools = () => {
     const [tools, setTools] = useState([]);
@@ -48,6 +49,10 @@ const Tools = () => {
     useEffect(() => {
         const fetchTools = async () => {
             setLoading(true);
+            const timeout = setTimeout(() => {
+                if (loading) setLoading(false);
+            }, 6000);
+
             try {
                 let query = supabase
                     .from('tools')
@@ -66,9 +71,11 @@ const Tools = () => {
                 }
 
                 if (sortBy === 'Newest') {
-                    query = query.order('created_at', { ascending: false });
+                    query = query.order('is_featured', { ascending: false }).order('created_at', { ascending: false });
                 } else if (sortBy === 'Rating') {
-                    query = query.order('rating', { ascending: false });
+                    query = query.order('is_featured', { ascending: false }).order('rating', { ascending: false });
+                } else {
+                    query = query.order('is_featured', { ascending: false });
                 }
 
                 const { data } = await query;
@@ -76,6 +83,7 @@ const Tools = () => {
             } catch (error) {
                 console.error('Error fetching tools:', error);
             } finally {
+                clearTimeout(timeout);
                 setLoading(false);
             }
         };
@@ -95,6 +103,7 @@ const Tools = () => {
 
     return (
         <div className="page-wrapper">
+            <SmartBanner />
             <header className="hero-section" style={{ minHeight: '40vh', paddingBottom: '60px' }}>
                 <div className="hero-content">
                     <h1 className="hero-title">Explore All <span className="gradient-text">Tools</span></h1>
@@ -121,7 +130,7 @@ const Tools = () => {
                         ))}
                     </div>
                     <div className="sort-filters" style={{ display: 'flex', gap: '1rem' }}>
-                        <CustomSelect 
+                        <CustomSelect
                             options={[
                                 { label: 'All Pricing', name: 'All' },
                                 { label: 'Free', name: 'Free' },
@@ -132,7 +141,7 @@ const Tools = () => {
                             onChange={(val) => setPriceFilter(val)}
                             placeholder="Price"
                         />
-                        <CustomSelect 
+                        <CustomSelect
                             options={[
                                 { label: 'Newest', name: 'Newest' },
                                 { label: 'Top Rated', name: 'Rating' }
@@ -146,7 +155,7 @@ const Tools = () => {
 
                 <div className="tools-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: '2.5rem' }}>
                     {loading ? (
-                        [1,2,3,4,5,6].map(i => (
+                        [1, 2, 3, 4, 5, 6].map(i => (
                             <SkeletonLoader key={i} type="card" />
                         ))
                     ) : tools.length > 0 ? (

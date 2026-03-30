@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabaseClient';
 import { getIcon } from '../utils/iconMap';
 import { ArrowLeft, Star, ArrowRight, Sparkles, LayoutGrid } from 'lucide-react';
 import SkeletonLoader from '../components/SkeletonLoader';
+import SmartBanner from '../components/SmartBanner';
 
 const CategoryDetail = () => {
     const { id: slug } = useParams();
@@ -14,9 +15,13 @@ const CategoryDetail = () => {
 
     useEffect(() => {
         window.scrollTo(0, 0);
-        
+
         const fetchCategoryData = async () => {
             setLoading(true);
+            const timeout = setTimeout(() => {
+                if (loading) setLoading(false);
+            }, 6000);
+
             try {
                 // Fetch Category
                 const { data: catData, error: catError } = await supabase
@@ -24,10 +29,10 @@ const CategoryDetail = () => {
                     .select('*')
                     .eq('slug', slug)
                     .single();
-                
+
                 if (catError) throw catError;
                 setCategory(catData);
-                
+
                 // SEO
                 if (catData) {
                     document.title = `Best ${catData.name} Tools | ServicesHUB`;
@@ -39,12 +44,15 @@ const CategoryDetail = () => {
                         .from('tools')
                         .select('*, categories(name)')
                         .eq('category_id', catData.id)
-                        .eq('is_approved', true);
+                        .eq('is_approved', true)
+                        .order('is_featured', { ascending: false })
+                        .order('created_at', { ascending: false });
                     setTools(toolData || []);
                 }
             } catch (error) {
                 console.error('Error fetching category detail:', error);
             } finally {
+                clearTimeout(timeout);
                 setLoading(false);
             }
         };
@@ -64,7 +72,7 @@ const CategoryDetail = () => {
                 </header>
                 <section className="main-section">
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '1.5rem' }}>
-                        {[1,2,3,4,5,6].map(i => (
+                        {[1, 2, 3, 4, 5, 6].map(i => (
                             <SkeletonLoader key={i} type="card" />
                         ))}
                     </div>
@@ -86,8 +94,9 @@ const CategoryDetail = () => {
 
     return (
         <div className="page-wrapper category-detail-page">
-            <header className="category-header hero-section" style={{ 
-                minHeight: '45vh', 
+            <SmartBanner />
+            <header className="category-header hero-section" style={{
+                minHeight: '45vh',
                 paddingBottom: '60px',
                 position: 'relative',
                 overflow: 'hidden'
@@ -109,9 +118,9 @@ const CategoryDetail = () => {
                     <button onClick={() => navigate('/categories')} className="btn-text" style={{ marginBottom: '2rem', color: 'white' }}>
                         <ArrowLeft size={18} /> All Categories
                     </button>
-                    
-                    <div className="cat-header-icon" style={{ 
-                        color: categoryColor, 
+
+                    <div className="cat-header-icon" style={{
+                        color: categoryColor,
                         marginBottom: '1.5rem',
                         background: 'rgba(255,255,255,0.03)',
                         width: '80px',
@@ -123,7 +132,7 @@ const CategoryDetail = () => {
                         margin: '0 auto 2rem',
                         border: `1px solid var(--border)`
                     }}>
-                         {getIcon(category.icon_name || 'LayoutGrid', 40)}
+                        {getIcon(category.icon_name || 'LayoutGrid', 40)}
                     </div>
 
                     <h1 className="hero-title" style={{ fontSize: '3.5rem' }}>
@@ -145,17 +154,17 @@ const CategoryDetail = () => {
                 </div>
 
                 {tools.length > 0 ? (
-                    <div className="tools-grid-main" style={{ 
-                        display: 'grid', 
+                    <div className="tools-grid-main" style={{
+                        display: 'grid',
                         gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
                         gap: '2.5rem',
                         marginTop: '3rem'
                     }}>
                         {tools.map(tool => (
                             <div key={tool.id} className="glass-card tool-card-premium">
-                                <div className="tool-card-image" style={{ 
-                                    height: '160px', 
-                                    background: 'rgba(255,255,255,0.03)', 
+                                <div className="tool-card-image" style={{
+                                    height: '160px',
+                                    background: 'rgba(255,255,255,0.03)',
                                     borderRadius: '16px',
                                     marginBottom: '1.5rem',
                                     display: 'flex',
@@ -165,11 +174,11 @@ const CategoryDetail = () => {
                                     overflow: 'hidden',
                                     border: '1px solid var(--border)'
                                 }}>
-                                     {tool.image_url ? (
-                                         <img src={tool.image_url} alt={tool.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                                     ) : (
-                                         getIcon(tool.icon_name || 'Zap', 50)
-                                     )}
+                                    {tool.image_url ? (
+                                        <img src={tool.image_url} alt={tool.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                    ) : (
+                                        getIcon(tool.icon_name || 'Zap', 50)
+                                    )}
                                 </div>
                                 <div className="tool-card-meta" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
                                     <span className="tool-tag">{category.name}</span>
