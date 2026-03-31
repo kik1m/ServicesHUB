@@ -115,11 +115,21 @@ const SubmitTool = () => {
             const fileName = `${Math.random()}.${fileExt}`;
             const filePath = `tool-thumbnails/${fileName}`;
 
-            const { error: uploadError } = await supabase.storage
+            // Add a hard timeout to prevent freezing!
+            const uploadPromise = supabase.storage
                 .from('tool-images')
                 .upload(filePath, file);
 
-            if (uploadError) throw uploadError;
+            const timeoutPromise = new Promise((_, reject) => 
+                setTimeout(() => reject(new Error('Upload timeout: Supabase server did not respond. Check RLS policies.')), 10000)
+            );
+
+            const { data, error: uploadError } = await Promise.race([uploadPromise, timeoutPromise]);
+
+            if (uploadError) {
+                console.error("Supabase Error Details:", uploadError);
+                throw new Error(uploadError.message || 'Storage Access Denied (Check RLS)');
+            }
 
             const { data: { publicUrl } } = supabase.storage
                 .from('tool-images')
@@ -129,7 +139,7 @@ const SubmitTool = () => {
             showToast('Image uploaded successfully! 🎉', 'success');
         } catch (err) {
             console.error('Upload Process Error:', err);
-            setError(`Upload failed: ${err.message || 'Check connection'}`);
+            setError(`Upload failed: ${err.message || 'Check connection'}. Make sure you ran the SQL RLS code!`);
             showToast('Upload failed', 'error');
             setImagePreview(null);
         } finally {
