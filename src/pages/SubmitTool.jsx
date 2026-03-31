@@ -169,20 +169,25 @@ const SubmitTool = () => {
                     reviews_count: 0
                 };
 
-                // PURE FETCH BYPASS: We are dropping supabase-js entirely for this call 
-                // to absolutely prove if the SDK is hanging or if the Database is dead.
                 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
                 const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
                 
-                // Need token
-                const { data: sessionData } = await supabase.auth.getSession();
-                const token = sessionData?.session?.access_token;
+                // OMEGA BYPASS: Never call supabase.auth.getUser() because it's completely freezing on the SDK side!
+                // We extract the JSON Web Token (JWT) directly from local storage.
+                const storageKey = Object.keys(localStorage).find(k => k.startsWith('sb-') && k.endsWith('-auth-token'));
+                const sessionStr = localStorage.getItem(storageKey);
+                const sessionObj = sessionStr ? JSON.parse(sessionStr) : null;
+                const token = sessionObj?.access_token;
                 
+                if (!token) {
+                    throw new Error("Local session token expired. Please refresh the page or log out and log back in.");
+                }
+
                 const response = await fetch(`${supabaseUrl}/rest/v1/tools`, {
                     method: 'POST',
                     headers: {
                         'apikey': anonKey,
-                        'Authorization': `Bearer ${token || anonKey}`,
+                        'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json',
                         'Prefer': 'return=minimal'
                     },
@@ -194,16 +199,12 @@ const SubmitTool = () => {
                     throw new Error(errObj.message || `Raw HTTP ${response.status} Error`);
                 }
 
-                // Native Fetch successfully submitted the tool!
-                console.log("Raw fetch submitted tool successfully.");
-
-                // Skip notification for now to isolate the test.
+                console.log("Omega Native Fetch successful.");
             };
 
-            // Increased timeout guard to 15s in case DB is just extremely slow (cold start)
             await Promise.race([
                 submitProcess(),
-                new Promise((_, reject) => setTimeout(() => reject(new Error(`Supabase Database is dead/freezing (15s timeout exceeded).`)), 15000))
+                new Promise((_, reject) => setTimeout(() => reject(new Error(`Fetch timed out after 8s: Something is violently blocking POST requests to Supabase.`)), 8000))
             ]);
 
             showToast('Tool submitted successfully! 🎉', 'success');
