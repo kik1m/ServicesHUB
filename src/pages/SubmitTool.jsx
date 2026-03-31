@@ -115,47 +115,67 @@ const SubmitTool = () => {
             const fileName = `${Math.random()}.${fileExt}`;
             const filePath = `tool-thumbnails/${fileName}`;
 
-            // Use direct fetch to bypass Supabase SDK hanging bugs
+            // Getting Token instantly
             const { data: sessionData } = await supabase.auth.getSession();
             const token = sessionData?.session?.access_token;
             
             if (!token) throw new Error("Authentication token missing. Please log in again.");
 
             const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-            // Endpoint format: /storage/v1/object/bucket-name/file-path
             const uploadUrl = `${supabaseUrl}/storage/v1/object/tool-images/${filePath}`;
 
-            const response = await fetch(uploadUrl, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
-                    'Content-Type': file.type || 'application/octet-stream',
-                    'Cache-Control': 'max-age=3600',
-                    'x-upsert': 'false'
-                },
-                body: file
+            // Raw XMLHttpRequest for UNBLOCKABLE execution flow
+            await new Promise((resolve, reject) => {
+                const xhr = new XMLHttpRequest();
+                xhr.open('POST', uploadUrl, true);
+                xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+                xhr.setRequestHeader('apikey', import.meta.env.VITE_SUPABASE_ANON_KEY);
+                xhr.setRequestHeader('Content-Type', file.type || 'application/octet-stream');
+                xhr.setRequestHeader('Cache-Control', 'max-age=3600');
+                xhr.setRequestHeader('x-upsert', 'false');
+
+                // Native Timeout Guard (exactly 8 seconds)
+                xhr.timeout = 8000;
+                xhr.ontimeout = () => {
+                    reject(new Error("Upload Timeout: Server did not respond natively."));
+                };
+
+                xhr.onload = () => {
+                    if (xhr.status >= 200 && xhr.status < 300) {
+                        resolve(xhr.responseText);
+                    } else {
+                        try {
+                            const errObj = JSON.parse(xhr.responseText);
+                            reject(new Error(errObj.message || `Server Error ${xhr.status}`));
+                        } catch(parseErr) {
+                            reject(new Error(`Server Error ${xhr.status}`));
+                        }
+                    }
+                };
+
+                xhr.onerror = () => {
+                    reject(new Error("Network Error or CORS failure in XHR."));
+                };
+
+                // Send the file payload
+                xhr.send(file);
             });
 
-            if (!response.ok) {
-                const errorData = await response.json().catch(() => ({}));
-                console.error("Direct Upload Failed:", response.status, errorData);
-                throw new Error(errorData.message || `Server rejected upload (Status: ${response.status})`);
-            }
-
+            // If we reach here, XHR was completely successful
             const { data: { publicUrl } } = supabase.storage
                 .from('tool-images')
                 .getPublicUrl(filePath);
 
             setFormData(prev => ({ ...prev, image_url: publicUrl }));
             showToast('Image uploaded successfully! 🎉', 'success');
+            setUploading(false); // Manually set false on success
+            
         } catch (err) {
-            console.error('Upload Process Error:', err);
-            setError(`Upload failed: ${err.message || 'Check connection'}. Make sure you ran the SQL RLS code!`);
+            console.error('XHR Upload Error:', err);
+            setError(`Upload failed: ${err.message}. Please check RLS.`);
             showToast('Upload failed', 'error');
             setImagePreview(null);
-        } finally {
-            setUploading(false);
+            setUploading(false); // Manually set false on error
         }
     };
 
