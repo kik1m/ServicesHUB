@@ -115,20 +115,32 @@ const SubmitTool = () => {
             const fileName = `${Math.random()}.${fileExt}`;
             const filePath = `tool-thumbnails/${fileName}`;
 
-            // Add a hard timeout to prevent freezing!
-            const uploadPromise = supabase.storage
-                .from('tool-images')
-                .upload(filePath, file);
+            // Use direct fetch to bypass Supabase SDK hanging bugs
+            const { data: sessionData } = await supabase.auth.getSession();
+            const token = sessionData?.session?.access_token;
+            
+            if (!token) throw new Error("Authentication token missing. Please log in again.");
 
-            const timeoutPromise = new Promise((_, reject) => 
-                setTimeout(() => reject(new Error('Upload timeout: Supabase server did not respond. Check RLS policies.')), 10000)
-            );
+            const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+            // Endpoint format: /storage/v1/object/bucket-name/file-path
+            const uploadUrl = `${supabaseUrl}/storage/v1/object/tool-images/${filePath}`;
 
-            const { data, error: uploadError } = await Promise.race([uploadPromise, timeoutPromise]);
+            const response = await fetch(uploadUrl, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
+                    'Content-Type': file.type || 'application/octet-stream',
+                    'Cache-Control': 'max-age=3600',
+                    'x-upsert': 'false'
+                },
+                body: file
+            });
 
-            if (uploadError) {
-                console.error("Supabase Error Details:", uploadError);
-                throw new Error(uploadError.message || 'Storage Access Denied (Check RLS)');
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                console.error("Direct Upload Failed:", response.status, errorData);
+                throw new Error(errorData.message || `Server rejected upload (Status: ${response.status})`);
             }
 
             const { data: { publicUrl } } = supabase.storage
