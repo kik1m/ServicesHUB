@@ -150,7 +150,6 @@ const Dashboard = () => {
                         <tr style={{ borderBottom: '1px solid var(--border)' }}>
                             <th style={{ padding: '1.5rem', color: 'var(--text-muted)' }}>Tool Name</th>
                             <th style={{ padding: '1.5rem', color: 'var(--text-muted)' }}>Status</th>
-                            <th style={{ padding: '1.5rem', color: 'var(--text-muted)' }}>Analytics</th>
                             <th style={{ padding: '1.5rem', color: 'var(--text-muted)' }}>Marketing</th>
                             <th style={{ padding: '1.5rem', color: 'var(--text-muted)' }}>Date</th>
                             <th style={{ padding: '1.5rem', color: 'var(--text-muted)' }}>Pricing</th>
@@ -178,16 +177,6 @@ const Dashboard = () => {
                                         }}>
                                             {tool.is_approved ? 'Published' : 'Pending'}
                                         </span>
-                                    </td>
-                                    <td style={{ padding: '1.5rem' }}>
-                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '5px', color: 'var(--text-muted)', fontSize: '0.85rem' }} title="Tool Views">
-                                                <Eye size={14} /> {tool.view_count || 0}
-                                            </div>
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '5px', color: '#00e676', fontSize: '0.85rem', fontWeight: 'bold' }} title="Outbound Link Clicks">
-                                                <MousePointerClick size={14} /> {tool.click_count || 0}
-                                            </div>
-                                        </div>
                                     </td>
                                     <td style={{ padding: '1.5rem' }}>
                                         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
