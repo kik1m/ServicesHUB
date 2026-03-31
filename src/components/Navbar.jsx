@@ -196,7 +196,7 @@ const Navbar = () => {
                                     <User size={26} />
                                 </button>
                                 {isAccountOpen && (
-                                    <AccountMenu onClose={() => setIsAccountOpen(false)} handleLogout={handleLogout} />
+                                    <AccountMenu onClose={() => setIsAccountOpen(false)} handleLogout={handleLogout} user={user} />
                                 )}
                             </div>
                         </>

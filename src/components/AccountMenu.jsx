@@ -3,13 +3,12 @@ import { Link } from 'react-router-dom';
 import { LayoutDashboard, UserCircle, Settings, LogOut, Shield, Loader2, Heart, Award } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
 
-const AccountMenu = ({ onClose, handleLogout }) => {
+const AccountMenu = ({ onClose, handleLogout, user }) => {
     const [profile, setProfile] = useState(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const getProfile = async () => {
-            const { data: { user } } = await supabase.auth.getUser();
             if (user) {
                 const { data } = await supabase
                     .from('profiles')
@@ -21,7 +20,7 @@ const AccountMenu = ({ onClose, handleLogout }) => {
             setLoading(false);
         };
         getProfile();
-    }, []);
+    }, [user]);
 
     return (
         <div className="account-dropdown glass-card shadow-lg" style={{

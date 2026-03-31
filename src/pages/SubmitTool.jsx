@@ -148,7 +148,8 @@ const SubmitTool = () => {
 
         try {
             const submitProcess = async () => {
-                const { data: { user } } = await supabase.auth.getUser();
+                // We ALREADY have 'user' from useAuth() hook at the top of the component!
+                // Calling supabase.auth.getUser() again can trigger a refresh queue freeze in the SDK.
                 if (!user) {
                     navigate('/auth');
                     return;
