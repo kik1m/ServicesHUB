@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { LayoutGrid, Plus, TrendingUp, Settings, Trash2, Edit3, ExternalLink, Loader2, AlertCircle, Zap, CheckCircle2 } from 'lucide-react';
+import { LayoutGrid, Plus, TrendingUp, Settings, Trash2, Edit3, ExternalLink, Loader2, AlertCircle, Zap, CheckCircle2, Eye, MousePointerClick } from 'lucide-react';
 import SkeletonLoader from '../components/SkeletonLoader';
 import { Link, useNavigate } from 'react-router-dom';
 import { useToast } from '../context/ToastContext';
@@ -122,10 +122,10 @@ const Dashboard = () => {
                 </div>
                 <div className="glass-card" style={{ padding: '2rem' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
-                        <span style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>Approved Tools</span>
-                        <TrendingUp size={20} color="var(--secondary)" />
+                        <span style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>Total Clicks</span>
+                        <MousePointerClick size={20} color="#00e676" />
                     </div>
-                    <div style={{ fontSize: '2.5rem', fontWeight: '800' }}>{userTools.filter(t => t.is_approved).length}</div>
+                    <div style={{ fontSize: '2.5rem', fontWeight: '800' }}>{userTools.reduce((sum, t) => sum + (t.click_count || 0), 0)}</div>
                 </div>
                 <div className="glass-card" style={{ padding: '2rem', border: user?.is_premium ? '1px solid rgba(255, 215, 0, 0.3)' : '1px solid var(--border)' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
@@ -150,6 +150,7 @@ const Dashboard = () => {
                         <tr style={{ borderBottom: '1px solid var(--border)' }}>
                             <th style={{ padding: '1.5rem', color: 'var(--text-muted)' }}>Tool Name</th>
                             <th style={{ padding: '1.5rem', color: 'var(--text-muted)' }}>Status</th>
+                            <th style={{ padding: '1.5rem', color: 'var(--text-muted)' }}>Analytics</th>
                             <th style={{ padding: '1.5rem', color: 'var(--text-muted)' }}>Marketing</th>
                             <th style={{ padding: '1.5rem', color: 'var(--text-muted)' }}>Date</th>
                             <th style={{ padding: '1.5rem', color: 'var(--text-muted)' }}>Pricing</th>
@@ -177,6 +178,16 @@ const Dashboard = () => {
                                         }}>
                                             {tool.is_approved ? 'Published' : 'Pending'}
                                         </span>
+                                    </td>
+                                    <td style={{ padding: '1.5rem' }}>
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '5px', color: 'var(--text-muted)', fontSize: '0.85rem' }} title="Tool Views">
+                                                <Eye size={14} /> {tool.view_count || 0}
+                                            </div>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '5px', color: '#00e676', fontSize: '0.85rem', fontWeight: 'bold' }} title="Outbound Link Clicks">
+                                                <MousePointerClick size={14} /> {tool.click_count || 0}
+                                            </div>
+                                        </div>
                                     </td>
                                     <td style={{ padding: '1.5rem' }}>
                                         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -256,7 +267,7 @@ const Dashboard = () => {
                             ))
                         ) : (
                             <tr>
-                                <td colSpan="5" style={{ textAlign: 'center', padding: '4rem', color: 'var(--text-muted)' }}>
+                                <td colSpan="7" style={{ textAlign: 'center', padding: '4rem', color: 'var(--text-muted)' }}>
                                     You haven't submitted any tools yet.
                                 </td>
                             </tr>

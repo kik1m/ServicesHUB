@@ -9,6 +9,8 @@ import { Link } from 'react-router-dom';
 import CustomSelect from '../components/CustomSelect';
 import SkeletonLoader from '../components/SkeletonLoader';
 import SmartBanner from '../components/SmartBanner';
+import ToolCard from '../components/ToolCard';
+import useSEO from '../hooks/useSEO';
 
 const Tools = () => {
     const [tools, setTools] = useState([]);
@@ -18,9 +20,11 @@ const Tools = () => {
     const [sortBy, setSortBy] = useState('Newest');
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        document.title = "Discover 500+ AI Tools | ServicesHUB Directory";
-    }, []);
+    useSEO({
+        title: "Discover 500+ AI Tools | ServicesHUB Directory",
+        description: "Browse our comprehensive directory of AI and SaaS tools. Filter by price, category, and find the perfect solution.",
+        url: typeof window !== 'undefined' ? window.location.href : 'https://serviceshub.com/tools'
+    });
 
     // Icons Mapping
     const iconMap = {
@@ -74,6 +78,8 @@ const Tools = () => {
                     query = query.order('is_featured', { ascending: false }).order('created_at', { ascending: false });
                 } else if (sortBy === 'Rating') {
                     query = query.order('is_featured', { ascending: false }).order('rating', { ascending: false });
+                } else if (sortBy === 'Popular') {
+                    query = query.order('is_featured', { ascending: false }).order('view_count', { ascending: false });
                 } else {
                     query = query.order('is_featured', { ascending: false });
                 }
@@ -144,7 +150,8 @@ const Tools = () => {
                         <CustomSelect
                             options={[
                                 { label: 'Newest', name: 'Newest' },
-                                { label: 'Top Rated', name: 'Rating' }
+                                { label: 'Top Rated', name: 'Rating' },
+                                { label: 'Most Viewed', name: 'Popular' }
                             ]}
                             value={sortBy}
                             onChange={(val) => setSortBy(val)}
@@ -160,33 +167,7 @@ const Tools = () => {
                         ))
                     ) : tools.length > 0 ? (
                         tools.map(tool => (
-                            <Link to={`/tool/${tool.slug}`} key={tool.id} className="glass-card tool-card" style={{ textDecoration: 'none', textAlign: 'left', display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                                    <div style={{ width: '64px', height: '64px', background: 'rgba(0, 136, 204, 0.08)', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', border: '1px solid var(--border)' }}>
-                                        {renderIcon(tool)}
-                                    </div>
-                                    <div className="tool-tag">{tool.pricing_type}</div>
-                                </div>
-                                <div>
-                                    <h3 style={{ fontSize: '1.4rem', fontWeight: '800', marginBottom: '8px', color: 'white' }}>{tool.name}</h3>
-                                    <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem', lineHeights: '1.5', display: '-webkit-box', WebkitLineClamp: '2', WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-                                        {tool.short_description}
-                                    </p>
-                                </div>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto', paddingTop: '1rem', borderTop: '1px solid var(--border)' }}>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '5px', color: '#ffcc00', fontWeight: '700' }}>
-                                            <Star size={16} fill="#ffcc00" /> {tool.rating?.toFixed(1)}
-                                        </div>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '5px', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
-                                            <MessageSquare size={16} /> {tool.reviews_count}
-                                        </div>
-                                    </div>
-                                    <div style={{ color: 'var(--primary)', fontWeight: '700', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '5px' }}>
-                                        View Details <ArrowUpRight size={16} />
-                                    </div>
-                                </div>
-                            </Link>
+                            <ToolCard key={tool.id} tool={tool} />
                         ))
                     ) : (
                         <div style={{ gridColumn: '1/-1', textAlign: 'center', padding: '5rem', color: 'var(--text-muted)' }}>

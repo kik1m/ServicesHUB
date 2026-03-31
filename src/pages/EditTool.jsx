@@ -19,6 +19,7 @@ const EditTool = () => {
     const { showToast } = useToast();
     const [uploading, setUploading] = useState(false);
     const [imagePreview, setImagePreview] = useState('');
+    const [useManualUrl, setUseManualUrl] = useState(false);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -59,6 +60,10 @@ const EditTool = () => {
                     image_url: tool.image_url
                 });
                 setImagePreview(tool.image_url);
+                // If it's not a supabase URL, assume manual mode
+                if (tool.image_url && !tool.image_url.includes('supabase.co')) {
+                    setUseManualUrl(true);
+                }
             } catch (err) {
                 console.error('Fetch error:', err);
                 setError(err.message);
@@ -74,6 +79,9 @@ const EditTool = () => {
         const file = e.target.files[0];
         if (!file) return;
 
+        console.log('--- EDIT UPLOAD START (POST) ---');
+        console.log('File:', file.name, 'Size:', (file.size / 1024).toFixed(2), 'KB');
+
         if (file.size > 2 * 1024 * 1024) {
             showToast('File too large (Max 2MB)', 'error');
             return;
@@ -84,28 +92,44 @@ const EditTool = () => {
         reader.readAsDataURL(file);
 
         setUploading(true);
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 15000);
+
         try {
             const fileExt = file.name.split('.').pop();
-            const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
+            const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 7)}.${fileExt}`;
             const filePath = `tool-thumbnails/${fileName}`;
 
-            const { error: uploadError } = await supabase.storage
-                .from('tool-images')
-                .upload(filePath, file);
+            console.log('Target Path:', filePath, 'Mode: POST');
 
-            if (uploadError) throw uploadError;
+            const { data, error: uploadError } = await supabase.storage
+                .from('tool-images')
+                .upload(filePath, file, {
+                    cacheControl: '3600',
+                    upsert: false,
+                    resumable: false // CRITICAL: Standard POST
+                });
+
+            if (uploadError) {
+                console.error('Supabase Error:', uploadError);
+                throw uploadError;
+            }
 
             const { data: { publicUrl } } = supabase.storage
                 .from('tool-images')
                 .getPublicUrl(filePath);
 
+            console.log('Success URL:', publicUrl);
             setFormData(prev => ({ ...prev, image_url: publicUrl }));
-            showToast('Image uploaded!', 'success');
+            showToast('Image updated!', 'success');
         } catch (err) {
-            console.error('Upload Error:', err);
-            showToast('Upload failed', 'error');
+            console.error('Final Catch:', err);
+            const msg = err.name === 'AbortError' ? 'Upload timed out. Try manual URL.' : `Upload failed: ${err.message}`;
+            showToast(msg, 'error');
         } finally {
+            clearTimeout(timeoutId);
             setUploading(false);
+            console.log('--- EDIT UPLOAD END ---');
         }
     };
 
@@ -170,26 +194,70 @@ const EditTool = () => {
                         </div>
 
                         <div className="form-group" style={{ marginBottom: '1.5rem' }}>
-                            <label style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px', fontSize: '0.9rem', fontWeight: '600' }}>
-                                <ImageIcon size={16} color="var(--primary)" /> Tool Thumbnail
-                            </label>
-                            <div className="file-upload-wrapper">
-                                {imagePreview ? (
-                                    <div className="preview-img-container" style={{ position: 'relative' }}>
-                                        <img src={imagePreview} alt="Preview" style={{ width: '100%', height: '150px', objectFit: 'cover', borderRadius: '12px' }} />
-                                        <label className="edit-image-btn" style={{ position: 'absolute', bottom: '10px', right: '10px', background: 'var(--primary)', color: 'white', padding: '8px 15px', borderRadius: '8px', cursor: 'pointer', fontSize: '0.8rem', fontWeight: '700' }}>
-                                            Change Image
-                                            <input type="file" accept="image/*" onChange={handleFileChange} style={{ display: 'none' }} />
-                                        </label>
-                                    </div>
-                                ) : (
-                                    <label className="file-upload-label" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem', padding: '2rem', border: '2px dashed var(--border)', borderRadius: '16px', cursor: 'pointer' }}>
-                                        <input type="file" accept="image/*" onChange={handleFileChange} style={{ display: 'none' }} />
-                                        {uploading ? <Loader2 className="animate-spin" /> : <Upload size={24} />}
-                                        <span>Click to upload image</span>
-                                    </label>
-                                )}
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.8rem' }}>
+                                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.9rem', fontWeight: '600' }}>
+                                    <ImageIcon size={16} color="var(--primary)" /> Tool Thumbnail
+                                </label>
+                                <button 
+                                    type="button" 
+                                    onClick={() => setUseManualUrl(!useManualUrl)}
+                                    style={{ background: 'none', border: 'none', color: 'var(--primary)', fontSize: '0.75rem', cursor: 'pointer', textDecoration: 'underline' }}
+                                >
+                                    {useManualUrl ? "Switch to File Upload" : "Upload issues? Enter URL manually"}
+                                </button>
                             </div>
+
+                            {useManualUrl ? (
+                                <div className="manual-url-input">
+                                    <input 
+                                        type="url" 
+                                        placeholder="https://example.com/image.png"
+                                        className="nav-search-wrapper"
+                                        value={formData.image_url}
+                                        onChange={(e) => {
+                                            setFormData(prev => ({ ...prev, image_url: e.target.value }));
+                                            setImagePreview(e.target.value);
+                                        }}
+                                        style={{ width: '100%', padding: '15px', color: 'white', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)' }}
+                                    />
+                                    <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '5px' }}>Paste a direct link to your tool's thumbnail.</p>
+                                </div>
+                            ) : (
+                                <div className="file-upload-wrapper">
+                                    {imagePreview && !uploading ? (
+                                        <div className="preview-img-container" style={{ position: 'relative' }}>
+                                            <img src={imagePreview} alt="Preview" style={{ width: '100%', height: '150px', objectFit: 'cover', borderRadius: '12px' }} />
+                                            <label className="edit-image-btn" style={{ position: 'absolute', bottom: '10px', right: '10px', background: 'var(--primary)', color: 'white', padding: '8px 15px', borderRadius: '8px', cursor: 'pointer', fontSize: '0.8rem', fontWeight: '700' }}>
+                                                Change Image
+                                                <input type="file" accept="image/*" onChange={handleFileChange} style={{ display: 'none' }} />
+                                            </label>
+                                        </div>
+                                    ) : (
+                                        <label className="file-upload-label" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem', padding: '2rem', border: '2px dashed var(--border)', borderRadius: '16px', cursor: 'pointer', position: 'relative' }}>
+                                            <input type="file" accept="image/*" onChange={handleFileChange} style={{ display: 'none' }} disabled={uploading} />
+                                            {uploading ? <Loader2 className="animate-spin" /> : <Upload size={24} />}
+                                            <span>{uploading ? 'Uploading...' : 'Click to upload image'}</span>
+                                            {uploading && (
+                                                <button 
+                                                    type="button" 
+                                                    onClick={(e) => {
+                                                        e.preventDefault(); e.stopPropagation();
+                                                        setUploading(false);
+                                                    }}
+                                                    style={{ 
+                                                        position: 'absolute', top: '10px', right: '10px', 
+                                                        background: 'rgba(255, 71, 87, 0.2)', color: '#ff4757', 
+                                                        border: '1px solid rgba(255, 71, 87, 0.3)', padding: '5px 10px', 
+                                                        borderRadius: '6px', fontSize: '0.7rem', cursor: 'pointer' 
+                                                    }}
+                                                >
+                                                    Cancel
+                                                </button>
+                                            )}
+                                        </label>
+                                    )}
+                                </div>
+                            )}
                         </div>
 
                         <div className="input-group">

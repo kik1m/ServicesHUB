@@ -7,6 +7,10 @@ import SkeletonLoader from '../components/SkeletonLoader';
 import { useToast } from '../context/ToastContext';
 import { useAuth } from '../context/AuthContext';
 import { sendNotification } from '../utils/notifications';
+import ReviewsSection from '../components/ReviewsSection';
+import ReportToolModal from '../components/ReportToolModal';
+import { Flag } from 'lucide-react';
+import useSEO from '../hooks/useSEO';
 
 const ToolDetail = () => {
     const { id } = useParams();
@@ -17,7 +21,7 @@ const ToolDetail = () => {
     const [relatedTools, setRelatedTools] = useState([]);
     const [loading, setLoading] = useState(true);
     const [isFavorited, setIsFavorited] = useState(false);
-    // const [user, setUser] = useState(null); // Removed, now using user from AuthContext
+    const [isReportModalOpen, setIsReportModalOpen] = useState(false);
 
     useEffect(() => {
         window.scrollTo(0, 0);
@@ -45,11 +49,10 @@ const ToolDetail = () => {
                         .select('*')
                         .eq('user_id', authUser.id)
                         .eq('tool_id', data.id)
-                        .single();
+                        .maybeSingle();
                     if (favData) setIsFavorited(true);
                 }
 
-                // Related tools...
                 const { data: related } = await supabase
                     .from('tools')
                     .select('*, categories(name)')
@@ -58,12 +61,13 @@ const ToolDetail = () => {
                     .limit(3);
                 setRelatedTools(related || []);
 
-                // SEO
-                if (data) {
-                    document.title = `${data.name} - ${data.short_description} | ServicesHUB`;
-                    const metaDesc = document.querySelector('meta[name="description"]');
-                    if (metaDesc) metaDesc.setAttribute('content', data.description?.substring(0, 160) || data.short_description);
+                // Increment View Async (Server RPC)
+                if (data && data.id) {
+                    const { error: rpcError } = await supabase.rpc('increment_tool_view', { t_id: data.id });
+                    if (rpcError) console.error("View track error:", rpcError);
                 }
+
+                // SEO managed by custom hook now
             } catch (error) {
                 console.error('Error fetching tool detail:', error);
             } finally {
@@ -129,6 +133,13 @@ const ToolDetail = () => {
             showToast('Link copied to clipboard! 📋', 'success');
         }
     };
+
+    useSEO({
+        title: tool?.name,
+        description: tool?.description,
+        image: tool?.image_url,
+        url: typeof window !== 'undefined' ? window.location.href : ''
+    });
 
     if (loading) {
         return (
@@ -210,7 +221,14 @@ const ToolDetail = () => {
                             <p className="tool-short-desc" style={{ fontSize: '1.2rem', color: 'var(--text-muted)', maxWidth: '700px' }}>{tool.short_description}</p>
                         </div>
                         <div className="tool-header-actions" style={{ display: 'flex', gap: '1rem' }}>
-                             <a href={tool.url} target="_blank" rel="noopener noreferrer" className="btn-primary" style={{ padding: '1.2rem 2.5rem' }}>
+                             <a 
+                                href={tool.url} 
+                                target="_blank" 
+                                rel="noopener noreferrer" 
+                                className="btn-primary" 
+                                style={{ padding: '1.2rem 2.5rem' }}
+                                onClick={() => supabase.rpc('increment_tool_click', { t_id: tool.id }).catch(e => console.error("Click track error:", e))}
+                             >
                                 Visit Website <ExternalLink size={18} />
                             </a>
                             <button 
@@ -303,6 +321,14 @@ const ToolDetail = () => {
                                         <Heart size={18} fill={isFavorited ? '#ff4757' : 'none'} /> {isFavorited ? 'Saved' : 'Save'}
                                     </button>
                                 </div>
+                                <div style={{ marginTop: '1.5rem', textAlign: 'center' }}>
+                                    <button 
+                                        onClick={() => setIsReportModalOpen(true)}
+                                        style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', fontSize: '0.8rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px', width: '100%' }}
+                                    >
+                                        <Flag size={12} /> Report this tool
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </aside>
@@ -341,7 +367,19 @@ const ToolDetail = () => {
                         </div>
                     </div>
                 )}
+                
+                {/* Reviews Section */}
+                {tool && tool.id && <ReviewsSection toolId={tool.id} />}
             </section>
+            
+            {/* Modals */}
+            {isReportModalOpen && (
+                <ReportToolModal 
+                    toolId={tool.id} 
+                    toolName={tool.name} 
+                    onClose={() => setIsReportModalOpen(false)} 
+                />
+            )}
         </div>
     );
 };

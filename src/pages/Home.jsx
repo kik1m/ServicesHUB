@@ -6,6 +6,7 @@ import { getIcon } from '../utils/iconMap';
 import SkeletonLoader from '../components/SkeletonLoader';
 import SmartBanner from '../components/SmartBanner';
 import VideoGuide from '../components/VideoGuide';
+import useSEO from '../hooks/useSEO';
 
 const UsersGroup = () => (
     <div className="users-group" style={{ display: 'flex', alignItems: 'center', marginLeft: '1rem' }}>
@@ -23,12 +24,11 @@ const Home = () => {
     const [featuredTools, setFeaturedTools] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        document.title = "ServicesHUB | The Ultimate AI & SaaS Tools Directory";
-        // Meta description
-        const metaDesc = document.querySelector('meta[name="description"]');
-        if (metaDesc) metaDesc.setAttribute('content', 'Discover and compare the worlds most innovative AI and SaaS tools. Curated for founders, developers, and creators.');
-    }, []);
+    useSEO({
+        title: "The Ultimate AI & SaaS Tools Directory",
+        description: "Discover and compare the worlds most innovative AI and SaaS tools. Curated for founders, developers, and creators.",
+        url: typeof window !== 'undefined' ? window.location.href : 'https://serviceshub.com'
+    });
 
     useEffect(() => {
         const fetchHomeData = async () => {

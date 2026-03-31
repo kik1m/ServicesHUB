@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import { useAuth } from '../context/AuthContext';
-import { Users, Zap, CheckCircle, Clock, ArrowUpRight, Loader2, AlertCircle, FileText, PlusCircle, Trash2, LayoutGrid, Image as ImageIcon, X, CheckCircle2, Award } from 'lucide-react';
+import { Users, Zap, CheckCircle, Clock, ArrowUpRight, Loader2, AlertCircle, FileText, PlusCircle, Trash2, LayoutGrid, Image as ImageIcon, X, CheckCircle2, Award, Mail } from 'lucide-react';
 import SkeletonLoader from '../components/SkeletonLoader';
 import { useToast } from '../context/ToastContext';
 import { sendNotification } from '../utils/notifications';
@@ -20,8 +20,9 @@ const AdminDashboard = () => {
     const [stats, setStats] = useState([]);
     const [isAdmin, setIsAdmin] = useState(false);
     const [error, setError] = useState(null);
-    const [activeTab, setActiveTab] = useState('pending'); // 'pending', 'featured', 'blogs', 'add-tool', 'categories', 'users'
+    const [activeTab, setActiveTab] = useState('pending'); // 'pending', 'featured', 'blogs', 'add-tool', 'categories', 'users', 'newsletter'
     const [allUsers, setAllUsers] = useState([]);
+    const [subscribers, setSubscribers] = useState([]);
     
     // Form States
     const [newPost, setNewPost] = useState({ title: '', excerpt: '', content: '', category: '', image_url: '' });
@@ -116,6 +117,10 @@ const AdminDashboard = () => {
                 // Fetch All Users
                 const { data: usersData } = await supabase.from('profiles').select('*').order('created_at', { ascending: false });
                 setAllUsers(usersData || []);
+
+                // Fetch Subscribers
+                const { data: subsData } = await supabase.from('newsletter_subscribers').select('*').order('created_at', { ascending: false });
+                setSubscribers(subsData || []);
 
                 // Fetch Platform Stats
                 const { count: toolsCount } = await supabase.from('tools').select('*', { count: 'exact', head: true });
@@ -345,7 +350,8 @@ const AdminDashboard = () => {
                         { id: 'blogs', label: 'Blog Manager', icon: <FileText size={16} /> },
                         { id: 'categories', label: 'Categories', icon: <LayoutGrid size={16} /> },
                         { id: 'users', label: 'Users Manager', icon: <Users size={16} /> },
-                        { id: 'add-tool', label: 'Quick Add Tool', icon: <PlusCircle size={16} /> }
+                        { id: 'add-tool', label: 'Quick Add Tool', icon: <PlusCircle size={16} /> },
+                        { id: 'newsletter', label: 'Newsletter', icon: <Mail size={16} /> }
                     ].map(tab => (
                         <button 
                             key={tab.id}
@@ -571,6 +577,35 @@ const AdminDashboard = () => {
                                             </div>
                                         </div>
                                     ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {activeTab === 'newsletter' && (
+                            <div>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+                                    <h2 style={{ fontSize: '1.25rem', fontWeight: '700' }}>Newsletter Subscribers</h2>
+                                    <span style={{ fontSize: '0.8rem', color: 'var(--primary)', fontWeight: '700' }}>{subscribers.length} TOTAL EMAIL{subscribers.length !== 1 && 'S'}</span>
+                                </div>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', maxHeight: '600px', overflowY: 'auto', paddingRight: '10px' }}>
+                                    {subscribers.map((sub, i) => (
+                                        <div key={sub.id || i} style={{ padding: '1.2rem', background: 'rgba(255,255,255,0.02)', borderRadius: '14px', border: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                                                <div style={{ width: '40px', height: '40px', background: 'rgba(255, 255, 255, 0.05)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                                    <Mail size={18} color="var(--primary)" />
+                                                </div>
+                                                <div>
+                                                    <h5 style={{ fontWeight: '700', fontSize: '1.05rem', margin: 0 }}>{sub.email}</h5>
+                                                    <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', margin: '4px 0 0 0' }}>Subscribed on {new Date(sub.created_at).toLocaleDateString()}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                    {subscribers.length === 0 && (
+                                        <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-muted)' }}>
+                                            <p>No subscribers yet. They will appear here when users sign up from the footer.</p>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         )}

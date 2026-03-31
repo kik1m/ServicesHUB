@@ -90,13 +90,18 @@ const SubmitTool = () => {
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
+    const [useManualUrl, setUseManualUrl] = useState(false);
+
     const handleFileChange = async (e) => {
         const file = e.target.files[0];
         if (!file) return;
 
-        // Validation
+        console.log('--- PROFESSIONAL UPLOAD START ---');
+        console.log('File Name:', file.name, 'Size:', (file.size / 1024).toFixed(2), 'KB');
+
         if (file.size > 2 * 1024 * 1024) {
-            setError('File is too large. Maximum size is 2MB.');
+            setError('File too large (Max 2MB)');
+            showToast('File too large (Max 2MB)', 'error');
             return;
         }
 
@@ -105,47 +110,54 @@ const SubmitTool = () => {
         reader.onloadend = () => setImagePreview(reader.result);
         reader.readAsDataURL(file);
 
-        // Upload
         setUploading(true);
         setError(null);
 
-        // Timeout fallback
-        const uploadTimeout = setTimeout(() => {
-            if (uploading) {
-                setUploading(false);
-                setError('Upload timed out. Please try again or check your connection.');
-            }
-        }, 15000);
+        // AbortController for explicit fetch timeout
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 15000); // 15s timeout
 
         try {
             const fileExt = file.name.split('.').pop();
-            const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
+            const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 7)}.${fileExt}`;
             const filePath = `tool-thumbnails/${fileName}`;
 
-            const { error: uploadError } = await supabase.storage
+            console.log('Target Path:', filePath, 'Mode: POST (Non-Resumable)');
+
+            const { data, error: uploadError } = await supabase.storage
                 .from('tool-images')
                 .upload(filePath, file, { 
                     cacheControl: '3600',
-                    upsert: false 
+                    upsert: false,
+                    resumable: false // CRITICAL: Switch from TUS to standard POST
                 });
 
-            if (uploadError) throw uploadError;
+            if (uploadError) {
+                console.error('Supabase Error:', uploadError);
+                throw uploadError;
+            }
+
+            console.log('Post-Upload Data:', data);
 
             const { data: { publicUrl } } = supabase.storage
                 .from('tool-images')
                 .getPublicUrl(filePath);
 
-            if (!publicUrl) throw new Error("Could not retrieve public URL");
-
+            console.log('Public URL Generated:', publicUrl);
             setFormData(prev => ({ ...prev, image_url: publicUrl }));
-            showToast('Image uploaded successfully!', 'success');
+            showToast('Image uploaded successfully! 🎉', 'success');
         } catch (err) {
-            console.error('Upload error details:', err.message || err);
-            setError(`Upload failed: ${err.message || 'Storage bucket error. Check if "tool-images" exists.'}`);
-            showToast('Image upload failed', 'error');
+            console.error('Upload Process Error:', err);
+            const msg = err.name === 'AbortError' 
+                ? 'Upload timed out. Try the manual URL option if your network is slow.' 
+                : `Upload failed: ${err.message || 'Check connection'}`;
+            
+            setError(msg);
+            showToast('Upload failed', 'error');
         } finally {
-            clearTimeout(uploadTimeout);
+            clearTimeout(timeoutId);
             setUploading(false);
+            console.log('--- PROFESSIONAL UPLOAD END ---');
         }
     };
 
@@ -305,30 +317,75 @@ const SubmitTool = () => {
                                     <textarea name="description" value={formData.description} onChange={handleChange} rows="5" placeholder="Describe what your tool does..." style={{ width: '100%', padding: '15px', borderRadius: '12px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'white', fontSize: '1rem', outline: 'none', resize: 'vertical' }} required></textarea>
                                 </div>
 
-                                <div className="form-group">
-                                    <label style={{ display: 'block', marginBottom: '0.8rem', fontWeight: '600', color: 'var(--text-muted)' }}>Tool Thumbnail / Icon</label>
-                                    <div className="file-upload-wrapper">
-                                        {imagePreview ? (
-                                            <div className="preview-img-container">
-                                                <img src={imagePreview} alt="Preview" />
-                                                <button type="button" className="remove-upload-btn" onClick={() => { setImagePreview(null); setFormData(prev => ({ ...prev, image_url: '' })) }}>
-                                                    <X size={16} />
-                                                </button>
-                                            </div>
-                                        ) : (
-                                            <label className="file-upload-label">
-                                                <input type="file" accept="image/*" onChange={handleFileChange} style={{ display: 'none' }} />
-                                                <div className="prop-icon-bg">
-                                                    {uploading ? <Loader2 className="animate-spin" /> : <ImageIcon size={24} />}
-                                                </div>
-                                                <div style={{ textAlign: 'center' }}>
-                                                    <p style={{ fontWeight: '700', marginBottom: '4px' }}>Click to upload</p>
-                                                    <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>PNG, JPG or WebP (Max 2MB)</p>
-                                                </div>
-                                            </label>
-                                        )}
+                                <div className="form-group" style={{ marginBottom: '2.5rem' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.8rem' }}>
+                                        <label style={{ fontWeight: '600', color: 'var(--text-muted)' }}>Tool Thumbnail / Icon</label>
+                                        <button 
+                                            type="button" 
+                                            onClick={() => setUseManualUrl(!useManualUrl)}
+                                            style={{ background: 'none', border: 'none', color: 'var(--primary)', fontSize: '0.8rem', cursor: 'pointer', textDecoration: 'underline' }}
+                                        >
+                                            {useManualUrl ? "Switch to File Upload" : "Upload issues? Enter URL manually"}
+                                        </button>
                                     </div>
-                                    {formData.image_url && <p style={{ fontSize: '0.8rem', color: '#00ffaa', marginTop: '10px', display: 'flex', alignItems: 'center', gap: '5px' }}><CheckCircle2 size={14} /> Image uploaded successfully</p>}
+
+                                    {useManualUrl ? (
+                                        <div className="manual-url-input">
+                                            <input 
+                                                type="url" 
+                                                placeholder="https://example.com/image.png"
+                                                value={formData.image_url}
+                                                onChange={(e) => {
+                                                    setFormData(prev => ({ ...prev, image_url: e.target.value }));
+                                                    setImagePreview(e.target.value);
+                                                }}
+                                                style={{ width: '100%', padding: '15px', borderRadius: '12px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'white', outline: 'none' }}
+                                            />
+                                            <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '8px' }}>Paste a direct link to your image (PNG, JPG, WebP).</p>
+                                        </div>
+                                    ) : (
+                                        <div className="file-upload-wrapper">
+                                            {imagePreview && !uploading ? (
+                                                <div className="preview-img-container">
+                                                    <img src={imagePreview} alt="Preview" />
+                                                    <button type="button" className="remove-upload-btn" onClick={() => { setImagePreview(null); setFormData(prev => ({ ...prev, image_url: '' })) }}>
+                                                        <X size={16} />
+                                                    </button>
+                                                </div>
+                                            ) : (
+                                                <label className="file-upload-label" style={{ position: 'relative' }}>
+                                                    <input type="file" accept="image/*" onChange={handleFileChange} style={{ display: 'none' }} disabled={uploading} />
+                                                    <div className="prop-icon-bg">
+                                                        {uploading ? <Loader2 className="animate-spin" /> : <ImageIcon size={24} />}
+                                                    </div>
+                                                    <div style={{ textAlign: 'center' }}>
+                                                        <p style={{ fontWeight: '700', marginBottom: '4px' }}>{uploading ? 'Uploading...' : 'Click to upload'}</p>
+                                                        <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>{uploading ? 'Please wait a moment' : 'PNG, JPG or WebP (Max 2MB)'}</p>
+                                                    </div>
+                                                    {uploading && (
+                                                        <button 
+                                                            type="button" 
+                                                            onClick={(e) => {
+                                                                e.preventDefault();
+                                                                e.stopPropagation();
+                                                                setUploading(false);
+                                                                setError('Upload cancelled by user.');
+                                                            }}
+                                                            style={{ 
+                                                                position: 'absolute', top: '10px', right: '10px', 
+                                                                background: 'rgba(255, 71, 87, 0.2)', color: '#ff4757', 
+                                                                border: '1px solid rgba(255, 71, 87, 0.3)', padding: '5px 10px', 
+                                                                borderRadius: '6px', fontSize: '0.7rem', cursor: 'pointer' 
+                                                            }}
+                                                        >
+                                                            Cancel
+                                                        </button>
+                                                    )}
+                                                </label>
+                                            )}
+                                        </div>
+                                    )}
+                                    {formData.image_url && <p style={{ fontSize: '0.8rem', color: '#00ffaa', marginTop: '10px', display: 'flex', alignItems: 'center', gap: '5px' }}><CheckCircle2 size={14} /> Image ready</p>}
                                 </div>
                             </div>
                         )}

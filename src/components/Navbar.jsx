@@ -16,7 +16,28 @@ const Navbar = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        if (user) fetchUnreadCount(user.id);
+        let subscription;
+        if (user) {
+            fetchUnreadCount(user.id);
+
+            subscription = supabase
+                .channel('public:notifications')
+                .on('postgres_changes', { 
+                    event: 'INSERT', 
+                    schema: 'public', 
+                    table: 'notifications',
+                    filter: `user_id=eq.${user.id}`
+                }, (payload) => {
+                    setUnreadCount(prev => prev + 1);
+                })
+                .subscribe();
+        }
+
+        return () => {
+            if (subscription) {
+                supabase.removeChannel(subscription);
+            }
+        };
     }, [user]);
 
     // Locking Body Scroll when Menu is Open

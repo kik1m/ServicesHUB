@@ -9,6 +9,32 @@ const NotificationPanel = ({ onClose }) => {
 
     useEffect(() => {
         fetchNotifications();
+
+        let subscription;
+        const setupSubscription = async () => {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user) {
+                subscription = supabase
+                    .channel('public:notifications_panel')
+                    .on('postgres_changes', { 
+                        event: 'INSERT', 
+                        schema: 'public', 
+                        table: 'notifications',
+                        filter: `user_id=eq.${user.id}`
+                    }, (payload) => {
+                        setNotifications(prev => [payload.new, ...prev].slice(0, 5));
+                    })
+                    .subscribe();
+            }
+        };
+
+        setupSubscription();
+
+        return () => {
+            if (subscription) {
+                supabase.removeChannel(subscription);
+            }
+        };
     }, []);
 
     const fetchNotifications = async () => {
