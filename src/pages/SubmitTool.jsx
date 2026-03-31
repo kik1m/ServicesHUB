@@ -96,9 +96,6 @@ const SubmitTool = () => {
         const file = e.target.files[0];
         if (!file) return;
 
-        console.log('--- PROFESSIONAL UPLOAD START ---');
-        console.log('File Name:', file.name, 'Size:', (file.size / 1024).toFixed(2), 'KB');
-
         if (file.size > 2 * 1024 * 1024) {
             setError('File too large (Max 2MB)');
             showToast('File too large (Max 2MB)', 'error');
@@ -113,51 +110,30 @@ const SubmitTool = () => {
         setUploading(true);
         setError(null);
 
-        // AbortController for explicit fetch timeout
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 15000); // 15s timeout
-
         try {
             const fileExt = file.name.split('.').pop();
-            const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 7)}.${fileExt}`;
+            const fileName = `${Math.random()}.${fileExt}`;
             const filePath = `tool-thumbnails/${fileName}`;
 
-            console.log('Target Path:', filePath, 'Mode: POST (Non-Resumable)');
-
-            const { data, error: uploadError } = await supabase.storage
+            const { error: uploadError } = await supabase.storage
                 .from('tool-images')
-                .upload(filePath, file, { 
-                    cacheControl: '3600',
-                    upsert: false,
-                    resumable: false // CRITICAL: Switch from TUS to standard POST
-                });
+                .upload(filePath, file);
 
-            if (uploadError) {
-                console.error('Supabase Error:', uploadError);
-                throw uploadError;
-            }
-
-            console.log('Post-Upload Data:', data);
+            if (uploadError) throw uploadError;
 
             const { data: { publicUrl } } = supabase.storage
                 .from('tool-images')
                 .getPublicUrl(filePath);
 
-            console.log('Public URL Generated:', publicUrl);
             setFormData(prev => ({ ...prev, image_url: publicUrl }));
             showToast('Image uploaded successfully! 🎉', 'success');
         } catch (err) {
             console.error('Upload Process Error:', err);
-            const msg = err.name === 'AbortError' 
-                ? 'Upload timed out. Try the manual URL option if your network is slow.' 
-                : `Upload failed: ${err.message || 'Check connection'}`;
-            
-            setError(msg);
+            setError(`Upload failed: ${err.message || 'Check connection'}`);
             showToast('Upload failed', 'error');
+            setImagePreview(null);
         } finally {
-            clearTimeout(timeoutId);
             setUploading(false);
-            console.log('--- PROFESSIONAL UPLOAD END ---');
         }
     };
 
