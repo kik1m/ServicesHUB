@@ -172,10 +172,11 @@ const CategoryDetail = () => {
                                     justifyContent: 'center',
                                     color: 'white',
                                     overflow: 'hidden',
-                                    border: '1px solid var(--border)'
+                                    border: '1px solid var(--border)',
+                                    padding: '1rem'
                                 }}>
                                     {tool.image_url ? (
-                                        <img src={tool.image_url} alt={tool.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                        <img src={tool.image_url} alt={tool.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                                     ) : (
                                         getIcon(tool.icon_name || 'Zap', 50)
                                     )}

@@ -130,10 +130,8 @@ const SubmitTool = () => {
             showToast('Image uploaded successfully! 🎉', 'success');
         } catch (err) {
             console.error('File Upload Error:', err);
-            // DO NOT FREEZE - Provide a fallback so the user can literally just click Submit!
-            setError(`Upload failed, applying a dummy URL so you can test the submit button safely.`);
-            setFormData(prev => ({ ...prev, image_url: 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?q=80&w=1000' }));
-            showToast('Using placeholder URL instead', 'warning');
+            setError(`Upload failed. Please try a different image or use a direct URL.`);
+            showToast('Failed to upload image', 'error');
             setImagePreview(null);
         } finally {
             setUploading(false);
@@ -208,6 +206,14 @@ const SubmitTool = () => {
             ]);
 
             showToast('Tool submitted successfully! 🎉', 'success');
+            
+            // Re-enabled notification now that the fetch lock is shattered
+            await sendNotification(
+                user.id,
+                'Submission Received',
+                `Your tool "${formData.name}" has been submitted and is under review by our team.`,
+                'info'
+            );
             setIsSuccess(true);
             window.scrollTo(0, 0);
         } catch (err) {

@@ -61,11 +61,7 @@ const ToolDetail = () => {
                     .limit(3);
                 setRelatedTools(related || []);
 
-                // Increment View Async (Server RPC)
-                if (data && data.id) {
-                    const { error: rpcError } = await supabase.rpc('increment_tool_view', { t_id: data.id });
-                    if (rpcError) console.error("View track error:", rpcError);
-                }
+                // Removed view increment RPC to prevent 404 errors on missing backend function
 
                 // SEO managed by custom hook now
             } catch (error) {
@@ -227,7 +223,6 @@ const ToolDetail = () => {
                                 rel="noopener noreferrer" 
                                 className="btn-primary" 
                                 style={{ padding: '1.2rem 2.5rem' }}
-                                onClick={() => supabase.rpc('increment_tool_click', { t_id: tool.id }).catch(e => console.error("Click track error:", e))}
                              >
                                 Visit Website <ExternalLink size={18} />
                             </a>

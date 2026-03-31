@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import { Search, X, Check, Minus, MessageSquare, ExternalLink, RefreshCcw, Star, ArrowRight, Loader2 } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import SkeletonLoader from '../components/SkeletonLoader';
 import SmartBanner from '../components/SmartBanner';
 

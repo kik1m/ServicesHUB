@@ -29,7 +29,7 @@ export const AuthProvider = ({ children }) => {
                 };
 
                 const timeoutPromise = new Promise((_, reject) => 
-                    setTimeout(() => reject(new Error('Auth init frozen (Timeout 3s)')), 3000)
+                    setTimeout(() => reject(new Error('Auth init frozen (Timeout 8s)')), 8000)
                 );
 
                 const result = await Promise.race([authInitPromise(), timeoutPromise]);

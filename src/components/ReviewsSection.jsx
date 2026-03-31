@@ -102,42 +102,54 @@ const ReviewsSection = ({ toolId }) => {
                         <h4 style={{ fontWeight: '700', marginBottom: '1.5rem', fontSize: '1.1rem' }}>Write a Review</h4>
                         
                         {user ? (
-                            <form onSubmit={handleSubmitReview} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                                <div>
-                                    <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.9rem', color: 'var(--text-muted)' }}>Your Rating</label>
-                                    <div style={{ display: 'flex', gap: '8px' }}>
-                                        {[1, 2, 3, 4, 5].map((star) => (
-                                            <Star 
-                                                key={star} 
-                                                size={32} 
-                                                fill={(hoveredRating || rating) >= star ? '#ffc107' : 'none'}
-                                                color={(hoveredRating || rating) >= star ? '#ffc107' : 'var(--text-muted)'}
-                                                style={{ cursor: 'pointer', transition: '0.2s' }}
-                                                onMouseEnter={() => setHoveredRating(star)}
-                                                onMouseLeave={() => setHoveredRating(0)}
-                                                onClick={() => setRating(star)}
-                                            />
-                                        ))}
+                            reviews.some(r => r.user_id === user.id) ? (
+                                <div style={{ textAlign: 'center', padding: '2rem 1rem', background: 'rgba(255,255,255,0.02)', borderRadius: '12px', border: '1px solid var(--border)' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1rem' }}>
+                                        <div style={{ background: 'rgba(0, 255, 136, 0.1)', padding: '15px', borderRadius: '50%' }}>
+                                            <Star size={32} color="#00ff88" fill="#00ff88" />
+                                        </div>
                                     </div>
+                                    <p style={{ color: '#00ff88', marginBottom: '0.5rem', fontWeight: 'bold' }}>Review Submitted</p>
+                                    <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>Thank you for sharing your experience!</p>
                                 </div>
-                                
-                                <div>
-                                    <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.9rem', color: 'var(--text-muted)' }}>Your Experience</label>
-                                    <textarea 
-                                        rows="5"
-                                        placeholder="What did you like or dislike?"
-                                        value={comment}
-                                        onChange={(e) => setComment(e.target.value)}
-                                        className="nav-search-wrapper"
-                                        style={{ width: '100%', padding: '15px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'white', borderRadius: '12px', resize: 'vertical' }}
-                                        required
-                                    ></textarea>
-                                </div>
+                            ) : (
+                                <form onSubmit={handleSubmitReview} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                                    <div>
+                                        <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.9rem', color: 'var(--text-muted)' }}>Your Rating</label>
+                                        <div style={{ display: 'flex', gap: '8px' }}>
+                                            {[1, 2, 3, 4, 5].map((star) => (
+                                                <Star 
+                                                    key={star} 
+                                                    size={32} 
+                                                    fill={(hoveredRating || rating) >= star ? '#ffc107' : 'none'}
+                                                    color={(hoveredRating || rating) >= star ? '#ffc107' : 'var(--text-muted)'}
+                                                    style={{ cursor: 'pointer', transition: '0.2s' }}
+                                                    onMouseEnter={() => setHoveredRating(star)}
+                                                    onMouseLeave={() => setHoveredRating(0)}
+                                                    onClick={() => setRating(star)}
+                                                />
+                                            ))}
+                                        </div>
+                                    </div>
+                                    
+                                    <div>
+                                        <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.9rem', color: 'var(--text-muted)' }}>Your Experience</label>
+                                        <textarea 
+                                            rows="5"
+                                            placeholder="What did you like or dislike?"
+                                            value={comment}
+                                            onChange={(e) => setComment(e.target.value)}
+                                            className="nav-search-wrapper"
+                                            style={{ width: '100%', padding: '15px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'white', borderRadius: '12px', resize: 'vertical' }}
+                                            required
+                                        ></textarea>
+                                    </div>
 
-                                <button type="submit" disabled={submitting} className="btn-primary" style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
-                                    {submitting ? <Loader2 className="animate-spin" size={20} /> : 'Post Review'}
-                                </button>
-                            </form>
+                                    <button type="submit" disabled={submitting} className="btn-primary" style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
+                                        {submitting ? <Loader2 className="animate-spin" size={20} /> : 'Post Review'}
+                                    </button>
+                                </form>
+                            )
                         ) : (
                             <div style={{ textAlign: 'center', padding: '2rem 1rem', background: 'rgba(255,255,255,0.02)', borderRadius: '12px', border: '1px solid var(--border)' }}>
                                 <p style={{ color: 'var(--text-muted)', marginBottom: '1rem', fontSize: '0.9rem' }}>You must sign in to share your experience.</p>
