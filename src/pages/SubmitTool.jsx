@@ -317,7 +317,7 @@ const SubmitTool = () => {
 
                                 <div className="form-group" style={{ marginBottom: '2.5rem' }}>
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.8rem' }}>
-                                        <label style={{ fontWeight: '600', color: 'var(--text-muted)' }}>Tool Thumbnail / Icon</label>
+                                        <label style={{ fontWeight: '600', color: 'var(--text-muted)' }}>Tool Thumbnail / Icon ⚡</label>
                                         <button 
                                             type="button" 
                                             onClick={() => setUseManualUrl(!useManualUrl)}
