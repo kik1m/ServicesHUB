@@ -16,20 +16,30 @@ export const AuthProvider = ({ children }) => {
 
         const initAuth = async () => {
             try {
-                const { data: { session }, error } = await supabase.auth.getSession();
-                
-                if (error) {
-                    console.error("Auth session fetch error:", error);
-                }
+                const timeoutPromise = new Promise((_, reject) => 
+                    setTimeout(() => reject(new Error('Auth init timeout: Supabase connection is too slow or frozen.')), 8000)
+                );
 
-                if (session?.user) {
-                    const profile = await fetchProfile(session.user.id);
-                    setUser({ ...session.user, ...profile });
+                const authTask = async () => {
+                    const { data: { session }, error } = await supabase.auth.getSession();
+                    if (error) console.error("Auth session fetch error:", error);
+
+                    if (session?.user) {
+                        const profile = await fetchProfile(session.user.id);
+                        return { session, profile };
+                    }
+                    return null;
+                };
+
+                const result = await Promise.race([authTask(), timeoutPromise]);
+
+                if (result) {
+                    setUser({ ...result.session.user, ...result.profile });
                 } else {
                     setUser(null);
                 }
             } catch (error) {
-                console.error("Auth initialization exception caught:", error);
+                console.warn("Auth check failed or timed out. Defaulting to logged-out state.", error);
                 setUser(null);
             } finally {
                 setLoading(false);
@@ -40,13 +50,20 @@ export const AuthProvider = ({ children }) => {
 
         // Listen for changes
         const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
-            if (session?.user) {
-                const profile = await fetchProfile(session.user.id);
-                setUser({ ...session.user, ...profile });
-            } else {
-                setUser(null);
+            try {
+                if (session?.user) {
+                    const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Profile fetch timeout')), 8000));
+                    const profile = await Promise.race([fetchProfile(session.user.id), timeoutPromise]);
+                    setUser({ ...session.user, ...profile });
+                } else {
+                    setUser(null);
+                }
+            } catch (err) {
+                console.warn("Auth state change error:", err);
+                setUser(session?.user ? session.user : null);
+            } finally {
+                setLoading(false);
             }
-            setLoading(false);
         });
 
         return () => subscription.unsubscribe();

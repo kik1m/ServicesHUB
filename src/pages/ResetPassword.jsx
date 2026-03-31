@@ -44,7 +44,15 @@ const ResetPassword = () => {
 
         setLoading(true);
         try {
-            const { error } = await supabase.auth.updateUser({ password });
+            const timeoutPromise = new Promise((_, reject) => 
+                setTimeout(() => reject(new Error('Connection timeout! Please try again.')), 12000)
+            );
+
+            const { error } = await Promise.race([
+                supabase.auth.updateUser({ password }),
+                timeoutPromise
+            ]);
+            
             if (error) throw error;
             
             setSuccess(true);

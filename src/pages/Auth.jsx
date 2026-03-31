@@ -23,18 +23,20 @@ const Auth = () => {
         setError(null);
 
         try {
+            const timeoutPromise = new Promise((_, reject) => 
+                setTimeout(() => reject(new Error('Connection timeout! Please check your internet or disable adblockers/firewalls.')), 12000)
+            );
+
             if (isLogin) {
-                const { error: signInError } = await supabase.auth.signInWithPassword({
-                    email,
-                    password,
-                });
+                const signInPromise = supabase.auth.signInWithPassword({ email, password });
+                const { error: signInError } = await Promise.race([signInPromise, timeoutPromise]);
+                
                 if (signInError) throw signInError;
                 navigate('/dashboard');
             } else {
-                const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-                    email,
-                    password,
-                });
+                const signUpPromise = supabase.auth.signUp({ email, password });
+                const { data: signUpData, error: signUpError } = await Promise.race([signUpPromise, timeoutPromise]);
+                
                 if (signUpError) throw signUpError;
 
                 // Create profile entry
@@ -62,9 +64,16 @@ const Auth = () => {
         setLoading(true);
         setError(null);
         try {
-            const { error } = await supabase.auth.resetPasswordForEmail(email, {
+            const timeoutPromise = new Promise((_, reject) => 
+                setTimeout(() => reject(new Error('Connection timeout! Please try again.')), 12000)
+            );
+
+            const resetPromise = supabase.auth.resetPasswordForEmail(email, {
                 redirectTo: `${window.location.origin}/reset-password`,
             });
+
+            const { error } = await Promise.race([resetPromise, timeoutPromise]);
+            
             if (error) throw error;
             setResetEmailSent(true);
             showToast('Reset link sent to your email! 📧', 'success');
