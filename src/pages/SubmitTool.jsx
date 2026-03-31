@@ -158,40 +158,52 @@ const SubmitTool = () => {
 
         try {
             const submitProcess = async () => {
-                // We ALREADY have 'user' from useAuth() hook at the top of the component!
-                // Calling supabase.auth.getUser() again can trigger a refresh queue freeze in the SDK.
-                if (!user) {
-                    navigate('/auth');
-                    return;
+                const slug = formData.name.toLowerCase().replace(/[^a-z0-9]/g, '-');
+                
+                const payload = {
+                    ...formData,
+                    slug,
+                    user_id: user.id,
+                    is_approved: false,
+                    rating: 5.0,
+                    reviews_count: 0
+                };
+
+                // PURE FETCH BYPASS: We are dropping supabase-js entirely for this call 
+                // to absolutely prove if the SDK is hanging or if the Database is dead.
+                const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+                const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+                
+                // Need token
+                const { data: sessionData } = await supabase.auth.getSession();
+                const token = sessionData?.session?.access_token;
+                
+                const response = await fetch(`${supabaseUrl}/rest/v1/tools`, {
+                    method: 'POST',
+                    headers: {
+                        'apikey': anonKey,
+                        'Authorization': `Bearer ${token || anonKey}`,
+                        'Content-Type': 'application/json',
+                        'Prefer': 'return=minimal'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    const errObj = await response.json().catch(() => ({}));
+                    throw new Error(errObj.message || `Raw HTTP ${response.status} Error`);
                 }
 
-                const slug = formData.name.toLowerCase().replace(/[^a-z0-9]/g, '-');
+                // Native Fetch successfully submitted the tool!
+                console.log("Raw fetch submitted tool successfully.");
 
-                const { error: insertError } = await supabase
-                    .from('tools')
-                    .insert([{
-                        ...formData,
-                        slug,
-                        user_id: user.id,
-                        is_approved: false,
-                        rating: 5.0,
-                        reviews_count: 0
-                    }]);
-
-                if (insertError) throw insertError;
-
-                await sendNotification(
-                    user.id,
-                    'Submission Received',
-                    `Your tool "${formData.name}" has been submitted and is under review.`,
-                    'info'
-                );
+                // Skip notification for now to isolate the test.
             };
 
-            // Forcefully prevent infinite hanging if Supabase API is blocked
+            // Increased timeout guard to 15s in case DB is just extremely slow (cold start)
             await Promise.race([
                 submitProcess(),
-                new Promise((_, reject) => setTimeout(() => reject(new Error("Supabase API is completely frozen. Please disable your Adblocker or check your internet connection and try again.")), 8000))
+                new Promise((_, reject) => setTimeout(() => reject(new Error(`Supabase Database is dead/freezing (15s timeout exceeded).`)), 15000))
             ]);
 
             showToast('Tool submitted successfully! 🎉', 'success');
