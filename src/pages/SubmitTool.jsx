@@ -102,80 +102,31 @@ const SubmitTool = () => {
             return;
         }
 
-        // Preview
-        const reader = new FileReader();
-        reader.onloadend = () => setImagePreview(reader.result);
-        reader.readAsDataURL(file);
-
         setUploading(true);
         setError(null);
 
         try {
-            const fileExt = file.name.split('.').pop();
-            const fileName = `${Math.random()}.${fileExt}`;
-            const filePath = `tool-thumbnails/${fileName}`;
-
-            // Getting Token instantly
-            const { data: sessionData } = await supabase.auth.getSession();
-            const token = sessionData?.session?.access_token;
-            
-            if (!token) throw new Error("Authentication token missing. Please log in again.");
-
-            const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-            const uploadUrl = `${supabaseUrl}/storage/v1/object/tool-images/${filePath}`;
-
-            // Raw XMLHttpRequest for UNBLOCKABLE execution flow
-            await new Promise((resolve, reject) => {
-                const xhr = new XMLHttpRequest();
-                xhr.open('POST', uploadUrl, true);
-                xhr.setRequestHeader('Authorization', `Bearer ${token}`);
-                xhr.setRequestHeader('apikey', import.meta.env.VITE_SUPABASE_ANON_KEY);
-                xhr.setRequestHeader('Content-Type', file.type || 'application/octet-stream');
-                xhr.setRequestHeader('Cache-Control', 'max-age=3600');
-                xhr.setRequestHeader('x-upsert', 'false');
-
-                // Native Timeout Guard (exactly 8 seconds)
-                xhr.timeout = 8000;
-                xhr.ontimeout = () => {
-                    reject(new Error("Upload Timeout: Server did not respond natively."));
-                };
-
-                xhr.onload = () => {
-                    if (xhr.status >= 200 && xhr.status < 300) {
-                        resolve(xhr.responseText);
-                    } else {
-                        try {
-                            const errObj = JSON.parse(xhr.responseText);
-                            reject(new Error(errObj.message || `Server Error ${xhr.status}`));
-                        } catch(parseErr) {
-                            reject(new Error(`Server Error ${xhr.status}`));
-                        }
-                    }
-                };
-
-                xhr.onerror = () => {
-                    reject(new Error("Network Error or CORS failure in XHR."));
-                };
-
-                // Send the file payload
-                xhr.send(file);
-            });
-
-            // If we reach here, XHR was completely successful
-            const { data: { publicUrl } } = supabase.storage
-                .from('tool-images')
-                .getPublicUrl(filePath);
-
-            setFormData(prev => ({ ...prev, image_url: publicUrl }));
-            showToast('Image uploaded successfully! 🎉', 'success');
-            setUploading(false); // Manually set false on success
+            // Unbreakable Base64 direct-to-database strategy
+            // Bypasses all Supabase Storage, TUS, and Network hanging issues entirely.
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                const base64String = reader.result;
+                setImagePreview(base64String);
+                setFormData(prev => ({ ...prev, image_url: base64String }));
+                showToast('Image locally attached! 🎉', 'success');
+                setUploading(false);
+            };
+            reader.onerror = () => {
+                throw new Error("Local file parsing failed.");
+            };
+            reader.readAsDataURL(file);
             
         } catch (err) {
-            console.error('XHR Upload Error:', err);
-            setError(`Upload failed: ${err.message}. Please check RLS.`);
-            showToast('Upload failed', 'error');
+            console.error('File Read Error:', err);
+            setError(`Attachment failed: ${err.message}.`);
+            showToast('Failed to read file', 'error');
             setImagePreview(null);
-            setUploading(false); // Manually set false on error
+            setUploading(false);
         }
     };
 
