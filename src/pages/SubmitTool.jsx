@@ -94,6 +94,12 @@ const SubmitTool = () => {
         const file = e.target.files[0];
         if (!file) return;
 
+        // Validation
+        if (file.size > 2 * 1024 * 1024) {
+            setError('File is too large. Maximum size is 2MB.');
+            return;
+        }
+
         // Preview
         const reader = new FileReader();
         reader.onloadend = () => setImagePreview(reader.result);
@@ -101,14 +107,27 @@ const SubmitTool = () => {
 
         // Upload
         setUploading(true);
+        setError(null);
+
+        // Timeout fallback
+        const uploadTimeout = setTimeout(() => {
+            if (uploading) {
+                setUploading(false);
+                setError('Upload timed out. Please try again or check your connection.');
+            }
+        }, 15000);
+
         try {
             const fileExt = file.name.split('.').pop();
-            const fileName = `${Math.random()}.${fileExt}`;
+            const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
             const filePath = `tool-thumbnails/${fileName}`;
 
-            const { error: uploadError, data } = await supabase.storage
+            const { error: uploadError } = await supabase.storage
                 .from('tool-images')
-                .upload(filePath, file);
+                .upload(filePath, file, { 
+                    cacheControl: '3600',
+                    upsert: false 
+                });
 
             if (uploadError) throw uploadError;
 
@@ -116,11 +135,16 @@ const SubmitTool = () => {
                 .from('tool-images')
                 .getPublicUrl(filePath);
 
+            if (!publicUrl) throw new Error("Could not retrieve public URL");
+
             setFormData(prev => ({ ...prev, image_url: publicUrl }));
+            showToast('Image uploaded successfully!', 'success');
         } catch (err) {
-            console.error('Upload error:', err);
-            setError('Failed to upload image. Make sure the bucket "tool-images" exists and is public.');
+            console.error('Upload error details:', err.message || err);
+            setError(`Upload failed: ${err.message || 'Storage bucket error. Check if "tool-images" exists.'}`);
+            showToast('Image upload failed', 'error');
         } finally {
+            clearTimeout(uploadTimeout);
             setUploading(false);
         }
     };
