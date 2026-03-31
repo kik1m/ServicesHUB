@@ -147,34 +147,41 @@ const SubmitTool = () => {
         setError(null);
 
         try {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (!user) {
-                navigate('/auth');
-                return;
-            }
+            const submitProcess = async () => {
+                const { data: { user } } = await supabase.auth.getUser();
+                if (!user) {
+                    navigate('/auth');
+                    return;
+                }
 
-            const slug = formData.name.toLowerCase().replace(/[^a-z0-9]/g, '-');
+                const slug = formData.name.toLowerCase().replace(/[^a-z0-9]/g, '-');
 
-            const { error: insertError } = await supabase
-                .from('tools')
-                .insert([{
-                    ...formData,
-                    slug,
-                    user_id: user.id,
-                    is_approved: false,
-                    rating: 5.0,
-                    reviews_count: 0
-                }]);
+                const { error: insertError } = await supabase
+                    .from('tools')
+                    .insert([{
+                        ...formData,
+                        slug,
+                        user_id: user.id,
+                        is_approved: false,
+                        rating: 5.0,
+                        reviews_count: 0
+                    }]);
 
-            if (insertError) throw insertError;
+                if (insertError) throw insertError;
 
-            // Persistent Notification
-            await sendNotification(
-                user.id,
-                'Submission Received',
-                `Your tool "${formData.name}" has been submitted and is under review.`,
-                'info'
-            );
+                await sendNotification(
+                    user.id,
+                    'Submission Received',
+                    `Your tool "${formData.name}" has been submitted and is under review.`,
+                    'info'
+                );
+            };
+
+            // Forcefully prevent infinite hanging if Supabase API is blocked
+            await Promise.race([
+                submitProcess(),
+                new Promise((_, reject) => setTimeout(() => reject(new Error("Supabase API is completely frozen. Please disable your Adblocker or check your internet connection and try again.")), 8000))
+            ]);
 
             showToast('Tool submitted successfully! 🎉', 'success');
             setIsSuccess(true);
