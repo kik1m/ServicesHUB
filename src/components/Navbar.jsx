@@ -7,7 +7,7 @@ import NotificationPanel from './NotificationPanel';
 import AccountMenu from './AccountMenu';
 
 const Navbar = () => {
-    const { user, signOut } = useAuth();
+    const { user, loading: authLoading, signOut } = useAuth();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isMoreOpen, setIsMoreOpen] = useState(false);
     const [isNotifOpen, setIsNotifOpen] = useState(false);
@@ -100,6 +100,8 @@ const Navbar = () => {
                             <Link to="/profile" className="mobile-only-link-direct" onClick={() => setIsMenuOpen(false)}><Heart size={18} /> My Favorites</Link>
                             <div className="mobile-only-divider" style={{ opacity: 0.5 }}></div>
                         </>
+                    ) : authLoading ? (
+                        <div className="mobile-only-link-direct" style={{ opacity: 0.5 }}>...</div>
                     ) : (
                         <Link to="/auth" className="mobile-only-link-direct" style={{ fontWeight: 800, color: 'var(--primary)' }} onClick={() => setIsMenuOpen(false)}>
                             <LogIn size={18} /> Login / Register
@@ -169,7 +171,9 @@ const Navbar = () => {
                     <Link to="/submit" className="btn-primary-slim">Submit Tool</Link>
                     
                     
-                    {!user ? (
+                    {authLoading ? (
+                        <div style={{ width: 68, height: 38, background: 'rgba(255,255,255,0.05)', borderRadius: '12px' }} />
+                    ) : !user ? (
                         <Link to="/auth" className="nav-login-btn-slim">Login</Link>
                     ) : (
                         <>

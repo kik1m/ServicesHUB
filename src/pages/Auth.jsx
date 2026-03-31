@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { Mail, Lock, User, ArrowRight, Github, Chrome, Sparkles, Loader2, Eye, EyeOff, AlertCircle } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useToast } from '../context/ToastContext';
+import { useAuth } from '../context/AuthContext';
 
 const Auth = () => {
+    const { user, loading: authLoading } = useAuth();
     const [isLogin, setIsLogin] = useState(true);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -16,6 +18,13 @@ const Auth = () => {
     const [resetEmailSent, setResetEmailSent] = useState(false);
     const navigate = useNavigate();
     const { showToast } = useToast();
+
+    // Prevent viewing auth page if already logged in securely
+    useEffect(() => {
+        if (!authLoading && user) {
+            navigate('/dashboard');
+        }
+    }, [user, authLoading, navigate]);
 
     const handleAuth = async (e) => {
         e.preventDefault();
