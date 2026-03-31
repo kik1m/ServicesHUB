@@ -15,14 +15,51 @@ export const AuthProvider = ({ children }) => {
         };
 
         const initAuth = async () => {
-            const { data: { session } } = await supabase.auth.getSession();
-            if (session?.user) {
-                const profile = await fetchProfile(session.user.id);
-                setUser({ ...session.user, ...profile });
-            } else {
+            try {
+                // EXTREME FALLBACK: Wrap getSession and fetchProfile in a 3s timeout.
+                // If the user's browser is dropping the refresh_token request,
+                // Supabase SDK infinitely freezes ALL queries. This shatters the lock.
+                const authInitPromise = async () => {
+                    const { data: { session } } = await supabase.auth.getSession();
+                    if (session?.user) {
+                        const profile = await fetchProfile(session.user.id);
+                        return { session, profile };
+                    }
+                    return { session: null, profile: null };
+                };
+
+                const timeoutPromise = new Promise((_, reject) => 
+                    setTimeout(() => reject(new Error('Auth init frozen (Timeout 3s)')), 3000)
+                );
+
+                const result = await Promise.race([authInitPromise(), timeoutPromise]);
+
+                if (result.session?.user) {
+                    setUser({ ...result.session.user, ...result.profile });
+                } else {
+                    setUser(null);
+                }
+            } catch (error) {
+                console.error("Auth initialization corrupted or frozen. Forcing cache wipe.", error);
+                
+                // POISONED CACHE PURGE:
+                let clearedAnything = false;
+                Object.keys(localStorage).forEach(key => {
+                    if (key.startsWith('sb-')) {
+                        localStorage.removeItem(key);
+                        clearedAnything = true;
+                    }
+                });
+                
                 setUser(null);
+                
+                if (clearedAnything) {
+                    // Only reload if we actually cleared corrupted tokens, to prevent infinite reload loops
+                    window.location.reload();
+                }
+            } finally {
+                setLoading(false);
             }
-            setLoading(false);
         };
 
         initAuth();
