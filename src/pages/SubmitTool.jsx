@@ -102,30 +102,40 @@ const SubmitTool = () => {
             return;
         }
 
+        // Preview locally instantly
+        const reader = new FileReader();
+        reader.onloadend = () => setImagePreview(reader.result);
+        reader.readAsDataURL(file);
+
         setUploading(true);
         setError(null);
 
         try {
-            // Unbreakable Base64 direct-to-database strategy
-            // Bypasses all Supabase Storage, TUS, and Network hanging issues entirely.
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                const base64String = reader.result;
-                setImagePreview(base64String);
-                setFormData(prev => ({ ...prev, image_url: base64String }));
-                showToast('Image locally attached! 🎉', 'success');
-                setUploading(false);
-            };
-            reader.onerror = () => {
-                throw new Error("Local file parsing failed.");
-            };
-            reader.readAsDataURL(file);
-            
+            const fileExt = file.name.split('.').pop();
+            const fileName = `${Math.random()}.${fileExt}`;
+            const filePath = `tool-thumbnails/${fileName}`;
+
+            // Back to direct storage upload (avoiding Base64 JSON overload)
+            const { error: uploadError } = await supabase.storage
+                .from('tool-images')
+                .upload(filePath, file);
+
+            if (uploadError) throw uploadError;
+
+            const { data: { publicUrl } } = supabase.storage
+                .from('tool-images')
+                .getPublicUrl(filePath);
+
+            setFormData(prev => ({ ...prev, image_url: publicUrl }));
+            showToast('Image uploaded successfully! 🎉', 'success');
         } catch (err) {
-            console.error('File Read Error:', err);
-            setError(`Attachment failed: ${err.message}.`);
-            showToast('Failed to read file', 'error');
+            console.error('File Upload Error:', err);
+            // DO NOT FREEZE - Provide a fallback so the user can literally just click Submit!
+            setError(`Upload failed, applying a dummy URL so you can test the submit button safely.`);
+            setFormData(prev => ({ ...prev, image_url: 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?q=80&w=1000' }));
+            showToast('Using placeholder URL instead', 'warning');
             setImagePreview(null);
+        } finally {
             setUploading(false);
         }
     };
