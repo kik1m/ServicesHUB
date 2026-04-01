@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Sparkles, ArrowRight, Zap, Shield, Cpu, PenTool, Code, Globe, CheckCircle2 } from 'lucide-react';
+import { Sparkles, ArrowRight, Zap, Shield, CheckCircle2 } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
 import { getIcon } from '../utils/iconMap';
 import SkeletonLoader from '../components/SkeletonLoader';
@@ -22,6 +22,7 @@ const UsersGroup = () => (
 const Home = () => {
     const [categories, setCategories] = useState([]);
     const [featuredTools, setFeaturedTools] = useState([]);
+    const [latestPosts, setLatestPosts] = useState([]);
     const [loading, setLoading] = useState(true);
 
     useSEO({
@@ -32,36 +33,35 @@ const Home = () => {
 
     useEffect(() => {
         const fetchHomeData = async () => {
-            const timeout = setTimeout(() => {
-                if (loading) setLoading(false);
-            }, 6000); // 6s safety timeout
-
+            setLoading(true);
             try {
-                // Fetch Categories
-                const { data: catData, error: catError } = await supabase
-                    .from('categories')
-                    .select('*')
-                    .limit(4);
-
-                if (catError) console.error('Categories Fetch Error:', catError);
-
-                // Fetch Featured Tools (Active ones)
                 const now = new Date().toISOString();
-                const { data: toolData, error: toolError } = await supabase
-                    .from('tools')
-                    .select('*, categories(name)')
-                    .eq('is_featured', true)
-                    .gt('featured_until', now)
-                    .limit(3);
 
-                if (toolError) console.error('Featured Tools Fetch Error:', toolError);
+                // Parallel Fetching
+                const [catRes, toolRes, blogRes] = await Promise.all([
+                    supabase.from('categories').select('*').limit(4),
+                    supabase.from('tools')
+                        .select('id, name, slug, short_description, image_url, icon_name, is_verified, categories(name)')
+                        .eq('is_approved', true)
+                        .eq('is_featured', true)
+                        .gt('featured_until', now)
+                        .limit(3),
+                    supabase.from('blog_posts')
+                        .select('*')
+                        .order('created_at', { ascending: false })
+                        .limit(3)
+                ]);
 
-                setCategories(catData || []);
-                setFeaturedTools(toolData || []);
+                if (catRes.error) console.error('Categories Fetch Error:', catRes.error);
+                if (toolRes.error) console.error('Featured Tools Fetch Error:', toolRes.error);
+                if (blogRes.error) console.error('Blog Fetch Error:', blogRes.error);
+
+                setCategories(catRes.data || []);
+                setFeaturedTools(toolRes.data || []);
+                setLatestPosts(blogRes.data || []);
             } catch (error) {
                 console.error('Home Data Fetch Exception:', error);
             } finally {
-                clearTimeout(timeout);
                 setLoading(false);
             }
         };
@@ -80,7 +80,7 @@ const Home = () => {
                         Discover the Power of <span className="gradient-text">Modern Tools</span>
                     </h1>
                     <p className="hero-subtitle">
-                        Stop searching, start building. We curate the world's most innovative AI and SaaS tools to help you scale faster than ever.
+                        Stop searching, start building. We curate the world&apos;s most innovative AI and SaaS tools to help you scale faster than ever.
                     </p>
 
                     <div className="hero-cta">
@@ -189,24 +189,59 @@ const Home = () => {
                     <p className="section-desc">We simplify world-class tool discovery so you can focus on building.</p>
                 </div>
 
-                <div className="prop-grid-new">
-                    <div className="glass-card prop-card-premium">
-                        <div className="prop-icon-bg"><Zap size={28} /></div>
+                <div className="prop-grid-new" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2.5rem' }}>
+                    <div className="glass-card prop-card-premium" style={{ padding: '2.5rem' }}>
+                        <div className="prop-icon-bg" style={{ width: '60px', height: '60px', borderRadius: '15px', background: 'rgba(0,210,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--primary)', marginBottom: '1.5rem' }}><Zap size={28} /></div>
                         <h4>Fast Access</h4>
-                        <p>No more digging through search results. Get direct, tested links to the world's most innovative tools instantly.</p>
+                        <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem' }}>No more digging through search results. Get direct, tested links to the world&apos;s most innovative tools instantly.</p>
                     </div>
-                    <div className="glass-card prop-card-premium">
-                        <div className="prop-icon-bg"><Shield size={28} /></div>
+                    <div className="glass-card prop-card-premium" style={{ padding: '2.5rem' }}>
+                        <div className="prop-icon-bg" style={{ width: '60px', height: '60px', borderRadius: '15px', background: 'rgba(0,210,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--primary)', marginBottom: '1.5rem' }}><Shield size={28} /></div>
                         <h4>Curated Quality</h4>
-                        <p>We only list tools that meet our high standards of quality, reliability, and actual value for your business.</p>
+                        <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem' }}>We only list tools that meet our high standards of quality, reliability, and actual value for your business.</p>
                     </div>
-                    <div className="glass-card prop-card-premium">
-                        <div className="prop-icon-bg"><Sparkles size={28} /></div>
+                    <div className="glass-card prop-card-premium" style={{ padding: '2.5rem' }}>
+                        <div className="prop-icon-bg" style={{ width: '60px', height: '60px', borderRadius: '15px', background: 'rgba(0,210,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--primary)', marginBottom: '1.5rem' }}><Sparkles size={28} /></div>
                         <h4>Latest Trends</h4>
-                        <p>Stay updated with daily additions of the newest AI breakthroughs and SaaS innovations before they go viral.</p>
+                        <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem' }}>Stay updated with daily additions of the newest AI breakthroughs and SaaS innovations before they go viral.</p>
                     </div>
                 </div>
             </section>
+
+            {/* Latest Blog Posts */}
+            {latestPosts.length > 0 && (
+                <section className="main-section latest-blog-section" style={{ backgroundColor: 'rgba(255,255,255,0.01)', borderRadius: '40px', padding: '6rem 2rem' }}>
+                    <div className="section-header-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3rem' }}>
+                        <h2 className="section-title">Latest <span className="gradient-text">Insights</span></h2>
+                        <Link to="/blog" className="view-all-link" style={{ color: 'var(--primary)', fontWeight: '700', textDecoration: 'none' }}>
+                            View Magazine <ArrowRight size={18} style={{ marginLeft: '8px' }} />
+                        </Link>
+                    </div>
+
+                    <div className="blog-posts-grid" style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))',
+                        gap: '2.5rem'
+                    }}>
+                        {latestPosts.map(post => (
+                            <Link key={post.id} to={`/blog/${post.id}`} className="blog-card glass-card" style={{ textDecoration: 'none', color: 'inherit' }}>
+                                <div className="blog-card-image" style={{ height: '200px', borderRadius: '15px', overflow: 'hidden', marginBottom: '1.5rem' }}>
+                                    <img src={post.image_url || 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800&auto=format&fit=crop&q=60'} alt={post.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                </div>
+                                <div className="blog-meta" style={{ display: 'flex', gap: '1rem', marginBottom: '1rem', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                                    <span>{new Date(post.created_at).toLocaleDateString()}</span>
+                                    <span>•</span>
+                                    <span style={{ color: 'var(--primary)' }}>{post.category}</span>
+                                </div>
+                                <h3 style={{ fontSize: '1.3rem', fontWeight: '800', lineHeight: '1.4', marginBottom: '1rem' }}>{post.title}</h3>
+                                <div style={{ display: 'flex', alignItems: 'center', color: 'var(--primary)', fontSize: '0.9rem', fontWeight: '700' }}>
+                                    Read Article <ArrowRight size={14} style={{ marginLeft: '6px' }} />
+                                </div>
+                            </Link>
+                        ))}
+                    </div>
+                </section>
+            )}
 
             <VideoGuide />
         </div>

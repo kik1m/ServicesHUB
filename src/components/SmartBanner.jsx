@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Sparkles, ArrowRight, Zap, ChevronLeft, ChevronRight, Eye, ExternalLink, CheckCircle2 } from 'lucide-react';
+import { Sparkles, ChevronLeft, ChevronRight, Eye, ExternalLink, CheckCircle2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabaseClient';
 

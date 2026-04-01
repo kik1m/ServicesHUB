@@ -1,16 +1,23 @@
 import React, { useState, useEffect } from 'react';
-import { User, Settings, Heart, MessageSquare, Award, Clock, Star, Edit3, LayoutGrid, LogOut, Loader2, Globe, Twitter, Linkedin, CheckCircle2, TrendingUp } from 'lucide-react';
+import { User, Heart, Award, Star, Edit3, LayoutGrid, LogOut, Globe, Twitter, Linkedin, CheckCircle2, TrendingUp } from 'lucide-react';
 import SkeletonLoader from '../components/SkeletonLoader';
 import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import { supabase } from '../lib/supabaseClient';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 
+import useSEO from '../hooks/useSEO';
+
 const Profile = () => {
     const navigate = useNavigate();
     const { user, loading: authLoading, signOut } = useAuth();
-    const { showToast } = useToast();
+    const { showToast: _showToast } = useToast();
+
+    useSEO({
+        title: user?.full_name ? `${user.full_name}'s Profile` : 'Member Profile',
+        description: `View the profile and favorite tools of ${user?.full_name || 'a member'} on ServicesHUB.`,
+        url: window.location.href
+    });
 
     useEffect(() => {
         if (authLoading) return;
@@ -22,8 +29,6 @@ const Profile = () => {
     const [profile, setProfile] = useState(null);
     const [loading, setLoading] = useState(true);
     const [favorites, setFavorites] = useState([]);
-    const [userTools, setUserTools] = useState([]);
-    const [upgrading, setUpgrading] = useState(false);
 
     useEffect(() => {
         const fetchProfileData = async () => {
@@ -34,44 +39,22 @@ const Profile = () => {
             }
 
             setLoading(true);
-            const timeout = setTimeout(() => {
-                if (loading) setLoading(false);
-            }, 6000);
-
             try {
-                // Fetch User Profile
-                const { data: profileData, error: profileError } = await supabase
-                    .from('profiles')
-                    .select('*')
-                    .eq('id', user.id)
-                    .single();
+                // Parallel Fetching
+                const [profileRes, favsRes] = await Promise.all([
+                    supabase.from('profiles').select('full_name, avatar_url, bio, website, twitter, linkedin, is_premium, role').eq('id', user.id).single(),
+                    supabase.from('favorites').select('id, tools(id, name, slug, short_description, image_url, rating, reviews_count, is_verified, categories(name))').eq('user_id', user.id)
+                ]);
 
-                if (profileError) console.error('Profile Fetch Error:', profileError);
-                setProfile(profileData || {});
+                if (profileRes.error) console.error('Profile Fetch Error:', profileRes.error);
+                if (favsRes.error) console.error('Favorites Fetch Error:', favsRes.error);
 
-                // Fetch User Tools (Submitted)
-                const { data: toolsData, error: toolsError } = await supabase
-                    .from('tools')
-                    .select('*, categories(name)')
-                    .eq('user_id', user.id)
-                    .order('created_at', { ascending: false });
-
-                if (toolsError) console.error('Tools Fetch Error:', toolsError);
-                setUserTools(toolsData || []);
-
-                // Fetch Favorites
-                const { data: favsData, error: favsError } = await supabase
-                    .from('favorites')
-                    .select('*, tools(*, categories(*))')
-                    .eq('user_id', user.id);
-
-                if (favsError) console.error('Favorites Fetch Error:', favsError);
-                setFavorites(favsData || []);
+                setProfile(profileRes.data || {});
+                setFavorites(favsRes.data || []);
 
             } catch (error) {
                 console.error('Profile Data Fetch Exception:', error);
             } finally {
-                clearTimeout(timeout);
                 setLoading(false);
             }
         };
@@ -234,7 +217,7 @@ const Profile = () => {
                         ) : (
                             <div className="glass-card" style={{ padding: '3rem', textAlign: 'center', marginBottom: '3rem', color: 'var(--text-muted)' }}>
                                 <Heart size={40} style={{ opacity: 0.2, marginBottom: '1rem' }} />
-                                <p>You haven't saved any tools yet.</p>
+                                <p>You haven&apos;t saved any tools yet.</p>
                                 <Link to="/tools" className="btn-text" style={{ color: 'var(--primary)' }}>Explore Tools</Link>
                             </div>
                         )}

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import { useAuth } from '../context/AuthContext';
 import { Users, Zap, CheckCircle, Clock, ArrowUpRight, Loader2, AlertCircle, FileText, PlusCircle, Trash2, LayoutGrid, Image as ImageIcon, X, CheckCircle2, Award, Mail } from 'lucide-react';
@@ -143,7 +143,7 @@ const AdminDashboard = () => {
         };
 
         checkAdminAndFetchData();
-    }, [navigate]);
+    }, [navigate, user, authLoading]);
 
     const handleApprove = async (tool) => {
         try {
@@ -243,7 +243,7 @@ const AdminDashboard = () => {
         setSubmitting(true);
         try {
             const { data: { user } } = await supabase.auth.getUser();
-            const { data, error } = await supabase.from('tools').insert([{
+            const { error } = await supabase.from('tools').insert([{
                 ...newTool,
                 user_id: user.id,
                 is_approved: true
@@ -318,7 +318,7 @@ const AdminDashboard = () => {
             <div className="container" style={{ maxWidth: '1200px', margin: '0 auto' }}>
                 <div style={{ marginBottom: '3rem' }}>
                     <h1 style={{ fontSize: '2.5rem', fontWeight: '800', marginBottom: '8px' }}>Admin Control Center</h1>
-                    <p style={{ color: 'var(--text-muted)' }}>Welcome back, Moderator. Here's what's happening today.</p>
+                    <p style={{ color: 'var(--text-muted)' }}>Welcome back, Moderator. Here&apos;s what&apos;s happening today.</p>
                 </div>
 
                 {error && (
@@ -328,7 +328,7 @@ const AdminDashboard = () => {
                 )}
 
                 {/* Stats Grid */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.5rem', marginBottom: '3rem' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.5rem', marginBottom: '2rem' }}>
                     {stats.map((stat, i) => (
                         <div key={i} className="glass-card" style={{ padding: '1.5rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
                             <div style={{ padding: '12px', background: 'rgba(255,255,255,0.03)', borderRadius: '12px', color: stat.color }}>
@@ -340,6 +340,35 @@ const AdminDashboard = () => {
                             </div>
                         </div>
                     ))}
+                </div>
+
+                {/* Global Growth Chart (Admin) */}
+                <div className="glass-card" style={{ padding: '2rem', marginBottom: '3rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+                        <h3 style={{ fontSize: '1.1rem', fontWeight: '800' }}>Global Platform Growth</h3>
+                        <div style={{ fontSize: '0.8rem', color: 'var(--primary)', fontWeight: '700' }}>LIVE METRICS</div>
+                    </div>
+                    <div style={{ height: '150px', width: '100%' }}>
+                        <svg viewBox="0 0 1000 150" preserveAspectRatio="none" style={{ width: '100%', height: '100%' }}>
+                            <path 
+                                d="M0,130 Q150,110 300,90 T600,60 T1000,20" 
+                                fill="none" stroke="var(--primary)" strokeWidth="3" strokeLinecap="round" 
+                            />
+                            <path 
+                                d="M0,130 Q150,110 300,90 T600,60 T1000,20 L1000,150 L0,150 Z" 
+                                fill="url(#adminChartGradient)" 
+                            />
+                            <defs>
+                                <linearGradient id="adminChartGradient" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="0%" stopColor="var(--primary)" stopOpacity="0.2" />
+                                    <stop offset="100%" stopColor="var(--primary)" stopOpacity="0" />
+                                </linearGradient>
+                            </defs>
+                        </svg>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '1rem', color: 'var(--text-muted)', fontSize: '0.7rem' }}>
+                        <span>WEEK 1</span><span>WEEK 2</span><span>WEEK 3</span><span>WEEK 4</span>
+                    </div>
                 </div>
 
                 {/* Tab Navigation */}

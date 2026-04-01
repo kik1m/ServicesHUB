@@ -7,6 +7,7 @@ const FAQ = () => {
     const [loading, setLoading] = useState(true);
     const [activeIndex, setActiveIndex] = useState(null);
     const [searchQuery, setSearchQuery] = useState('');
+    const [selectedCategory, setSelectedCategory] = useState('All');
 
     useEffect(() => {
         const timer = setTimeout(() => setLoading(false), 500);
@@ -85,7 +86,29 @@ const FAQ = () => {
             </header>
 
             <section className="main-section" style={{ maxWidth: '900px', margin: '0 auto' }}>
-                {faqs.map((group, groupIdx) => (
+                {/* Category Selection */}
+                <div className="faq-categories" style={{ display: 'flex', gap: '1rem', justifyContent: 'center', marginBottom: '4rem', flexWrap: 'wrap' }}>
+                    {['All', ...faqs.map(f => f.category)].map(cat => (
+                        <button
+                            key={cat}
+                            onClick={() => setSelectedCategory(cat)}
+                            style={{
+                                padding: '12px 25px',
+                                borderRadius: '100px',
+                                border: '1px solid var(--border)',
+                                background: selectedCategory === cat ? 'var(--primary)' : 'rgba(255,255,255,0.02)',
+                                color: 'white',
+                                fontWeight: '700',
+                                cursor: 'pointer',
+                                transition: '0.3s'
+                            }}
+                        >
+                            {cat}
+                        </button>
+                    ))}
+                </div>
+
+                {faqs.filter(f => selectedCategory === 'All' || f.category === selectedCategory).map((group, groupIdx) => (
                     <div key={groupIdx} className="faq-group" style={{ marginBottom: '3rem' }}>
                         <div className="group-header" style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '1.5rem', color: 'var(--primary)' }}>
                             {group.icon}
@@ -145,7 +168,7 @@ const FAQ = () => {
                 <div className="glass-card help-cta" style={{ textAlign: 'center', padding: '4rem', marginTop: '4rem' }}>
                     <MessageSquare size={48} color="var(--primary)" style={{ marginBottom: '1.5rem', opacity: 0.5 }} />
                     <h2 style={{ marginBottom: '1rem' }}>Still have questions?</h2>
-                    <p style={{ color: 'var(--text-muted)', marginBottom: '2rem' }}>We're here to help. Reach out to our support team any time.</p>
+                    <p style={{ color: 'var(--text-muted)', marginBottom: '2rem' }}>We&apos;re here to help. Reach out to our support team any time.</p>
                     <Link to="/contact" className="btn-primary">Contact Support</Link>
                 </div>
             </section>

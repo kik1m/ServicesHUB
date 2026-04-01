@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Play, Info, CheckCircle2, Star, ShieldCheck, Zap } from 'lucide-react';
+import { CheckCircle2, Star, Zap } from 'lucide-react';
 
 const VideoGuide = () => {
     const [activeTab, setActiveTab] = useState('seeker');

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, ArrowRight, CheckCircle2, Zap, Star, ShieldCheck, Rocket } from 'lucide-react';
+import { X, ArrowRight, Zap, Rocket } from 'lucide-react';
 
 const OnboardingModal = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -30,8 +30,8 @@ const OnboardingModal = () => {
                 {step === 1 ? (
                     <div className="step-content">
                         <div className="onboarding-badge">WELCOME TO SERVICESHUB</div>
-                        <h2>What's your <span className="gradient-text">Mission</span>?</h2>
-                        <p>We've tailored the platform to suit your specific needs. Tell us who you are.</p>
+                        <h2>What&apos;s your <span className="gradient-text">Mission</span>?</h2>
+                        <p>We&apos;ve tailored the platform to suit your specific needs. Tell us who you are.</p>
                         
                         <div className="role-selection">
                             <button 
@@ -40,7 +40,7 @@ const OnboardingModal = () => {
                             >
                                 <div className="role-icon-bg"><Zap size={32} /></div>
                                 <h3>Tool Seeker</h3>
-                                <p>I'm here to find AI tools to boost my work.</p>
+                                <p>I&apos;m here to find AI tools to boost my work.</p>
                             </button>
                             <button 
                                 className={`role-card ${role === 'publisher' ? 'active' : ''}`}
@@ -48,7 +48,7 @@ const OnboardingModal = () => {
                             >
                                 <div className="role-icon-bg"><Rocket size={32} /></div>
                                 <h3>Tool Publisher</h3>
-                                <p>I'm here to list and promote my SaaS.</p>
+                                <p>I&apos;m here to list and promote my SaaS.</p>
                             </button>
                         </div>
                     </div>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import { useAuth } from '../context/AuthContext';
-import { Bell, CheckCircle, Info, Rss, ArrowLeft, Trash2, Loader2, AlertTriangle } from 'lucide-react';
+import { Bell, CheckCircle, Rss, ArrowLeft, Trash2, AlertTriangle } from 'lucide-react';
 import SkeletonLoader from '../components/SkeletonLoader';
 import { Link } from 'react-router-dom';
 

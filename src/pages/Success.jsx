@@ -1,8 +1,7 @@
-import { CheckCircle2, ArrowLeft, Plus } from 'lucide-react';
+import { CheckCircle2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useToast } from '../context/ToastContext';
 import { sendNotification } from '../utils/notifications';
-import { supabase } from '../lib/supabaseClient';
 import { useAuth } from '../context/AuthContext';
 import SkeletonLoader from '../components/SkeletonLoader';
 import { Link, useSearchParams } from 'react-router-dom';
@@ -36,7 +35,7 @@ const Success = () => {
             setLoading(false);
         };
         handleSuccess();
-    }, [user, authLoading]);
+    }, [user, authLoading, showToast, toolName, type]);
 
     if (loading) {
         return (

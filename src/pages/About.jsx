@@ -1,4 +1,4 @@
-import { Rocket, Target, Shield, Users, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { Target, Shield, CheckCircle2 } from 'lucide-react';
 import SkeletonLoader from '../components/SkeletonLoader';
 import { useState, useEffect } from 'react';
 
@@ -44,9 +44,8 @@ const About = () => {
                 <div className="glass-card about-main-content" style={{ padding: '4rem', marginBottom: '4rem' }}>
                     <h2 style={{ fontSize: '2rem', fontWeight: '800', marginBottom: '1.5rem' }}>Our Mission</h2>
                     <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem', marginBottom: '2.5rem', lineHeight: '1.8' }}>
-                        In a world where new AI tools are released every hour, discovery becomes a challenge. 
                         ServicesHUB was born to solve this. We meticulously curate, test, and categorize 
-                        the world's most innovative software to ensure you spend less time searching 
+                        the world&apos;s most innovative software to ensure you spend less time searching 
                         and more time building.
                     </p>
 

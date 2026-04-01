@@ -11,10 +11,12 @@
   --text-main: #ffffff;
   --text-muted: rgba(255, 255, 255, 0.6);
   --gradient: linear-gradient(135deg, #0088cc 0%, #00d2ff 100%);
-  --border: rgba(255, 255, 255, 0.1);
+  --border: rgba(255, 255, 255, 0.08);
   --font-family: 'Outfit', sans-serif;
-  --card-shadow: 0 4px 20px rgba(0,0,0,0.4);
-  --body-bg-image: linear-gradient(rgba(7, 7, 9, 0.85), rgba(7, 7, 9, 0.85)), url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop');
+  --card-shadow: 0 10px 40px rgba(0,0,0,0.5);
+  --glass-bg: rgba(255, 255, 255, 0.03);
+  --glass-border: 1px solid rgba(255, 255, 255, 0.08);
+  --body-bg-image: linear-gradient(rgba(7, 7, 9, 0.9), rgba(7, 7, 9, 0.9)), url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop');
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }

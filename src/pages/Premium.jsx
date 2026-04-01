@@ -1,9 +1,9 @@
 import React from 'react';
-import { CheckCircle2, ShieldCheck, Zap, Star, Sparkles, Rocket, ArrowRight, Loader2, Award } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { CheckCircle2, Award, Loader2, ArrowRight } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
-import axios from 'axios';
 
 const Premium = () => {
     const { user } = useAuth();

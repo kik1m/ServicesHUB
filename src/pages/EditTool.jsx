@@ -4,12 +4,11 @@ import { supabase } from '../lib/supabaseClient';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { sendNotification } from '../utils/notifications';
-import SkeletonLoader from '../components/SkeletonLoader';
 import CustomSelect from '../components/CustomSelect';
 import { 
-    LayoutGrid, ArrowLeft, Upload, CheckCircle2, 
-    Globe, Send, ShieldCheck, Zap, Loader2, AlertCircle, 
-    X, Image as ImageIcon, Star, Save, AlignLeft
+    ArrowLeft, 
+    Globe, Zap, Loader2, 
+    Image as ImageIcon, Save, AlignLeft, Upload
 } from 'lucide-react';
 
 const EditTool = () => {
@@ -20,6 +19,19 @@ const EditTool = () => {
     const [uploading, setUploading] = useState(false);
     const [imagePreview, setImagePreview] = useState('');
     const [useManualUrl, setUseManualUrl] = useState(false);
+    const [fieldErrors, setFieldErrors] = useState({});
+    const [formData, setFormData] = useState({
+        name: '',
+        short_description: '',
+        description: '',
+        category_id: '',
+        url: '',
+        pricing_type: 'Free',
+        image_url: ''
+    });
+    const [categories, setCategories] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [saving, setSaving] = useState(false);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -66,7 +78,6 @@ const EditTool = () => {
                 }
             } catch (err) {
                 console.error('Fetch error:', err);
-                setError(err.message);
             } finally {
                 setLoading(false);
             }
@@ -102,7 +113,7 @@ const EditTool = () => {
 
             console.log('Target Path:', filePath, 'Mode: POST');
 
-            const { data, error: uploadError } = await supabase.storage
+            const { error: uploadError } = await supabase.storage
                 .from('tool-images')
                 .upload(filePath, file, {
                     cacheControl: '3600',
@@ -133,8 +144,24 @@ const EditTool = () => {
         }
     };
 
+    const validateForm = () => {
+        const errors = {};
+        if (!formData.name || formData.name.length < 2) errors.name = "Name is too short";
+        if (!formData.url || !/^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/.test(formData.url)) errors.url = "Invalid URL format";
+        if (!formData.short_description || formData.short_description.length < 10) errors.short_description = "Description too short (min 10 chars)";
+        if (!formData.description || formData.description.length < 50) errors.description = "Detailed description too short (min 50 chars)";
+        if (!formData.category_id) errors.category_id = "Please select a category";
+        
+        setFieldErrors(errors);
+        return Object.keys(errors).length === 0;
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (!validateForm()) {
+            showToast('Please correct the errors in the form.', 'error');
+            return;
+        }
         setSaving(true);
         try {
             const { error: updateError } = await supabase
@@ -152,7 +179,7 @@ const EditTool = () => {
             showToast('Changes saved! 🎉', 'success');
             navigate('/dashboard');
         } catch (err) {
-            setError(err.message);
+            console.error('Update Error:', err);
         } finally {
             setSaving(false);
         }
@@ -178,14 +205,16 @@ const EditTool = () => {
                             <label style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px', fontSize: '0.9rem', fontWeight: '600' }}>
                                 <Zap size={16} color="var(--primary)" /> Tool Name
                             </label>
-                            <input type="text" className="nav-search-wrapper" style={{ width: '100%', padding: '15px', color: 'white', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)' }} value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} required />
+                            <input type="text" className="nav-search-wrapper" style={{ width: '100%', padding: '15px', color: 'white', background: 'rgba(255,255,255,0.03)', border: `1px solid ${fieldErrors.name ? '#ff4757' : 'var(--border)'}` }} value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} required />
+                            {fieldErrors.name && <p style={{ color: '#ff4757', fontSize: '0.75rem', marginTop: '5px' }}>{fieldErrors.name}</p>}
                         </div>
 
                         <div className="input-group">
                             <label style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px', fontSize: '0.9rem', fontWeight: '600' }}>
                                 <Globe size={16} color="var(--primary)" /> Website URL
                             </label>
-                            <input type="url" className="nav-search-wrapper" style={{ width: '100%', padding: '15px', color: 'white', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)' }} value={formData.url} onChange={(e) => setFormData({...formData, url: e.target.value})} required />
+                            <input type="url" className="nav-search-wrapper" style={{ width: '100%', padding: '15px', color: 'white', background: 'rgba(255,255,255,0.03)', border: `1px solid ${fieldErrors.url ? '#ff4757' : 'var(--border)'}` }} value={formData.url} onChange={(e) => setFormData({...formData, url: e.target.value})} required />
+                            {fieldErrors.url && <p style={{ color: '#ff4757', fontSize: '0.75rem', marginTop: '5px' }}>{fieldErrors.url}</p>}
                         </div>
 
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
@@ -220,7 +249,7 @@ const EditTool = () => {
                                         }}
                                         style={{ width: '100%', padding: '15px', color: 'white', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)' }}
                                     />
-                                    <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '5px' }}>Paste a direct link to your tool's thumbnail.</p>
+                                    <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '5px' }}>Paste a direct link to your tool&apos;s thumbnail.</p>
                                 </div>
                             ) : (
                                 <div className="file-upload-wrapper">
@@ -264,14 +293,16 @@ const EditTool = () => {
                             <label style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px', fontSize: '0.9rem', fontWeight: '600' }}>
                                 <AlignLeft size={16} color="var(--primary)" /> Short Description
                             </label>
-                            <input type="text" className="nav-search-wrapper" style={{ width: '100%', padding: '15px', color: 'white', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)' }} value={formData.short_description} onChange={(e) => setFormData({...formData, short_description: e.target.value})} required />
+                            <input type="text" className="nav-search-wrapper" style={{ width: '100%', padding: '15px', color: 'white', background: 'rgba(255,255,255,0.03)', border: `1px solid ${fieldErrors.short_description ? '#ff4757' : 'var(--border)'}` }} value={formData.short_description} onChange={(e) => setFormData({...formData, short_description: e.target.value})} required />
+                            {fieldErrors.short_description && <p style={{ color: '#ff4757', fontSize: '0.75rem', marginTop: '5px' }}>{fieldErrors.short_description}</p>}
                         </div>
 
                         <div className="input-group">
                             <label style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px', fontSize: '0.9rem', fontWeight: '600' }}>
                                 <AlignLeft size={16} color="var(--primary)" /> Long Description
                             </label>
-                            <textarea className="nav-search-wrapper" style={{ width: '100%', padding: '15px', color: 'white', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', minHeight: '150px', resize: 'vertical' }} value={formData.description} onChange={(e) => setFormData({...formData, description: e.target.value})} required></textarea>
+                            <textarea className="nav-search-wrapper" style={{ width: '100%', padding: '15px', color: 'white', background: 'rgba(255,255,255,0.03)', border: `1px solid ${fieldErrors.description ? '#ff4757' : 'var(--border)'}`, minHeight: '150px', resize: 'vertical' }} value={formData.description} onChange={(e) => setFormData({...formData, description: e.target.value})} required></textarea>
+                            {fieldErrors.description && <p style={{ color: '#ff4757', fontSize: '0.75rem', marginTop: '5px' }}>{fieldErrors.description}</p>}
                         </div>
 
                         <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>

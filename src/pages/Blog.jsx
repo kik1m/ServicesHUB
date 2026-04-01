@@ -1,16 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, Calendar, User, ArrowRight, Tag, BookOpen, Loader2 } from 'lucide-react';
+import { Search, Calendar, User, ArrowRight, BookOpen } from 'lucide-react';
 import SkeletonLoader from '../components/SkeletonLoader';
 import { supabase } from '../lib/supabaseClient';
 import SmartBanner from '../components/SmartBanner';
-
 const Blog = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('All');
     const [posts, setPosts] = useState([]);
     const [categories, setCategories] = useState(['All']);
     const [loading, setLoading] = useState(true);
+    const [loadingMore, setLoadingMore] = useState(false);
+    const [page, setPage] = useState(0);
+    const [hasMore, setHasMore] = useState(true);
+    const ITEMS_PER_PAGE = 6;
 
     useEffect(() => {
         const fetchInitialData = async () => {
@@ -19,27 +22,25 @@ const Blog = () => {
 
             // SEO
             document.title = "ServicesHUB Magazine | AI & SaaS Insights";
-            const updateMeta = (name, content, attr = 'name') => {
-                let element = document.querySelector(`meta[${attr}="${name}"]`);
-                if (!element) {
-                    element = document.createElement('meta');
-                    element.setAttribute(attr, name);
-                    document.head.appendChild(element);
-                }
-                element.setAttribute('content', content);
-            };
-            updateMeta('description', 'Expert guides, industry news, and SaaS growth strategies for the AI revolution.');
-            updateMeta('og:title', 'ServicesHUB Magazine | AI & SaaS Insights', 'property');
-            updateMeta('og:description', 'Stay ahead of the curve with our expert analysis and latest trends in the world of AI tools.', 'property');
         };
         fetchInitialData();
     }, []);
 
+    // Reset on filter change
+    useEffect(() => {
+        setPage(0);
+        setPosts([]);
+        setHasMore(true);
+    }, [searchQuery, selectedCategory]);
+
     useEffect(() => {
         const fetchPosts = async () => {
-            setLoading(true);
+            if (page === 0) setLoading(true);
+            else setLoadingMore(true);
+
             try {
-                let query = supabase.from('blog_posts').select('*');
+                let query = supabase.from('blog_posts')
+                    .select('id, title, excerpt, image_url, category, author_name, created_at');
 
                 if (searchQuery) {
                     query = query.or(`title.ilike.%${searchQuery}%,excerpt.ilike.%${searchQuery}%`);
@@ -49,19 +50,32 @@ const Blog = () => {
                     query = query.eq('category', selectedCategory);
                 }
 
-                const { data, error } = await query.order('created_at', { ascending: false });
+                const from = page * ITEMS_PER_PAGE;
+                const to = from + ITEMS_PER_PAGE - 1;
+
+                const { data, error } = await query
+                    .order('created_at', { ascending: false })
+                    .range(from, to);
+
                 if (error) throw error;
-                setPosts(data || []);
+                
+                if (data) {
+                    if (page === 0) setPosts(data);
+                    else setPosts(prev => [...prev, ...data]);
+                    
+                    if (data.length < ITEMS_PER_PAGE) setHasMore(false);
+                }
             } catch (err) {
                 console.error('Fetch posts error:', err);
             } finally {
                 setLoading(false);
+                setLoadingMore(false);
             }
         };
 
-        const timer = setTimeout(fetchPosts, 400);
+        const timer = setTimeout(fetchPosts, page === 0 ? 400 : 0);
         return () => clearTimeout(timer);
-    }, [searchQuery, selectedCategory]);
+    }, [searchQuery, selectedCategory, page]);
 
     return (
         <div className="page-wrapper blog-page">
@@ -118,72 +132,81 @@ const Blog = () => {
                 </div>
 
                 {/* Posts Grid */}
-                {loading ? (
+                <div className="blog-posts-container">
                     <div className="blog-posts-grid" style={{
                         display: 'grid',
                         gridTemplateColumns: 'repeat(auto-fill, minmax(360px, 1fr))',
                         gap: '2.5rem'
                     }}>
-                        {[1, 2, 3, 4, 5, 6].map(i => (
-                            <SkeletonLoader key={i} type="card" height="450px" />
-                        ))}
-                    </div>
-                ) : posts.length > 0 ? (
-                    <div className="blog-posts-grid" style={{
-                        display: 'grid',
-                        gridTemplateColumns: 'repeat(auto-fill, minmax(360px, 1fr))',
-                        gap: '2.5rem'
-                    }}>
-                        {posts.map(post => (
-                            <Link key={post.id} to={`/blog/${post.id}`} className="blog-card glass-card" style={{
-                                textDecoration: 'none',
-                                color: 'inherit',
-                                overflow: 'hidden',
-                                display: 'flex',
-                                flexDirection: 'column'
-                            }}>
-                                <div className="blog-card-image" style={{
-                                    height: '240px',
+                        {loading ? (
+                            [1, 2, 3, 4, 5, 6].map(i => (
+                                <SkeletonLoader key={i} type="card" height="450px" />
+                            ))
+                        ) : posts.length > 0 ? (
+                            posts.map(post => (
+                                <Link key={post.id} to={`/blog/${post.id}`} className="blog-card glass-card" style={{
+                                    textDecoration: 'none',
+                                    color: 'inherit',
                                     overflow: 'hidden',
-                                    position: 'relative'
+                                    display: 'flex',
+                                    flexDirection: 'column'
                                 }}>
-                                    <img src={post.image_url || 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800&auto=format&fit=crop&q=60'} alt={post.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                                    <div style={{
-                                        position: 'absolute',
-                                        top: '1.5rem',
-                                        left: '1.5rem',
-                                        background: 'var(--primary)',
-                                        padding: '5px 15px',
-                                        borderRadius: '20px',
-                                        fontSize: '0.8rem',
-                                        fontWeight: '800'
+                                    <div className="blog-card-image" style={{
+                                        height: '240px',
+                                        overflow: 'hidden',
+                                        position: 'relative'
                                     }}>
-                                        {post.category}
+                                        <img src={post.image_url || 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800&auto=format&fit=crop&q=60'} alt={post.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                        <div style={{
+                                            position: 'absolute',
+                                            top: '1.5rem',
+                                            left: '1.5rem',
+                                            background: 'var(--primary)',
+                                            padding: '5px 15px',
+                                            borderRadius: '20px',
+                                            fontSize: '0.8rem',
+                                            fontWeight: '800'
+                                        }}>
+                                            {post.category}
+                                        </div>
                                     </div>
-                                </div>
 
-                                <div className="blog-card-content" style={{ padding: '2rem' }}>
-                                    <div className="blog-meta" style={{ display: 'flex', gap: '1.5rem', marginBottom: '1rem', fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-                                        <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><Calendar size={14} /> {new Date(post.created_at).toLocaleDateString()}</span>
-                                        <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><User size={14} /> {post.author_name || 'ServicesHUB'}</span>
+                                    <div className="blog-card-content" style={{ padding: '2rem' }}>
+                                        <div className="blog-meta" style={{ display: 'flex', gap: '1.5rem', marginBottom: '1rem', fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+                                            <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><Calendar size={14} /> {new Date(post.created_at).toLocaleDateString()}</span>
+                                            <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><User size={14} /> {post.author_name || 'ServicesHUB'}</span>
+                                        </div>
+                                        <h3 style={{ fontSize: '1.4rem', fontWeight: '800', marginBottom: '1rem' }}>{post.title}</h3>
+                                        <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem', lineHeight: '1.6', marginBottom: '1.5rem' }}>
+                                            {post.excerpt}
+                                        </p>
+                                        <div className="blog-footer" style={{ marginTop: 'auto', display: 'flex', alignItems: 'center', color: 'var(--primary)', fontWeight: '700' }}>
+                                            Read More <ArrowRight size={16} style={{ marginLeft: '8px' }} />
+                                        </div>
                                     </div>
-                                    <h3 style={{ fontSize: '1.4rem', fontWeight: '800', marginBottom: '1rem' }}>{post.title}</h3>
-                                    <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem', lineHeight: '1.6', marginBottom: '1.5rem' }}>
-                                        {post.excerpt}
-                                    </p>
-                                    <div className="blog-footer" style={{ marginTop: 'auto', display: 'flex', alignItems: 'center', color: 'var(--primary)', fontWeight: '700' }}>
-                                        Read More <ArrowRight size={16} style={{ marginLeft: '8px' }} />
-                                    </div>
-                                </div>
-                            </Link>
-                        ))}
+                                </Link>
+                            ))
+                        ) : (
+                            <div style={{ gridColumn: '1/-1', textAlign: 'center', padding: '5rem', color: 'var(--text-muted)' }}>
+                                <BookOpen size={64} style={{ marginBottom: '1.5rem', opacity: 0.2 }} />
+                                <h3>No articles found matching your criteria.</h3>
+                            </div>
+                        )}
                     </div>
-                ) : (
-                    <div style={{ textAlign: 'center', padding: '5rem', color: 'var(--text-muted)' }}>
-                        <BookOpen size={64} style={{ marginBottom: '1.5rem', opacity: 0.2 }} />
-                        <h3>No articles found matching your criteria.</h3>
-                    </div>
-                )}
+
+                    {hasMore && posts.length > 0 && !loading && (
+                        <div style={{ textAlign: 'center', marginTop: '4rem' }}>
+                            <button 
+                                onClick={() => setPage(prev => prev + 1)}
+                                className="btn-primary"
+                                disabled={loadingMore}
+                                style={{ padding: '1rem 3rem' }}
+                            >
+                                {loadingMore ? 'Loading articles...' : 'Load More Articles'}
+                            </button>
+                        </div>
+                    )}
+                </div>
             </section>
         </div>
     );

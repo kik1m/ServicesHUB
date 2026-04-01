@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Rocket, Github, Twitter, Linkedin, Mail } from 'lucide-react';
+import { Github, Twitter, Linkedin, Rocket } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabaseClient';
 import { useToast } from '../context/ToastContext';
@@ -38,7 +38,7 @@ const Footer = () => {
                             <Rocket size={28} /> ServicesHUB
                         </div>
                         <p>
-                            The most trusted directory for finding and submitting the world's most innovative AI and SaaS tools. Join thousands of creators today.
+                            The most trusted directory for finding and submitting the world&apos;s most innovative AI and SaaS tools. Join thousands of creators today.
                         </p>
                         <div className="footer-socials">
                             <a href="#" className="icon-btn"><Twitter size={18} /></a>

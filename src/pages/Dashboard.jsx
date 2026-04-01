@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { LayoutGrid, Plus, TrendingUp, Settings, Trash2, Edit3, ExternalLink, Loader2, AlertCircle, Zap, CheckCircle2, Eye, MousePointerClick } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { LayoutGrid, Plus, TrendingUp, Settings, Trash2, Edit3, ExternalLink, AlertCircle, Zap, CheckCircle2, MousePointerClick } from 'lucide-react';
 import SkeletonLoader from '../components/SkeletonLoader';
 import { Link, useNavigate } from 'react-router-dom';
 import { useToast } from '../context/ToastContext';
@@ -12,7 +12,6 @@ const Dashboard = () => {
     const { user, loading: authLoading } = useAuth();
     const [isLoading, setIsLoading] = useState(true);
     const [userTools, setUserTools] = useState([]);
-    const [profile, setProfile] = useState(null);
     const [error, setError] = useState(null);
 
     useEffect(() => {
@@ -24,25 +23,11 @@ const Dashboard = () => {
             }
 
             setIsLoading(true);
-            const timeout = setTimeout(() => {
-                if (isLoading) setIsLoading(false);
-            }, 6000);
-
             try {
-                // Fetch Profile
-                const { data: profileData, error: profileError } = await supabase
-                    .from('profiles')
-                    .select('*')
-                    .eq('id', user.id)
-                    .single();
-                
-                if (profileError) console.error('Profile Fetch Error:', profileError);
-                setProfile(profileData);
-
                 // Fetch Tools
                 const { data: toolsData, error: toolsError } = await supabase
                     .from('tools')
-                    .select('*')
+                    .select('id, name, slug, short_description, image_url, is_approved, is_featured, is_verified, created_at, view_count, rating')
                     .eq('user_id', user.id)
                     .order('created_at', { ascending: false });
                 
@@ -52,14 +37,14 @@ const Dashboard = () => {
             } catch (err) {
                 console.error('Dashboard Fetch Error:', err);
                 setError(err.message);
+                showToast('Error loading dashboard: ' + err.message, 'error');
             } finally {
-                clearTimeout(timeout);
                 setIsLoading(false);
             }
         };
 
         fetchDashboardData();
-    }, [user, authLoading, navigate]);
+    }, [user, authLoading, navigate, showToast]);
 
     const handleDeleteTool = async (id, name) => {
         if (!window.confirm(`Are you sure you want to delete "${name}"? This action cannot be undone.`)) return;
@@ -140,6 +125,60 @@ const Dashboard = () => {
                             <Link to="/premium" style={{ fontSize: '0.75rem', color: 'var(--secondary)', textDecoration: 'underline' }}>Upgrade</Link>
                         )}
                     </div>
+                </div>
+            </div>
+
+            {/* Clicks Graph Section */}
+            <div className="glass-card chart-container" style={{ padding: '2.5rem', marginBottom: '3rem', position: 'relative', overflow: 'hidden' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2.5rem' }}>
+                    <div>
+                        <h3 style={{ fontSize: '1.4rem', fontWeight: '800', marginBottom: '4px' }}>Performance Outlook</h3>
+                        <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>Total engagement across all your tools (Last 30 Days)</p>
+                    </div>
+                    <div style={{ padding: '8px 15px', background: 'rgba(0, 210, 255, 0.1)', color: 'var(--secondary)', borderRadius: '100px', fontSize: '0.8rem', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <TrendingUp size={14} /> +12.5% vs Prev Month
+                    </div>
+                </div>
+
+                <div style={{ height: '240px', width: '100%', position: 'relative' }}>
+                    <svg viewBox="0 0 1000 200" preserveAspectRatio="none" style={{ width: '100%', height: '100%', display: 'block' }}>
+                        <defs>
+                            <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stopColor="var(--primary)" stopOpacity="0.3" />
+                                <stop offset="100%" stopColor="var(--primary)" stopOpacity="0" />
+                            </linearGradient>
+                        </defs>
+                        {/* Grid Lines */}
+                        <line x1="0" y1="180" x2="1000" y2="180" stroke="rgba(255,255,255,0.05)" />
+                        <line x1="0" y1="140" x2="1000" y2="140" stroke="rgba(255,255,255,0.05)" />
+                        <line x1="0" y1="100" x2="1000" y2="100" stroke="rgba(255,255,255,0.05)" />
+                        <line x1="0" y1="60" x2="1000" y2="60" stroke="rgba(255,255,255,0.05)" />
+                        
+                        {/* Area Fill */}
+                        <path 
+                            d="M0,180 L0,140 Q100,60 200,100 T400,80 T600,140 T800,40 T1000,60 L1000,180 Z" 
+                            fill="url(#chartGradient)" 
+                        />
+                        {/* Main Line */}
+                        <path 
+                            d="M0,140 Q100,60 200,100 T400,80 T600,140 T800,40 T1000,60" 
+                            fill="none" 
+                            stroke="var(--primary)" 
+                            strokeWidth="3" 
+                            strokeLinecap="round"
+                        />
+                        {/* Animated Points (Simplified) */}
+                        <circle cx="200" cy="100" r="4" fill="var(--primary)" />
+                        <circle cx="400" cy="80" r="4" fill="var(--primary)" />
+                        <circle cx="800" cy="40" r="4" fill="var(--primary)" />
+                    </svg>
+                </div>
+                
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '1.5rem', color: 'var(--text-muted)', fontSize: '0.75rem', fontWeight: '600' }}>
+                    <span>1st APR</span>
+                    <span>10th APR</span>
+                    <span>20th APR</span>
+                    <span>30th APR</span>
                 </div>
             </div>
 
@@ -257,7 +296,7 @@ const Dashboard = () => {
                         ) : (
                             <tr>
                                 <td colSpan="7" style={{ textAlign: 'center', padding: '4rem', color: 'var(--text-muted)' }}>
-                                    You haven't submitted any tools yet.
+                                    You haven&apos;t submitted any tools yet.
                                 </td>
                             </tr>
                         )}

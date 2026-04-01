@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { FileText, Clock, Scale, ShieldAlert, AlertTriangle, CheckCircle2 } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { FileText, Clock, Scale, Shield } from 'lucide-react';
 import SkeletonLoader from '../components/SkeletonLoader';
 
 const Terms = () => {
@@ -63,7 +63,7 @@ const Terms = () => {
                             <Shield size={24} color="var(--primary)" /> 3. Accuracy of Information
                         </h3>
                         <p style={{ color: 'var(--text-muted)' }}>
-                            While we strive for accuracy, ServicesHUB provides tool listings "as is". 
+                            While we strive for accuracy, ServicesHUB provides tool listings &quot;as is&quot;. 
                             We are not responsible for the performance, reliability, or security of 
                             third-party tools listed in our directory.
                         </p>

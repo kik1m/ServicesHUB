@@ -1,4 +1,4 @@
-import { LayoutGrid, Sparkles, Code, Pen, Database, Globe, Music, Image, Share2, MessageSquare, Brain } from 'lucide-react';
+import { Sparkles, Code, Pen, Database, Globe, Music, Image, Share2, MessageSquare } from 'lucide-react';
 
 export const categoriesData = [
     { id: 'ai-writing', name: 'AI Writing', icon: <Pen size={32} />, count: 120, color: '#0088cc', desc: 'Enhance your content creation with powerful AI writing and editing tools.' },

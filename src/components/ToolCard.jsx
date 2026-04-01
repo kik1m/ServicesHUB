@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowUpRight, Star, MessageSquare, Zap, LayoutGrid, Cpu, Code, Palette, Globe, CheckCircle2, TrendingUp } from 'lucide-react';
+import { ArrowUpRight, Star, Zap, LayoutGrid, Cpu, Code, Palette, Globe, CheckCircle2, TrendingUp } from 'lucide-react';
 
 const iconMap = {
     Zap: Zap,

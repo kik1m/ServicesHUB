@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabaseClient';
-import { User, Lock, Bell, Link as LinkIcon, Save, Camera, ShieldCheck, Mail, Loader2, CheckCircle, AlertCircle, Eye, EyeOff } from 'lucide-react';
+import { User, Lock, Bell, Save, Camera, ShieldCheck, Loader2, Eye, EyeOff } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import SkeletonLoader from '../components/SkeletonLoader';
 import { useToast } from '../context/ToastContext';
@@ -8,11 +8,11 @@ import { useToast } from '../context/ToastContext';
 import { useAuth } from '../context/AuthContext';
 
 const Settings = () => {
+    const navigate = useNavigate();
     const { user: authUser, loading: authLoading } = useAuth();
     const [activeTab, setActiveTab] = useState('profile');
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
-    const [message, setMessage] = useState(null);
     const [user, setUser] = useState(null);
     const [profile, setProfile] = useState({
         full_name: '',
@@ -52,7 +52,7 @@ const Settings = () => {
             }
             setUser(user);
 
-            const { data, error } = await supabase
+            const { data } = await supabase
                 .from('profiles')
                 .select('*')
                 .eq('id', user.id)
@@ -77,11 +77,10 @@ const Settings = () => {
             setLoading(false);
         };
         fetchProfile();
-    }, [navigate]);
+    }, [navigate, authUser, authLoading]);
 
     const handleProfileUpdate = async () => {
         setSaving(true);
-        setMessage(null);
         try {
             const { error } = await supabase
                 .from('profiles')
@@ -195,22 +194,7 @@ const Settings = () => {
                     <p style={{ color: 'var(--text-muted)' }}>Manage your personal information, security, and preferences.</p>
                 </div>
 
-                {message && (
-                    <div style={{ 
-                        padding: '1rem', 
-                        borderRadius: '12px', 
-                        marginBottom: '2rem',
-                        background: message.type === 'success' ? 'rgba(0,200,83,0.1)' : 'rgba(255,82,82,0.1)',
-                        border: message.type === 'success' ? '1px solid #00C853' : '1px solid #FF5252',
-                        color: message.type === 'success' ? '#00C853' : '#FF5252',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '10px'
-                    }}>
-                        {message.type === 'success' ? <CheckCircle size={20} /> : <AlertCircle size={20} />}
-                        {message.text}
-                    </div>
-                )}
+
 
                 <div style={{ display: 'grid', gridTemplateColumns: '250px 1fr', gap: '2rem' }}>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>

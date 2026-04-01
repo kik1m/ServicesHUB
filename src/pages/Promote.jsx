@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Target, Zap, TrendingUp, Sparkles, CheckCircle2, ShieldCheck, ArrowRight, Loader2 } from 'lucide-react';
+import { Zap, CheckCircle2, ShieldCheck, ArrowRight, Loader2 } from 'lucide-react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabaseClient';
 import axios from 'axios';
@@ -54,7 +54,7 @@ const Promote = () => {
 
     useEffect(() => {
         const initializePromote = async () => {
-            const { data: { user } } = await supabase.auth.getUser();
+            if (authLoading) return;
             if (!user) {
                 navigate('/auth');
                 return;
@@ -69,19 +69,24 @@ const Promote = () => {
             } else {
                 // Fetch user's approved tools to let them pick
                 setLoadingTools(true);
-                const { data } = await supabase
-                    .from('tools')
-                    .select('id, name')
-                    .eq('user_id', user.id)
-                    .eq('is_approved', true);
+                try {
+                    const { data } = await supabase
+                        .from('tools')
+                        .select('id, name')
+                        .eq('user_id', user.id)
+                        .eq('is_approved', true);
 
-                setUserTools(data || []);
-                setLoadingTools(false);
+                    setUserTools(data || []);
+                } catch (err) {
+                    console.error('Fetch user tools error:', err);
+                } finally {
+                    setLoadingTools(false);
+                }
             }
         };
 
         initializePromote();
-    }, [toolId, navigate]);
+    }, [toolId, navigate, user, authLoading]);
 
     const handlePromote = async (plan) => {
         if (!selectedToolId) {
@@ -162,7 +167,7 @@ const Promote = () => {
                                 />
                             ) : (
                                 <p style={{ color: '#ff4757', fontSize: '0.9rem' }}>
-                                    You don't have any approved tools yet. <Link to="/submit" style={{ color: 'var(--primary)' }}>Submit a tool first</Link>.
+                                    You don&apos;t have any approved tools yet. <Link to="/submit" style={{ color: 'var(--primary)' }}>Submit a tool first</Link>.
                                 </p>
                             )}
                         </div>

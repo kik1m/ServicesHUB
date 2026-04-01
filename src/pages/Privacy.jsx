@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Shield, Clock, Lock, Eye, Trash2, FileText } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Shield, Lock, Eye, Globe } from 'lucide-react';
 import SkeletonLoader from '../components/SkeletonLoader';
 
 const Privacy = () => {

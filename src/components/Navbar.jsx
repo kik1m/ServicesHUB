@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, User, LogIn, LayoutGrid, Zap, Menu, X, Sparkles, Info, Rss, RefreshCcw, ChevronDown, Bell, Settings, LogOut, Heart, Star, Sun, Moon } from 'lucide-react';
+import { Search, User, LogIn, LayoutGrid, Zap, Menu, X, Sparkles, Info, Rss, RefreshCcw, ChevronDown, Bell, Settings, LogOut, Heart, Star } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
 import { useAuth } from '../context/AuthContext';
 import NotificationPanel from './NotificationPanel';
@@ -27,7 +27,7 @@ const Navbar = () => {
                     schema: 'public', 
                     table: 'notifications',
                     filter: `user_id=eq.${user.id}`
-                }, (payload) => {
+                }, (_payload) => {
                     setUnreadCount(prev => prev + 1);
                 })
                 .subscribe();
@@ -129,7 +129,7 @@ const Navbar = () => {
                     <div className="nav-more-container desktop-only">
                         <button
                             className="nav-more-trigger"
-                            onClick={() => setIsMoreOpen(!isMoreOpen)}
+                            onClick={() => { setIsMoreOpen(!isMoreOpen); setIsNotifOpen(false); setIsAccountOpen(false); }}
                             onBlur={() => setTimeout(() => setIsMoreOpen(false), 200)}
                         >
                             Explore <ChevronDown size={14} className={isMoreOpen ? 'rotated' : ''} />

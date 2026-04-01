@@ -1,4 +1,4 @@
-import { Mail, Phone, MapPin, Send, MessageCircle, Github, Twitter, Linkedin, Loader2 } from 'lucide-react';
+import { Mail, MapPin, Send, MessageCircle, Github, Twitter, Linkedin, Loader2 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import SkeletonLoader from '../components/SkeletonLoader';
 import { useToast } from '../context/ToastContext';
@@ -50,7 +50,7 @@ const Contact = () => {
                 <div className="hero-content">
                     <div className="badge">GET IN TOUCH</div>
                     <h1 className="hero-title">How can we <span className="gradient-text">help you?</span></h1>
-                    <p className="hero-subtitle">Have a question about a tool, a partnership inquiry, or just want to say hi? We're all ears.</p>
+                    <p className="hero-subtitle">Have a question about a tool, a partnership inquiry, or just want to say hi? We&apos;re all ears.</p>
                 </div>
             </header>
 

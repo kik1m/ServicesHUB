@@ -15,7 +15,6 @@ import {
     Award, 
     ShieldCheck, 
     Smartphone, 
-    SmartphoneIcon,
     Terminal,
     Video,
     Music,

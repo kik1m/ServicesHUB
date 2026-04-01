@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Calendar, User, ArrowLeft, Clock, Share2, Facebook, Twitter, Linkedin, Loader2 } from 'lucide-react';
+import { Calendar, User, ArrowLeft, Clock, Share2, Facebook, Twitter, Linkedin } from 'lucide-react';
 import SkeletonLoader from '../components/SkeletonLoader';
 import { supabase } from '../lib/supabaseClient';
 
@@ -162,9 +162,24 @@ const BlogPost = () => {
                             <div className="share-box">
                                 <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)', display: 'block', marginBottom: '1rem' }}>Share this article:</span>
                                 <div style={{ display: 'flex', gap: '10px' }}>
-                                    <button className="icon-btn" style={{ padding: '8px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border)', borderRadius: '10px', color: 'white', cursor: 'pointer' }}><Twitter size={18} /></button>
-                                    <button className="icon-btn" style={{ padding: '8px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border)', borderRadius: '10px', color: 'white', cursor: 'pointer' }}><Facebook size={18} /></button>
-                                    <button className="icon-btn" style={{ padding: '8px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border)', borderRadius: '10px', color: 'white', cursor: 'pointer' }}><Linkedin size={18} /></button>
+                                    <button 
+                                        onClick={() => window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(post.title)}&url=${encodeURIComponent(window.location.href)}`, '_blank')}
+                                        className="icon-btn" style={{ padding: '8px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border)', borderRadius: '10px', color: 'white', cursor: 'pointer' }}
+                                    >
+                                        <Twitter size={18} />
+                                    </button>
+                                    <button 
+                                        onClick={() => window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`, '_blank')}
+                                        className="icon-btn" style={{ padding: '8px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border)', borderRadius: '10px', color: 'white', cursor: 'pointer' }}
+                                    >
+                                        <Facebook size={18} />
+                                    </button>
+                                    <button 
+                                        onClick={() => window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}`, '_blank')}
+                                        className="icon-btn" style={{ padding: '8px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border)', borderRadius: '10px', color: 'white', cursor: 'pointer' }}
+                                    >
+                                        <Linkedin size={18} />
+                                    </button>
                                 </div>
                             </div>
                             <div className="tags">

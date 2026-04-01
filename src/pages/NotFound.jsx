@@ -45,7 +45,7 @@ const NotFound = () => {
                 <h1 style={{ fontSize: '3.5rem', fontWeight: '900', marginBottom: '1rem', background: 'var(--gradient)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>404</h1>
                 <h2 style={{ fontSize: '1.5rem', marginBottom: '1.5rem' }}>Lost in Space?</h2>
                 <p style={{ color: 'var(--text-muted)', marginBottom: '2.5rem', fontSize: '1.1rem' }}>
-                    The page you are looking for has drifted into another galaxy. Let's get you back to the tools that matter.
+                    The page you are looking for has drifted into another galaxy. Let&apos;s get you back to the tools that matter.
                 </p>
 
                 <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>

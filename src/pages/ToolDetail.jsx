@@ -2,13 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabaseClient';
 import { getIcon } from '../utils/iconMap';
-import { ArrowLeft, ExternalLink, Star, Share2, Heart, ShieldCheck, CheckCircle2, LayoutGrid, Zap, Loader2 } from 'lucide-react';
+import { ArrowLeft, ExternalLink, Star, Share2, Heart, ShieldCheck, CheckCircle2 } from 'lucide-react';
 import SkeletonLoader from '../components/SkeletonLoader';
 import { useToast } from '../context/ToastContext';
 import { useAuth } from '../context/AuthContext';
 import { sendNotification } from '../utils/notifications';
 import ReviewsSection from '../components/ReviewsSection';
 import ReportToolModal from '../components/ReportToolModal';
+import Breadcrumbs from '../components/Breadcrumbs';
 import { Flag } from 'lucide-react';
 import useSEO from '../hooks/useSEO';
 
@@ -28,50 +29,54 @@ const ToolDetail = () => {
         const fetchData = async () => {
             setLoading(true);
             try {
-                // Get Current User
-                const { data: { user: authUser } } = await supabase.auth.getUser();
-                // setUser(authUser); // Removed redundant local state setting
-
                 // Fetch Tool
                 const { data, error } = await supabase
                     .from('tools')
-                    .select('*, categories(name)')
+                    .select('id, name, slug, description, short_description, image_url, url, pricing_type, rating, reviews_count, is_featured, is_verified, category_id, view_count, features, video_url, screenshots, categories(name)')
                     .eq('slug', id)
                     .single();
                 
                 if (error) throw error;
                 setTool(data);
 
-                // Check if favorited
-                if (authUser && data) {
-                    const { data: favData } = await supabase
-                        .from('favorites')
-                        .select('*')
-                        .eq('user_id', authUser.id)
-                        .eq('tool_id', data.id)
-                        .maybeSingle();
-                    if (favData) setIsFavorited(true);
+                // Parallel Fetching: Favorites, Related Tools, Increment View
+                const promises = [
+                    supabase.from('tools')
+                        .select('id, name, slug, short_description, image_url, rating, reviews_count, is_verified, categories(name)')
+                        .eq('category_id', data.category_id)
+                        .neq('id', data.id)
+                        .limit(3),
+                    supabase.from('tools')
+                        .update({ view_count: (data.view_count || 0) + 1 })
+                        .eq('id', data.id)
+                ];
+
+                if (user) {
+                    promises.push(
+                        supabase.from('favorites')
+                            .select('id')
+                            .eq('user_id', user.id)
+                            .eq('tool_id', data.id)
+                            .maybeSingle()
+                    );
                 }
 
-                const { data: related } = await supabase
-                    .from('tools')
-                    .select('*, categories(name)')
-                    .eq('category_id', data.category_id)
-                    .neq('id', data.id)
-                    .limit(3);
-                setRelatedTools(related || []);
+                const results = await Promise.all(promises);
+                
+                setRelatedTools(results[0].data || []);
+                if (user && results[2]?.data) {
+                    setIsFavorited(true);
+                }
 
-                // Removed view increment RPC to prevent 404 errors on missing backend function
-
-                // SEO managed by custom hook now
             } catch (error) {
                 console.error('Error fetching tool detail:', error);
+                showToast('Error loading tool: ' + error.message, 'error');
             } finally {
                 setLoading(false);
             }
         };
         fetchData();
-    }, [id]);
+    }, [id, user, showToast]);
 
     const toggleFavorite = async () => {
         if (!user) {
@@ -182,6 +187,11 @@ const ToolDetail = () => {
         <div className="page-wrapper tool-detail-page">
             <header className="tool-detail-header" style={{ paddingTop: '140px', paddingBottom: '60px', borderBottom: '1px solid var(--border)' }}>
                 <div className="main-section">
+                    <Breadcrumbs items={[
+                        { label: 'Directory', link: '/tools' },
+                        { label: tool.categories?.name, link: `/category/${tool.categories?.slug}` },
+                        { label: tool.name }
+                    ]} />
                     <button onClick={() => navigate(-1)} className="btn-text" style={{ marginBottom: '2rem' }}>
                         <ArrowLeft size={18} /> Back to Search
                     </button>

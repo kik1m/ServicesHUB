@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import { 
-    LayoutGrid, ArrowRight, ArrowLeft, Upload, CheckCircle2, 
+    LayoutGrid, ArrowRight, ArrowLeft, CheckCircle2, 
     Globe, Send, ShieldCheck, Zap, Loader2, AlertCircle, 
     X, Image as ImageIcon, Star, Award
 } from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import SkeletonLoader from '../components/SkeletonLoader';
 import CustomSelect from '../components/CustomSelect';
 import { useToast } from '../context/ToastContext';
 import { sendNotification } from '../utils/notifications';
@@ -18,11 +19,11 @@ const SubmitTool = () => {
     const [step, setStep] = useState(1);
     const [isSuccess, setIsSuccess] = useState(false);
     const [categories, setCategories] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [uploading, setUploading] = useState(false);
     const [imagePreview, setImagePreview] = useState(null);
-    const [isLoading, setIsLoading] = useState(true);
     const [toolCount, setToolCount] = useState(0);
     const [isLimitReached, setIsLimitReached] = useState(false);
 
@@ -34,8 +35,10 @@ const SubmitTool = () => {
         category_id: '',
         pricing_type: 'Free',
         icon_name: 'Zap',
-        image_url: ''
+        image_url: '',
+        features: []
     });
+    const [fieldErrors, setFieldErrors] = useState({});
 
     useEffect(() => {
         window.scrollTo(0, 0);
@@ -49,7 +52,7 @@ const SubmitTool = () => {
             }
         };
         fetchCategories();
-    }, [step]);
+    }, [step, formData.category_id]);
 
     useEffect(() => {
         const checkLimit = async () => {
@@ -138,13 +141,28 @@ const SubmitTool = () => {
         }
     };
 
-    const nextStep = () => {
-        if (step === 1 && (!formData.name || !formData.url || !formData.short_description)) {
-            setError("Please fill all required fields");
-            return;
+    const validateStep = (s) => {
+        const errors = {};
+        if (s === 1) {
+            if (!formData.name || formData.name.length < 2) errors.name = "Name is too short";
+            if (!formData.url || !/^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/.test(formData.url)) errors.url = "Invalid URL format";
+            if (!formData.short_description || formData.short_description.length < 10) errors.short_description = "Description too short (min 10 chars)";
         }
-        setError(null);
-        setStep(prev => prev + 1);
+        if (s === 2) {
+            if (!formData.description || formData.description.length < 50) errors.description = "Detailed description too short (min 50 chars)";
+            if (!formData.category_id) errors.category_id = "Please select a category";
+        }
+        setFieldErrors(errors);
+        return Object.keys(errors).length === 0;
+    };
+
+    const nextStep = () => {
+        if (validateStep(step)) {
+            setError(null);
+            setStep(prev => prev + 1);
+        } else {
+            setError("Please correct the errors before proceeding.");
+        }
     };
     
     const prevStep = () => setStep(prev => prev - 1);
@@ -155,55 +173,22 @@ const SubmitTool = () => {
         setError(null);
 
         try {
-            const submitProcess = async () => {
-                const slug = formData.name.toLowerCase().replace(/[^a-z0-9]/g, '-');
-                
-                const payload = {
-                    ...formData,
-                    slug,
-                    user_id: user.id,
-                    is_approved: false,
-                    rating: 5.0,
-                    reviews_count: 0
-                };
-
-                const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-                const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-                
-                // OMEGA BYPASS: Never call supabase.auth.getUser() because it's completely freezing on the SDK side!
-                // We extract the JSON Web Token (JWT) directly from local storage.
-                const storageKey = Object.keys(localStorage).find(k => k.startsWith('sb-') && k.endsWith('-auth-token'));
-                const sessionStr = localStorage.getItem(storageKey);
-                const sessionObj = sessionStr ? JSON.parse(sessionStr) : null;
-                const token = sessionObj?.access_token;
-                
-                if (!token) {
-                    throw new Error("Local session token expired. Please refresh the page or log out and log back in.");
-                }
-
-                const response = await fetch(`${supabaseUrl}/rest/v1/tools`, {
-                    method: 'POST',
-                    headers: {
-                        'apikey': anonKey,
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json',
-                        'Prefer': 'return=minimal'
-                    },
-                    body: JSON.stringify(payload)
-                });
-
-                if (!response.ok) {
-                    const errObj = await response.json().catch(() => ({}));
-                    throw new Error(errObj.message || `Raw HTTP ${response.status} Error`);
-                }
-
-                console.log("Omega Native Fetch successful.");
+            const slug = formData.name.toLowerCase().replace(/[^a-z0-9]/g, '-');
+            
+            const payload = {
+                ...formData,
+                slug,
+                user_id: user.id,
+                is_approved: false,
+                rating: 5.0,
+                reviews_count: 0
             };
 
-            await Promise.race([
-                submitProcess(),
-                new Promise((_, reject) => setTimeout(() => reject(new Error(`Fetch timed out after 8s: Something is violently blocking POST requests to Supabase.`)), 8000))
-            ]);
+            const { error: submitError } = await supabase
+                .from('tools')
+                .insert([payload]);
+
+            if (submitError) throw submitError;
 
             showToast('Tool submitted successfully! 🎉', 'success');
             
@@ -223,6 +208,15 @@ const SubmitTool = () => {
             setLoading(false);
         }
     };
+
+    if (isLoading) {
+        return (
+            <div className="page-wrapper submit-tool-page" style={{ padding: '120px 5% 60px' }}>
+                <SkeletonLoader type="title" width="300px" style={{ marginBottom: '2rem' }} />
+                <SkeletonLoader height="400px" borderRadius="24px" />
+            </div>
+        );
+    }
 
     if (isSuccess) {
         return (
@@ -291,15 +285,18 @@ const SubmitTool = () => {
                                 </h3>
                                 <div className="form-group" style={{ marginBottom: '2rem' }}>
                                     <label style={{ display: 'block', marginBottom: '0.8rem', fontWeight: '600', color: 'var(--text-muted)' }}>Product Name</label>
-                                    <input name="name" type="text" value={formData.name} onChange={handleChange} placeholder="e.g. ServicesHUB" style={{ width: '100%', padding: '15px', borderRadius: '12px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'white', fontSize: '1rem', outline: 'none' }} required />
+                                    <input name="name" type="text" value={formData.name} onChange={handleChange} placeholder="e.g. ServicesHUB" style={{ width: '100%', padding: '15px', borderRadius: '12px', background: 'rgba(255,255,255,0.03)', border: `1px solid ${fieldErrors.name ? '#ff4757' : 'var(--border)'}`, color: 'white', fontSize: '1rem', outline: 'none' }} required />
+                                    {fieldErrors.name && <p style={{ color: '#ff4757', fontSize: '0.8rem', marginTop: '6px' }}>{fieldErrors.name}</p>}
                                 </div>
                                 <div className="form-group" style={{ marginBottom: '2rem' }}>
                                     <label style={{ display: 'block', marginBottom: '0.8rem', fontWeight: '600', color: 'var(--text-muted)' }}>Website URL</label>
-                                    <input name="url" type="url" value={formData.url} onChange={handleChange} placeholder="https://yourtool.com" style={{ width: '100%', padding: '15px', borderRadius: '12px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'white', fontSize: '1rem', outline: 'none' }} required />
+                                    <input name="url" type="url" value={formData.url} onChange={handleChange} placeholder="https://yourtool.com" style={{ width: '100%', padding: '15px', borderRadius: '12px', background: 'rgba(255,255,255,0.03)', border: `1px solid ${fieldErrors.url ? '#ff4757' : 'var(--border)'}`, color: 'white', fontSize: '1rem', outline: 'none' }} required />
+                                    {fieldErrors.url && <p style={{ color: '#ff4757', fontSize: '0.8rem', marginTop: '6px' }}>{fieldErrors.url}</p>}
                                 </div>
                                 <div className="form-group">
                                     <label style={{ display: 'block', marginBottom: '0.8rem', fontWeight: '600', color: 'var(--text-muted)' }}>One-Sentence Pitch</label>
-                                    <input name="short_description" type="text" value={formData.short_description} onChange={handleChange} placeholder="The ultimate directory for modern SaaS tools." style={{ width: '100%', padding: '15px', borderRadius: '12px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'white', fontSize: '1rem', outline: 'none' }} required />
+                                    <input name="short_description" type="text" value={formData.short_description} onChange={handleChange} placeholder="The ultimate directory for modern SaaS tools." style={{ width: '100%', padding: '15px', borderRadius: '12px', background: 'rgba(255,255,255,0.03)', border: `1px solid ${fieldErrors.short_description ? '#ff4757' : 'var(--border)'}`, color: 'white', fontSize: '1rem', outline: 'none' }} required />
+                                    {fieldErrors.short_description && <p style={{ color: '#ff4757', fontSize: '0.8rem', marginTop: '6px' }}>{fieldErrors.short_description}</p>}
                                 </div>
                             </div>
                         )}
@@ -320,7 +317,8 @@ const SubmitTool = () => {
 
                                 <div className="form-group" style={{ marginBottom: '2rem' }}>
                                     <label style={{ display: 'block', marginBottom: '0.8rem', fontWeight: '600', color: 'var(--text-muted)' }}>Full Description</label>
-                                    <textarea name="description" value={formData.description} onChange={handleChange} rows="5" placeholder="Describe what your tool does..." style={{ width: '100%', padding: '15px', borderRadius: '12px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'white', fontSize: '1rem', outline: 'none', resize: 'vertical' }} required></textarea>
+                                    <textarea name="description" value={formData.description} onChange={handleChange} rows="5" placeholder="Describe what your tool does..." style={{ width: '100%', padding: '15px', borderRadius: '12px', background: 'rgba(255,255,255,0.03)', border: `1px solid ${fieldErrors.description ? '#ff4757' : 'var(--border)'}`, color: 'white', fontSize: '1rem', outline: 'none', resize: 'vertical' }} required></textarea>
+                                    {fieldErrors.description && <p style={{ color: '#ff4757', fontSize: '0.8rem', marginTop: '6px' }}>{fieldErrors.description}</p>}
                                 </div>
 
                                 <div className="form-group" style={{ marginBottom: '2.5rem' }}>
