@@ -35,19 +35,16 @@ const Home = () => {
         const fetchHomeData = async () => {
             setLoading(true);
             try {
-                const now = new Date().toISOString();
-
                 // Parallel Fetching
                 const [catRes, toolRes, blogRes] = await Promise.all([
-                    supabase.from('categories').select('*').limit(4),
+                    supabase.from('categories').select('id, name, icon_name, slug').limit(8),
                     supabase.from('tools')
                         .select('id, name, slug, short_description, image_url, icon_name, is_verified, categories(name)')
                         .eq('is_approved', true)
                         .eq('is_featured', true)
-                        .gt('featured_until', now)
-                        .limit(3),
+                        .limit(6),
                     supabase.from('blog_posts')
-                        .select('*')
+                        .select('id, title, excerpt, image_url, category, author_name, created_at')
                         .order('created_at', { ascending: false })
                         .limit(3)
                 ]);

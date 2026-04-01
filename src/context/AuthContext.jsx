@@ -8,6 +8,8 @@ export const AuthProvider = ({ children }) => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        let mounted = true;
+
         const fetchProfile = async (userId) => {
             try {
                 const { data, error } = await supabase.from('profiles').select('is_premium, role').eq('id', userId).single();
@@ -19,37 +21,61 @@ export const AuthProvider = ({ children }) => {
             }
         };
 
+        // Safety net: if Supabase SDK hangs for any reason (network/browser), 
+        // force loading to false after 5 seconds so pages don't get stuck.
+        const safetyTimeout = setTimeout(() => {
+            if (mounted && loading) {
+                console.warn('Auth init timed out, proceeding without session.');
+                setLoading(false);
+            }
+        }, 5000);
+
         const initAuth = async () => {
-            setLoading(true);
             try {
                 const { data: { session } } = await supabase.auth.getSession();
+                if (!mounted) return;
                 if (session?.user) {
                     const profile = await fetchProfile(session.user.id);
+                    if (!mounted) return;
                     setUser({ ...session.user, ...profile });
                 } else {
                     setUser(null);
                 }
             } catch (error) {
                 console.error("Auth init error:", error);
-                setUser(null);
+                if (mounted) setUser(null);
             } finally {
-                setLoading(false);
+                clearTimeout(safetyTimeout);
+                if (mounted) setLoading(false);
             }
         };
 
         initAuth();
 
         const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
-            if (session?.user) {
-                const profile = await fetchProfile(session.user.id);
-                setUser({ ...session.user, ...profile });
-            } else {
-                setUser(null);
+            if (!mounted) return;
+            try {
+                if (session?.user) {
+                    const profile = await fetchProfile(session.user.id);
+                    if (!mounted) return;
+                    setUser({ ...session.user, ...profile });
+                } else {
+                    setUser(null);
+                }
+            } catch (error) {
+                console.error("Auth state change error:", error);
+                if (mounted) setUser(null);
+            } finally {
+                clearTimeout(safetyTimeout);
+                if (mounted) setLoading(false);
             }
-            setLoading(false);
         });
 
-        return () => subscription.unsubscribe();
+        return () => {
+            mounted = false;
+            clearTimeout(safetyTimeout);
+            subscription.unsubscribe();
+        };
     }, []);
 
     const value = {

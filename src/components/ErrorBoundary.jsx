@@ -1,6 +1,5 @@
 import React from 'react';
 import { AlertCircle, RefreshCcw, Home } from 'lucide-react';
-import { Link } from 'react-router-dom';
 
 class ErrorBoundary extends React.Component {
     constructor(props) {
@@ -50,14 +49,13 @@ class ErrorBoundary extends React.Component {
                             >
                                 <RefreshCcw size={18} /> Reload Page
                             </button>
-                            <Link 
-                                to="/" 
+                            <a 
+                                href="/" 
                                 className="btn-secondary"
                                 style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none' }}
-                                onClick={() => this.setState({ hasError: false })}
                             >
                                 <Home size={18} /> Go Home
-                            </Link>
+                            </a>
                         </div>
                     </div>
                 </div>
