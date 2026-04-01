@@ -12,7 +12,11 @@ export const AuthProvider = ({ children }) => {
 
         const fetchProfile = async (userId) => {
             try {
-                const { data, error } = await supabase.from('profiles').select('is_premium, role').eq('id', userId).single();
+                const { data, error } = await supabase
+                    .from('profiles')
+                    .select('is_premium, role, full_name, avatar_url')
+                    .eq('id', userId)
+                    .single();
                 if (error) throw error;
                 return data;
             } catch (err) {
@@ -21,19 +25,24 @@ export const AuthProvider = ({ children }) => {
             }
         };
 
-        // Safety net: if Supabase SDK hangs for any reason (network/browser), 
-        // force loading to false after 5 seconds so pages don't get stuck.
+        // Safety net: force loading=false after 6s if Supabase SDK never responds
         const safetyTimeout = setTimeout(() => {
-            if (mounted && loading) {
-                console.warn('Auth init timed out, proceeding without session.');
+            if (mounted) {
+                console.warn('Auth timed out. Proceeding as guest.');
                 setLoading(false);
             }
-        }, 5000);
+        }, 6000);
 
-        const initAuth = async () => {
-            try {
-                const { data: { session } } = await supabase.auth.getSession();
+        // ✅ Supabase v2 best practice: use ONLY onAuthStateChange.
+        // The INITIAL_SESSION event fires immediately with the stored session,
+        // replacing the need for a separate getSession() call.
+        // This eliminates the race condition that caused logout-on-refresh.
+        const { data: { subscription } } = supabase.auth.onAuthStateChange(
+            async (event, session) => {
                 if (!mounted) return;
+
+                clearTimeout(safetyTimeout);
+
                 if (session?.user) {
                     const profile = await fetchProfile(session.user.id);
                     if (!mounted) return;
@@ -41,35 +50,10 @@ export const AuthProvider = ({ children }) => {
                 } else {
                     setUser(null);
                 }
-            } catch (error) {
-                console.error("Auth init error:", error);
-                if (mounted) setUser(null);
-            } finally {
-                clearTimeout(safetyTimeout);
-                if (mounted) setLoading(false);
-            }
-        };
 
-        initAuth();
-
-        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
-            if (!mounted) return;
-            try {
-                if (session?.user) {
-                    const profile = await fetchProfile(session.user.id);
-                    if (!mounted) return;
-                    setUser({ ...session.user, ...profile });
-                } else {
-                    setUser(null);
-                }
-            } catch (error) {
-                console.error("Auth state change error:", error);
-                if (mounted) setUser(null);
-            } finally {
-                clearTimeout(safetyTimeout);
-                if (mounted) setLoading(false);
+                setLoading(false);
             }
-        });
+        );
 
         return () => {
             mounted = false;
@@ -81,7 +65,9 @@ export const AuthProvider = ({ children }) => {
     const value = {
         user,
         loading,
-        signOut: () => supabase.auth.signOut(),
+        signOut: async () => {
+            await supabase.auth.signOut();
+        },
     };
 
     return (
