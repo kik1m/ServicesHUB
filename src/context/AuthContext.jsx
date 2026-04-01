@@ -9,51 +9,69 @@ export const AuthProvider = ({ children }) => {
 
     useEffect(() => {
         let mounted = true;
+        // Flag to prevent onAuthStateChange from overriding the getSession() call
+        let initializing = true;
 
         const fetchProfile = async (userId) => {
             try {
-                const { data, error } = await supabase
+                const { data } = await supabase
                     .from('profiles')
                     .select('is_premium, role, full_name, avatar_url')
                     .eq('id', userId)
                     .single();
-                if (error) throw error;
-                return data;
-            } catch (err) {
-                console.error("Profile fetch error:", err);
+                return data || { is_premium: false, role: 'user' };
+            } catch {
                 return { is_premium: false, role: 'user' };
             }
         };
 
-        // Safety net: force loading=false after 6s if Supabase SDK never responds
-        const safetyTimeout = setTimeout(() => {
-            if (mounted) {
-                console.warn('Auth timed out. Proceeding as guest.');
-                setLoading(false);
+        // Step 1: Fast init via getSession() - runs immediately on page load
+        const initAuth = async () => {
+            try {
+                const { data: { session } } = await supabase.auth.getSession();
+                if (!mounted) return;
+                if (session?.user) {
+                    const profile = await fetchProfile(session.user.id);
+                    if (mounted) setUser({ ...session.user, ...profile });
+                } else {
+                    if (mounted) setUser(null);
+                }
+            } catch (err) {
+                console.error('Auth init error:', err);
+                if (mounted) setUser(null);
+            } finally {
+                initializing = false;
+                if (mounted) setLoading(false);
             }
-        }, 6000);
+        };
 
-        // ✅ Supabase v2 best practice: use ONLY onAuthStateChange.
-        // The INITIAL_SESSION event fires immediately with the stored session,
-        // replacing the need for a separate getSession() call.
-        // This eliminates the race condition that caused logout-on-refresh.
+        // Step 2: Listen for real-time auth changes (login, logout, token refresh)
+        // Skip INITIAL_SESSION since getSession() already handled it
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
             async (event, session) => {
+                // Skip the initial event to avoid overriding getSession() result
+                if (initializing) return;
                 if (!mounted) return;
-
-                clearTimeout(safetyTimeout);
 
                 if (session?.user) {
                     const profile = await fetchProfile(session.user.id);
-                    if (!mounted) return;
-                    setUser({ ...session.user, ...profile });
+                    if (mounted) setUser({ ...session.user, ...profile });
                 } else {
-                    setUser(null);
+                    if (mounted) setUser(null);
                 }
-
-                setLoading(false);
+                if (mounted) setLoading(false);
             }
         );
+
+        // Safety net: if getSession() hangs for 8s, force loading=false
+        const safetyTimeout = setTimeout(() => {
+            if (mounted && loading) {
+                initializing = false;
+                setLoading(false);
+            }
+        }, 8000);
+
+        initAuth().finally(() => clearTimeout(safetyTimeout));
 
         return () => {
             mounted = false;
@@ -62,16 +80,8 @@ export const AuthProvider = ({ children }) => {
         };
     }, []);
 
-    const value = {
-        user,
-        loading,
-        signOut: async () => {
-            await supabase.auth.signOut();
-        },
-    };
-
     return (
-        <AuthContext.Provider value={value}>
+        <AuthContext.Provider value={{ user, loading, signOut: () => supabase.auth.signOut() }}>
             {children}
         </AuthContext.Provider>
     );
@@ -80,8 +90,6 @@ export const AuthProvider = ({ children }) => {
 // eslint-disable-next-line react-refresh/only-export-components
 export const useAuth = () => {
     const context = useContext(AuthContext);
-    if (!context) {
-        throw new Error('useAuth must be used within an AuthProvider');
-    }
+    if (!context) throw new Error('useAuth must be used within an AuthProvider');
     return context;
 };

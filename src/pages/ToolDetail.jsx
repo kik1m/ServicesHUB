@@ -32,7 +32,7 @@ const ToolDetail = () => {
                 // Fetch Tool
                 const { data, error } = await supabase
                     .from('tools')
-                    .select('id, name, slug, description, short_description, image_url, url, pricing_type, rating, reviews_count, is_featured, is_verified, category_id, view_count, features, video_url, screenshots, categories(name)')
+                    .select('id, name, slug, description, short_description, image_url, url, pricing_type, rating, reviews_count, is_featured, is_verified, category_id, view_count, features, categories(name)')
                     .eq('slug', id)
                     .single();
                 
