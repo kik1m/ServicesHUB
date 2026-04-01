@@ -27,7 +27,7 @@ const Dashboard = () => {
                 // Fetch Tools
                 const { data: toolsData, error: toolsError } = await supabase
                     .from('tools')
-                    .select('id, name, slug, short_description, image_url, is_approved, is_featured, is_verified, created_at, view_count, rating')
+                    .select('id, name, slug, short_description, image_url, pricing_type, is_approved, is_featured, is_verified, featured_until, created_at, view_count, rating')
                     .eq('user_id', user.id)
                     .order('created_at', { ascending: false });
                 
@@ -107,10 +107,10 @@ const Dashboard = () => {
                 </div>
                 <div className="glass-card" style={{ padding: '2rem' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
-                        <span style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>Total Clicks</span>
+                        <span style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>Total Views</span>
                         <MousePointerClick size={20} color="#00e676" />
                     </div>
-                    <div style={{ fontSize: '2.5rem', fontWeight: '800' }}>{userTools.reduce((sum, t) => sum + (t.click_count || 0), 0)}</div>
+                    <div style={{ fontSize: '2.5rem', fontWeight: '800' }}>{userTools.reduce((sum, t) => sum + (t.view_count || 0), 0)}</div>
                 </div>
                 <div className="glass-card" style={{ padding: '2rem', border: user?.is_premium ? '1px solid rgba(255, 215, 0, 0.3)' : '1px solid var(--border)' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
@@ -128,58 +128,46 @@ const Dashboard = () => {
                 </div>
             </div>
 
-            {/* Clicks Graph Section */}
-            <div className="glass-card chart-container" style={{ padding: '2.5rem', marginBottom: '3rem', position: 'relative', overflow: 'hidden' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2.5rem' }}>
+            {/* Views Per Tool Chart */}
+            <div className="glass-card chart-container" style={{ padding: '2.5rem', marginBottom: '3rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
                     <div>
-                        <h3 style={{ fontSize: '1.4rem', fontWeight: '800', marginBottom: '4px' }}>Performance Outlook</h3>
-                        <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>Total engagement across all your tools (Last 30 Days)</p>
+                        <h3 style={{ fontSize: '1.4rem', fontWeight: '800', marginBottom: '4px' }}>Views Per Tool</h3>
+                        <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>Total views accumulated for each of your tools</p>
                     </div>
                     <div style={{ padding: '8px 15px', background: 'rgba(0, 210, 255, 0.1)', color: 'var(--secondary)', borderRadius: '100px', fontSize: '0.8rem', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                        <TrendingUp size={14} /> +12.5% vs Prev Month
+                        <TrendingUp size={14} /> Live Data
                     </div>
                 </div>
 
-                <div style={{ height: '240px', width: '100%', position: 'relative' }}>
-                    <svg viewBox="0 0 1000 200" preserveAspectRatio="none" style={{ width: '100%', height: '100%', display: 'block' }}>
-                        <defs>
-                            <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="0%" stopColor="var(--primary)" stopOpacity="0.3" />
-                                <stop offset="100%" stopColor="var(--primary)" stopOpacity="0" />
-                            </linearGradient>
-                        </defs>
-                        {/* Grid Lines */}
-                        <line x1="0" y1="180" x2="1000" y2="180" stroke="rgba(255,255,255,0.05)" />
-                        <line x1="0" y1="140" x2="1000" y2="140" stroke="rgba(255,255,255,0.05)" />
-                        <line x1="0" y1="100" x2="1000" y2="100" stroke="rgba(255,255,255,0.05)" />
-                        <line x1="0" y1="60" x2="1000" y2="60" stroke="rgba(255,255,255,0.05)" />
-                        
-                        {/* Area Fill */}
-                        <path 
-                            d="M0,180 L0,140 Q100,60 200,100 T400,80 T600,140 T800,40 T1000,60 L1000,180 Z" 
-                            fill="url(#chartGradient)" 
-                        />
-                        {/* Main Line */}
-                        <path 
-                            d="M0,140 Q100,60 200,100 T400,80 T600,140 T800,40 T1000,60" 
-                            fill="none" 
-                            stroke="var(--primary)" 
-                            strokeWidth="3" 
-                            strokeLinecap="round"
-                        />
-                        {/* Animated Points (Simplified) */}
-                        <circle cx="200" cy="100" r="4" fill="var(--primary)" />
-                        <circle cx="400" cy="80" r="4" fill="var(--primary)" />
-                        <circle cx="800" cy="40" r="4" fill="var(--primary)" />
-                    </svg>
-                </div>
-                
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '1.5rem', color: 'var(--text-muted)', fontSize: '0.75rem', fontWeight: '600' }}>
-                    <span>1st APR</span>
-                    <span>10th APR</span>
-                    <span>20th APR</span>
-                    <span>30th APR</span>
-                </div>
+                {userTools.length === 0 ? (
+                    <p style={{ color: 'var(--text-muted)', textAlign: 'center', padding: '3rem 0' }}>No tools yet. Submit your first tool!</p>
+                ) : (() => {
+                    const maxViews = Math.max(...userTools.map(t => t.view_count || 0), 1);
+                    return (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                            {userTools.map(tool => {
+                                const pct = Math.max(((tool.view_count || 0) / maxViews) * 100, 2);
+                                return (
+                                    <div key={tool.id}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
+                                            <span style={{ fontSize: '0.85rem', fontWeight: '600' }}>{tool.name}</span>
+                                            <span style={{ fontSize: '0.8rem', color: 'var(--primary)', fontWeight: '700' }}>{(tool.view_count || 0).toLocaleString()} views</span>
+                                        </div>
+                                        <div style={{ background: 'rgba(255,255,255,0.05)', borderRadius: '100px', height: '8px', overflow: 'hidden' }}>
+                                            <div style={{ 
+                                                width: `${pct}%`, height: '100%',
+                                                background: tool.is_featured ? 'linear-gradient(90deg, #FFD700, #FF8C00)' : 'var(--gradient)',
+                                                borderRadius: '100px',
+                                                transition: 'width 0.8s ease'
+                                            }} />
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    );
+                })()}
             </div>
 
             <h2 style={{ marginBottom: '1.5rem' }}>Your Tools</h2>
@@ -223,11 +211,11 @@ const Dashboard = () => {
                                                 {tool.is_featured && (
                                                     <span style={{ 
                                                         padding: '2px 8px', borderRadius: '4px', fontSize: '0.65rem',
-                                                        background: 'rgba(255, 215, 0, 0.1)', color: '#FFD700',
-                                                        border: '1px solid rgba(255, 215, 0, 0.2)',
-                                                        display: 'flex', alignItems: 'center', gap: '4px'
+                                                        background: 'rgba(255, 215, 0, 0.15)', color: '#FFD700',
+                                                        border: '1px solid rgba(255, 215, 0, 0.3)',
+                                                        display: 'flex', alignItems: 'center', gap: '4px', fontWeight: '700'
                                                     }}>
-                                                        <TrendingUp size={10} /> Featured
+                                                        <TrendingUp size={10} /> FEATURED
                                                     </span>
                                                 )}
                                                 {tool.is_verified && (
@@ -244,19 +232,22 @@ const Dashboard = () => {
                                                     <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>Standard</span>
                                                 )}
                                             </div>
-                                            {tool.is_featured && tool.featured_until && (
-                                                <div style={{ 
-                                                    fontSize: '0.65rem', 
-                                                    color: 'var(--text-muted)',
-                                                    display: 'flex',
-                                                    alignItems: 'center',
-                                                    gap: '4px',
-                                                    marginTop: '2px'
-                                                }}>
-                                                    <AlertCircle size={10} />
-                                                    Expires: {new Date(tool.featured_until).toLocaleDateString()}
-                                                </div>
-                                            )}
+                                            {tool.is_featured && tool.featured_until && (() => {
+                                                const daysLeft = Math.max(0, Math.ceil((new Date(tool.featured_until) - new Date()) / (1000 * 60 * 60 * 24)));
+                                                const isExpired = daysLeft === 0;
+                                                return (
+                                                    <div style={{ 
+                                                        fontSize: '0.7rem', 
+                                                        color: isExpired ? '#ff4757' : daysLeft <= 5 ? '#ffa500' : '#00e676',
+                                                        display: 'flex', flexDirection: 'column', gap: '2px', marginTop: '2px'
+                                                    }}>
+                                                        <span>{isExpired ? '⛔ Expired' : `⏱ ${daysLeft} days remaining`}</span>
+                                                        <span style={{ color: 'var(--text-muted)', fontSize: '0.65rem' }}>
+                                                            Until {new Date(tool.featured_until).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+                                                        </span>
+                                                    </div>
+                                                );
+                                            })()}
                                         </div>
                                     </td>
                                     <td style={{ padding: '1.5rem' }}>{new Date(tool.created_at).toLocaleDateString()}</td>
