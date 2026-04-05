@@ -153,7 +153,7 @@ const ToolDetail = () => {
     if (loading) {
         return (
             <div className="page-wrapper tool-detail-page">
-                <header className="tool-detail-header" style={{ paddingTop: '140px', paddingBottom: '60px', borderBottom: '1px solid var(--border)' }}>
+                <header className="tool-detail-header" style={{ paddingTop: '30px', paddingBottom: '60px', borderBottom: '1px solid var(--border)' }}>
                     <div className="main-section">
                         <div className="tool-header-flex" style={{ display: 'flex', gap: '3rem', alignItems: 'center' }}>
                             <SkeletonLoader type="avatar" width="140px" height="140px" borderRadius="24px" />
@@ -193,7 +193,7 @@ const ToolDetail = () => {
 
     return (
         <div className="page-wrapper tool-detail-page">
-            <header className="tool-detail-header" style={{ paddingTop: '110px', paddingBottom: '40px', borderBottom: '1px solid var(--border)' }}>
+            <header className="tool-detail-header" style={{ paddingTop: '30px', paddingBottom: '40px', borderBottom: '1px solid var(--border)' }}>
                 <div className="main-section">
                     <Breadcrumbs items={[
                         { label: 'Directory', link: '/tools' },
