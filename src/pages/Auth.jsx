@@ -1,25 +1,31 @@
 import React, { useState, useEffect } from 'react';
-import { Mail, Lock, User, ArrowRight, Github, Chrome, Sparkles, Loader2, Eye, EyeOff } from 'lucide-react';
+import { Mail, Lock, User, ArrowRight, Github, Chrome, LayoutGrid, Loader2, Eye, EyeOff, LogIn, UserPlus, ShieldCheck } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '../context/ToastContext';
 import { useAuth } from '../context/AuthContext';
+import useSEO from '../hooks/useSEO';
 
 const Auth = () => {
     const { user, loading: authLoading } = useAuth();
     const [isLogin, setIsLogin] = useState(true);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
     const [fullName, setFullName] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [showPassword, setShowPassword] = useState(false);
     const [forgotPasswordMode, setForgotPasswordMode] = useState(false);
-    const [resetEmailSent, setResetEmailSent] = useState(false);
     const navigate = useNavigate();
     const { showToast } = useToast();
 
-    // Prevent viewing auth page if already logged in securely
+    useSEO({
+        title: isLogin ? "Login - ServicesHUB" : "Join ServicesHUB",
+        description: "Access the ultimate directory for modern AI and SaaS tools.",
+        url: typeof window !== 'undefined' ? window.location.href : ''
+    });
+
     useEffect(() => {
         if (!authLoading && user) {
             navigate('/dashboard');
@@ -31,47 +37,38 @@ const Auth = () => {
         setLoading(true);
         setError(null);
 
+        if (!isLogin && password !== confirmPassword) {
+            showToast('Passwords do not match!', 'error');
+            setLoading(false);
+            return;
+        }
+
         try {
-            const timeoutPromise = new Promise((_, reject) =>
-                setTimeout(() => reject(new Error('Connection timeout! Please check your internet or disable adblockers/firewalls.')), 12000)
-            );
-
             if (isLogin) {
-                const signInPromise = supabase.auth.signInWithPassword({ email, password });
-                const { error: signInError } = await Promise.race([signInPromise, timeoutPromise]);
-
+                const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
                 if (signInError) throw signInError;
                 navigate('/dashboard');
             } else {
-                const signUpPromise = supabase.auth.signUp({ 
+                const { data: signUpData, error: signUpError } = await supabase.auth.signUp({ 
                     email, 
                     password,
-                    options: {
-                        data: {
-                            full_name: fullName,
-                        }
+                    options: { 
+                        data: { full_name: fullName },
+                        emailRedirectTo: `${window.location.origin}/dashboard`
                     }
                 });
-                const { data: signUpData, error: signUpError } = await Promise.race([signUpPromise, timeoutPromise]);
-
                 if (signUpError) throw signUpError;
-
-                // Create profile entry
+                
                 if (signUpData.user) {
-                    const { error: profileError } = await supabase
-                        .from('profiles')
-                        .upsert([
-                            { id: signUpData.user.id, full_name: fullName, role: 'user' }
-                        ], { onConflict: 'id' });
-                    if (profileError) console.error('Error creating profile:', profileError);
+                    await supabase.from('profiles').upsert({ id: signUpData.user.id, full_name: fullName, role: 'user' });
                 }
 
-                showToast('Account created! Please confirm your email to sign in.', 'success');
-                setIsLogin(true);
-                setError(null);
+                showToast('Account created! Welcome to ServicesHUB.', 'success');
+                navigate('/dashboard');
             }
         } catch (err) {
             setError(err.message);
+            showToast(err.message, 'error');
         } finally {
             setLoading(false);
         }
@@ -82,19 +79,11 @@ const Auth = () => {
         setLoading(true);
         setError(null);
         try {
-            const timeoutPromise = new Promise((_, reject) =>
-                setTimeout(() => reject(new Error('Connection timeout! Please try again.')), 12000)
-            );
-
-            const resetPromise = supabase.auth.resetPasswordForEmail(email, {
+            const { error } = await supabase.auth.resetPasswordForEmail(email, {
                 redirectTo: `${window.location.origin}/reset-password`,
             });
-
-            const { error } = await Promise.race([resetPromise, timeoutPromise]);
-
             if (error) throw error;
-            setResetEmailSent(true);
-            showToast('Reset link sent to your email! 📧', 'success');
+            showToast('Reset link sent!', 'success');
         } catch (err) {
             setError(err.message);
         } finally {
@@ -104,218 +93,129 @@ const Auth = () => {
 
     const handleSocialLogin = async (provider) => {
         try {
-            const { error } = await supabase.auth.signInWithOAuth({ provider });
+            const { error } = await supabase.auth.signInWithOAuth({
+                provider,
+                options: { redirectTo: window.location.origin + '/dashboard' }
+            });
             if (error) throw error;
         } catch (err) {
-            setError(err.message);
+            showToast(err.message, 'error');
         }
     };
 
     return (
-        <div className="page-wrapper auth-page" style={{
-            minHeight: '100vh',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center',
-            alignItems: 'center',
-            padding: '120px 5% 60px',
-            background: 'radial-gradient(circle at 50% 50%, rgba(0, 136, 204, 0.08) 0%, transparent 70%)'
+        <div className="auth-slim-wrapper" style={{ 
+            minHeight: '90vh', display: 'flex', alignItems: 'center', 
+            justifyContent: 'center', padding: '40px 20px', position: 'relative' 
         }}>
-            <div className="glass-card auth-card-premium" style={{
-                width: '100%',
-                maxWidth: '480px',
-                padding: '3.5rem',
-                textAlign: 'center',
-                position: 'relative',
-                overflow: 'hidden'
+            <div className="auth-card-slim" style={{ 
+                width: '100%', maxWidth: '420px', background: 'rgba(255,255,255,0.02)', 
+                backdropFilter: 'blur(20px)', borderRadius: '32px', border: '1px solid rgba(255,255,255,0.05)',
+                padding: '3rem 2.5rem', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)',
+                position: 'relative', zIndex: 1
             }}>
-                <div style={{
-                    position: 'absolute',
-                    top: '-50px',
-                    right: '-50px',
-                    width: '150px',
-                    height: '150px',
-                    background: 'var(--primary)',
-                    filter: 'blur(100px)',
-                    opacity: 0.1,
-                    zIndex: 0
-                }}></div>
-
-                <div className="section-header" style={{ marginBottom: '3rem', position: 'relative', zIndex: 1 }}>
-                    <div className="logo-icon" style={{ margin: '0 auto 1.5rem', width: 'fit-content', padding: '1rem' }}>
-                        <Lock size={28} />
+                <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
+                    <div style={{ 
+                        width: '64px', height: '64px', background: 'var(--gradient)', 
+                        borderRadius: '18px', display: 'flex', alignItems: 'center', 
+                        justifyContent: 'center', margin: '0 auto 1.5rem'
+                    }}>
+                        <LayoutGrid size={32} color="black" />
                     </div>
-                    <h1 className="section-title" style={{ fontSize: '2.2rem', marginBottom: '0.8rem' }}>
-                        {isLogin ? (
-                            <>Welcome <span className="gradient-text">Back</span></>
-                        ) : (
-                            <>Join <span className="gradient-text">ServicesHUB</span></>
-                        )}
+                    <h1 style={{ fontSize: '1.8rem', fontWeight: '900', color: 'white' }}>
+                        {forgotPasswordMode ? 'Reset Password' : (isLogin ? 'Welcome Back' : 'Join the Future')}
                     </h1>
-                    <p className="section-desc" style={{ fontSize: '1rem' }}>
-                        {isLogin ? 'Manage your tools and profile.' : 'Discover the future of AI tools today.'}
-                    </p>
                 </div>
 
-                {error && (
-                    <div style={{
-                        padding: '1rem',
-                        background: 'rgba(255, 80, 80, 0.1)',
-                        border: '1px solid rgba(255, 80, 80, 0.2)',
-                        borderRadius: '12px',
-                        color: '#ff5050',
-                        marginBottom: '2rem',
-                        fontSize: '0.9rem'
-                    }}>
-                        {error}
-                    </div>
-                )}
-
                 {forgotPasswordMode ? (
-                    <form onSubmit={handleForgotPassword} style={{ position: 'relative', zIndex: 1 }}>
-                        <div className="input-group" style={{ marginBottom: '2rem' }}>
-                            <div className="nav-search-wrapper" style={{ padding: '12px 15px', background: 'rgba(255,255,255,0.03)' }}>
-                                <Mail className="search-icon" size={18} />
-                                <input
-                                    type="email"
-                                    placeholder="Enter your email"
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                    required
-                                    style={{ width: '100%', border: 'none', background: 'transparent', color: 'white', paddingLeft: '10px' }}
-                                />
-                            </div>
+                    <form onSubmit={handleForgotPassword} style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
+                        <div className="input-group-slim">
+                            <label><Mail size={14} /> Email Address</label>
+                            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="slim-input-field" placeholder="name@company.com" required />
                         </div>
-
-                        {resetEmailSent ? (
-                            <div style={{ padding: '1.5rem', background: 'rgba(0, 210, 255, 0.05)', borderRadius: '15px', textAlign: 'center', marginBottom: '2rem' }}>
-                                <Sparkles size={32} color="var(--secondary)" style={{ marginBottom: '1rem' }} />
-                                <h4 style={{ marginBottom: '0.5rem' }}>Check your inbox!</h4>
-                                <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>We&apos;ve sent a recovery link to <strong>{email}</strong>.</p>
-                            </div>
-                        ) : (
-                            <button className="btn-primary" style={{ width: '100%' }} disabled={loading}>
-                                {loading ? <Loader2 className="animate-spin" size={20} /> : <>Send Reset Link <Mail size={20} /></>}
-                            </button>
-                        )}
-
-                        <button
-                            type="button"
-                            onClick={() => setForgotPasswordMode(false)}
-                            style={{ background: 'none', border: 'none', color: 'var(--text-muted)', marginTop: '1.5rem', cursor: 'pointer', fontSize: '0.9rem' }}
-                        >
+                        <button type="submit" disabled={loading} className="btn-primary" style={{ padding: '14px', width: '100%' }}>
+                            {loading ? <Loader2 className="animate-spin" size={20} /> : 'Send Reset Link'}
+                        </button>
+                        <button type="button" onClick={() => setForgotPasswordMode(false)} className="text-link-slim" style={{ textAlign: 'center', marginTop: '0.5rem' }}>
                             Back to Login
                         </button>
                     </form>
                 ) : (
-                    <form className="auth-form" onSubmit={handleAuth} style={{ position: 'relative', zIndex: 1 }}>
-                        {!isLogin && (
-                            <div className="input-group" style={{ marginBottom: '1.2rem' }}>
-                                <div className="nav-search-wrapper" style={{ padding: '12px 15px', background: 'rgba(255,255,255,0.03)' }}>
-                                    <User className="search-icon" size={18} />
-                                    <input
-                                        type="text"
-                                        placeholder="Full Name"
-                                        value={fullName}
-                                        onChange={(e) => setFullName(e.target.value)}
-                                        required
-                                        style={{ width: '100%', border: 'none', background: 'transparent', color: 'white', paddingLeft: '10px' }}
-                                    />
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                        <form onSubmit={handleAuth} style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
+                            {!isLogin && (
+                                <div className="input-group-slim">
+                                    <label><User size={14} /> Full Name</label>
+                                    <input type="text" value={fullName} onChange={(e) => setFullName(e.target.value)} className="slim-input-field" placeholder="John Doe" required />
+                                </div>
+                            )}
+                            <div className="input-group-slim">
+                                <label><Mail size={14} /> Email Address</label>
+                                <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="slim-input-field" placeholder="name@company.com" required />
+                            </div>
+                            <div className="input-group-slim">
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <label><Lock size={14} /> Password</label>
+                                    {isLogin && <button type="button" onClick={() => setForgotPasswordMode(true)} className="text-link-slim" style={{ fontSize: '0.75rem' }}>Forgot?</button>}
+                                </div>
+                                <div style={{ position: 'relative' }}>
+                                    <input type={showPassword ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} className="slim-input-field" placeholder="••••••••" required />
+                                    <button type="button" onClick={() => setShowPassword(!showPassword)} style={{ position: 'absolute', right: '15px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>
+                                        {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                                    </button>
                                 </div>
                             </div>
-                        )}
 
-                        <div className="input-group" style={{ marginBottom: '1.2rem' }}>
-                            <div className="nav-search-wrapper" style={{ padding: '12px 15px', background: 'rgba(255,255,255,0.03)' }}>
-                                <Mail className="search-icon" size={18} />
-                                <input
-                                    type="email"
-                                    placeholder="Email Address"
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                    required
-                                    style={{ width: '100%', border: 'none', background: 'transparent', color: 'white', paddingLeft: '10px' }}
-                                />
-                            </div>
-                        </div>
-
-                        <div className="input-group" style={{ marginBottom: '0.8rem' }}>
-                            <div className="nav-search-wrapper" style={{ padding: '12px 15px', background: 'rgba(255,255,255,0.03)' }}>
-                                <Lock className="search-icon" size={18} />
-                                <input
-                                    type={showPassword ? "text" : "password"}
-                                    placeholder="Password"
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                    required
-                                    style={{ width: '100%', border: 'none', background: 'transparent', color: 'white', paddingLeft: '10px' }}
-                                />
-                                <button
-                                    type="button"
-                                    onClick={() => setShowPassword(!showPassword)}
-                                    style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '0 5px' }}
-                                >
-                                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                                </button>
-                            </div>
-                        </div>
-
-                        {isLogin && (
-                            <div style={{ textAlign: 'right', marginBottom: '2rem' }}>
-                                <button
-                                    type="button"
-                                    onClick={() => setForgotPasswordMode(true)}
-                                    style={{ background: 'none', border: 'none', color: 'var(--primary)', fontSize: '0.85rem', fontWeight: '600', cursor: 'pointer' }}
-                                >
-                                    Forgot Password?
-                                </button>
-                            </div>
-                        )}
-
-                        <button className="btn-primary" style={{ width: '100%', marginTop: !isLogin ? '1rem' : '0' }} disabled={loading}>
-                            {loading ? (
-                                <Loader2 className="animate-spin" size={20} />
-                            ) : (
-                                <>{isLogin ? 'Login Now' : 'Create Account'} <ArrowRight size={20} /></>
+                            {!isLogin && (
+                                <div className="input-group-slim">
+                                    <label><ShieldCheck size={14} /> Confirm Password</label>
+                                    <input type={showPassword ? "text" : "password"} value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="slim-input-field" placeholder="••••••••" required />
+                                </div>
                             )}
-                        </button>
-                    </form>
+
+                            <button type="submit" disabled={loading} className="btn-primary" style={{ padding: '15px', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
+                                {loading ? <Loader2 className="animate-spin" size={20} /> : (isLogin ? <LogIn size={20} /> : <UserPlus size={20} />)}
+                                {isLogin ? 'Sign In' : 'Create Account'}
+                            </button>
+                        </form>
+
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                            <button onClick={() => handleSocialLogin('google')} className="social-btn-slim">
+                                <Chrome size={18} /> Google
+                            </button>
+                            <button onClick={() => handleSocialLogin('github')} className="social-btn-slim">
+                                <Github size={18} /> Github
+                            </button>
+                        </div>
+
+                        <p style={{ textAlign: 'center', fontSize: '0.9rem', color: 'var(--text-muted)' }}>
+                            {isLogin ? "Don't have an account?" : "Already have an account?"}
+                            <button onClick={() => setIsLogin(!isLogin)} style={{ marginLeft: '8px', color: 'var(--primary)', fontWeight: '700', background: 'none', border: 'none', cursor: 'pointer' }}>
+                                {isLogin ? 'Sign Up' : 'Log In'}
+                            </button>
+                        </p>
+                    </div>
                 )}
-
-                <div className="social-auth" style={{ marginTop: '2.5rem', position: 'relative', zIndex: 1 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '15px', color: 'rgba(255,255,255,0.2)', marginBottom: '2rem' }}>
-                        <div style={{ flex: 1, height: '1px', background: 'currentColor' }}></div>
-                        <span style={{ fontSize: '0.8rem', fontWeight: '700' }}>OR</span>
-                        <div style={{ flex: 1, height: '1px', background: 'currentColor' }}></div>
-                    </div>
-                    <div style={{ display: 'flex', gap: '1rem' }}>
-                        <button
-                            className="icon-btn"
-                            onClick={() => handleSocialLogin('google')}
-                            style={{ flex: 1, height: '54px', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', fontSize: '0.95rem', background: 'rgba(255,255,255,0.02)' }}
-                        >
-                            <Chrome size={20} /> Google
-                        </button>
-                        <button
-                            className="icon-btn"
-                            onClick={() => handleSocialLogin('github')}
-                            style={{ flex: 1, height: '54px', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', fontSize: '0.95rem', background: 'rgba(255,255,255,0.02)' }}
-                        >
-                            <Github size={20} /> Github
-                        </button>
-                    </div>
-                </div>
-
-                <p style={{ marginTop: '2.5rem', color: 'var(--text-muted)', fontSize: '0.95rem', position: 'relative', zIndex: 1 }}>
-                    {isLogin ? "Don't have an account?" : "Already have an account?"}
-                    <button
-                        onClick={() => setIsLogin(!isLogin)}
-                        style={{ background: 'none', border: 'none', color: 'var(--primary)', fontWeight: '800', cursor: 'pointer', marginLeft: '8px', fontSize: '0.95rem' }}
-                    >
-                        {isLogin ? 'Join Free' : 'Sign In'}
-                    </button>
-                </p>
             </div>
+
+            <style dangerouslySetInnerHTML={{ __html: `
+                .input-group-slim { display: flex; flex-direction: column; gap: 8px; }
+                .input-group-slim label { display: flex; align-items: center; gap: 8px; font-size: 0.8rem; font-weight: 700; color: var(--text-muted); }
+                .slim-input-field {
+                    width: 100%; padding: 12px 16px; border-radius: 14px;
+                    background: rgba(255,255,255,0.03); border: 1px solid var(--border);
+                    color: white; font-size: 0.95rem; transition: 0.2s;
+                }
+                .slim-input-field:focus { border-color: var(--primary); background: rgba(0, 255, 170, 0.05); outline: none; }
+                .text-link-slim { background: none; border: none; color: var(--primary); cursor: pointer; font-weight: 600; }
+                .social-btn-slim {
+                    display: flex; align-items: center; justify-content: center; gap: 10px;
+                    padding: 12px; border-radius: 14px; background: rgba(255,255,255,0.03);
+                    border: 1px solid var(--border); color: white; font-size: 0.9rem; font-weight: 600;
+                    cursor: pointer; transition: 0.3s;
+                }
+                .social-btn-slim:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.2); }
+            `}} />
         </div>
     );
 };

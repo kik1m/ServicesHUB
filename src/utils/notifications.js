@@ -16,7 +16,7 @@ export const sendNotification = async (userId, title, message, type = 'info') =>
             .insert([{
                 user_id: userId,
                 title,
-                message,
+                content: message,
                 type,
                 is_unread: true
             }]);

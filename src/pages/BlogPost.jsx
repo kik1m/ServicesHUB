@@ -137,7 +137,7 @@ const BlogPost = () => {
                             <span>By <strong>{post.author_name || 'ServicesHUB'}</strong></span>
                         </div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Calendar size={18} /> {new Date(post.created_at).toLocaleDateString()}</div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Clock size={18} /> {post.read_time || '5 min'} read</div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Clock size={18} /> {Math.ceil(post.content?.split(' ').length / 200) || 5} min read</div>
                     </div>
                 </div>
             </header>

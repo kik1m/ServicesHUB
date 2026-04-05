@@ -19,7 +19,7 @@ const Contact = () => {
         e.preventDefault();
         setSubmitting(true);
         setTimeout(() => {
-            showToast('Message sent! We will get back to you soon. 📩', 'success');
+            showToast('Message sent! We will get back to you soon.', 'success');
             setSubmitting(false);
             e.target.reset();
         }, 1500);

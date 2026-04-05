@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import { 
-    LayoutGrid, ArrowRight, ArrowLeft, CheckCircle2, 
+    LayoutGrid, ArrowLeft, CheckCircle2, 
     Globe, Send, ShieldCheck, Zap, Loader2, AlertCircle, 
-    X, Image as ImageIcon, Star, Award
+    Image as ImageIcon, Star, Award, Upload, Info, Type, AlignLeft
 } from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
@@ -11,12 +11,14 @@ import SkeletonLoader from '../components/SkeletonLoader';
 import CustomSelect from '../components/CustomSelect';
 import { useToast } from '../context/ToastContext';
 import { sendNotification } from '../utils/notifications';
+import Breadcrumbs from '../components/Breadcrumbs';
 
 const SubmitTool = () => {
     const navigate = useNavigate();
     const { user, loading: authLoading } = useAuth();
     const { showToast } = useToast();
-    const [step, setStep] = useState(1);
+    
+    // States
     const [isSuccess, setIsSuccess] = useState(false);
     const [categories, setCategories] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -26,6 +28,8 @@ const SubmitTool = () => {
     const [imagePreview, setImagePreview] = useState(null);
     const [toolCount, setToolCount] = useState(0);
     const [isLimitReached, setIsLimitReached] = useState(false);
+    const [useManualUrl, setUseManualUrl] = useState(false);
+    const [fieldErrors, setFieldErrors] = useState({});
 
     const [formData, setFormData] = useState({
         name: '',
@@ -34,28 +38,13 @@ const SubmitTool = () => {
         description: '',
         category_id: '',
         pricing_type: 'Free',
-        icon_name: 'Zap',
+        pricing_details: '',
         image_url: '',
         features: []
     });
-    const [fieldErrors, setFieldErrors] = useState({});
 
     useEffect(() => {
-        window.scrollTo(0, 0);
-        const fetchCategories = async () => {
-            const { data } = await supabase.from('categories').select('*');
-            if (data) {
-                setCategories(data);
-                if (data.length > 0 && !formData.category_id) {
-                    setFormData(prev => ({ ...prev, category_id: data[0].id }));
-                }
-            }
-        };
-        fetchCategories();
-    }, [step, formData.category_id]);
-
-    useEffect(() => {
-        const checkLimit = async () => {
+        const checkLimitAndFetch = async () => {
             if (authLoading) return;
             if (!user) {
                 navigate('/auth');
@@ -64,61 +53,49 @@ const SubmitTool = () => {
 
             setIsLoading(true);
             try {
-                // Get profile to check is_premium correctly
-                const { data: profile, error: profileError } = await supabase.from('profiles').select('is_premium').eq('id', user.id).single();
-                if (profileError) console.error('Limit Check Profile Error:', profileError);
-                
-                const { count, error: countError } = await supabase
-                    .from('tools')
-                    .select('*', { count: 'exact', head: true })
-                    .eq('user_id', user.id);
-                
-                if (countError) console.error('Limit Check Count Error:', countError);
+                // Fetch Categories
+                const { data: catData } = await supabase.from('categories').select('*').order('name');
+                setCategories(catData || []);
+                if (catData?.length > 0) {
+                    setFormData(prev => ({ ...prev, category_id: catData[0].id }));
+                }
 
+                // Check Subscription Limit
+                const { data: profile } = await supabase.from('profiles').select('is_premium').eq('id', user.id).single();
+                const { count } = await supabase.from('tools').select('*', { count: 'exact', head: true }).eq('user_id', user.id);
+                
                 setToolCount(count || 0);
                 if ((count || 0) >= 2 && !profile?.is_premium) {
                     setIsLimitReached(true);
                 }
             } catch (err) {
-                console.error('Limit check exception:', err);
+                console.error('Initial Fetch Error:', err);
             } finally {
                 setIsLoading(false);
             }
         };
-        checkLimit();
+        checkLimitAndFetch();
     }, [user, authLoading, navigate]);
-
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
-    };
-
-    const [useManualUrl, setUseManualUrl] = useState(false);
 
     const handleFileChange = async (e) => {
         const file = e.target.files[0];
         if (!file) return;
 
         if (file.size > 2 * 1024 * 1024) {
-            setError('File too large (Max 2MB)');
             showToast('File too large (Max 2MB)', 'error');
             return;
         }
 
-        // Preview locally instantly
         const reader = new FileReader();
         reader.onloadend = () => setImagePreview(reader.result);
         reader.readAsDataURL(file);
 
         setUploading(true);
-        setError(null);
-
         try {
             const fileExt = file.name.split('.').pop();
-            const fileName = `${Math.random()}.${fileExt}`;
+            const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 7)}.${fileExt}`;
             const filePath = `tool-thumbnails/${fileName}`;
 
-            // Back to direct storage upload (avoiding Base64 JSON overload)
             const { error: uploadError } = await supabase.storage
                 .from('tool-images')
                 .upload(filePath, file);
@@ -130,354 +107,287 @@ const SubmitTool = () => {
                 .getPublicUrl(filePath);
 
             setFormData(prev => ({ ...prev, image_url: publicUrl }));
-            showToast('Image uploaded successfully! 🎉', 'success');
+            showToast('Image uploaded successfully!', 'success');
         } catch (err) {
-            console.error('File Upload Error:', err);
-            setError(`Upload failed. Please try a different image or use a direct URL.`);
+            console.error('Upload error:', err);
             showToast('Failed to upload image', 'error');
-            setImagePreview(null);
         } finally {
             setUploading(false);
         }
     };
 
-    const validateStep = (s) => {
+    const validateForm = () => {
         const errors = {};
-        if (s === 1) {
-            if (!formData.name || formData.name.length < 2) errors.name = "Name is too short";
-            if (!formData.url || !/^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/.test(formData.url)) errors.url = "Invalid URL format";
-            if (!formData.short_description || formData.short_description.length < 10) errors.short_description = "Description too short (min 10 chars)";
-        }
-        if (s === 2) {
-            if (!formData.description || formData.description.length < 50) errors.description = "Detailed description too short (min 50 chars)";
-            if (!formData.category_id) errors.category_id = "Please select a category";
-        }
+        if (!formData.name || formData.name.length < 2) errors.name = "Name is too short";
+        if (!formData.url) errors.url = "Website URL is required";
+        if (!formData.short_description || formData.short_description.length < 10) errors.short_description = "Min 10 characters";
+        if (!formData.description || formData.description.length < 50) errors.description = "Min 50 characters";
+        if (!formData.category_id) errors.category_id = "Category required";
+        
         setFieldErrors(errors);
         return Object.keys(errors).length === 0;
     };
 
-    const nextStep = () => {
-        if (validateStep(step)) {
-            setError(null);
-            setStep(prev => prev + 1);
-        } else {
-            setError("Please correct the errors before proceeding.");
-        }
-    };
-    
-    const prevStep = () => setStep(prev => prev - 1);
-
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setLoading(true);
-        setError(null);
+        if (isLimitReached) {
+            showToast('Submission limit reached. Upgrade to Premium!', 'warning');
+            return;
+        }
+        if (!validateForm()) {
+            showToast('Please fix errors in the form.', 'error');
+            return;
+        }
 
+        setLoading(true);
         try {
             const slug = formData.name.toLowerCase().replace(/[^a-z0-9]/g, '-');
-            
-            const payload = {
-                ...formData,
-                slug,
-                user_id: user.id,
-                is_approved: false,
-                rating: 5.0,
-                reviews_count: 0
-            };
-
             const { error: submitError } = await supabase
                 .from('tools')
-                .insert([payload]);
+                .insert([{
+                    ...formData,
+                    slug,
+                    user_id: user.id,
+                    is_approved: false,
+                    rating: 5.0,
+                    reviews_count: 0,
+                    view_count: 0,
+                    created_at: new Date().toISOString()
+                }]);
 
             if (submitError) throw submitError;
 
-            showToast('Tool submitted successfully! 🎉', 'success');
-            
-            // Re-enabled notification now that the fetch lock is shattered
             await sendNotification(
-                user.id,
-                'Submission Received',
-                `Your tool "${formData.name}" has been submitted and is under review by our team.`,
+                user.id, 
+                'Submission Received', 
+                `Your request to add "${formData.name}" has been successfully received. All new tools undergo a detailed review process to ensure quality. You will receive a notification once the review is complete (typically within 24-48 hours).`, 
                 'info'
             );
             setIsSuccess(true);
             window.scrollTo(0, 0);
         } catch (err) {
-            console.error('Submission error:', err);
-            setError(err.message);
+            console.error('Submit error:', err);
+            showToast(`Error: ${err.message}`, 'error');
         } finally {
             setLoading(false);
         }
     };
 
-    if (isLoading) {
-        return (
-            <div className="page-wrapper submit-tool-page" style={{ padding: '120px 5% 60px' }}>
-                <SkeletonLoader type="title" width="300px" style={{ marginBottom: '2rem' }} />
-                <SkeletonLoader height="400px" borderRadius="24px" />
-            </div>
-        );
-    }
+    if (isLoading) return (
+        <div className="slim-edit-container" style={{ padding: '120px 5% 60px', textAlign: 'center' }}>
+            <Loader2 className="animate-spin text-primary" size={40} style={{ margin: '0 auto' }} />
+        </div>
+    );
 
-    if (isSuccess) {
-        return (
-            <div className="page-wrapper" style={{ minHeight: '80vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <div className="glass-card success-card" style={{ maxWidth: '600px', textAlign: 'center', padding: '4rem 3rem' }}>
-                    <div className="success-icon-wrapper" style={{ 
-                        width: '100px', height: '100px', background: 'rgba(0, 255, 170, 0.1)', 
-                        borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        margin: '0 auto 2rem', border: '1px solid rgba(0, 255, 170, 0.2)'
-                    }}>
-                        <CheckCircle2 size={60} color="#00ffaa" />
-                    </div>
-                    <h2 className="hero-title" style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>Submission <span className="gradient-text">Received!</span></h2>
-                    <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem', marginBottom: '2.5rem' }}>
-                        Thank you for submitting your tool. Our team will review the details and publish it in the directory within 24-48 hours.
-                    </p>
-                    <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
-                        <button onClick={() => navigate('/tools')} className="btn-primary">Browse Directory</button>
-                        <button onClick={() => setIsSuccess(false) || setStep(1)} className="btn-secondary">Submit Another</button>
-                    </div>
+    if (isSuccess) return (
+        <div style={{ minHeight: '85vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 5%' }}>
+            <div className="glass-card-slim" style={{ maxWidth: '600px', textAlign: 'center', padding: '4rem 3rem', borderRadius: '32px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)' }}>
+                <div style={{ width: '100px', height: '100px', background: 'rgba(0, 255, 170, 0.1)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 2rem', border: '1px solid rgba(0, 255, 170, 0.2)' }}>
+                    <CheckCircle2 size={60} color="#00ffaa" />
+                </div>
+                <h2 style={{ fontSize: '2.5rem', fontWeight: '900', color: 'white', marginBottom: '1rem' }}>Success!</h2>
+                <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem', marginBottom: '2.5rem' }}>
+                    Your tool <strong>{formData.name}</strong> has been submitted. Our team will review and publish it within 24-48 hours.
+                </p>
+                <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+                    <button onClick={() => navigate('/dashboard')} className="btn-primary">Dashboard</button>
+                    <button onClick={() => window.location.reload()} className="btn-outline">Add Another</button>
                 </div>
             </div>
-        );
-    }
+        </div>
+    );
 
     return (
-        <div className="page-wrapper submit-tool-page">
-            <header className="hero-section" style={{ minHeight: '35vh', paddingBottom: '40px' }}>
-                <div className="hero-content">
-                    <div className="badge">DIRECTORY GROWTH</div>
-                    <h1 className="hero-title">Submit Your <span className="gradient-text">SaaS Tool</span></h1>
-                    <p className="hero-subtitle">Put your product in front of thousands of founders, developers, and early adopters.</p>
+        <div className="slim-edit-container" style={{ 
+            padding: '60px 20px 100px', 
+            display: 'flex', 
+            flexDirection: 'column', 
+            alignItems: 'center' 
+        }}>
+            <div style={{ width: '100%', maxWidth: '850px' }}>
+                <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1rem' }}>
+                    <Breadcrumbs items={[{ label: 'Dashboard', path: '/dashboard' }, { label: 'Submit Tool' }]} />
                 </div>
-            </header>
 
-            <section className="main-section" style={{ maxWidth: '800px' }}>
-                {error && (
-                    <div className="glass-card" style={{ padding: '1.5rem', marginBottom: '2rem', border: '1px solid #ff475733', color: '#ff4757', display: 'flex', gap: '1rem', alignItems: 'center' }}>
-                        <AlertCircle size={20} /> {error}
+                <header style={{ 
+                    textAlign: 'center', 
+                    marginBottom: '3.5rem', 
+                    marginTop: '1.5rem',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: '1rem'
+                }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+                        <button onClick={() => navigate('/dashboard')} className="icon-btn-slim" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', padding: '10px', borderRadius: '12px', color: 'white', cursor: 'pointer' }}>
+                            <ArrowLeft size={20} />
+                        </button>
+                        <h1 style={{ fontSize: '2.5rem', fontWeight: '900', color: 'white', letterSpacing: '-1px' }}>Submit New Tool</h1>
+                    </div>
+                    <p style={{ color: 'var(--text-muted)', fontSize: '1rem' }}>
+                        Join {toolCount > 0 ? toolCount : 'our'} community of innovators.
+                    </p>
+                </header>
+
+                {isLimitReached && (
+                    <div className="glass-card-slim" style={{ padding: '1.5rem', marginBottom: '2rem', border: '1px solid #FFD70033', background: 'rgba(255, 215, 0, 0.05)', borderRadius: '20px', display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+                        <Award size={30} color="#FFD700" />
+                        <div style={{ flex: 1 }}>
+                            <h4 style={{ fontWeight: '800', color: '#FFD700' }}>Free Limit Reached</h4>
+                            <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>You have reached the 2-tool limit for free accounts. Upgrade to list unlimited tools.</p>
+                        </div>
+                        <Link to="/premium" className="btn-primary" style={{ padding: '10px 20px', background: '#FFD700', color: 'black' }}>Upgrade Now</Link>
                     </div>
                 )}
 
-                <div className="progress-container" style={{ marginBottom: '4rem' }}>
-                    <div className="progress-labels" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem', color: 'var(--text-muted)', fontSize: '0.85rem', fontWeight: '600' }}>
-                        <span style={{ color: step >= 1 ? 'var(--primary)' : '' }}>BASICS</span>
-                        <span style={{ color: step >= 2 ? 'var(--primary)' : '' }}>CONTENT</span>
-                        <span style={{ color: step >= 3 ? 'var(--primary)' : '' }}>PRICING</span>
-                        <span style={{ color: step >= 4 ? 'var(--primary)' : '' }}>REVIEW</span>
-                    </div>
-                    <div className="progress-bar-bg" style={{ height: '6px', background: 'rgba(255,255,255,0.05)', borderRadius: '10px', position: 'relative' }}>
-                        <div className="progress-fill" style={{ 
-                            position: 'absolute', top: 0, left: 0, height: '100%', 
-                            width: `${(step / 4) * 100}%`, background: 'var(--gradient)', 
-                            borderRadius: '10px', transition: '0.5s cubic-bezier(0.4, 0, 0.2, 1)',
-                            boxShadow: '0 0 15px var(--primary-glow)'
-                        }}></div>
-                    </div>
-                </div>
+                <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '2rem', opacity: isLimitReached ? 0.6 : 1, pointerEvents: isLimitReached ? 'none' : 'auto' }}>
+                    
+                    {/* Section 1: Basic Info */}
+                    <div className="glass-card-slim" style={{ padding: '2.5rem', borderRadius: '28px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '2.5rem', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '1.2rem' }}>
+                            <div style={{ color: 'var(--primary)' }}>
+                                <Info size={22} />
+                            </div>
+                            <h3 style={{ fontSize: '1.2rem', fontWeight: '800' }}>Core Identity</h3>
+                        </div>
 
-                <div className="glass-card" style={{ padding: '3rem' }}>
-                    <form onSubmit={handleSubmit}>
-                        {step === 1 && (
-                            <div className="step-content">
-                                <h3 style={{ fontSize: '1.5rem', marginBottom: '2rem', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                    <Globe size={24} color="var(--primary)" /> Basic Information
-                                </h3>
-                                <div className="form-group" style={{ marginBottom: '2rem' }}>
-                                    <label style={{ display: 'block', marginBottom: '0.8rem', fontWeight: '600', color: 'var(--text-muted)' }}>Product Name</label>
-                                    <input name="name" type="text" value={formData.name} onChange={handleChange} placeholder="e.g. ServicesHUB" style={{ width: '100%', padding: '15px', borderRadius: '12px', background: 'rgba(255,255,255,0.03)', border: `1px solid ${fieldErrors.name ? '#ff4757' : 'var(--border)'}`, color: 'white', fontSize: '1rem', outline: 'none' }} required />
-                                    {fieldErrors.name && <p style={{ color: '#ff4757', fontSize: '0.8rem', marginTop: '6px' }}>{fieldErrors.name}</p>}
-                                </div>
-                                <div className="form-group" style={{ marginBottom: '2rem' }}>
-                                    <label style={{ display: 'block', marginBottom: '0.8rem', fontWeight: '600', color: 'var(--text-muted)' }}>Website URL</label>
-                                    <input name="url" type="url" value={formData.url} onChange={handleChange} placeholder="https://yourtool.com" style={{ width: '100%', padding: '15px', borderRadius: '12px', background: 'rgba(255,255,255,0.03)', border: `1px solid ${fieldErrors.url ? '#ff4757' : 'var(--border)'}`, color: 'white', fontSize: '1rem', outline: 'none' }} required />
-                                    {fieldErrors.url && <p style={{ color: '#ff4757', fontSize: '0.8rem', marginTop: '6px' }}>{fieldErrors.url}</p>}
-                                </div>
-                                <div className="form-group">
-                                    <label style={{ display: 'block', marginBottom: '0.8rem', fontWeight: '600', color: 'var(--text-muted)' }}>One-Sentence Pitch</label>
-                                    <input name="short_description" type="text" value={formData.short_description} onChange={handleChange} placeholder="The ultimate directory for modern SaaS tools." style={{ width: '100%', padding: '15px', borderRadius: '12px', background: 'rgba(255,255,255,0.03)', border: `1px solid ${fieldErrors.short_description ? '#ff4757' : 'var(--border)'}`, color: 'white', fontSize: '1rem', outline: 'none' }} required />
-                                    {fieldErrors.short_description && <p style={{ color: '#ff4757', fontSize: '0.8rem', marginTop: '6px' }}>{fieldErrors.short_description}</p>}
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '2rem' }}>
+                            <div className="input-group-slim">
+                                <label><Zap size={14} /> Product Name</label>
+                                <input type="text" className="slim-input-field" value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} placeholder="e.g. ServicesHUB" required />
+                                {fieldErrors.name && <span className="error-text">{fieldErrors.name}</span>}
+                            </div>
+                            <div className="input-group-slim">
+                                <label><Globe size={14} /> Website URL</label>
+                                <input type="url" className="slim-input-field" value={formData.url} onChange={(e) => setFormData({...formData, url: e.target.value})} placeholder="https://..." required />
+                                {fieldErrors.url && <span className="error-text">{fieldErrors.url}</span>}
+                            </div>
+                        </div>
+
+                        <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '2rem', marginTop: '2rem' }}>
+                            <CustomSelect label="Product Niche" options={categories} value={formData.category_id} onChange={(val) => setFormData({...formData, category_id: val})} icon={LayoutGrid} />
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                                <CustomSelect label="Pricing " options={[{id:'Free', name:'Free'}, {id:'Freemium', name:'Freemium'}, {id:'Paid', name:'Paid'}]} value={formData.pricing_type} onChange={(val) => setFormData({...formData, pricing_type: val})} icon={Star} />
+                                <input type="text" className="slim-input-field" placeholder="Briefly explain (e.g. $9/mo)" value={formData.pricing_details} onChange={(e) => setFormData({...formData, pricing_details: e.target.value})} />
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Section 2: Visuals & Narrative */}
+                    <div className="glass-card-slim" style={{ padding: '2.5rem', borderRadius: '24px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '2rem', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '1rem' }}>
+                            <ImageIcon size={18} className="text-primary" />
+                            <h3 style={{ fontSize: '1.1rem', fontWeight: '800' }}>Media & Content</h3>
+                        </div>
+
+                        <div className="upload-wrapper-slim" style={{ marginBottom: '2rem' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                                <label style={{ fontSize: '0.85rem', fontWeight: '700', color: 'var(--text-muted)' }}>THUMBNAIL IMAGE</label>
+                                <button type="button" onClick={() => setUseManualUrl(!useManualUrl)} className="text-link-slim">{useManualUrl ? "Upload File" : "Use Manual URL"}</button>
+                            </div>
+
+                            {/* Image Guidelines Alert */}
+                            <div style={{ 
+                                background: 'rgba(var(--primary-rgb), 0.05)', 
+                                border: '1px solid rgba(var(--primary-rgb), 0.1)', 
+                                borderRadius: '14px', 
+                                padding: '1rem', 
+                                marginBottom: '1.5rem',
+                                display: 'flex',
+                                gap: '12px',
+                                alignItems: 'flex-start'
+                            }}>
+                                <Info size={18} className="text-primary" style={{ marginTop: '2px', flexShrink: 0 }} />
+                                <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', lineHeight: '1.5' }}>
+                                    <strong style={{ color: 'white', display: 'block', marginBottom: '4px' }}>Image Requirements:</strong>
+                                    • Recommended dimensions: <span style={{ color: 'var(--primary)', fontWeight: '700' }}>1200 x 630 pixels</span><br/>
+                                    • Best format: <span style={{ color: 'var(--primary)', fontWeight: '700' }}>WebP</span> or <span style={{ color: 'var(--primary)', fontWeight: '700' }}>PNG</span><br/>
+                                    • Tip: Compress your image for faster loading (Max 2MB).
                                 </div>
                             </div>
-                        )}
 
-                        {step === 2 && (
-                            <div className="step-content">
-                                <h3 style={{ fontSize: '1.5rem', marginBottom: '2rem', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                    <LayoutGrid size={24} color="var(--primary)" /> Content & Niche
-                                </h3>
-                                
-                                <CustomSelect 
-                                    label="Category"
-                                    options={categories}
-                                    value={formData.category_id}
-                                    onChange={(val) => setFormData(prev => ({ ...prev, category_id: val }))}
-                                    placeholder="Select a category"
-                                />
-
-                                <div className="form-group" style={{ marginBottom: '2rem' }}>
-                                    <label style={{ display: 'block', marginBottom: '0.8rem', fontWeight: '600', color: 'var(--text-muted)' }}>Full Description</label>
-                                    <textarea name="description" value={formData.description} onChange={handleChange} rows="5" placeholder="Describe what your tool does..." style={{ width: '100%', padding: '15px', borderRadius: '12px', background: 'rgba(255,255,255,0.03)', border: `1px solid ${fieldErrors.description ? '#ff4757' : 'var(--border)'}`, color: 'white', fontSize: '1rem', outline: 'none', resize: 'vertical' }} required></textarea>
-                                    {fieldErrors.description && <p style={{ color: '#ff4757', fontSize: '0.8rem', marginTop: '6px' }}>{fieldErrors.description}</p>}
-                                </div>
-
-                                <div className="form-group" style={{ marginBottom: '2.5rem' }}>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.8rem' }}>
-                                        <label style={{ fontWeight: '600', color: 'var(--text-muted)' }}>Tool Thumbnail / Icon ⚡</label>
-                                        <button 
-                                            type="button" 
-                                            onClick={() => setUseManualUrl(!useManualUrl)}
-                                            style={{ background: 'none', border: 'none', color: 'var(--primary)', fontSize: '0.8rem', cursor: 'pointer', textDecoration: 'underline' }}
-                                        >
-                                            {useManualUrl ? "Switch to File Upload" : "Upload issues? Enter URL manually"}
-                                        </button>
-                                    </div>
-
-                                    {useManualUrl ? (
-                                        <div className="manual-url-input">
-                                            <input 
-                                                type="url" 
-                                                placeholder="https://example.com/image.png"
-                                                value={formData.image_url}
-                                                onChange={(e) => {
-                                                    setFormData(prev => ({ ...prev, image_url: e.target.value }));
-                                                    setImagePreview(e.target.value);
-                                                }}
-                                                style={{ width: '100%', padding: '15px', borderRadius: '12px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'white', outline: 'none' }}
-                                            />
-                                            <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '8px' }}>Paste a direct link to your image (PNG, JPG, WebP).</p>
+                            {useManualUrl ? (
+                                <input type="url" className="slim-input-field" placeholder="https://..." value={formData.image_url} onChange={(e) => { setFormData({...formData, image_url: e.target.value}); setImagePreview(e.target.value); }} />
+                            ) : (
+                                <div className="slim-dropzone" style={{ border: '2px dashed var(--border)', borderRadius: '16px', padding: '1.5rem', textAlign: 'center' }}>
+                                    {imagePreview && !uploading ? (
+                                        <div style={{ 
+                                            position: 'relative', 
+                                            width: '100%',
+                                            aspectRatio: '1200 / 630',
+                                            borderRadius: '12px', 
+                                            overflow: 'hidden',
+                                            background: 'rgba(255,255,255,0.02)',
+                                            border: '1px solid var(--border)'
+                                        }}>
+                                            <img src={imagePreview} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                            <label className="change-img-overlay">
+                                                <Upload size={18} /> Change Image
+                                                <input type="file" accept="image/*" onChange={handleFileChange} style={{ display: 'none' }} />
+                                            </label>
                                         </div>
                                     ) : (
-                                        <div className="file-upload-wrapper">
-                                            {imagePreview && !uploading ? (
-                                                <div className="preview-img-container">
-                                                    <img src={imagePreview} alt="Preview" />
-                                                    <button type="button" className="remove-upload-btn" onClick={() => { setImagePreview(null); setFormData(prev => ({ ...prev, image_url: '' })) }}>
-                                                        <X size={16} />
-                                                    </button>
-                                                </div>
-                                            ) : (
-                                                <label className="file-upload-label" style={{ position: 'relative' }}>
-                                                    <input type="file" accept="image/*" onChange={handleFileChange} style={{ display: 'none' }} disabled={uploading} />
-                                                    <div className="prop-icon-bg">
-                                                        {uploading ? <Loader2 className="animate-spin" /> : <ImageIcon size={24} />}
-                                                    </div>
-                                                    <div style={{ textAlign: 'center' }}>
-                                                        <p style={{ fontWeight: '700', marginBottom: '4px' }}>{uploading ? 'Uploading...' : 'Click to upload'}</p>
-                                                        <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>{uploading ? 'Please wait a moment' : 'PNG, JPG or WebP (Max 2MB)'}</p>
-                                                    </div>
-                                                    {uploading && (
-                                                        <button 
-                                                            type="button" 
-                                                            onClick={(e) => {
-                                                                e.preventDefault();
-                                                                e.stopPropagation();
-                                                                setUploading(false);
-                                                                setError('Upload cancelled by user.');
-                                                            }}
-                                                            style={{ 
-                                                                position: 'absolute', top: '10px', right: '10px', 
-                                                                background: 'rgba(255, 71, 87, 0.2)', color: '#ff4757', 
-                                                                border: '1px solid rgba(255, 71, 87, 0.3)', padding: '5px 10px', 
-                                                                borderRadius: '6px', fontSize: '0.7rem', cursor: 'pointer' 
-                                                            }}
-                                                        >
-                                                            Cancel
-                                                        </button>
-                                                    )}
-                                                </label>
-                                            )}
-                                        </div>
+                                        <label style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', cursor: 'pointer', padding: '2rem 0' }}>
+                                            {uploading ? <Loader2 className="animate-spin" /> : <Upload size={30} className="text-muted" />}
+                                            <span style={{ fontSize: '0.9rem' }}>{uploading ? 'Uploading...' : 'Click to select tool image'}</span>
+                                            <input type="file" accept="image/*" onChange={handleFileChange} style={{ display: 'none' }} disabled={uploading} />
+                                        </label>
                                     )}
-                                    {formData.image_url && <p style={{ fontSize: '0.8rem', color: '#00ffaa', marginTop: '10px', display: 'flex', alignItems: 'center', gap: '5px' }}><CheckCircle2 size={14} /> Image ready</p>}
                                 </div>
-                            </div>
-                        )}
-
-                        {step === 3 && (
-                            <div className="step-content">
-                                <h3 style={{ fontSize: '1.5rem', marginBottom: '2rem', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                    <Zap size={24} color="var(--primary)" /> Pricing Model
-                                </h3>
-                                <div className="form-group" style={{ marginBottom: '2rem' }}>
-                                    <label style={{ display: 'block', marginBottom: '0.8rem', fontWeight: '600', color: 'var(--text-muted)' }}>Select Plan Type</label>
-                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                                        {['Free', 'Freemium', 'Paid', 'Contact'].map(type => (
-                                            <button 
-                                                key={type}
-                                                type="button" 
-                                                onClick={() => setFormData(prev => ({ ...prev, pricing_type: type }))}
-                                                style={{ 
-                                                    padding: '1.5rem', borderRadius: '16px', 
-                                                    background: formData.pricing_type === type ? 'var(--primary)' : 'rgba(255,255,255,0.02)',
-                                                    border: '1px solid var(--border)', color: 'white', cursor: 'pointer', transition: '0.3s'
-                                                }}
-                                            >
-                                                {type}
-                                            </button>
-                                        ))}
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-
-                        {step === 4 && (
-                            <div className="step-content">
-                                <h3 style={{ fontSize: '1.5rem', marginBottom: '2rem', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                    <ShieldCheck size={24} color="var(--primary)" /> Final Review
-                                </h3>
-                                <div className="review-box" style={{ background: 'rgba(255,255,255,0.02)', padding: '2rem', borderRadius: '16px', border: '1px solid var(--border)' }}>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem', paddingBottom: '1.5rem', borderBottom: '1px solid var(--border)' }}>
-                                        <div style={{ width: '60px', height: '60px', background: 'var(--bg-card)', borderRadius: '12px', overflow: 'hidden', border: '1px solid var(--border)' }}>
-                                            {imagePreview ? <img src={imagePreview} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="" /> : <Zap color="var(--primary)" style={{ margin: '18px' }} />}
-                                        </div>
-                                        <div>
-                                            <h4 style={{ fontSize: '1.24rem', fontWeight: '800' }}>{formData.name || 'Your SaaS Product'}</h4>
-                                            <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Pricing: {formData.pricing_type}</p>
-                                        </div>
-                                    </div>
-                                    <ul style={{ listStyle: 'none', color: 'var(--text-muted)', fontSize: '0.9rem', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                                        <li style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><CheckCircle2 size={16} color="#00ffaa" /> Detailed description added</li>
-                                        <li style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><CheckCircle2 size={16} color="#00ffaa" /> {imagePreview ? 'Custom thumbnail uploaded' : 'Using default icon'}</li>
-                                        <li style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><CheckCircle2 size={16} color="#00ffaa" /> Website links verified</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        )}
-
-                        <div className="form-actions" style={{ display: 'flex', justifyContent: 'space-between', marginTop: '3rem', borderTop: '1px solid var(--border)', paddingTop: '2rem' }}>
-                            {step > 1 ? (
-                                <button type="button" onClick={prevStep} className="btn-secondary">
-                                    <ArrowLeft size={18} /> Back
-                                </button>
-                            ) : (
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: isLimitReached ? '#ff4757' : 'var(--text-muted)', fontSize: '0.9rem' }}>
-                                    <Star size={16} fill={user?.is_premium ? 'var(--primary)' : 'none'} />
-                                    Submissions: {toolCount}/2 
-                                    {isLimitReached && <span style={{ marginLeft: '10px' }}>(Limit Reached)</span>}
-                                </div>
-                            )}
-                            
-                            {step < 4 ? (
-                                <button type="button" onClick={nextStep} className="btn-primary" disabled={uploading}>
-                                    {uploading ? <Loader2 className="animate-spin" size={18} /> : <>Continue <ArrowRight size={18} /></>}
-                                </button>
-                            ) : (
-                                isLimitReached ? (
-                                    <Link to="/premium" className="btn-primary" style={{ background: 'linear-gradient(90deg, #FFD700, #FFA500)', color: 'black', textDecoration: 'none', display: 'flex', gap: '10px', alignItems: 'center' }}>
-                                        <Award size={18} /> Upgrade to Premium
-                                    </Link>
-                                ) : (
-                                    <button type="submit" disabled={loading || uploading} className="btn-primary" style={{ background: 'var(--primary)', boxShadow: '0 0 20px var(--primary-glow)', display: 'flex', gap: '10px', alignItems: 'center' }}>
-                                        {loading ? <Loader2 className="animate-spin" size={18} /> : <Send size={18} />}
-                                        Submit Tool
-                                    </button>
-                                )
                             )}
                         </div>
-                    </form>
-                </div>
-            </section>
+
+                        <div className="input-group-slim" style={{ marginBottom: '1.5rem' }}>
+                            <label><Type size={14} /> Short Pitch</label>
+                            <input type="text" className="slim-input-field" value={formData.short_description} onChange={(e) => setFormData({...formData, short_description: e.target.value})} placeholder="One sentence pitch..." required />
+                        </div>
+
+                        <div className="input-group-slim">
+                            <label><AlignLeft size={14} /> Full Description</label>
+                            <textarea className="slim-input-field" style={{ minHeight: '160px', resize: 'vertical' }} value={formData.description} onChange={(e) => setFormData({...formData, description: e.target.value})} placeholder="Explain your tool in detail..." required></textarea>
+                        </div>
+                    </div>
+
+                    {/* Section 3: Features */}
+                    <div className="glass-card-slim" style={{ padding: '2.5rem', borderRadius: '24px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '2rem', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '1rem' }}>
+                            <CheckCircle2 size={18} className="text-primary" />
+                            <h3 style={{ fontSize: '1.1rem', fontWeight: '800' }}>Features & Highlights</h3>
+                        </div>
+                        <div className="input-group-slim">
+                            <label>Key Features (One per line)</label>
+                            <textarea className="slim-input-field" style={{ minHeight: '120px' }} value={formData.features?.join('\n') || ''} onChange={(e) => setFormData({...formData, features: e.target.value.split('\n').filter(f => f.trim() !== '')})} placeholder="Enter features..."></textarea>
+                        </div>
+                    </div>
+
+                    {/* Footer Actions */}
+                    <div style={{ display: 'flex', gap: '1.5rem', background: 'rgba(0,0,0,0.2)', padding: '1rem', borderRadius: '20px', border: '1px solid var(--border)' }}>
+                        <button type="submit" disabled={loading || uploading} className="btn-primary" style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', padding: '18px' }}>
+                            {loading ? <Loader2 className="animate-spin" /> : <Send size={20} />}
+                            {loading ? 'Submitting...' : 'Submit for Review'}
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <style dangerouslySetInnerHTML={{ __html: `
+                .input-group-slim { display: flex; flex-direction: column; gap: 10px; }
+                .input-group-slim label { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; font-weight: 700; color: var(--text-muted); }
+                .slim-input-field {
+                    width: 100%; padding: 14px 18px; border-radius: 14px;
+                    background: rgba(255,255,255,0.03); border: 1px solid var(--border);
+                    color: white; font-size: 0.95rem; transition: 0.2s;
+                }
+                .slim-input-field:focus { border-color: var(--primary); background: rgba(0, 255, 170, 0.05); outline: none; }
+                .text-link-slim { background: none; border: none; color: var(--primary); font-size: 0.75rem; cursor: pointer; text-decoration: underline; }
+                .change-img-overlay {
+                    position: absolute; inset: 0; background: rgba(0,0,0,0.5); opacity: 0;
+                    display: flex; align-items: center; justify-content: center; gap: 8px;
+                    cursor: pointer; transition: 0.3s; color: white; font-weight: 800;
+                }
+                .change-img-overlay:hover { opacity: 1; }
+                .error-text { color: #ff4757; font-size: 0.75rem; margin-top: 4px; }
+            `}} />
         </div>
     );
 };

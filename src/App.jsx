@@ -2,6 +2,7 @@ import React, { Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
+import ScrollToTop from './components/ScrollToTop';
 import { Loader2 } from 'lucide-react';
 import './App.css';
 
@@ -34,6 +35,8 @@ const Search = lazy(() => import('./pages/Search'));
 const Compare = lazy(() => import('./pages/Compare'));
 const ResetPassword = lazy(() => import('./pages/ResetPassword'));
 
+const PublicProfile = lazy(() => import('./pages/PublicProfile'));
+
 const PageLoader = () => (
   <div style={{ minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
     <Loader2 className="animate-spin" size={40} color="var(--primary)" />
@@ -42,8 +45,9 @@ const PageLoader = () => (
 
 function App() {
   return (
-    <Router>
+    <Router future={{ v7_relativeSplatPath: true }}>
       <div className="app-container">
+        <ScrollToTop />
         <Navbar />
         <main className="content">
           <Suspense fallback={<PageLoader />}>
@@ -53,6 +57,7 @@ function App() {
               <Route path="/categories" element={<Categories />} />
               <Route path="/about" element={<About />} />
               <Route path="/profile" element={<Profile />} />
+              <Route path="/u/:id" element={<PublicProfile />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/tool/:id" element={<ToolDetail />} />
               <Route path="/category/:id" element={<CategoryDetail />} />

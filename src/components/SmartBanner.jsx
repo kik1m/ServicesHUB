@@ -232,18 +232,61 @@ const SmartBanner = () => {
                 .banner-cta:hover { transform: translateY(-3px); filter: brightness(1.1); }
 
                 @media (max-width: 1024px) {
-                    .banner-inner { grid-template-columns: 1fr; }
-                    .banner-visual { height: 200px; }
-                    .img-overlay {
-                        background: linear-gradient(0deg, rgba(7, 7, 9, 1) 0%, transparent 100%);
+                    .banner-inner { 
+                        grid-template-columns: 1fr; 
+                        position: relative;
+                        min-height: 380px;
+                        border-radius: 0;
                     }
-                    .banner-details { padding: 30px; }
-                    .banner-text-content h2 { font-size: 1.8rem; }
+                    .banner-visual { 
+                        position: absolute; 
+                        inset: 0; 
+                        z-index: 0;
+                        height: 100%;
+                    }
+                    .banner-img {
+                        filter: brightness(0.6) saturate(1.2);
+                    }
+                    .img-overlay {
+                        background: linear-gradient(to top, rgba(7, 7, 9, 1) 20%, rgba(7, 7, 9, 0.4) 60%, transparent 100%);
+                        z-index: 1;
+                    }
+                    .banner-details { 
+                        position: relative;
+                        z-index: 2;
+                        padding: 60px 25px 40px; 
+                        gap: 1.5rem; 
+                        background: radial-gradient(circle at top right, rgba(255,255,255,0.05), transparent);
+                        justify-content: flex-end;
+                    }
+                    .banner-text-content h2 { 
+                        font-size: 2rem; 
+                        text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+                    }
+                    .banner-text-content p { 
+                        font-size: 1rem; 
+                        -webkit-line-clamp: 3; 
+                        color: rgba(255,255,255,0.9);
+                        text-shadow: 0 1px 5px rgba(0,0,0,0.3);
+                    }
+                    .banner-top-meta {
+                        position: absolute;
+                        top: 25px;
+                        left: 25px;
+                        right: 25px;
+                        width: auto;
+                    }
+                    .banner-cta-group {
+                        margin-top: 10px;
+                    }
                 }
 
                 @media (max-width: 480px) {
-                    .banner-cta-group { flex-direction: column; }
-                    .banner-text-content p { font-size: 0.95rem; }
+                    .banner-inner { min-height: 420px; }
+                    .banner-text-content h2 { font-size: 1.7rem; }
+                    .banner-top-meta { flex-direction: row; justify-content: space-between; align-items: center; }
+                    .banner-cta-group { flex-direction: column; width: 100%; gap: 12px; }
+                    .banner-cta { justify-content: center; width: 100%; padding: 16px; border-radius: 16px; backdrop-filter: blur(10px); }
                 }
             ` }} />
         </div>

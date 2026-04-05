@@ -30,7 +30,7 @@ const CustomSelect = ({ label, options, value, onChange, placeholder, icon: Icon
                 >
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                         {Icon && <Icon size={16} color="var(--primary)" />}
-                        <span>{selectedOption ? (selectedOption.name || selectedOption.label || selectedOption.value) : placeholder}</span>
+                        <span style={{ fontWeight: '600', fontSize: '0.9rem' }}>{selectedOption ? (selectedOption.name || selectedOption.label || selectedOption.value) : placeholder}</span>
                     </div>
                     <ChevronDown size={18} style={{ transform: isOpen ? 'rotate(180deg)' : 'rotate(0)', transition: '0.3s' }} />
                 </div>

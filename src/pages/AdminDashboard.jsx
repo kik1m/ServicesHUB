@@ -23,7 +23,11 @@ const AdminDashboard = () => {
     const [activeTab, setActiveTab] = useState('pending'); // 'pending', 'featured', 'blogs', 'add-tool', 'categories', 'users', 'newsletter'
     const [allUsers, setAllUsers] = useState([]);
     const [subscribers, setSubscribers] = useState([]);
-    
+
+    // Modal & Review States
+    const [selectedReview, setSelectedReview] = useState(null);
+    const [showReviewModal, setShowReviewModal] = useState(false);
+
     // Form States
     const [newPost, setNewPost] = useState({ title: '', excerpt: '', content: '', category: '', image_url: '' });
     const [newCategory, setNewCategory] = useState({ name: '', slug: '', icon_name: '' });
@@ -83,13 +87,13 @@ const AdminDashboard = () => {
 
                 setIsAdmin(true);
 
-                // Fetch Pending Tools
+                // Fetch Pending Tools & Updates
                 const { data: pending, error: pendingError } = await supabase
                     .from('tools')
                     .select('*, categories(name)')
-                    .eq('is_approved', false)
-                    .order('created_at', { ascending: false });
-                
+                    .or('is_approved.eq.false,pending_changes.not.is.null')
+                    .order('updated_at', { ascending: false });
+
                 if (pendingError) throw pendingError;
                 setPendingTools(pending || []);
 
@@ -99,7 +103,7 @@ const AdminDashboard = () => {
                     .select('*, categories(name)')
                     .eq('is_featured', true)
                     .order('featured_until', { ascending: true });
-                
+
                 if (featuredError) throw featuredError;
                 setFeaturedTools(featured || []);
 
@@ -114,18 +118,21 @@ const AdminDashboard = () => {
                 const { data: toolCats } = await supabase.from('categories').select('*');
                 setToolCategories(toolCats || []);
 
-                // Fetch All Users
-                const { data: usersData } = await supabase.from('profiles').select('*').order('created_at', { ascending: false });
+                // Fetch All Users - Explicit columns to avoid 400 error
+                const { data: usersData } = await supabase
+                    .from('profiles')
+                    .select('id, full_name, avatar_url, role, updated_at, is_premium')
+                    .order('updated_at', { ascending: false });
                 setAllUsers(usersData || []);
 
                 // Fetch Subscribers
                 const { data: subsData } = await supabase.from('newsletter_subscribers').select('*').order('created_at', { ascending: false });
                 setSubscribers(subsData || []);
 
-                // Fetch Platform Stats
-                const { count: toolsCount } = await supabase.from('tools').select('*', { count: 'exact', head: true });
-                const { count: usersCount } = await supabase.from('profiles').select('*', { count: 'exact', head: true });
-                const { count: pendingCount } = await supabase.from('tools').select('*', { count: 'exact', head: true }).eq('is_approved', false);
+                // Fetch Platform Stats - Explicit columns
+                const { count: toolsCount } = await supabase.from('tools').select('id', { count: 'exact', head: true });
+                const { count: usersCount } = await supabase.from('profiles').select('id', { count: 'exact', head: true });
+                const { count: pendingCount } = await supabase.from('tools').select('id', { count: 'exact', head: true }).or('is_approved.eq.false,pending_changes.not.is.null');
 
                 setStats([
                     { label: 'Total Tools', value: toolsCount || 0, icon: <Zap size={20} />, color: 'var(--primary)' },
@@ -147,51 +154,126 @@ const AdminDashboard = () => {
 
     const handleApprove = async (tool) => {
         try {
+            let updatePayload = { is_approved: true };
+            let isUpdate = false;
+
+            if (tool.pending_changes) {
+                // Apply pending changes to main columns
+                updatePayload = {
+                    ...updatePayload,
+                    ...tool.pending_changes,
+                    pending_changes: null
+                };
+                isUpdate = true;
+            }
+
             const { error } = await supabase
                 .from('tools')
-                .update({ is_approved: true })
+                .update(updatePayload)
                 .eq('id', tool.id);
-            
+
             if (error) throw error;
 
             // Persistent Notification to tool owner
+            const title = isUpdate ? 'Data Update Approved' : 'New Tool Approved';
+            const msg = isUpdate
+                ? `The modifications you submitted for the tool "${tool.name}" have been successfully reviewed and approved. The live listing has been updated with these changes.`
+                : `Great news! Your tool "${tool.name}" has been approved by our administration. It is now published and visible to all users on the platform.`;
+
             await sendNotification(
                 tool.user_id,
-                'Tool Approved! 🎉',
-                `Great news! Your tool "${tool.name}" has been approved and is now live.`,
+                title,
+                msg,
                 'approval'
             );
 
             setPendingTools(prev => prev.filter(t => t.id !== tool.id));
-            showToast('Tool approved and user notified! 🎉', 'success');
+            showToast(isUpdate ? 'Update applied!' : 'Tool approved!', 'success');
         } catch (err) {
-            showToast('Error approving tool: ' + err.message, 'error');
+            showToast('Error: ' + err.message, 'error');
         }
     };
-
     const handleReject = async (tool) => {
-        if (!window.confirm(`Are you sure you want to reject and delete "${tool.name}"?`)) return;
+        const isUpdate = !!tool.pending_changes;
+        const confirmMsg = isUpdate
+            ? `Are you sure you want to REJECT the NEW changes for "${tool.name}"? (The live version will remain as is)`
+            : `Are you sure you want to REJECT and DELETE "${tool.name}"?`;
+
+        if (!window.confirm(confirmMsg)) return;
+
         try {
-            const { error } = await supabase
-                .from('tools')
-                .delete()
-                .eq('id', tool.id);
-            
-            if (error) throw error;
+            if (isUpdate) {
+                // Just clear pending_changes
+                const { error } = await supabase
+                    .from('tools')
+                    .update({ pending_changes: null })
+                    .eq('id', tool.id);
+                if (error) throw error;
+            } else {
+                // Delete new tool submission
+                const { error } = await supabase
+                    .from('tools')
+                    .delete()
+                    .eq('id', tool.id);
+                if (error) throw error;
+            }
 
             // Persistent Notification to tool owner
+            const rejectMsg = isUpdate
+                ? `After reviewing the proposed changes for "${tool.name}", our team has decided to maintain the current version of the tool. You are welcome to submit further modifications if needed.`
+                : `We regret to inform you that your submission "${tool.name}" was not approved at this time as it did not meet our current listing criteria. You may review the details and resubmit in the future.`;
+
             await sendNotification(
                 tool.user_id,
-                'Tool Submission Update',
-                `We're sorry, but your submission "${tool.name}" was not approved at this time.`,
+                'Update Regarding Your Submission',
+                rejectMsg,
                 'rejection'
             );
 
             setPendingTools(prev => prev.filter(t => t.id !== tool.id));
-            showToast('Tool rejected and user notified.', 'info');
+            showToast(isUpdate ? 'Update rejected.' : 'Tool rejected.', 'info');
         } catch (err) {
-            showToast('Error rejecting tool: ' + err.message, 'error');
+            showToast('Error: ' + err.message, 'error');
         }
+    };
+
+    const handleOpenReview = (tool) => {
+        setSelectedReview(tool);
+        setShowReviewModal(true);
+    };
+
+    const handleCloseReview = () => {
+        setSelectedReview(null);
+        setShowReviewModal(false);
+    };
+
+    const getChangedFields = (live, proposed) => {
+        if (!proposed) return [];
+        const fields = [
+            { key: 'name', label: 'Tool Name' },
+            { key: 'short_description', label: 'Short Pitch' },
+            { key: 'description', label: 'Description', isLongText: true },
+            { key: 'url', label: 'Website URL' },
+            { key: 'category_id', label: 'Category' },
+            { key: 'pricing_type', label: 'Pricing Type' },
+            { key: 'pricing_details', label: 'Pricing Info' },
+            { key: 'features', label: 'Key Features', isArray: true },
+            { key: 'image_url', label: 'Thumbnail', isImage: true }
+        ];
+
+        return fields.filter(field => {
+            const liveVal = live[field.key];
+            const proposedVal = proposed[field.key];
+
+            if (field.isArray) {
+                return JSON.stringify(liveVal || []) !== JSON.stringify(proposedVal || []);
+            }
+            return liveVal !== proposedVal;
+        }).map(field => ({
+            ...field,
+            oldValue: live[field.key],
+            newValue: proposed[field.key]
+        }));
     };
 
     const handleRemoveFeature = async (id) => {
@@ -201,7 +283,7 @@ const AdminDashboard = () => {
                 .from('tools')
                 .update({ is_featured: false, featured_until: null })
                 .eq('id', id);
-            
+
             if (error) throw error;
             setFeaturedTools(prev => prev.filter(t => t.id !== id));
             showToast('Featured status removed.', 'success');
@@ -214,11 +296,19 @@ const AdminDashboard = () => {
         e.preventDefault();
         setSubmitting(true);
         try {
-            const { data, error } = await supabase.from('blog_posts').insert([newPost]).select();
+            // Find category name if UUID is selected
+            const catObj = blogCategories.find(c => c.id === newPost.category || c.name === newPost.category);
+            const postToInsert = {
+                ...newPost,
+                category: catObj ? catObj.name : newPost.category,
+                author_id: user.id
+            };
+
+            const { data, error } = await supabase.from('blog_posts').insert([postToInsert]).select();
             if (error) throw error;
             setBlogPosts([data[0], ...blogPosts]);
             setNewPost({ title: '', excerpt: '', content: '', category: '', image_url: '' });
-            showToast('Blog post published! 🎉', 'success');
+            showToast('Blog post published!', 'success');
         } catch (err) {
             showToast('Error creating blog: ' + err.message, 'error');
         } finally {
@@ -248,9 +338,9 @@ const AdminDashboard = () => {
                 user_id: user.id,
                 is_approved: true
             }]).select();
-            
+
             if (error) throw error;
-            showToast('Tool added and approved successfully! 🎉', 'success');
+            showToast('Tool added and approved successfully!', 'success');
             setNewTool({ name: '', description: '', url: '', category_id: '', pricing_type: 'Free', image_url: '' });
             // Update stats
         } catch (err) {
@@ -268,11 +358,42 @@ const AdminDashboard = () => {
             if (error) throw error;
             setToolCategories([...toolCategories, data[0]]);
             setNewCategory({ name: '', slug: '', icon_name: '' });
-            showToast('Category added! 🎉', 'success');
+            showToast('Category added!', 'success');
         } catch (err) {
             showToast('Error: ' + err.message, 'error');
         } finally {
             setSubmitting(false);
+        }
+    };
+
+    const handleCreateBlogCategory = async (e) => {
+        e.preventDefault();
+        setSubmitting(true);
+        try {
+            const { data, error } = await supabase.from('blog_categories').insert([{
+                name: newCategory.name,
+                slug: newCategory.slug
+            }]).select();
+            if (error) throw error;
+            setBlogCategories([...blogCategories, data[0]]);
+            setNewCategory({ name: '', slug: '', icon_name: '' });
+            showToast('Blog Category added!', 'success');
+        } catch (err) {
+            showToast('Error: ' + err.message, 'error');
+        } finally {
+            setSubmitting(false);
+        }
+    };
+
+    const handleDeleteBlogCategory = async (id) => {
+        if (!window.confirm('Delete blog category? Articles using it might lose their classification!')) return;
+        try {
+            const { error } = await supabase.from('blog_categories').delete().eq('id', id);
+            if (error) throw error;
+            setBlogCategories(prev => prev.filter(c => c.id !== id));
+            showToast('Blog Category deleted.', 'info');
+        } catch (err) {
+            showToast('Error: ' + err.message, 'error');
         }
     };
 
@@ -350,13 +471,13 @@ const AdminDashboard = () => {
                     </div>
                     <div style={{ height: '150px', width: '100%' }}>
                         <svg viewBox="0 0 1000 150" preserveAspectRatio="none" style={{ width: '100%', height: '100%' }}>
-                            <path 
-                                d="M0,130 Q150,110 300,90 T600,60 T1000,20" 
-                                fill="none" stroke="var(--primary)" strokeWidth="3" strokeLinecap="round" 
+                            <path
+                                d="M0,130 Q150,110 300,90 T600,60 T1000,20"
+                                fill="none" stroke="var(--primary)" strokeWidth="3" strokeLinecap="round"
                             />
-                            <path 
-                                d="M0,130 Q150,110 300,90 T600,60 T1000,20 L1000,150 L0,150 Z" 
-                                fill="url(#adminChartGradient)" 
+                            <path
+                                d="M0,130 Q150,110 300,90 T600,60 T1000,20 L1000,150 L0,150 Z"
+                                fill="url(#adminChartGradient)"
                             />
                             <defs>
                                 <linearGradient id="adminChartGradient" x1="0" y1="0" x2="0" y2="1">
@@ -374,19 +495,20 @@ const AdminDashboard = () => {
                 {/* Tab Navigation */}
                 <div style={{ display: 'flex', gap: '1rem', marginBottom: '2.5rem', borderBottom: '1px solid var(--border)', paddingBottom: '1rem', flexWrap: 'wrap' }}>
                     {[
-                        { id: 'pending', label: 'Approval Queue', icon: <Clock size={16} /> },
-                        { id: 'featured', label: 'Featured Tools', icon: <Zap size={16} /> },
-                        { id: 'blogs', label: 'Blog Manager', icon: <FileText size={16} /> },
-                        { id: 'categories', label: 'Categories', icon: <LayoutGrid size={16} /> },
-                        { id: 'users', label: 'Users Manager', icon: <Users size={16} /> },
-                        { id: 'add-tool', label: 'Quick Add Tool', icon: <PlusCircle size={16} /> },
+                        { id: 'pending', label: 'Queue', icon: <Clock size={16} /> },
+                        { id: 'featured', label: 'Featured', icon: <Zap size={16} /> },
+                        { id: 'blogs', label: 'Blogs', icon: <FileText size={16} /> },
+                        { id: 'blog-categories', label: 'Blog Cats', icon: <LayoutGrid size={16} /> },
+                        { id: 'categories', label: 'Tool Cats', icon: <LayoutGrid size={16} /> },
+                        { id: 'users', label: 'Users', icon: <Users size={16} /> },
+                        { id: 'add-tool', label: 'Quick Add', icon: <PlusCircle size={16} /> },
                         { id: 'newsletter', label: 'Newsletter', icon: <Mail size={16} /> }
                     ].map(tab => (
-                        <button 
+                        <button
                             key={tab.id}
                             onClick={() => setActiveTab(tab.id)}
-                            style={{ 
-                                display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 20px', 
+                            style={{
+                                display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 20px',
                                 background: activeTab === tab.id ? 'var(--gradient)' : 'transparent',
                                 border: 'none', color: activeTab === tab.id ? 'white' : 'var(--text-muted)',
                                 borderRadius: '12px', cursor: 'pointer', fontWeight: '700', fontSize: '0.9rem',
@@ -401,7 +523,7 @@ const AdminDashboard = () => {
                 <div style={{ display: 'grid', gridTemplateColumns: activeTab === 'pending' || activeTab === 'featured' ? '2fr 1fr' : '1fr', gap: '2rem' }}>
                     {/* Main Content Area */}
                     <div className="glass-card" style={{ padding: '2rem' }}>
-                        
+
                         {activeTab === 'pending' && (
                             <>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
@@ -410,7 +532,7 @@ const AdminDashboard = () => {
                                 </div>
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                                     {pendingTools.map(tool => (
-                                        <div key={tool.id} className="admin-queue-item" style={{ 
+                                        <div key={tool.id} className="admin-queue-item" style={{
                                             padding: '1.25rem', background: 'rgba(255,255,255,0.02)', borderRadius: '18px',
                                             border: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center'
                                         }}>
@@ -422,10 +544,26 @@ const AdminDashboard = () => {
                                                     <h4 style={{ fontSize: '1rem', fontWeight: '700' }}>{tool.name}</h4>
                                                     <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{tool.categories?.name} • {new Date(tool.created_at).toLocaleDateString()}</p>
                                                 </div>
-                                            </div>
-                                            <div style={{ display: 'flex', gap: '10px' }}>
-                                                <button onClick={() => handleApprove(tool)} className="btn-primary-slim" style={{ background: '#00ff88', color: '#000', fontWeight: '800' }}>Approve</button>
-                                                <button onClick={() => handleReject(tool)} style={{ background: 'rgba(255, 80, 80, 0.1)', color: '#ff5050' }} className="btn-primary-slim">Reject</button>
+                                                {tool.pending_changes ? (
+                                                    <button
+                                                        onClick={() => handleOpenReview(tool)}
+                                                        className="btn-primary-slim"
+                                                        style={{ background: 'rgba(56, 189, 248, 0.1)', color: '#38bdf8', border: '1px solid #38bdf8' }}
+                                                    >
+                                                        Review Changes
+                                                    </button>
+                                                ) : (
+                                                    <button
+                                                        onClick={() => handleOpenReview(tool)}
+                                                        className="btn-primary-slim"
+                                                        style={{ background: '#00ff88', color: '#000' }}
+                                                    >
+                                                        Full Review
+                                                    </button>
+                                                )}
+                                                <button onClick={() => handleReject(tool)} style={{ background: 'rgba(255, 80, 80, 0.1)', color: '#ff5050', padding: '8px' }} className="btn-primary-slim">
+                                                    <Trash2 size={16} />
+                                                </button>
                                             </div>
                                         </div>
                                     ))}
@@ -459,12 +597,12 @@ const AdminDashboard = () => {
                                 <div>
                                     <h3 style={{ fontSize: '1.1rem', fontWeight: '800', marginBottom: '1.5rem' }}>Create New Article</h3>
                                     <form onSubmit={handleCreateBlogPost} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                                        <input type="text" placeholder="Title" required value={newPost.title} onChange={e => setNewPost({...newPost, title: e.target.value})} className="nav-search-wrapper" style={{ width: '100%', padding: '12px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'white' }} />
-                                        
-                                        <CustomSelect 
+                                        <input type="text" placeholder="Title" required value={newPost.title} onChange={e => setNewPost({ ...newPost, title: e.target.value })} className="nav-search-wrapper" style={{ width: '100%', padding: '12px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'white' }} />
+
+                                        <CustomSelect
                                             options={blogCategories}
                                             value={newPost.category}
-                                            onChange={(val) => setNewPost({...newPost, category: val})}
+                                            onChange={(val) => setNewPost({ ...newPost, category: val })}
                                             placeholder="Select Blog Category"
                                             style={{ marginBottom: '0' }}
                                         />
@@ -473,13 +611,13 @@ const AdminDashboard = () => {
                                             {newPost.image_url ? (
                                                 <div className="preview-img-container" style={{ height: '120px' }}>
                                                     <img src={newPost.image_url} alt="Preview" style={{ height: '100%', objectFit: 'cover' }} />
-                                                    <button type="button" className="remove-upload-btn" onClick={() => setNewPost({...newPost, image_url: ''})}><X size={14} /></button>
+                                                    <button type="button" className="remove-upload-btn" onClick={() => setNewPost({ ...newPost, image_url: '' })}><X size={14} /></button>
                                                 </div>
                                             ) : (
                                                 <label className="file-upload-label" style={{ padding: '1rem', minHeight: '100px' }}>
                                                     <input type="file" accept="image/*" onChange={async (e) => {
                                                         const url = await handleFileUpload(e.target.files[0], 'tool-images', 'blog-images');
-                                                        if (url) setNewPost({...newPost, image_url: url});
+                                                        if (url) setNewPost({ ...newPost, image_url: url });
                                                     }} style={{ display: 'none' }} />
                                                     <ImageIcon size={20} color="var(--primary)" />
                                                     <span style={{ fontSize: '0.8rem' }}>Upload Header Image</span>
@@ -487,8 +625,8 @@ const AdminDashboard = () => {
                                             )}
                                         </div>
 
-                                        <textarea placeholder="Short Excerpt..." rows="3" value={newPost.excerpt} onChange={e => setNewPost({...newPost, excerpt: e.target.value})} className="nav-search-wrapper" style={{ width: '100%', padding: '12px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'white' }}></textarea>
-                                        <textarea placeholder="Article Content (HTML/Text)..." rows="6" value={newPost.content} onChange={e => setNewPost({...newPost, content: e.target.value})} className="nav-search-wrapper" style={{ width: '100%', padding: '12px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'white' }}></textarea>
+                                        <textarea placeholder="Short Excerpt..." rows="3" value={newPost.excerpt} onChange={e => setNewPost({ ...newPost, excerpt: e.target.value })} className="nav-search-wrapper" style={{ width: '100%', padding: '12px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'white' }}></textarea>
+                                        <textarea placeholder="Article Content (HTML/Text)..." rows="6" value={newPost.content} onChange={e => setNewPost({ ...newPost, content: e.target.value })} className="nav-search-wrapper" style={{ width: '100%', padding: '12px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'white' }}></textarea>
                                         <button type="submit" disabled={submitting || uploading} className="btn-primary" style={{ width: '100%' }}>{(submitting || uploading) ? <Loader2 className="animate-spin" size={20} /> : 'Publish Article'}</button>
                                     </form>
                                 </div>
@@ -512,51 +650,51 @@ const AdminDashboard = () => {
                         {activeTab === 'add-tool' && (
                             <div style={{ maxWidth: '600px', margin: '0 auto' }}>
                                 <h2 style={{ fontSize: '1.25rem', fontWeight: '700', marginBottom: '2rem' }}>Direct Tool Addition</h2>
-                                    <form onSubmit={handleDirectAddTool} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                                        <input type="text" placeholder="Tool Name" required value={newTool.name} onChange={e => setNewTool({...newTool, name: e.target.value})} className="nav-search-wrapper" style={{ width: '100%', padding: '12px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'white' }} />
-                                        <input type="text" placeholder="Tool URL" required value={newTool.url} onChange={e => setNewTool({...newTool, url: e.target.value})} className="nav-search-wrapper" style={{ width: '100%', padding: '12px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'white' }} />
-                                        
-                                        <CustomSelect 
-                                            options={[
-                                                { label: 'Free', value: 'Free' },
-                                                { label: 'Paid', value: 'Paid' },
-                                                { label: 'Freemium', value: 'Freemium' }
-                                            ]}
-                                            value={newTool.pricing_type}
-                                            onChange={(val) => setNewTool({...newTool, pricing_type: val})}
-                                            placeholder="Pricing"
-                                            style={{ marginBottom: '0' }}
-                                        />
+                                <form onSubmit={handleDirectAddTool} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                                    <input type="text" placeholder="Tool Name" required value={newTool.name} onChange={e => setNewTool({ ...newTool, name: e.target.value })} className="nav-search-wrapper" style={{ width: '100%', padding: '12px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'white' }} />
+                                    <input type="text" placeholder="Tool URL" required value={newTool.url} onChange={e => setNewTool({ ...newTool, url: e.target.value })} className="nav-search-wrapper" style={{ width: '100%', padding: '12px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'white' }} />
 
-                                        <CustomSelect 
-                                            options={toolCategories}
-                                            value={newTool.category_id}
-                                            onChange={(val) => setNewTool({...newTool, category_id: val})}
-                                            placeholder="Select Category"
-                                            style={{ marginBottom: '0' }}
-                                        />
+                                    <CustomSelect
+                                        options={[
+                                            { label: 'Free', value: 'Free' },
+                                            { label: 'Paid', value: 'Paid' },
+                                            { label: 'Freemium', value: 'Freemium' }
+                                        ]}
+                                        value={newTool.pricing_type}
+                                        onChange={(val) => setNewTool({ ...newTool, pricing_type: val })}
+                                        placeholder="Pricing"
+                                        style={{ marginBottom: '0' }}
+                                    />
 
-                                        <div className="file-upload-wrapper" style={{ gridColumn: 'span 2', padding: '1rem' }}>
-                                            {newTool.image_url ? (
-                                                <div className="preview-img-container" style={{ height: '80px', width: '80px' }}>
-                                                    <img src={newTool.image_url} alt="Preview" />
-                                                    <button type="button" className="remove-upload-btn" onClick={() => setNewTool({...newTool, image_url: ''})}><X size={14} /></button>
-                                                </div>
-                                            ) : (
-                                                <label className="file-upload-label" style={{ padding: '0.8rem', minHeight: '60px' }}>
-                                                    <input type="file" accept="image/*" onChange={async (e) => {
-                                                        const url = await handleFileUpload(e.target.files[0]);
-                                                        if (url) setNewTool({...newTool, image_url: url});
-                                                    }} style={{ display: 'none' }} />
-                                                    <ImageIcon size={18} color="var(--primary)" />
-                                                    <span style={{ fontSize: '0.8rem' }}>Upload Tool Thumbnail</span>
-                                                </label>
-                                            )}
-                                        </div>
+                                    <CustomSelect
+                                        options={toolCategories}
+                                        value={newTool.category_id}
+                                        onChange={(val) => setNewTool({ ...newTool, category_id: val })}
+                                        placeholder="Select Category"
+                                        style={{ marginBottom: '0' }}
+                                    />
 
-                                        <textarea placeholder="Tool Description..." rows="4" value={newTool.description} onChange={e => setNewTool({...newTool, description: e.target.value})} className="nav-search-wrapper" style={{ gridColumn: 'span 2', width: '100%', padding: '12px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'white' }}></textarea>
-                                        <button type="submit" disabled={submitting || uploading} className="btn-primary" style={{ gridColumn: 'span 2', marginTop: '1rem' }}>{(submitting || uploading) ? <Loader2 className="animate-spin" size={20} /> : 'Add Approved Tool'}</button>
-                                    </form>
+                                    <div className="file-upload-wrapper" style={{ gridColumn: 'span 2', padding: '1rem' }}>
+                                        {newTool.image_url ? (
+                                            <div className="preview-img-container" style={{ height: '80px', width: '80px' }}>
+                                                <img src={newTool.image_url} alt="Preview" />
+                                                <button type="button" className="remove-upload-btn" onClick={() => setNewTool({ ...newTool, image_url: '' })}><X size={14} /></button>
+                                            </div>
+                                        ) : (
+                                            <label className="file-upload-label" style={{ padding: '0.8rem', minHeight: '60px' }}>
+                                                <input type="file" accept="image/*" onChange={async (e) => {
+                                                    const url = await handleFileUpload(e.target.files[0]);
+                                                    if (url) setNewTool({ ...newTool, image_url: url });
+                                                }} style={{ display: 'none' }} />
+                                                <ImageIcon size={18} color="var(--primary)" />
+                                                <span style={{ fontSize: '0.8rem' }}>Upload Tool Thumbnail</span>
+                                            </label>
+                                        )}
+                                    </div>
+
+                                    <textarea placeholder="Tool Description..." rows="4" value={newTool.description} onChange={e => setNewTool({ ...newTool, description: e.target.value })} className="nav-search-wrapper" style={{ gridColumn: 'span 2', width: '100%', padding: '12px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'white' }}></textarea>
+                                    <button type="submit" disabled={submitting || uploading} className="btn-primary" style={{ gridColumn: 'span 2', marginTop: '1rem' }}>{(submitting || uploading) ? <Loader2 className="animate-spin" size={20} /> : 'Add Approved Tool'}</button>
+                                </form>
                             </div>
                         )}
                         {activeTab === 'categories' && (
@@ -564,9 +702,9 @@ const AdminDashboard = () => {
                                 <div>
                                     <h3 style={{ fontSize: '1.1rem', fontWeight: '800', marginBottom: '1.5rem' }}>Add Tool Category</h3>
                                     <form onSubmit={handleCreateCategory} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                                        <input type="text" placeholder="Category Name (e.g. Video AI)" required value={newCategory.name} onChange={e => setNewCategory({...newCategory, name: e.target.value})} className="nav-search-wrapper" style={{ width: '100%', padding: '12px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'white' }} />
-                                        <input type="text" placeholder="Slug (e.g. video-ai)" required value={newCategory.slug} onChange={e => setNewCategory({...newCategory, slug: e.target.value})} className="nav-search-wrapper" style={{ width: '100%', padding: '12px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'white' }} />
-                                        <input type="text" placeholder="Icon Name (Lucide)" value={newCategory.icon_name} onChange={e => setNewCategory({...newCategory, icon_name: e.target.value})} className="nav-search-wrapper" style={{ width: '100%', padding: '12px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'white' }} />
+                                        <input type="text" placeholder="Category Name (e.g. Video AI)" required value={newCategory.name} onChange={e => setNewCategory({ ...newCategory, name: e.target.value })} className="nav-search-wrapper" style={{ width: '100%', padding: '12px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'white' }} />
+                                        <input type="text" placeholder="Slug (e.g. video-ai)" required value={newCategory.slug} onChange={e => setNewCategory({ ...newCategory, slug: e.target.value })} className="nav-search-wrapper" style={{ width: '100%', padding: '12px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'white' }} />
+                                        <input type="text" placeholder="Icon Name (Lucide)" value={newCategory.icon_name} onChange={e => setNewCategory({ ...newCategory, icon_name: e.target.value })} className="nav-search-wrapper" style={{ width: '100%', padding: '12px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'white' }} />
                                         <button type="submit" disabled={submitting} className="btn-primary" style={{ width: '100%' }}>{submitting ? <Loader2 className="animate-spin" size={20} /> : 'Add Category'}</button>
                                     </form>
                                 </div>
@@ -577,6 +715,30 @@ const AdminDashboard = () => {
                                             <div key={c.id} style={{ padding: '10px', background: 'rgba(255,255,255,0.02)', borderRadius: '12px', border: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                                 <span style={{ fontSize: '0.85rem' }}>{c.name}</span>
                                                 <button onClick={() => handleDeleteCategory(c.id)} style={{ color: '#ff5050', background: 'none', border: 'none', cursor: 'pointer' }}><Trash2 size={16} /></button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {activeTab === 'blog-categories' && (
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr', gap: '3rem' }}>
+                                <div>
+                                    <h3 style={{ fontSize: '1.1rem', fontWeight: '800', marginBottom: '1.5rem' }}>Add Blog Category</h3>
+                                    <form onSubmit={handleCreateBlogCategory} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                                        <input type="text" placeholder="Category Name" required value={newCategory.name} onChange={e => setNewCategory({ ...newCategory, name: e.target.value })} className="nav-search-wrapper" style={{ width: '100%', padding: '12px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'white' }} />
+                                        <input type="text" placeholder="Slug (e.g. news)" required value={newCategory.slug} onChange={e => setNewCategory({ ...newCategory, slug: e.target.value })} className="nav-search-wrapper" style={{ width: '100%', padding: '12px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'white' }} />
+                                        <button type="submit" disabled={submitting} className="btn-primary" style={{ width: '100%' }}>{submitting ? <Loader2 className="animate-spin" size={20} /> : 'Add Blog Category'}</button>
+                                    </form>
+                                </div>
+                                <div>
+                                    <h3 style={{ fontSize: '1.1rem', fontWeight: '800', marginBottom: '1.5rem' }}>Active Blog Categories ({blogCategories.length})</h3>
+                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                                        {blogCategories.map(c => (
+                                            <div key={c.id} style={{ padding: '10px', background: 'rgba(255,255,255,0.02)', borderRadius: '12px', border: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                <span style={{ fontSize: '0.85rem' }}>{c.name}</span>
+                                                <button onClick={() => handleDeleteBlogCategory(c.id)} style={{ color: '#ff5050', background: 'none', border: 'none', cursor: 'pointer' }}><Trash2 size={16} /></button>
                                             </div>
                                         ))}
                                     </div>
@@ -666,7 +828,7 @@ const AdminDashboard = () => {
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <div className="glass-card" style={{ padding: '1.5rem', background: 'var(--gradient)', color: 'white' }}>
                                 <h4 style={{ fontWeight: '800', marginBottom: '10px' }}>Admin Shortcuts</h4>
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
@@ -678,6 +840,108 @@ const AdminDashboard = () => {
                     )}
                 </div>
             </div>
+            {/* Review Modal */}
+            {showReviewModal && selectedReview && (
+                <div key="review-modal" className="modal-overlay" style={{
+                    position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(10px)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '20px'
+                }}>
+                    <div className="glass-card" style={{
+                        width: '100%', maxWidth: '900px', maxHeight: '90vh', overflowY: 'auto',
+                        padding: '2.5rem', border: '1px solid var(--border)', position: 'relative'
+                    }}>
+                        <button onClick={handleCloseReview} style={{ position: 'absolute', right: '25px', top: '25px', color: 'var(--text-muted)', background: 'none', border: 'none', cursor: 'pointer' }}><X /></button>
+
+                        <div style={{ marginBottom: '2rem' }}>
+                            <h2 style={{ fontSize: '1.5rem', fontWeight: '900', marginBottom: '8px' }}>
+                                {selectedReview.is_approved ? 'Review Pending Changes' : 'New Tool Approval'}
+                            </h2>
+                            <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>
+                                For tool: <span style={{ color: 'var(--primary)', fontWeight: '700' }}>{selectedReview.name}</span>
+                            </p>
+                        </div>
+
+                        <div className="review-content" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                            {selectedReview.is_approved ? (
+                                // DIFF VIEW MODE
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                                    {getChangedFields(selectedReview, selectedReview.pending_changes).map(field => (
+                                        <div key={field.key} style={{ padding: '1.5rem', background: 'rgba(255,255,255,0.02)', borderRadius: '16px', border: '1px solid var(--border)' }}>
+                                            <h4 style={{ fontSize: '0.8rem', fontWeight: '800', color: 'var(--primary)', marginBottom: '15px', textTransform: 'uppercase' }}>{field.label}</h4>
+                                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
+                                                <div className="diff-old">
+                                                    <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginBottom: '8px' }}>CURRENT</p>
+                                                    {field.isImage ? <img src={field.oldValue} style={{ width: '100%', borderRadius: '8px' }} /> :
+                                                        field.isArray ? (field.oldValue || []).map((f, i) => <div key={i} style={{ fontSize: '0.85rem' }}>• {f}</div>) :
+                                                            <div style={{ fontSize: '0.85rem', color: '#ff5050', textDecoration: 'line-through opacity: 0.6' }}>{field.oldValue || 'None'}</div>}
+                                                </div>
+                                                <div className="diff-new">
+                                                    <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginBottom: '8px' }}>PROPOSED</p>
+                                                    {field.isImage ? <img src={field.newValue} style={{ width: '100%', borderRadius: '8px', border: '2px solid #00ff88' }} /> :
+                                                        field.isArray ? (field.newValue || []).map((f, i) => <div key={i} style={{ fontSize: '0.85rem', color: '#00ff88', fontWeight: '600' }}>• {f}</div>) :
+                                                            <div style={{ fontSize: '0.85rem', color: '#00ff88', fontWeight: '700' }}>{field.newValue}</div>}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                // FULL PREVIEW MODE
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '2rem' }}>
+                                    <div>
+                                        <img src={selectedReview.image_url} style={{ width: '100%', borderRadius: '20px', border: '1px solid var(--border)' }} />
+                                        <div style={{ marginTop: '1.5rem', wordBreak: 'break-all' }}>
+                                            <h5 style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>URL</h5>
+                                            <a href={selectedReview.url} target="_blank" style={{ color: 'var(--primary)', fontSize: '0.9rem' }}>{selectedReview.url}</a>
+                                        </div>
+                                    </div>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                                        <div className="info-block">
+                                            <h5 style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Short Pitch</h5>
+                                            <p style={{ fontWeight: '700' }}>{selectedReview.short_description}</p>
+                                        </div>
+                                        <div className="info-block">
+                                            <h5 style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Full Description</h5>
+                                            <p style={{ fontSize: '0.9rem', lineHeight: '1.6', color: 'rgba(255,255,255,0.8)' }}>{selectedReview.description}</p>
+                                        </div>
+                                        <div className="info-block">
+                                            <h5 style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '10px' }}>Features</h5>
+                                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                                                {(selectedReview.features || []).map((f, i) => (
+                                                    <span key={i} style={{ padding: '6px 12px', background: 'rgba(255,255,255,0.05)', borderRadius: '8px', fontSize: '0.8rem' }}>• {f}</span>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        <div style={{ marginTop: '3rem', pt: '2rem', borderTop: '1px solid var(--border)', display: 'flex', gap: '1.5rem' }}>
+                            <button
+                                onClick={async () => {
+                                    await handleApprove(selectedReview);
+                                    handleCloseReview();
+                                }}
+                                className="btn-primary"
+                                style={{ flex: 1, padding: '18px', background: '#00ff88', color: '#000', fontWeight: '900' }}
+                            >
+                                {selectedReview.is_approved ? 'Apply Changes' : 'Approve & Publish'}
+                            </button>
+                            <button
+                                onClick={async () => {
+                                    await handleReject(selectedReview);
+                                    handleCloseReview();
+                                }}
+                                style={{ flex: 1, padding: '18px', background: 'rgba(255,80,80,0.1)', color: '#ff5050' }}
+                                className="btn-outline"
+                            >
+                                {selectedReview.is_approved ? 'Discard Changes' : 'Reject Tool'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

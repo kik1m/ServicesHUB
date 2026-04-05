@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Search, User, LogIn, LayoutGrid, Zap, Menu, X, Sparkles, Info, Rss, RefreshCcw, ChevronDown, Bell, Settings, LogOut, Heart, Star } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
@@ -17,28 +17,31 @@ const Navbar = () => {
 
     useEffect(() => {
         let subscription;
-        if (user) {
+        if (user?.id) {
             fetchUnreadCount(user.id);
 
             subscription = supabase
-                .channel('public:notifications')
+                .channel(`public:notifications:${user.id}`)
                 .on('postgres_changes', { 
-                    event: 'INSERT', 
+                    event: '*', 
                     schema: 'public', 
                     table: 'notifications',
                     filter: `user_id=eq.${user.id}`
                 }, (_payload) => {
-                    setUnreadCount(prev => prev + 1);
+                    fetchUnreadCount(user.id);
                 })
                 .subscribe();
-        }
+            
+            // Custom Event Listener for instant sync
+            const handleSync = () => fetchUnreadCount(user.id);
+            window.addEventListener('notifications-updated', handleSync);
 
-        return () => {
-            if (subscription) {
-                supabase.removeChannel(subscription);
-            }
-        };
-    }, [user]);
+            return () => {
+                if (subscription) supabase.removeChannel(subscription);
+                window.removeEventListener('notifications-updated', handleSync);
+            };
+        }
+    }, [user?.id]);
 
     // Locking Body Scroll when Menu is Open
     useEffect(() => {
@@ -50,21 +53,25 @@ const Navbar = () => {
     }, [isMenuOpen]);
 
     const fetchUnreadCount = async (userId) => {
-        const { count } = await supabase
-            .from('notifications')
-            .select('*', { count: 'exact', head: true })
-            .eq('user_id', userId)
-            .eq('is_unread', true);
+        try {
+            const { count } = await supabase
+                .from('notifications')
+                .select('*', { count: 'exact', head: true })
+                .eq('user_id', userId)
+                .eq('is_unread', true);
 
-        setUnreadCount(count || 0);
+            setUnreadCount(count || 0);
+        } catch (err) {
+            console.error('Fetch unread count error:', err);
+        }
     };
 
-    const handleLogout = async () => {
+    const handleLogout = useCallback(async () => {
         await signOut();
         navigate('/');
         setIsMenuOpen(false);
         setIsAccountOpen(false);
-    };
+    }, [signOut, navigate]);
 
     return (
         <nav className="navbar">
@@ -113,6 +120,8 @@ const Navbar = () => {
 
                     <Link to="/categories" className="mobile-only-link-direct" onClick={() => setIsMenuOpen(false)}><LayoutGrid size={18} /> Categories</Link>
                     <Link to="/blog" className="mobile-only-link-direct" onClick={() => setIsMenuOpen(false)}><Rss size={18} /> Blog Hub</Link>
+                    <Link to="/faq" className="mobile-only-link-direct" onClick={() => setIsMenuOpen(false)}><Info size={18} /> FAQ & Help</Link>
+                    <Link to="/promote" className="mobile-only-link-direct" onClick={() => setIsMenuOpen(false)}><Zap size={18} /> Advertising</Link>
 
                     {user && (
                         <>

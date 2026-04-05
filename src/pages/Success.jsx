@@ -22,11 +22,11 @@ const Success = () => {
             
             if (user) {
                 const message = type === 'account_premium' 
-                    ? 'Premium account activated! 💎' 
-                    : `Promotion activated for ${toolName || 'your tool'}! 🚀`;
+                    ? 'Premium account activated' 
+                    : `Promotion activated for ${toolName || 'your tool'}`;
                 
                 const notifBody = type === 'account_premium'
-                    ? 'Congratulations! Your lifetime premium membership is now active.'
+                    ? 'Congratulations. Your lifetime premium membership is now active.'
                     : `Your tool "${toolName || 'the tool'}" is now featured on the homepage.`;
 
                 await sendNotification(user.id, message, notifBody, 'subscription');

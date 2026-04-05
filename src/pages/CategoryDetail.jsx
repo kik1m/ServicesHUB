@@ -2,17 +2,20 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabaseClient';
 import { getIcon } from '../utils/iconMap';
-import { ArrowLeft, Star, ArrowRight, Sparkles, LayoutGrid } from 'lucide-react';
+import { ArrowLeft, Star, ArrowRight, Sparkles, LayoutGrid, Search, Zap, CheckCircle2 } from 'lucide-react';
 import SkeletonLoader from '../components/SkeletonLoader';
 import SmartBanner from '../components/SmartBanner';
 import Breadcrumbs from '../components/Breadcrumbs';
 import useSEO from '../hooks/useSEO';
+import ToolCard from '../components/ToolCard';
 
 const CategoryDetail = () => {
     const { id: slug } = useParams();
     const navigate = useNavigate();
     const [category, setCategory] = useState(null);
     const [tools, setTools] = useState([]);
+    const [totalResults, setTotalResults] = useState(0);
+    const [searchQuery, setSearchQuery] = useState('');
     const [loading, setLoading] = useState(true);
     const [loadingMore, setLoadingMore] = useState(false);
     const [page, setPage] = useState(0);
@@ -56,9 +59,9 @@ const CategoryDetail = () => {
                     const from = page * ITEMS_PER_PAGE;
                     const to = from + ITEMS_PER_PAGE - 1;
                     
-                    const { data: toolData, error: toolError } = await supabase
+                    const { data: toolData, error: toolError, count } = await supabase
                         .from('tools')
-                        .select('id, name, slug, short_description, image_url, rating, is_featured, is_verified, categories(name)')
+                        .select('id, name, slug, short_description, image_url, pricing_type, rating, reviews_count, is_featured, is_verified, categories(name)', { count: 'exact' })
                         .eq('category_id', currentCat.id)
                         .eq('is_approved', true)
                         .order('is_featured', { ascending: false })
@@ -72,6 +75,7 @@ const CategoryDetail = () => {
                         else setTools(prev => [...prev, ...toolData]);
                         
                         if (toolData.length < ITEMS_PER_PAGE) setHasMore(false);
+                        if (count !== null) setTotalResults(count);
                     }
                 }
             } catch (error) {
@@ -84,6 +88,11 @@ const CategoryDetail = () => {
 
         fetchCategoryData();
     }, [slug, page, category]);
+
+    const filteredTools = tools.filter(tool => 
+        tool.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        tool.short_description.toLowerCase().includes(searchQuery.toLowerCase())
+    );
 
     if (loading) {
         return (
@@ -120,9 +129,9 @@ const CategoryDetail = () => {
     return (
         <div className="page-wrapper category-detail-page">
             <SmartBanner />
-            <header className="category-header hero-section" style={{
-                minHeight: '45vh',
-                paddingBottom: '60px',
+            <header className="category-header hero-section-slim" style={{
+                paddingTop: '80px',
+                paddingBottom: '30px',
                 position: 'relative',
                 overflow: 'hidden'
             }}>
@@ -164,68 +173,44 @@ const CategoryDetail = () => {
                         {getIcon(category.icon_name || 'LayoutGrid', 40)}
                     </div>
 
-                    <h1 className="hero-title" style={{ fontSize: '3.5rem' }}>
-                        Best <span className="gradient-text">{category.name}</span> Tools
+                    <h1 className="hero-title-slim">
+                        {category.name} Tools
                     </h1>
-                    <p className="hero-subtitle" style={{ maxWidth: '800px', margin: '1.5rem auto' }}>
+                    <p className="hero-subtitle-slim" style={{ margin: '1rem auto' }}>
                         Expertly curated {category.name} tools to help you build better and faster.
                     </p>
                     <div className="badge" style={{ borderColor: categoryColor, color: 'white' }}>
-                        {tools.length} Tools Available
+                        {totalResults.toLocaleString()} Tools Available
                     </div>
                 </div>
             </header>
 
-            <section className="main-section" style={{ paddingTop: '4rem' }}>
+            <section className="main-section" style={{ paddingTop: '2rem' }}>
+                <div className="hero-search-wrapper-large glass-card" style={{ maxWidth: '600px', margin: '0 auto 2rem' }}>
+                    <Search size={20} color="var(--primary)" />
+                    <input 
+                        type="text" 
+                        placeholder={`Search ${category.name} tools...`} 
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                    />
+                </div>
+
                 <div className="section-header-row">
-                    <h2 className="section-title">Explore <span className="gradient-text">Top Picks</span></h2>
-                    <div className="filter-count">Showing {tools.length} results</div>
+                    <h2 className="section-title">Explore <span className="gradient-text">Top Tools</span></h2>
+                    <div className="filter-count">Showing {tools.length} of {totalResults} world-class solutions</div>
                 </div>
 
                 {tools.length > 0 ? (
                     <>
-                        <div className="tools-grid-main" style={{
-                            display: 'grid',
-                            gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
+                        <div className="tools-grid" style={{ 
+                            display: 'grid', 
+                            gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', 
                             gap: '2.5rem',
                             marginTop: '3rem'
                         }}>
-                            {tools.map(tool => (
-                                <div key={tool.id} className="glass-card tool-card-premium">
-                                    <div className="tool-card-image" style={{
-                                        height: '160px',
-                                        background: 'rgba(255,255,255,0.03)',
-                                        borderRadius: '16px',
-                                        marginBottom: '1.5rem',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        color: 'white',
-                                        overflow: 'hidden',
-                                        border: '1px solid var(--border)',
-                                        padding: '1rem'
-                                    }}>
-                                        {tool.image_url ? (
-                                            <img src={tool.image_url} alt={tool.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
-                                        ) : (
-                                            getIcon(tool.icon_name || 'Zap', 50)
-                                        )}
-                                    </div>
-                                    <div className="tool-card-meta" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                                        <span className="tool-tag">{category.name}</span>
-                                        <div className="rating" style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#ffcc00', fontSize: '0.9rem' }}>
-                                            <Star size={14} fill="#ffcc00" /> {tool.rating}
-                                        </div>
-                                    </div>
-                                    <h3 style={{ fontSize: '1.4rem', fontWeight: '800', marginBottom: '0.5rem' }}>{tool.name}</h3>
-                                    <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem', marginBottom: '2rem' }}>{tool.short_description}</p>
-                                    <div className="tool-card-actions" style={{ display: 'flex', gap: '1rem' }}>
-                                        <Link to={`/tool/${tool.slug}`} className="btn-primary" style={{ flex: 1, textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                            View Details <ArrowRight size={16} />
-                                        </Link>
-                                        <button className="icon-btn" style={{ borderRadius: '12px' }}><Sparkles size={18} /></button>
-                                    </div>
-                                </div>
+                            {filteredTools.map(tool => (
+                                <ToolCard key={tool.id} tool={tool} />
                             ))}
                         </div>
 
@@ -243,11 +228,16 @@ const CategoryDetail = () => {
                         )}
                     </>
                 ) : (
-                    <div className="empty-state" style={{ textAlign: 'center', padding: '100px 0' }}>
-                        <div style={{ marginBottom: '2rem', opacity: 0.3 }}><LayoutGrid size={80} /></div>
-                        <h3 style={{ fontSize: '1.5rem', fontWeight: '700' }}>No tools found in this category yet.</h3>
-                        <p style={{ color: 'var(--text-muted)', marginTop: '1rem' }}>We are constantly adding new tools. Check back soon!</p>
-                        <Link to="/tools" className="btn-secondary" style={{ marginTop: '2rem' }}>Browse All Tools</Link>
+                    <div className="glass-card submit-cta-card" style={{ 
+                        marginTop: '6rem', padding: '3.5rem', textAlign: 'center', 
+                        background: 'rgba(255, 255, 255, 0.01)', border: '1px dashed var(--border)', borderRadius: '30px'
+                    }}>
+                        <Zap size={32} color="var(--primary)" style={{ marginBottom: '1.5rem' }} />
+                        <h3 style={{ fontSize: '1.8rem', marginBottom: '1rem' }}>Know a great {category.name} tool?</h3>
+                        <p style={{ color: 'var(--text-muted)', marginBottom: '2rem', maxWidth: '600px', margin: '0 auto 2rem' }}>
+                            Help others discover the best solutions in this category. Submit your own or a tool you love!
+                        </p>
+                        <Link to="/submit" className="btn-outline">Submit to this Category</Link>
                     </div>
                 )}
             </section>

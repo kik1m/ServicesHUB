@@ -75,7 +75,7 @@ const ReviewsSection = ({ toolId }) => {
                 setReviews([data, ...reviews]);
                 setComment('');
                 setRating(5);
-                showToast('Review submitted successfully! 🌟', 'success');
+                showToast('Review submitted successfully!', 'success');
             }
         } catch (err) {
             console.error('Review submission error:', err);

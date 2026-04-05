@@ -19,7 +19,7 @@ const Footer = () => {
                 if (error.code === '23505') throw new Error('You are already subscribed!');
                 throw error;
             }
-            showToast('Subscribed to the newsletter successfully! 🎉', 'success');
+            showToast('Subscribed to the newsletter successfully!', 'success');
             setEmail('');
         } catch (error) {
             showToast(error.message || 'Subscription failed. Please try again.', 'error');

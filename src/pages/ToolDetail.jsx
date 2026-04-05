@@ -10,8 +10,9 @@ import { sendNotification } from '../utils/notifications';
 import ReviewsSection from '../components/ReviewsSection';
 import ReportToolModal from '../components/ReportToolModal';
 import Breadcrumbs from '../components/Breadcrumbs';
-import { Flag } from 'lucide-react';
+import { Flag, ChevronRight } from 'lucide-react';
 import useSEO from '../hooks/useSEO';
+import ToolCard from '../components/ToolCard';
 
 const ToolDetail = () => {
     const { id } = useParams();
@@ -19,6 +20,7 @@ const ToolDetail = () => {
     const { user } = useAuth(); // Get user from AuthContext
     const { showToast } = useToast(); // Get showToast from ToastContext
     const [tool, setTool] = useState(null);
+    const [publisher, setPublisher] = useState(null);
     const [relatedTools, setRelatedTools] = useState([]);
     const [loading, setLoading] = useState(true);
     const [isFavorited, setIsFavorited] = useState(false);
@@ -32,7 +34,7 @@ const ToolDetail = () => {
                 // Fetch Tool
                 const { data, error } = await supabase
                     .from('tools')
-                    .select('id, name, slug, description, short_description, image_url, url, pricing_type, rating, reviews_count, is_featured, is_verified, category_id, view_count, features, categories(name)')
+                    .select('id, name, slug, description, short_description, image_url, icon_name, url, pricing_type, pricing_details, rating, reviews_count, is_featured, is_verified, category_id, view_count, features, user_id, categories(name)')
                     .eq('slug', id)
                     .single();
                 
@@ -48,13 +50,17 @@ const ToolDetail = () => {
                         .limit(3),
                     supabase.from('tools')
                         .update({ view_count: (data.view_count || 0) + 1 })
-                        .eq('id', data.id)
+                        .eq('id', data.id),
+                    supabase.from('profiles')
+                        .select('id, full_name, avatar_url')
+                        .eq('id', data.user_id)
+                        .single()
                 ];
 
                 if (user) {
                     promises.push(
                         supabase.from('favorites')
-                            .select('id')
+                            .select('user_id, tool_id')
                             .eq('user_id', user.id)
                             .eq('tool_id', data.id)
                             .maybeSingle()
@@ -64,7 +70,10 @@ const ToolDetail = () => {
                 const results = await Promise.all(promises);
                 
                 setRelatedTools(results[0].data || []);
-                if (user && results[2]?.data) {
+                if (results[2]?.data) {
+                    setPublisher(results[2].data);
+                }
+                if (user && results[3]?.data) {
                     setIsFavorited(true);
                 }
 
@@ -101,7 +110,6 @@ const ToolDetail = () => {
                 if (error) throw error;
                 setIsFavorited(true);
                 
-                // Persistent Notification
                 await sendNotification(
                     user.id, 
                     'Added to Favorites', 
@@ -109,7 +117,7 @@ const ToolDetail = () => {
                     'info'
                 );
 
-                showToast('Success! Added to your favorites. 🎉', 'success');
+                showToast('Success. Added to your favorites.', 'success');
             }
         } catch (error) {
             console.error('Error toggling favorite:', error);
@@ -131,7 +139,7 @@ const ToolDetail = () => {
         } else {
             // Fallback: Copy to clipboard
             navigator.clipboard.writeText(window.location.href);
-            showToast('Link copied to clipboard! 📋', 'success');
+            showToast('Link copied to clipboard!', 'success');
         }
     };
 
@@ -185,7 +193,7 @@ const ToolDetail = () => {
 
     return (
         <div className="page-wrapper tool-detail-page">
-            <header className="tool-detail-header" style={{ paddingTop: '140px', paddingBottom: '60px', borderBottom: '1px solid var(--border)' }}>
+            <header className="tool-detail-header" style={{ paddingTop: '110px', paddingBottom: '40px', borderBottom: '1px solid var(--border)' }}>
                 <div className="main-section">
                     <Breadcrumbs items={[
                         { label: 'Directory', link: '/tools' },
@@ -197,23 +205,28 @@ const ToolDetail = () => {
                     </button>
                     
                     <div className="tool-header-flex" style={{ display: 'flex', gap: '3rem', alignItems: 'center', flexWrap: 'wrap' }}>
-                        <div className="tool-logo-large glass-card" style={{ 
-                            width: '140px', 
-                            height: '140px', 
-                            background: 'rgba(255, 255, 255, 0.03)', 
+                        <div className="tool-logo-large glass-card premium-logo-container" style={{ 
+                            width: '100px', 
+                            height: '100px', 
                             borderRadius: '24px', 
                             display: 'flex', 
                             alignItems: 'center', 
                             justifyContent: 'center', 
-                            fontSize: '3rem', 
-                            fontWeight: '900', 
-                            color: 'white',
                             overflow: 'hidden',
                             padding: '0',
-                            border: '1px solid var(--border)'
+                            border: '1px solid var(--border)',
+                            position: 'relative'
                         }}>
                              {tool.image_url ? (
-                                 <img src={tool.image_url} alt={tool.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                 <img 
+                                    src={tool.image_url} 
+                                    alt={tool.name} 
+                                    style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                                    onError={(e) => {
+                                        e.target.style.display = 'none';
+                                        e.target.parentElement.innerHTML = `<div style="color:var(--primary);display:flex;align-items:center;justify-content:center;height:100%"><svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-zap"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>`;
+                                    }}
+                                 />
                              ) : (
                                  getIcon(tool.icon_name || 'Zap', 60)
                              )}
@@ -264,11 +277,11 @@ const ToolDetail = () => {
 
                         <div className="detail-section" style={{ marginBottom: '4rem' }}>
                             <h3 style={{ fontSize: '1.5rem', fontWeight: '800', marginBottom: '2rem' }}>Key Features</h3>
-                            <div className="features-checklist" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1.5rem' }}>
+                            <div className="features-checklist" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2rem' }}>
                                 {tool.features?.map((feature, i) => (
-                                    <div key={i} className="glass-card" style={{ padding: '1.5rem', border: '1px solid rgba(0, 210, 255, 0.1)' }}>
-                                        <div style={{ color: 'var(--primary)', marginBottom: '1rem' }}><CheckCircle2 size={24} /></div>
-                                        <p style={{ fontWeight: '600', fontSize: '0.95rem' }}>{feature}</p>
+                                    <div key={i} className="glass-card feature-item-premium" style={{ padding: '2rem', border: '1px solid var(--border)', transition: '0.3s' }}>
+                                        <div style={{ color: 'var(--primary)', marginBottom: '1.2rem', background: 'rgba(0, 210, 255, 0.05)', width: '45px', height: '45px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><CheckCircle2 size={24} /></div>
+                                        <p style={{ fontWeight: '700', fontSize: '1rem', color: 'white', lineHeight: '1.4' }}>{feature}</p>
                                     </div>
                                 ))}
                             </div>
@@ -284,6 +297,24 @@ const ToolDetail = () => {
                                     <span style={{ color: 'var(--text-muted)' }}>Pricing</span>
                                     <span style={{ fontWeight: '700' }}>{tool.pricing_type} {tool.pricing_details ? `(${tool.pricing_details})` : ''}</span>
                                 </div>
+                                {publisher && (
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                        <span style={{ color: 'var(--text-muted)' }}>Publisher</span>
+                                        <Link 
+                                            to={`/u/${publisher.id}`} 
+                                            style={{ 
+                                                fontWeight: '700', 
+                                                color: 'var(--secondary)', 
+                                                display: 'flex', 
+                                                alignItems: 'center', 
+                                                gap: '5px',
+                                                textDecoration: 'none'
+                                            }}
+                                        >
+                                            {publisher.full_name} <ChevronRight size={14} />
+                                        </Link>
+                                    </div>
+                                )}
                                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                                     <span style={{ color: 'var(--text-muted)' }}>Rating</span>
                                     <span style={{ fontWeight: '700', color: '#ffc107', display: 'flex', alignItems: 'center', gap: '5px' }}>
@@ -335,6 +366,17 @@ const ToolDetail = () => {
                                     </button>
                                 </div>
                             </div>
+
+                            {/* Claim / Is this yours? Section */}
+                            <div className="glass-card claim-tool-card" style={{ 
+                                marginTop: '2rem', padding: '1.5rem', textAlign: 'center', 
+                                border: '1px dashed var(--primary)', background: 'rgba(0, 136, 204, 0.02)' 
+                            }}>
+                                <ShieldCheck size={28} color="var(--primary)" style={{ marginBottom: '1rem' }} />
+                                <h5 style={{ fontWeight: '700', marginBottom: '0.5rem' }}>Is this your tool?</h5>
+                                <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '1.2rem' }}>Claim ownership to update details and respond to reviews.</p>
+                                <Link to="/contact?subject=Claim%20Tool" className="btn-text" style={{ fontSize: '0.8rem' }}>Claim Ownership <ArrowLeft size={12} style={{ transform: 'rotate(180deg)' }} /></Link>
+                            </div>
                         </div>
                     </aside>
                 </div>
@@ -346,28 +388,9 @@ const ToolDetail = () => {
                             <h2 className="section-title">Related <span className="gradient-text">AI Tools</span></h2>
                             <Link to="/tools" className="view-all-link">Browse Directory</Link>
                         </div>
-                        <div className="featured-tools-grid">
+                        <div className="tools-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '2.5rem' }}>
                             {relatedTools.map(rTool => (
-                                <Link to={`/tool/${rTool.slug}`} key={rTool.id} className="glass-card tool-card-premium" style={{ textDecoration: 'none', color: 'inherit' }}>
-                                    <div className="card-badge" style={{ position: 'absolute', top: '20px', right: '20px', zIndex: 10 }}>
-                                        <div className="tool-tag">{rTool.categories?.name}</div>
-                                    </div>
-                                    <div className="tool-logo-box" style={{ 
-                                        width: '60px', 
-                                        height: '60px', 
-                                        background: 'var(--gradient)', 
-                                        borderRadius: '16px', 
-                                        display: 'flex', 
-                                        alignItems: 'center', 
-                                        justifyContent: 'center', 
-                                        color: 'white',
-                                        marginBottom: '1.5rem'
-                                    }}>
-                                        {getIcon(rTool.icon_name || 'Zap')}
-                                    </div>
-                                    <h3 style={{ fontSize: '1.4rem', fontWeight: '800', marginBottom: '0.5rem' }}>{rTool.name}</h3>
-                                    <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem', marginBottom: '2rem' }}>{rTool.short_description}</p>
-                                </Link>
+                                <ToolCard key={rTool.id} tool={rTool} />
                             ))}
                         </div>
                     </div>

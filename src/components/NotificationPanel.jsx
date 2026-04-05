@@ -60,12 +60,17 @@ const NotificationPanel = ({ onClose }) => {
                 .update({ is_unread: false })
                 .eq('user_id', user.id);
             setNotifications(notifications.map(n => ({ ...n, is_unread: false })));
+            
+            // Dispatch sync event
+            window.dispatchEvent(new CustomEvent('notifications-updated'));
         }
     };
 
     const getIcon = (type) => {
         switch (type) {
-            case 'approval': return <CheckCircle size={16} color="var(--secondary)" />;
+            case 'approval': return <CheckCircle size={16} color="#00C853" />;
+            case 'rejection': return <AlertTriangle size={16} color="#FF5252" />;
+            case 'pending': return <Clock size={16} color="#FFD700" />;
             case 'blog': return <Rss size={16} color="var(--primary)" />;
             default: return <Info size={16} color="var(--text-muted)" />;
         }

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import { useAuth } from '../context/AuthContext';
-import { Bell, CheckCircle, Rss, ArrowLeft, Trash2, AlertTriangle } from 'lucide-react';
+import { Bell, CheckCircle, Rss, ArrowLeft, Trash2, AlertTriangle, Clock, Info } from 'lucide-react';
 import SkeletonLoader from '../components/SkeletonLoader';
 import { Link } from 'react-router-dom';
 
@@ -43,6 +43,9 @@ const Notifications = () => {
             
             if (error) throw error;
             setNotifications(prev => prev.map(n => n.id === id ? { ...n, is_unread: false } : n));
+            
+            // Dispatch sync event
+            window.dispatchEvent(new CustomEvent('notifications-updated'));
         } catch (err) {
             console.error('Mark read error:', err);
         }
@@ -60,6 +63,9 @@ const Notifications = () => {
             
             if (error) throw error;
             setNotifications([]);
+            
+            // Dispatch sync event
+            window.dispatchEvent(new CustomEvent('notifications-updated'));
         } catch (err) {
             console.error('Clear all error:', err);
         }
@@ -69,6 +75,7 @@ const Notifications = () => {
         switch (type) {
             case 'approval': return <CheckCircle size={24} color="#00C853" />;
             case 'rejection': return <AlertTriangle size={24} color="#FF5252" />;
+            case 'pending': return <Clock size={24} color="#FFD700" />;
             case 'blog': return <Rss size={24} color="var(--primary)" />;
             default: return <Bell size={24} color="var(--text-muted)" />;
         }

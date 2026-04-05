@@ -56,7 +56,7 @@ const ResetPassword = () => {
             if (error) throw error;
             
             setSuccess(true);
-            showToast('Password updated successfully! 🔐', 'success');
+            showToast('Password updated successfully!', 'success');
             setTimeout(() => navigate('/auth'), 3000);
         } catch (err) {
             showToast(err.message, 'error');
