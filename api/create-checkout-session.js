@@ -20,7 +20,7 @@ export default async function handler(req, res) {
 
         const productName = itemType === 'tool_promotion' 
             ? `Tool Promotion: ${planName}`
-            : `ServicesHUB Premium: ${planName}`;
+            : `HUBly Premium: ${planName}`;
 
         const session = await stripe.checkout.sessions.create({
             payment_method_types: ['card'],

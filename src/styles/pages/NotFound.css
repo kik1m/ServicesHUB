@@ -1,0 +1,82 @@
+/* ==========================================================================
+   NOT FOUND (404) PAGE STYLES
+   ========================================================================== */
+
+.not-found-wrapper {
+  min-height: 80vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 100px 20px;
+}
+
+.not-found-card {
+  max-width: 600px;
+  width: 100%;
+  text-align: center;
+  padding: 3rem !important;
+  border-radius: 30px !important;
+}
+
+.not-found-icon-box {
+  margin: 0 auto 1.5rem;
+  width: 80px;
+  height: 80px;
+  background: var(--gradient);
+  padding: 20px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 10px 30px rgba(0, 210, 255, 0.3);
+}
+
+.not-found-404-text {
+  font-size: 5rem;
+  font-weight: 950;
+  margin-bottom: 0.5rem;
+  margin-top: 0;
+  background: var(--gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  line-height: 1.1;
+}
+
+.not-found-title {
+  font-size: 1.8rem;
+  font-weight: 800;
+  margin-bottom: 1.5rem;
+  margin-top: 0;
+}
+
+.not-found-subtitle {
+  color: var(--text-muted);
+  margin-bottom: 2.5rem;
+  font-size: 1.1rem;
+  line-height: 1.7;
+  max-width: 450px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.not-found-actions-row {
+  display: flex;
+  gap: 1.2rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* Responsive Overrides */
+@media (max-width: 600px) {
+  .not-found-404-text {
+    font-size: 4rem;
+  }
+  
+  .not-found-title {
+    font-size: 1.5rem;
+  }
+  
+  .not-found-card {
+    padding: 2rem !important;
+  }
+}

@@ -35,18 +35,18 @@ const VideoGuide = () => {
         <section className="video-guide-section main-section">
             <div className="section-header-centered">
                 <div className="badge">LEARN & GROW</div>
-                <h2 className="section-title">Master <span className="gradient-text">ServicesHUB</span></h2>
+                <h2 className="section-title">Master <span className="gradient-text">HUBly</span></h2>
                 <p className="section-desc">Choose your journey and unlock the power of professional AI discovery.</p>
             </div>
 
             <div className="guide-tabs">
-                <button 
+                <button
                     className={`guide-tab ${activeTab === 'seeker' ? 'active' : ''}`}
                     onClick={() => setActiveTab('seeker')}
                 >
                     <Zap size={20} /> For Tool Seekers
                 </button>
-                <button 
+                <button
                     className={`guide-tab ${activeTab === 'publisher' ? 'active' : ''}`}
                     onClick={() => setActiveTab('publisher')}
                 >
@@ -66,11 +66,11 @@ const VideoGuide = () => {
                         ))}
                     </ul>
                 </div>
-                
+
                 <div className="guide-video-wrapper">
-                    <iframe 
+                    <iframe
                         src={`https://www.youtube.com/embed/${current.videoId}`}
-                        title="ServicesHUB Guide"
+                        title="HUBly Guide"
                         frameBorder="0"
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                         allowFullScreen
@@ -78,7 +78,8 @@ const VideoGuide = () => {
                 </div>
             </div>
 
-            <style dangerouslySetInnerHTML={{ __html: `
+            <style dangerouslySetInnerHTML={{
+                __html: `
                 .section-header-centered {
                     text-align: center;
                     margin-bottom: 4rem;

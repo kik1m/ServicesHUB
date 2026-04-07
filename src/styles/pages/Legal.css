@@ -1,0 +1,65 @@
+/* ==========================================================================
+   LEGAL & COMPLIANCE PAGE STYLES (Privacy & Terms)
+   ========================================================================== */
+
+.legal-page {
+  /* Inherited from page-wrapper */
+}
+
+/* Legal Content Container */
+.legal-content {
+  padding: 4rem !important;
+  line-height: 1.8;
+  border-radius: 30px !important;
+}
+
+/* Legal Clause Sections */
+.legal-clause-unit {
+  margin-bottom: 3rem;
+}
+
+.legal-clause-unit:last-child {
+  margin-bottom: 0;
+}
+
+.legal-clause-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin-bottom: 1.5rem;
+  margin-top: 0;
+}
+
+.legal-clause-text {
+  color: var(--text-muted);
+  font-size: 1rem;
+  margin: 0;
+}
+
+/* Legal Hero Overrides */
+.legal-page .page-header {
+  min-height: 35vh;
+  padding-bottom: 30px;
+}
+
+.legal-page .hero-content {
+  text-align: center;
+}
+
+/* Responsive Overrides */
+@media (max-width: 768px) {
+  .legal-content {
+    padding: 2rem !important;
+  }
+  
+  .legal-clause-header {
+    font-size: 1.25rem;
+    gap: 10px;
+  }
+  
+  .legal-page .page-header {
+    min-height: 30vh;
+  }
+}

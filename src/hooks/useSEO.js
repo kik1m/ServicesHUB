@@ -15,7 +15,7 @@ const useSEO = ({ title, description, image, url }) => {
         };
 
         if (title) {
-            const fullTitle = `${title} | ServicesHUB`;
+            const fullTitle = `${title} | HUBly`;
             document.title = fullTitle;
             setMetaTag('property="og:title"', fullTitle);
             setMetaTag('name="twitter:title"', fullTitle);

@@ -1,6 +1,13 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FileText, Clock, Scale, Shield } from 'lucide-react';
 import SkeletonLoader from '../components/SkeletonLoader';
+
+// Import Shared Legal Components
+import LegalHero from '../components/Legal/LegalHero';
+import LegalSection from '../components/Legal/LegalSection';
+
+// Import Modular CSS
+import '../styles/Pages/Legal.css';
 
 const Terms = () => {
     const [loading, setLoading] = useState(true);
@@ -12,72 +19,49 @@ const Terms = () => {
 
     if (loading) {
         return (
-            <div className="page-wrapper">
-                <header className="page-header hero-section" style={{ minHeight: '35vh', paddingBottom: '40px' }}>
-                    <div className="hero-content">
-                        <SkeletonLoader type="title" width="40%" style={{ margin: '0 auto' }} />
-                        <SkeletonLoader type="text" width="200px" style={{ margin: '1rem auto' }} />
-                    </div>
-                </header>
+            <div className="page-wrapper legal-page">
+                <LegalHero loading={true} isCompact={true} />
                 <section className="main-section" style={{ maxWidth: '800px', margin: '0 auto' }}>
                     <SkeletonLoader height="400px" borderRadius="16px" />
                 </section>
             </div>
         );
     }
+
     return (
         <div className="page-wrapper legal-page">
-            <header className="page-header hero-section" style={{ minHeight: '35vh', paddingBottom: '30px' }}>
-                <div className="hero-content">
-                    <div className="badge">LEGAL DOCUMENTS</div>
-                    <h1 className="hero-title">Terms of <span className="gradient-text">Service</span></h1>
-                    <p className="hero-subtitle">Last updated: March 26, 2026</p>
-                </div>
-            </header>
+            <LegalHero 
+                loading={false}
+                isCompact={true}
+                badge="LEGAL DOCUMENTS"
+                title="Terms of"
+                accent="Service"
+                subtitle="Last updated: March 26, 2026"
+            />
 
             <section className="main-section" style={{ maxWidth: '850px', margin: '0 auto' }}>
-                <div className="glass-card legal-content" style={{ padding: '4rem', lineHeight: '1.8' }}>
-                    <div className="legal-section" style={{ marginBottom: '3rem' }}>
-                        <h3 style={{ fontSize: '1.5rem', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                            <Scale size={24} color="var(--primary)" /> 1. Acceptance of Terms
-                        </h3>
-                        <p style={{ color: 'var(--text-muted)' }}>
-                            By accessing or using ServicesHUB, you agree to be bound by these Terms of Service. 
-                            If you do not agree with any part of these terms, you may not access our services.
-                        </p>
-                    </div>
+                <div className="glass-card legal-content">
+                    <LegalSection icon={Scale} number="1" title="Acceptance of Terms">
+                        By accessing or using HUBly, you agree to be bound by these Terms of Service.
+                        If you do not agree with any part of these terms, you may not access our services.
+                    </LegalSection>
 
-                    <div className="legal-section" style={{ marginBottom: '3rem' }}>
-                        <h3 style={{ fontSize: '1.5rem', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                            <FileText size={24} color="var(--primary)" /> 2. User Submissions
-                        </h3>
-                        <p style={{ color: 'var(--text-muted)' }}>
-                            When you submit a tool to our directory, you represent that you have the right to 
-                            share all information provided and that it does not infringe on any third-party rights. 
-                            We reserve the right to remove any listing at our sole discretion.
-                        </p>
-                    </div>
+                    <LegalSection icon={FileText} number="2" title="User Submissions">
+                        When you submit a tool to our directory, you represent that you have the right to
+                        share all information provided and that it does not infringe on any third-party rights.
+                        We reserve the right to remove any listing at our sole discretion.
+                    </LegalSection>
 
-                    <div className="legal-section" style={{ marginBottom: '3rem' }}>
-                        <h3 style={{ fontSize: '1.5rem', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                            <Shield size={24} color="var(--primary)" /> 3. Accuracy of Information
-                        </h3>
-                        <p style={{ color: 'var(--text-muted)' }}>
-                            While we strive for accuracy, ServicesHUB provides tool listings &quot;as is&quot;. 
-                            We are not responsible for the performance, reliability, or security of 
-                            third-party tools listed in our directory.
-                        </p>
-                    </div>
+                    <LegalSection icon={Shield} number="3" title="Accuracy of Information">
+                        While we strive for accuracy, HUBly provides tool listings &quot;as is&quot;.
+                        We are not responsible for the performance, reliability, or security of
+                        third-party tools listed in our directory.
+                    </LegalSection>
 
-                    <div className="legal-section">
-                        <h3 style={{ fontSize: '1.5rem', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                            <Clock size={24} color="var(--primary)" /> 4. Modifications
-                        </h3>
-                        <p style={{ color: 'var(--text-muted)' }}>
-                            We reserve the right to modify these terms at any time. Significant 
-                            changes will be notified on this page.
-                        </p>
-                    </div>
+                    <LegalSection icon={Clock} number="4" title="Modifications">
+                        We reserve the right to modify these terms at any time. Significant
+                        changes will be notified on this page.
+                    </LegalSection>
                 </div>
             </section>
         </div>

@@ -1,0 +1,89 @@
+/* ==========================================================================
+   AUTHENTICATION & SECURITY PAGE STYLES (ResetPassword & Auth Sub-pages)
+   ========================================================================== */
+
+.auth-page-wrapper {
+  min-height: 80vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.auth-glass-card {
+  max-width: 480px;
+  width: 100%;
+  padding: 3.5rem !important;
+  position: relative;
+  border-radius: 30px !important;
+}
+
+/* Auth Header Branding */
+.auth-header-group {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.shield-icon-wrapper {
+  margin: 0 auto 1.5rem;
+  width: fit-content;
+  padding: 1rem;
+  background: rgba(0, 210, 255, 0.05);
+  border-radius: 20px;
+  color: var(--secondary);
+}
+
+.auth-title {
+  font-size: 2rem;
+  margin-bottom: 0.8rem;
+  font-weight: 800;
+}
+
+.auth-subtitle {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+}
+
+/* Secure Inputs */
+.auth-input-group {
+  margin-bottom: 1.2rem;
+}
+
+.auth-input-label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+/* Success Feedback Box */
+.auth-success-box {
+  max-width: 450px;
+  width: 100%;
+  padding: 4rem !important;
+  text-align: center;
+  border-radius: 30px !important;
+}
+
+.auth-success-icon-wrapper {
+  background: rgba(0, 210, 255, 0.1);
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 2rem;
+}
+
+/* Animations */
+.animate-spin-slow {
+  animation: spin 2s linear infinite;
+}
+
+/* Responsive Overrides */
+@media (max-width: 600px) {
+  .auth-glass-card {
+    padding: 2rem !important;
+    max-width: 90%;
+  }
+}

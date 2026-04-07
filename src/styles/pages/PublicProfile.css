@@ -1,0 +1,288 @@
+.public-profile-view {
+  min-height: 100vh;
+  background: radial-gradient(circle at top right, rgba(0, 153, 255, 0.05), transparent 40%);
+}
+
+/* 1. Unified Public Hero Card (Compact Design) */
+.public-view-hero-card {
+  position: relative;
+  background: rgba(15, 15, 18, 0.6);
+  backdrop-filter: blur(40px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 28px;
+  padding: 1.8rem 2.2rem;
+  margin-bottom: 2.5rem;
+  overflow: hidden;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
+}
+
+.hero-ethereal-glow {
+  position: absolute;
+  top: -20%;
+  right: -10%;
+  width: 50%;
+  height: 100%;
+  background: radial-gradient(circle, rgba(0, 153, 255, 0.1), transparent 70%);
+  filter: blur(60px);
+  pointer-events: none;
+}
+
+.public-hero-flex-layout {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2.5rem;
+  position: relative;
+  z-index: 2;
+}
+
+/* Identity Column (Left) */
+.public-identity-column {
+  display: flex;
+  gap: 1.8rem;
+  align-items: center;
+  flex: 1;
+}
+
+.public-avatar-container {
+  position: relative;
+  width: 100px;
+  height: 100px;
+}
+
+.public-avatar-box {
+  width: 100%;
+  height: 100%;
+  border-radius: 24px;
+  background: linear-gradient(135deg, var(--primary), #3a7bd5);
+  border: 3px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+  font-weight: 900;
+  color: white;
+  overflow: hidden;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+}
+
+.public-avatar-box img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.public-verification-badge {
+    position: absolute;
+    bottom: -3px;
+    right: -3px;
+    background: #0099ff;
+    color: white;
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #0f0f12;
+    box-shadow: 0 4px 12px rgba(0, 153, 255, 0.3);
+}
+
+.public-content-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.public-user-name {
+    font-size: 2rem;
+    font-weight: 900;
+    margin: 0;
+    line-height: 1.2;
+    background: linear-gradient(to right, #fff, #a5a5a5);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.public-name-badges-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.public-meta-info-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 4px;
+}
+
+.public-meta-item {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.public-meta-item.web:hover { color: var(--primary); }
+
+.public-bio-statement {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.7);
+    margin: 0;
+    max-width: 550px;
+}
+
+.public-social-minimal-row {
+    display: flex;
+    gap: 12px;
+    margin-top: 4px;
+}
+
+.public-social-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    transition: all 0.3s ease;
+}
+
+.public-social-icon:hover {
+    background: var(--primary);
+    color: white;
+    transform: translateY(-2px);
+}
+
+/* Actions & Analytics (Right) */
+.public-actions-analytics-hub {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-width: 180px;
+}
+
+.public-stat-minimal-pill {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 12px 16px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: white;
+}
+
+.public-stat-minimal-pill .stat-v { font-size: 1.2rem; font-weight: 900; }
+.public-stat-minimal-pill .stat-l { font-size: 0.65rem; text-transform: uppercase; color: var(--text-muted); font-weight: 800; letter-spacing: 0.5px; }
+
+.public-hero-share-btn {
+    width: 100%;
+    padding: 12px;
+    border-radius: 14px;
+    background: #0099ff;
+    color: white;
+    font-weight: 800;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+    font-size: 0.85rem;
+}
+
+.public-hero-share-btn:hover { filter: brightness(1.1); transform: translateY(-2px); box-shadow: 0 10px 20px rgba(0, 153, 255, 0.3); }
+.public-hero-share-btn.copied { background: #00e676; }
+
+/* 2. Portfolio Showcase Section */
+.profile-portfolio-section {
+    margin-top: 1rem;
+    position: relative;
+}
+
+.portfolio-header-row {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    margin-bottom: 3rem;
+}
+
+.portfolio-title {
+    font-size: 1.8rem;
+    font-weight: 850;
+    white-space: nowrap;
+}
+
+.portfolio-divider {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to right, rgba(255,255,255,0.15), transparent);
+}
+
+.portfolio-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 2.5rem;
+}
+
+/* Empty State Styling */
+.empty-portfolio-card {
+    background: rgba(255, 255, 255, 0.02);
+    border: 2px dashed rgba(255, 255, 255, 0.05);
+    border-radius: 24px;
+    padding: 5rem 2rem;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.empty-icon {
+    width: 60px;
+    height: 60px;
+    color: rgba(255, 255, 255, 0.1);
+}
+
+.empty-title {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: white;
+}
+
+.empty-text {
+    color: var(--text-muted);
+    max-width: 400px;
+}
+
+@media (max-width: 1024px) {
+    .public-hero-flex-layout {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .public-identity-column, .public-avatar-container {
+        align-items: center;
+        margin: 0 auto;
+    }
+
+    .public-meta-badges, .public-social-row {
+        justify-content: center;
+    }
+
+    .public-stats-column {
+        width: 100%;
+    }
+}

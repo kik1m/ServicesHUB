@@ -10,7 +10,7 @@ export const notificationsData = [
     {
         id: 2,
         type: 'system',
-        title: 'Welcome to ServicesHUB!',
+        title: 'Welcome to HUBly!',
         message: 'Start exploring the best AI & SaaS tools in the industry.',
         time: '1 day ago',
         isUnread: false

@@ -1,12 +1,30 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import { useAuth } from '../context/AuthContext';
-import { Users, Zap, CheckCircle, Clock, ArrowUpRight, Loader2, AlertCircle, FileText, PlusCircle, Trash2, LayoutGrid, Image as ImageIcon, X, CheckCircle2, Award, Mail } from 'lucide-react';
+import { 
+    Loader2, 
+    Zap, 
+    Users, 
+    Clock, 
+    CheckCircle,
+    AlertCircle
+} from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import SkeletonLoader from '../components/SkeletonLoader';
 import { useToast } from '../context/ToastContext';
 import { sendNotification } from '../utils/notifications';
-import { useNavigate, Link } from 'react-router-dom';
-import CustomSelect from '../components/CustomSelect';
+import '../styles/Pages/AdminDashboard.css';
+
+// Import Modular Components
+import AdminStats from '../components/Admin/AdminStats';
+import AdminGrowthChart from '../components/Admin/AdminGrowthChart';
+import AdminTabs from '../components/Admin/AdminTabs';
+import AdminQueue from '../components/Admin/AdminQueue';
+import AdminBlogManager from '../components/Admin/AdminBlogManager';
+import AdminSettingsManager from '../components/Admin/AdminSettingsManager';
+import AdminUserManager from '../components/Admin/AdminUserManager';
+import AdminSidebar from '../components/Admin/AdminSidebar';
+import AdminReviewModal from '../components/Admin/AdminReviewModal';
 
 const AdminDashboard = () => {
     const navigate = useNavigate();
@@ -20,9 +38,14 @@ const AdminDashboard = () => {
     const [stats, setStats] = useState([]);
     const [isAdmin, setIsAdmin] = useState(false);
     const [error, setError] = useState(null);
-    const [activeTab, setActiveTab] = useState('pending'); // 'pending', 'featured', 'blogs', 'add-tool', 'categories', 'users', 'newsletter'
+    const [activeTab, setActiveTab] = useState('pending');
     const [allUsers, setAllUsers] = useState([]);
     const [subscribers, setSubscribers] = useState([]);
+
+    // Admin Tool Search (for Featured Management)
+    const [adminSearchQuery, setAdminSearchQuery] = useState('');
+    const [adminSearchResults, setAdminSearchResults] = useState([]);
+    const [isSearchingTools, setIsSearchingTools] = useState(false);
 
     // Modal & Review States
     const [selectedReview, setSelectedReview] = useState(null);
@@ -31,7 +54,19 @@ const AdminDashboard = () => {
     // Form States
     const [newPost, setNewPost] = useState({ title: '', excerpt: '', content: '', category: '', image_url: '' });
     const [newCategory, setNewCategory] = useState({ name: '', slug: '', icon_name: '' });
-    const [newTool, setNewTool] = useState({ name: '', description: '', url: '', category_id: '', pricing_type: 'Free', image_url: '' });
+    const [newTool, setNewTool] = useState({ 
+        name: '', 
+        url: '', 
+        short_description: '', 
+        description: '', 
+        category_id: '', 
+        pricing_type: 'Free', 
+        pricing_details: '', 
+        image_url: '', 
+        features: [] 
+    });
+    const [adminImagePreview, setAdminImagePreview] = useState(null);
+    const [adminUseManualUrl, setAdminUseManualUrl] = useState(false);
     const [toolCategories, setToolCategories] = useState([]);
     const [submitting, setSubmitting] = useState(false);
     const [uploading, setUploading] = useState(false);
@@ -42,20 +77,11 @@ const AdminDashboard = () => {
             const fileExt = file.name.split('.').pop();
             const fileName = `${Math.random()}.${fileExt}`;
             const filePath = `${folder}/${fileName}`;
-
-            const { error: uploadError } = await supabase.storage
-                .from(bucket)
-                .upload(filePath, file);
-
+            const { error: uploadError } = await supabase.storage.from(bucket).upload(filePath, file);
             if (uploadError) throw uploadError;
-
-            const { data: { publicUrl } } = supabase.storage
-                .from(bucket)
-                .getPublicUrl(filePath);
-
+            const { data: { publicUrl } } = supabase.storage.from(bucket).getPublicUrl(filePath);
             return publicUrl;
         } catch (err) {
-            console.error('Upload error:', err);
             showToast('Upload failed: ' + err.message, 'error');
             return null;
         } finally {
@@ -66,89 +92,50 @@ const AdminDashboard = () => {
     useEffect(() => {
         const checkAdminAndFetchData = async () => {
             if (authLoading) return;
-            if (!user) {
-                navigate('/auth');
-                return;
-            }
-
+            if (!user) { navigate('/auth'); return; }
             setLoading(true);
             try {
-
-                const { data: profile } = await supabase
-                    .from('profiles')
-                    .select('role')
-                    .eq('id', user.id)
-                    .single();
-
-                if (profile?.role !== 'admin') {
-                    navigate('/');
-                    return;
-                }
-
+                const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single();
+                if (profile?.role !== 'admin') { navigate('/'); return; }
                 setIsAdmin(true);
 
-                // Fetch Pending Tools & Updates
-                const { data: pending, error: pendingError } = await supabase
-                    .from('tools')
-                    .select('*, categories(name)')
-                    .or('is_approved.eq.false,pending_changes.not.is.null')
-                    .order('updated_at', { ascending: false });
-
-                if (pendingError) throw pendingError;
+                const { data: pending } = await supabase.from('tools').select('*, categories(name)').or('is_approved.eq.false,pending_changes.not.is.null').order('updated_at', { ascending: false });
                 setPendingTools(pending || []);
 
-                // Fetch Featured Tools
-                const { data: featured, error: featuredError } = await supabase
-                    .from('tools')
-                    .select('*, categories(name)')
-                    .eq('is_featured', true)
-                    .order('featured_until', { ascending: true });
-
-                if (featuredError) throw featuredError;
+                const { data: featured } = await supabase.from('tools').select('*, categories(name)').eq('is_featured', true).order('featured_until', { ascending: true });
                 setFeaturedTools(featured || []);
 
-                // Fetch Blogs
                 const { data: blogs } = await supabase.from('blog_posts').select('*').order('created_at', { ascending: false });
                 setBlogPosts(blogs || []);
 
-                // Fetch Categories for Forms
                 const { data: blogCats } = await supabase.from('blog_categories').select('*');
                 setBlogCategories(blogCats || []);
 
                 const { data: toolCats } = await supabase.from('categories').select('*');
                 setToolCategories(toolCats || []);
 
-                // Fetch All Users - Explicit columns to avoid 400 error
-                const { data: usersData } = await supabase
-                    .from('profiles')
-                    .select('id, full_name, avatar_url, role, updated_at, is_premium')
-                    .order('updated_at', { ascending: false });
+                const { data: usersData } = await supabase.from('profiles').select('id, full_name, avatar_url, role, updated_at, is_premium').order('updated_at', { ascending: false });
                 setAllUsers(usersData || []);
 
-                // Fetch Subscribers
                 const { data: subsData } = await supabase.from('newsletter_subscribers').select('*').order('created_at', { ascending: false });
                 setSubscribers(subsData || []);
 
-                // Fetch Platform Stats - Explicit columns
                 const { count: toolsCount } = await supabase.from('tools').select('id', { count: 'exact', head: true });
                 const { count: usersCount } = await supabase.from('profiles').select('id', { count: 'exact', head: true });
                 const { count: pendingCount } = await supabase.from('tools').select('id', { count: 'exact', head: true }).or('is_approved.eq.false,pending_changes.not.is.null');
 
                 setStats([
-                    { label: 'Total Tools', value: toolsCount || 0, icon: <Zap size={20} />, color: 'var(--primary)' },
-                    { label: 'Total Users', value: usersCount || 0, icon: <Users size={20} />, color: 'var(--secondary)' },
-                    { label: 'Pending Apps', value: pendingCount || 0, icon: <Clock size={20} />, color: '#ffcc00' },
-                    { label: 'System Status', value: 'Online', icon: <CheckCircle size={20} />, color: '#00ff88' }
+                    { id: 'tools', label: 'Total Tools', value: toolsCount || 0, icon: Zap, color: 'var(--primary)' },
+                    { id: 'users', label: 'Total Users', value: usersCount || 0, icon: Users, color: 'var(--secondary)' },
+                    { id: 'pending', label: 'Pending Apps', value: pendingCount || 0, icon: Clock, color: '#ffcc00' },
+                    { id: 'status', label: 'System Status', value: 'Online', icon: CheckCircle, color: '#00ff88' }
                 ]);
-
             } catch (err) {
-                console.error('Admin Fetch Error:', err);
                 setError(err.message);
             } finally {
                 setLoading(false);
             }
         };
-
         checkAdminAndFetchData();
     }, [navigate, user, authLoading]);
 
@@ -156,197 +143,119 @@ const AdminDashboard = () => {
         try {
             let updatePayload = { is_approved: true };
             let isUpdate = false;
-
             if (tool.pending_changes) {
-                // Apply pending changes to main columns
-                updatePayload = {
-                    ...updatePayload,
-                    ...tool.pending_changes,
-                    pending_changes: null
-                };
+                updatePayload = { ...updatePayload, ...tool.pending_changes, pending_changes: null };
                 isUpdate = true;
             }
-
-            const { error } = await supabase
-                .from('tools')
-                .update(updatePayload)
-                .eq('id', tool.id);
-
+            const { error } = await supabase.from('tools').update(updatePayload).eq('id', tool.id);
             if (error) throw error;
-
-            // Persistent Notification to tool owner
-            const title = isUpdate ? 'Data Update Approved' : 'New Tool Approved';
-            const msg = isUpdate
-                ? `The modifications you submitted for the tool "${tool.name}" have been successfully reviewed and approved. The live listing has been updated with these changes.`
-                : `Great news! Your tool "${tool.name}" has been approved by our administration. It is now published and visible to all users on the platform.`;
-
-            await sendNotification(
-                tool.user_id,
-                title,
-                msg,
-                'approval'
-            );
-
+            await sendNotification(tool.user_id, isUpdate ? 'Data Update Approved' : 'New Tool Approved', isUpdate ? `Modifications for "${tool.name}" approved.` : `"${tool.name}" is now live.`, 'approval');
             setPendingTools(prev => prev.filter(t => t.id !== tool.id));
             showToast(isUpdate ? 'Update applied!' : 'Tool approved!', 'success');
-        } catch (err) {
-            showToast('Error: ' + err.message, 'error');
-        }
+        } catch (err) { showToast('Error: ' + err.message, 'error'); }
     };
+
     const handleReject = async (tool) => {
         const isUpdate = !!tool.pending_changes;
-        const confirmMsg = isUpdate
-            ? `Are you sure you want to REJECT the NEW changes for "${tool.name}"? (The live version will remain as is)`
-            : `Are you sure you want to REJECT and DELETE "${tool.name}"?`;
-
-        if (!window.confirm(confirmMsg)) return;
-
+        if (!window.confirm(isUpdate ? `Reject changes for "${tool.name}"?` : `Reject and DELETE "${tool.name}"?`)) return;
         try {
-            if (isUpdate) {
-                // Just clear pending_changes
-                const { error } = await supabase
-                    .from('tools')
-                    .update({ pending_changes: null })
-                    .eq('id', tool.id);
-                if (error) throw error;
-            } else {
-                // Delete new tool submission
-                const { error } = await supabase
-                    .from('tools')
-                    .delete()
-                    .eq('id', tool.id);
-                if (error) throw error;
-            }
-
-            // Persistent Notification to tool owner
-            const rejectMsg = isUpdate
-                ? `After reviewing the proposed changes for "${tool.name}", our team has decided to maintain the current version of the tool. You are welcome to submit further modifications if needed.`
-                : `We regret to inform you that your submission "${tool.name}" was not approved at this time as it did not meet our current listing criteria. You may review the details and resubmit in the future.`;
-
-            await sendNotification(
-                tool.user_id,
-                'Update Regarding Your Submission',
-                rejectMsg,
-                'rejection'
-            );
-
+            if (isUpdate) await supabase.from('tools').update({ pending_changes: null }).eq('id', tool.id);
+            else await supabase.from('tools').delete().eq('id', tool.id);
+            await sendNotification(tool.user_id, 'Update Regarding Your Submission', isUpdate ? `Changes for "${tool.name}" rejected.` : `Submission "${tool.name}" not approved.`, 'rejection');
             setPendingTools(prev => prev.filter(t => t.id !== tool.id));
-            showToast(isUpdate ? 'Update rejected.' : 'Tool rejected.', 'info');
-        } catch (err) {
-            showToast('Error: ' + err.message, 'error');
-        }
-    };
-
-    const handleOpenReview = (tool) => {
-        setSelectedReview(tool);
-        setShowReviewModal(true);
-    };
-
-    const handleCloseReview = () => {
-        setSelectedReview(null);
-        setShowReviewModal(false);
-    };
-
-    const getChangedFields = (live, proposed) => {
-        if (!proposed) return [];
-        const fields = [
-            { key: 'name', label: 'Tool Name' },
-            { key: 'short_description', label: 'Short Pitch' },
-            { key: 'description', label: 'Description', isLongText: true },
-            { key: 'url', label: 'Website URL' },
-            { key: 'category_id', label: 'Category' },
-            { key: 'pricing_type', label: 'Pricing Type' },
-            { key: 'pricing_details', label: 'Pricing Info' },
-            { key: 'features', label: 'Key Features', isArray: true },
-            { key: 'image_url', label: 'Thumbnail', isImage: true }
-        ];
-
-        return fields.filter(field => {
-            const liveVal = live[field.key];
-            const proposedVal = proposed[field.key];
-
-            if (field.isArray) {
-                return JSON.stringify(liveVal || []) !== JSON.stringify(proposedVal || []);
-            }
-            return liveVal !== proposedVal;
-        }).map(field => ({
-            ...field,
-            oldValue: live[field.key],
-            newValue: proposed[field.key]
-        }));
-    };
-
-    const handleRemoveFeature = async (id) => {
-        if (!window.confirm('Are you sure you want to remove the featured status?')) return;
-        try {
-            const { error } = await supabase
-                .from('tools')
-                .update({ is_featured: false, featured_until: null })
-                .eq('id', id);
-
-            if (error) throw error;
-            setFeaturedTools(prev => prev.filter(t => t.id !== id));
-            showToast('Featured status removed.', 'success');
-        } catch (err) {
-            showToast('Error removing feature: ' + err.message, 'error');
-        }
+            showToast('Action completed.', 'info');
+        } catch (err) { showToast('Error: ' + err.message, 'error'); }
     };
 
     const handleCreateBlogPost = async (e) => {
         e.preventDefault();
         setSubmitting(true);
         try {
-            // Find category name if UUID is selected
             const catObj = blogCategories.find(c => c.id === newPost.category || c.name === newPost.category);
-            const postToInsert = {
-                ...newPost,
-                category: catObj ? catObj.name : newPost.category,
-                author_id: user.id
-            };
-
-            const { data, error } = await supabase.from('blog_posts').insert([postToInsert]).select();
+            const { data, error } = await supabase.from('blog_posts').insert([{ ...newPost, category: catObj ? catObj.name : newPost.category, author_id: user.id }]).select();
             if (error) throw error;
             setBlogPosts([data[0], ...blogPosts]);
             setNewPost({ title: '', excerpt: '', content: '', category: '', image_url: '' });
-            showToast('Blog post published!', 'success');
-        } catch (err) {
-            showToast('Error creating blog: ' + err.message, 'error');
-        } finally {
-            setSubmitting(false);
-        }
+            showToast('Published!', 'success');
+        } catch (err) { showToast('Error: ' + err.message, 'error'); } finally { setSubmitting(false); }
     };
 
     const handleDeleteBlog = async (id) => {
-        if (!window.confirm('Delete this article?')) return;
+        if (!window.confirm('Delete article?')) return;
         try {
-            const { error } = await supabase.from('blog_posts').delete().eq('id', id);
-            if (error) throw error;
+            await supabase.from('blog_posts').delete().eq('id', id);
             setBlogPosts(prev => prev.filter(p => p.id !== id));
-            showToast('Article deleted.', 'info');
-        } catch (err) {
-            showToast('Error deleting: ' + err.message, 'error');
-        }
+            showToast('Deleted.', 'info');
+        } catch (err) { showToast('Error: ' + err.message, 'error'); }
     };
 
     const handleDirectAddTool = async (e) => {
         e.preventDefault();
         setSubmitting(true);
         try {
-            const { data: { user } } = await supabase.auth.getUser();
-            const { error } = await supabase.from('tools').insert([{
-                ...newTool,
-                user_id: user.id,
-                is_approved: true
-            }]).select();
-
+            const slug = newTool.name.toLowerCase().replace(/[^a-z0-9]/g, '-');
+            const { error } = await supabase.from('tools').insert([{ 
+                ...newTool, 
+                slug,
+                user_id: user.id, 
+                is_approved: true,
+                rating: 5.0,
+                reviews_count: 0,
+                view_count: 0
+            }]);
             if (error) throw error;
-            showToast('Tool added and approved successfully!', 'success');
-            setNewTool({ name: '', description: '', url: '', category_id: '', pricing_type: 'Free', image_url: '' });
-            // Update stats
-        } catch (err) {
-            showToast('Error adding tool: ' + err.message, 'error');
-        } finally {
-            setSubmitting(false);
+            showToast('Full tool added and approved!', 'success');
+            setNewTool({ 
+                name: '', 
+                url: '', 
+                short_description: '', 
+                description: '', 
+                category_id: '', 
+                pricing_type: 'Free', 
+                pricing_details: '', 
+                image_url: '', 
+                features: [] 
+            });
+            setAdminImagePreview(null);
+        } catch (err) { 
+            showToast('Error: ' + err.message, 'error'); 
+        } finally { 
+            setSubmitting(false); 
+        }
+    };
+
+    // Admin Feature Handlers
+    const handleAdminFeatureChange = (index, value) => {
+        const newFeatures = [...(newTool.features || [])];
+        newFeatures[index] = value;
+        setNewTool(prev => ({ ...prev, features: newFeatures }));
+    };
+
+    const addAdminFeature = () => {
+        setNewTool(prev => ({ 
+            ...prev, 
+            features: [...(prev.features || []), ''] 
+        }));
+    };
+
+    const removeAdminFeature = (index) => {
+        setNewTool(prev => ({ 
+            ...prev, 
+            features: (prev.features || []).filter((_, i) => i !== index) 
+        }));
+    };
+
+    const handleAdminFileChange = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        
+        const previewUrl = URL.createObjectURL(file);
+        setAdminImagePreview(previewUrl);
+
+        const publicUrl = await handleFileUpload(file);
+        if (publicUrl) {
+            setNewTool(prev => ({ ...prev, image_url: publicUrl }));
+            showToast('Admin thumbnail uploaded!', 'success');
         }
     };
 
@@ -359,75 +268,90 @@ const AdminDashboard = () => {
             setToolCategories([...toolCategories, data[0]]);
             setNewCategory({ name: '', slug: '', icon_name: '' });
             showToast('Category added!', 'success');
-        } catch (err) {
-            showToast('Error: ' + err.message, 'error');
-        } finally {
-            setSubmitting(false);
-        }
+        } catch (err) { showToast('Error: ' + err.message, 'error'); } finally { setSubmitting(false); }
     };
 
     const handleCreateBlogCategory = async (e) => {
         e.preventDefault();
         setSubmitting(true);
         try {
-            const { data, error } = await supabase.from('blog_categories').insert([{
-                name: newCategory.name,
-                slug: newCategory.slug
-            }]).select();
+            const { data, error } = await supabase.from('blog_categories').insert([{ name: newCategory.name, slug: newCategory.slug }]).select();
             if (error) throw error;
             setBlogCategories([...blogCategories, data[0]]);
             setNewCategory({ name: '', slug: '', icon_name: '' });
             showToast('Blog Category added!', 'success');
-        } catch (err) {
-            showToast('Error: ' + err.message, 'error');
-        } finally {
-            setSubmitting(false);
-        }
+        } catch (err) { showToast('Error: ' + err.message, 'error'); } finally { setSubmitting(false); }
     };
 
     const handleDeleteBlogCategory = async (id) => {
-        if (!window.confirm('Delete blog category? Articles using it might lose their classification!')) return;
+        if (!window.confirm('Delete blog category?')) return;
         try {
-            const { error } = await supabase.from('blog_categories').delete().eq('id', id);
-            if (error) throw error;
+            await supabase.from('blog_categories').delete().eq('id', id);
             setBlogCategories(prev => prev.filter(c => c.id !== id));
-            showToast('Blog Category deleted.', 'info');
-        } catch (err) {
-            showToast('Error: ' + err.message, 'error');
-        }
+            showToast('Deleted.', 'info');
+        } catch (err) { showToast('Error: ' + err.message, 'error'); }
     };
 
     const handleDeleteCategory = async (id) => {
-        if (!window.confirm('Delete category? This might break tools using it!')) return;
+        if (!window.confirm('Delete tool category?')) return;
         try {
-            const { error } = await supabase.from('categories').delete().eq('id', id);
-            if (error) throw error;
+            await supabase.from('categories').delete().eq('id', id);
             setToolCategories(prev => prev.filter(c => c.id !== id));
-            showToast('Category deleted.', 'info');
-        } catch (err) {
-            showToast('Error: ' + err.message, 'error');
-        }
+            showToast('Deleted.', 'info');
+        } catch (err) { showToast('Error: ' + err.message, 'error'); }
+    };
+
+    const handleAdminSearch = async (e) => {
+        const query = e.target.value;
+        setAdminSearchQuery(query);
+        if (!query.trim()) { setAdminSearchResults([]); return; }
+        
+        setIsSearchingTools(true);
+        try {
+            const { data } = await supabase
+                .from('tools')
+                .select('*, categories(name)')
+                .eq('is_approved', true)
+                .ilike('name', `%${query}%`)
+                .limit(5);
+            setAdminSearchResults(data || []);
+        } catch (err) { console.error(err); } finally { setIsSearchingTools(false); }
+    };
+
+    const handleToggleFeatured = async (tool) => {
+        try {
+            const { error } = await supabase.from('tools').update({ is_featured: !tool.is_featured }).eq('id', tool.id);
+            if (error) throw error;
+            
+            // Sync Featured list
+            setFeaturedTools(prev => tool.is_featured ? prev.filter(t => t.id !== tool.id) : [...prev, { ...tool, is_featured: true }]);
+            
+            // Sync Search Results
+            setAdminSearchResults(prev => prev.map(t => t.id === tool.id ? { ...t, is_featured: !t.is_featured } : t));
+            
+            // Sync Pending list (if tool was there)
+            setPendingTools(prev => prev.map(t => t.id === tool.id ? { ...t, is_featured: !t.is_featured } : t));
+            
+            showToast('Status updated!', 'success');
+        } catch (err) { showToast('Error: ' + err.message, 'error'); }
     };
 
     if (loading) {
         return (
-            <div className="admin-page" style={{ padding: '120px 5% 60px' }}>
-                <div style={{ marginBottom: '3rem' }}>
-                    <SkeletonLoader type="title" width="400px" />
-                    <SkeletonLoader type="text" width="300px" />
+            <div className="admin-page-container">
+                <div className="admin-wrapper">
+                    <div className="admin-header-section">
+                        <SkeletonLoader type="title" width="400px" />
+                        <SkeletonLoader type="text" width="300px" />
+                    </div>
+                    <div className="admin-skeleton-stats-grid">
+                        <SkeletonLoader height="100px" borderRadius="16px" /><SkeletonLoader height="100px" borderRadius="16px" /><SkeletonLoader height="100px" borderRadius="16px" /><SkeletonLoader height="100px" borderRadius="16px" />
+                    </div>
+                    <div style={{ display: 'flex', gap: '1rem', marginBottom: '2.5rem' }}>
+                        <SkeletonLoader width="150px" height="40px" borderRadius="10px" /><SkeletonLoader width="150px" height="40px" borderRadius="10px" /><SkeletonLoader width="150px" height="40px" borderRadius="10px" />
+                    </div>
+                    <SkeletonLoader height="500px" borderRadius="24px" />
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.5rem', marginBottom: '3rem' }}>
-                    <SkeletonLoader height="100px" borderRadius="16px" />
-                    <SkeletonLoader height="100px" borderRadius="16px" />
-                    <SkeletonLoader height="100px" borderRadius="16px" />
-                    <SkeletonLoader height="100px" borderRadius="16px" />
-                </div>
-                <div style={{ display: 'flex', gap: '1rem', marginBottom: '2.5rem' }}>
-                    <SkeletonLoader width="150px" height="40px" borderRadius="10px" />
-                    <SkeletonLoader width="150px" height="40px" borderRadius="10px" />
-                    <SkeletonLoader width="150px" height="40px" borderRadius="10px" />
-                </div>
-                <SkeletonLoader height="500px" borderRadius="24px" />
             </div>
         );
     }
@@ -435,12 +359,12 @@ const AdminDashboard = () => {
     if (!isAdmin) return null;
 
     return (
-        <div className="admin-page" style={{ padding: '120px 5% 60px' }}>
-            <div className="container" style={{ maxWidth: '1200px', margin: '0 auto' }}>
-                <div style={{ marginBottom: '3rem' }}>
-                    <h1 style={{ fontSize: '2.5rem', fontWeight: '800', marginBottom: '8px' }}>Admin Control Center</h1>
-                    <p style={{ color: 'var(--text-muted)' }}>Welcome back, Moderator. Here&apos;s what&apos;s happening today.</p>
-                </div>
+        <div className="admin-page-container">
+            <div className="admin-wrapper">
+                <header className="admin-header-section">
+                    <h1>Admin Control Center</h1>
+                    <p>Welcome back, Moderator. Here&apos;s what&apos;s happening today.</p>
+                </header>
 
                 {error && (
                     <div className="glass-card" style={{ padding: '1.5rem', marginBottom: '2rem', border: '1px solid #ff475733', color: '#ff4757', display: 'flex', gap: '1rem', alignItems: 'center' }}>
@@ -448,500 +372,71 @@ const AdminDashboard = () => {
                     </div>
                 )}
 
-                {/* Stats Grid */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.5rem', marginBottom: '2rem' }}>
-                    {stats.map((stat, i) => (
-                        <div key={i} className="glass-card" style={{ padding: '1.5rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                            <div style={{ padding: '12px', background: 'rgba(255,255,255,0.03)', borderRadius: '12px', color: stat.color }}>
-                                {stat.icon}
-                            </div>
-                            <div>
-                                <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '2px' }}>{stat.label}</p>
-                                <h3 style={{ fontSize: '1.3rem', fontWeight: '800' }}>{stat.value}</h3>
-                            </div>
-                        </div>
-                    ))}
-                </div>
+                <AdminStats stats={stats} />
+                <AdminGrowthChart />
 
-                {/* Global Growth Chart (Admin) */}
-                <div className="glass-card" style={{ padding: '2rem', marginBottom: '3rem' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-                        <h3 style={{ fontSize: '1.1rem', fontWeight: '800' }}>Global Platform Growth</h3>
-                        <div style={{ fontSize: '0.8rem', color: 'var(--primary)', fontWeight: '700' }}>LIVE METRICS</div>
+                <AdminTabs 
+                    activeTab={activeTab} setActiveTab={setActiveTab} 
+                    pendingCount={pendingTools.length} blogCount={blogPosts.length}
+                    userCount={allUsers.length} newsCount={subscribers.length}
+                />
+
+                <div className={`admin-content-grid ${(activeTab === 'pending' || activeTab === 'featured') ? 'with-sidebar' : ''}`}>
+                    <div className="glass-card admin-main-card">
+                        <AdminQueue 
+                            activeTab={activeTab} pendingTools={pendingTools} featuredTools={featuredTools}
+                            handleOpenReview={(tool) => { setSelectedReview(tool); setShowReviewModal(true); }}
+                            handleReject={handleReject}
+                            handleToggleFeatured={handleToggleFeatured}
+                            adminSearchQuery={adminSearchQuery}
+                            adminSearchResults={adminSearchResults}
+                            handleAdminSearch={handleAdminSearch}
+                            isSearchingTools={isSearchingTools}
+                        />
+                        <AdminBlogManager 
+                            activeTab={activeTab} blogPosts={blogPosts} newPost={newPost} setNewPost={setNewPost}
+                            handleCreateBlogPost={handleCreateBlogPost} handleDeleteBlog={handleDeleteBlog}
+                            blogCategories={blogCategories.map(c => ({ value: c.id, label: c.name }))}
+                            submitting={submitting} uploading={uploading}
+                        />
+                        <AdminSettingsManager 
+                            activeTab={activeTab} 
+                            newTool={newTool} 
+                            setNewTool={setNewTool} 
+                            handleDirectAddTool={handleDirectAddTool}
+                            adminImagePreview={adminImagePreview}
+                            adminUseManualUrl={adminUseManualUrl}
+                            setAdminUseManualUrl={setAdminUseManualUrl}
+                            handleAdminFileChange={handleAdminFileChange}
+                            addAdminFeature={addAdminFeature}
+                            removeAdminFeature={removeAdminFeature}
+                            handleAdminFeatureChange={handleAdminFeatureChange}
+                            newCategory={newCategory} setNewCategory={setNewCategory} handleCreateCategory={handleCreateCategory} handleDeleteCategory={handleDeleteCategory} categories={toolCategories}
+                            handleCreateBlogCategory={handleCreateBlogCategory} handleDeleteBlogCategory={handleDeleteBlogCategory} blogCategories={blogCategories.map(c => ({ value: c.id, label: c.name }))}
+                            submitting={submitting} uploading={uploading}
+                        />
+                        <AdminUserManager activeTab={activeTab} allUsers={allUsers} subscribers={subscribers} />
                     </div>
-                    <div style={{ height: '150px', width: '100%' }}>
-                        <svg viewBox="0 0 1000 150" preserveAspectRatio="none" style={{ width: '100%', height: '100%' }}>
-                            <path
-                                d="M0,130 Q150,110 300,90 T600,60 T1000,20"
-                                fill="none" stroke="var(--primary)" strokeWidth="3" strokeLinecap="round"
-                            />
-                            <path
-                                d="M0,130 Q150,110 300,90 T600,60 T1000,20 L1000,150 L0,150 Z"
-                                fill="url(#adminChartGradient)"
-                            />
-                            <defs>
-                                <linearGradient id="adminChartGradient" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="0%" stopColor="var(--primary)" stopOpacity="0.2" />
-                                    <stop offset="100%" stopColor="var(--primary)" stopOpacity="0" />
-                                </linearGradient>
-                            </defs>
-                        </svg>
-                    </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '1rem', color: 'var(--text-muted)', fontSize: '0.7rem' }}>
-                        <span>WEEK 1</span><span>WEEK 2</span><span>WEEK 3</span><span>WEEK 4</span>
-                    </div>
-                </div>
-
-                {/* Tab Navigation */}
-                <div style={{ display: 'flex', gap: '1rem', marginBottom: '2.5rem', borderBottom: '1px solid var(--border)', paddingBottom: '1rem', flexWrap: 'wrap' }}>
-                    {[
-                        { id: 'pending', label: 'Queue', icon: <Clock size={16} /> },
-                        { id: 'featured', label: 'Featured', icon: <Zap size={16} /> },
-                        { id: 'blogs', label: 'Blogs', icon: <FileText size={16} /> },
-                        { id: 'blog-categories', label: 'Blog Cats', icon: <LayoutGrid size={16} /> },
-                        { id: 'categories', label: 'Tool Cats', icon: <LayoutGrid size={16} /> },
-                        { id: 'users', label: 'Users', icon: <Users size={16} /> },
-                        { id: 'add-tool', label: 'Quick Add', icon: <PlusCircle size={16} /> },
-                        { id: 'newsletter', label: 'Newsletter', icon: <Mail size={16} /> }
-                    ].map(tab => (
-                        <button
-                            key={tab.id}
-                            onClick={() => setActiveTab(tab.id)}
-                            style={{
-                                display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 20px',
-                                background: activeTab === tab.id ? 'var(--gradient)' : 'transparent',
-                                border: 'none', color: activeTab === tab.id ? 'white' : 'var(--text-muted)',
-                                borderRadius: '12px', cursor: 'pointer', fontWeight: '700', fontSize: '0.9rem',
-                                transition: 'all 0.3s'
-                            }}
-                        >
-                            {tab.icon} {tab.label}
-                        </button>
-                    ))}
-                </div>
-
-                <div style={{ display: 'grid', gridTemplateColumns: activeTab === 'pending' || activeTab === 'featured' ? '2fr 1fr' : '1fr', gap: '2rem' }}>
-                    {/* Main Content Area */}
-                    <div className="glass-card" style={{ padding: '2rem' }}>
-
-                        {activeTab === 'pending' && (
-                            <>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-                                    <h2 style={{ fontSize: '1.25rem', fontWeight: '700' }}>Approvals Queue</h2>
-                                    <span style={{ fontSize: '0.8rem', color: 'var(--secondary)', fontWeight: '700' }}>{pendingTools.length} PENDING</span>
-                                </div>
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                                    {pendingTools.map(tool => (
-                                        <div key={tool.id} className="admin-queue-item" style={{
-                                            padding: '1.25rem', background: 'rgba(255,255,255,0.02)', borderRadius: '18px',
-                                            border: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center'
-                                        }}>
-                                            <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
-                                                <div style={{ width: '45px', height: '45px', background: 'rgba(255,255,255,0.05)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', border: '1px solid var(--border)' }}>
-                                                    {tool.image_url ? <img src={tool.image_url} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : tool.name.charAt(0)}
-                                                </div>
-                                                <div>
-                                                    <h4 style={{ fontSize: '1rem', fontWeight: '700' }}>{tool.name}</h4>
-                                                    <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{tool.categories?.name} • {new Date(tool.created_at).toLocaleDateString()}</p>
-                                                </div>
-                                                {tool.pending_changes ? (
-                                                    <button
-                                                        onClick={() => handleOpenReview(tool)}
-                                                        className="btn-primary-slim"
-                                                        style={{ background: 'rgba(56, 189, 248, 0.1)', color: '#38bdf8', border: '1px solid #38bdf8' }}
-                                                    >
-                                                        Review Changes
-                                                    </button>
-                                                ) : (
-                                                    <button
-                                                        onClick={() => handleOpenReview(tool)}
-                                                        className="btn-primary-slim"
-                                                        style={{ background: '#00ff88', color: '#000' }}
-                                                    >
-                                                        Full Review
-                                                    </button>
-                                                )}
-                                                <button onClick={() => handleReject(tool)} style={{ background: 'rgba(255, 80, 80, 0.1)', color: '#ff5050', padding: '8px' }} className="btn-primary-slim">
-                                                    <Trash2 size={16} />
-                                                </button>
-                                            </div>
-                                        </div>
-                                    ))}
-                                    {pendingTools.length === 0 && <p style={{ textAlign: 'center', color: 'var(--text-muted)' }}>No pending tools.</p>}
-                                </div>
-                            </>
-                        )}
-
-                        {activeTab === 'featured' && (
-                            <>
-                                <h2 style={{ fontSize: '1.25rem', fontWeight: '700', marginBottom: '2rem' }}>Featured Tools Manager</h2>
-                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1.5rem' }}>
-                                    {featuredTools.map(tool => (
-                                        <div key={tool.id} className="glass-card" style={{ padding: '1.5rem', background: 'rgba(255,255,255,0.01)' }}>
-                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '10px' }}>
-                                                <h4 style={{ fontWeight: '800', marginBottom: 0 }}>{tool.name}</h4>
-                                                {tool.is_verified && <CheckCircle2 size={16} color="#00d2ff" title="Verified" />}
-                                            </div>
-                                            <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '1rem' }}>Expires: {new Date(tool.featured_until).toLocaleDateString()}</p>
-                                            <div style={{ display: 'flex', gap: '8px' }}>
-                                                <button onClick={() => handleRemoveFeature(tool.id)} style={{ flex: 1, background: 'rgba(255,80,80,0.1)', color: '#ff5050', border: 'none', padding: '8px', borderRadius: '8px', cursor: 'pointer', fontSize: '0.8rem' }}>Remove Feature</button>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </>
-                        )}
-
-                        {activeTab === 'blogs' && (
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr', gap: '3rem' }}>
-                                <div>
-                                    <h3 style={{ fontSize: '1.1rem', fontWeight: '800', marginBottom: '1.5rem' }}>Create New Article</h3>
-                                    <form onSubmit={handleCreateBlogPost} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                                        <input type="text" placeholder="Title" required value={newPost.title} onChange={e => setNewPost({ ...newPost, title: e.target.value })} className="nav-search-wrapper" style={{ width: '100%', padding: '12px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'white' }} />
-
-                                        <CustomSelect
-                                            options={blogCategories}
-                                            value={newPost.category}
-                                            onChange={(val) => setNewPost({ ...newPost, category: val })}
-                                            placeholder="Select Blog Category"
-                                            style={{ marginBottom: '0' }}
-                                        />
-
-                                        <div className="file-upload-wrapper" style={{ padding: '1rem' }}>
-                                            {newPost.image_url ? (
-                                                <div className="preview-img-container" style={{ height: '120px' }}>
-                                                    <img src={newPost.image_url} alt="Preview" style={{ height: '100%', objectFit: 'cover' }} />
-                                                    <button type="button" className="remove-upload-btn" onClick={() => setNewPost({ ...newPost, image_url: '' })}><X size={14} /></button>
-                                                </div>
-                                            ) : (
-                                                <label className="file-upload-label" style={{ padding: '1rem', minHeight: '100px' }}>
-                                                    <input type="file" accept="image/*" onChange={async (e) => {
-                                                        const url = await handleFileUpload(e.target.files[0], 'tool-images', 'blog-images');
-                                                        if (url) setNewPost({ ...newPost, image_url: url });
-                                                    }} style={{ display: 'none' }} />
-                                                    <ImageIcon size={20} color="var(--primary)" />
-                                                    <span style={{ fontSize: '0.8rem' }}>Upload Header Image</span>
-                                                </label>
-                                            )}
-                                        </div>
-
-                                        <textarea placeholder="Short Excerpt..." rows="3" value={newPost.excerpt} onChange={e => setNewPost({ ...newPost, excerpt: e.target.value })} className="nav-search-wrapper" style={{ width: '100%', padding: '12px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'white' }}></textarea>
-                                        <textarea placeholder="Article Content (HTML/Text)..." rows="6" value={newPost.content} onChange={e => setNewPost({ ...newPost, content: e.target.value })} className="nav-search-wrapper" style={{ width: '100%', padding: '12px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'white' }}></textarea>
-                                        <button type="submit" disabled={submitting || uploading} className="btn-primary" style={{ width: '100%' }}>{(submitting || uploading) ? <Loader2 className="animate-spin" size={20} /> : 'Publish Article'}</button>
-                                    </form>
-                                </div>
-                                <div>
-                                    <h3 style={{ fontSize: '1.1rem', fontWeight: '800', marginBottom: '1.5rem' }}>Manage Articles ({blogPosts.length})</h3>
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', maxHeight: '600px', overflowY: 'auto', paddingRight: '10px' }}>
-                                        {blogPosts.map(post => (
-                                            <div key={post.id} style={{ padding: '1rem', background: 'rgba(255,255,255,0.02)', borderRadius: '14px', border: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                                <div>
-                                                    <h5 style={{ fontWeight: '700' }}>{post.title}</h5>
-                                                    <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{post.category} • {new Date(post.created_at).toLocaleDateString()}</p>
-                                                </div>
-                                                <button onClick={() => handleDeleteBlog(post.id)} style={{ color: '#ff5050', background: 'none', border: 'none', cursor: 'pointer' }}><Trash2 size={18} /></button>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-
-                        {activeTab === 'add-tool' && (
-                            <div style={{ maxWidth: '600px', margin: '0 auto' }}>
-                                <h2 style={{ fontSize: '1.25rem', fontWeight: '700', marginBottom: '2rem' }}>Direct Tool Addition</h2>
-                                <form onSubmit={handleDirectAddTool} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                                    <input type="text" placeholder="Tool Name" required value={newTool.name} onChange={e => setNewTool({ ...newTool, name: e.target.value })} className="nav-search-wrapper" style={{ width: '100%', padding: '12px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'white' }} />
-                                    <input type="text" placeholder="Tool URL" required value={newTool.url} onChange={e => setNewTool({ ...newTool, url: e.target.value })} className="nav-search-wrapper" style={{ width: '100%', padding: '12px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'white' }} />
-
-                                    <CustomSelect
-                                        options={[
-                                            { label: 'Free', value: 'Free' },
-                                            { label: 'Paid', value: 'Paid' },
-                                            { label: 'Freemium', value: 'Freemium' }
-                                        ]}
-                                        value={newTool.pricing_type}
-                                        onChange={(val) => setNewTool({ ...newTool, pricing_type: val })}
-                                        placeholder="Pricing"
-                                        style={{ marginBottom: '0' }}
-                                    />
-
-                                    <CustomSelect
-                                        options={toolCategories}
-                                        value={newTool.category_id}
-                                        onChange={(val) => setNewTool({ ...newTool, category_id: val })}
-                                        placeholder="Select Category"
-                                        style={{ marginBottom: '0' }}
-                                    />
-
-                                    <div className="file-upload-wrapper" style={{ gridColumn: 'span 2', padding: '1rem' }}>
-                                        {newTool.image_url ? (
-                                            <div className="preview-img-container" style={{ height: '80px', width: '80px' }}>
-                                                <img src={newTool.image_url} alt="Preview" />
-                                                <button type="button" className="remove-upload-btn" onClick={() => setNewTool({ ...newTool, image_url: '' })}><X size={14} /></button>
-                                            </div>
-                                        ) : (
-                                            <label className="file-upload-label" style={{ padding: '0.8rem', minHeight: '60px' }}>
-                                                <input type="file" accept="image/*" onChange={async (e) => {
-                                                    const url = await handleFileUpload(e.target.files[0]);
-                                                    if (url) setNewTool({ ...newTool, image_url: url });
-                                                }} style={{ display: 'none' }} />
-                                                <ImageIcon size={18} color="var(--primary)" />
-                                                <span style={{ fontSize: '0.8rem' }}>Upload Tool Thumbnail</span>
-                                            </label>
-                                        )}
-                                    </div>
-
-                                    <textarea placeholder="Tool Description..." rows="4" value={newTool.description} onChange={e => setNewTool({ ...newTool, description: e.target.value })} className="nav-search-wrapper" style={{ gridColumn: 'span 2', width: '100%', padding: '12px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'white' }}></textarea>
-                                    <button type="submit" disabled={submitting || uploading} className="btn-primary" style={{ gridColumn: 'span 2', marginTop: '1rem' }}>{(submitting || uploading) ? <Loader2 className="animate-spin" size={20} /> : 'Add Approved Tool'}</button>
-                                </form>
-                            </div>
-                        )}
-                        {activeTab === 'categories' && (
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr', gap: '3rem' }}>
-                                <div>
-                                    <h3 style={{ fontSize: '1.1rem', fontWeight: '800', marginBottom: '1.5rem' }}>Add Tool Category</h3>
-                                    <form onSubmit={handleCreateCategory} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                                        <input type="text" placeholder="Category Name (e.g. Video AI)" required value={newCategory.name} onChange={e => setNewCategory({ ...newCategory, name: e.target.value })} className="nav-search-wrapper" style={{ width: '100%', padding: '12px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'white' }} />
-                                        <input type="text" placeholder="Slug (e.g. video-ai)" required value={newCategory.slug} onChange={e => setNewCategory({ ...newCategory, slug: e.target.value })} className="nav-search-wrapper" style={{ width: '100%', padding: '12px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'white' }} />
-                                        <input type="text" placeholder="Icon Name (Lucide)" value={newCategory.icon_name} onChange={e => setNewCategory({ ...newCategory, icon_name: e.target.value })} className="nav-search-wrapper" style={{ width: '100%', padding: '12px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'white' }} />
-                                        <button type="submit" disabled={submitting} className="btn-primary" style={{ width: '100%' }}>{submitting ? <Loader2 className="animate-spin" size={20} /> : 'Add Category'}</button>
-                                    </form>
-                                </div>
-                                <div>
-                                    <h3 style={{ fontSize: '1.1rem', fontWeight: '800', marginBottom: '1.5rem' }}>Active Categories ({toolCategories.length})</h3>
-                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                                        {toolCategories.map(c => (
-                                            <div key={c.id} style={{ padding: '10px', background: 'rgba(255,255,255,0.02)', borderRadius: '12px', border: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                                <span style={{ fontSize: '0.85rem' }}>{c.name}</span>
-                                                <button onClick={() => handleDeleteCategory(c.id)} style={{ color: '#ff5050', background: 'none', border: 'none', cursor: 'pointer' }}><Trash2 size={16} /></button>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-
-                        {activeTab === 'blog-categories' && (
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr', gap: '3rem' }}>
-                                <div>
-                                    <h3 style={{ fontSize: '1.1rem', fontWeight: '800', marginBottom: '1.5rem' }}>Add Blog Category</h3>
-                                    <form onSubmit={handleCreateBlogCategory} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                                        <input type="text" placeholder="Category Name" required value={newCategory.name} onChange={e => setNewCategory({ ...newCategory, name: e.target.value })} className="nav-search-wrapper" style={{ width: '100%', padding: '12px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'white' }} />
-                                        <input type="text" placeholder="Slug (e.g. news)" required value={newCategory.slug} onChange={e => setNewCategory({ ...newCategory, slug: e.target.value })} className="nav-search-wrapper" style={{ width: '100%', padding: '12px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'white' }} />
-                                        <button type="submit" disabled={submitting} className="btn-primary" style={{ width: '100%' }}>{submitting ? <Loader2 className="animate-spin" size={20} /> : 'Add Blog Category'}</button>
-                                    </form>
-                                </div>
-                                <div>
-                                    <h3 style={{ fontSize: '1.1rem', fontWeight: '800', marginBottom: '1.5rem' }}>Active Blog Categories ({blogCategories.length})</h3>
-                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                                        {blogCategories.map(c => (
-                                            <div key={c.id} style={{ padding: '10px', background: 'rgba(255,255,255,0.02)', borderRadius: '12px', border: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                                <span style={{ fontSize: '0.85rem' }}>{c.name}</span>
-                                                <button onClick={() => handleDeleteBlogCategory(c.id)} style={{ color: '#ff5050', background: 'none', border: 'none', cursor: 'pointer' }}><Trash2 size={16} /></button>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-
-                        {activeTab === 'users' && (
-                            <div>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-                                    <h2 style={{ fontSize: '1.25rem', fontWeight: '700' }}>Users Manager</h2>
-                                    <span style={{ fontSize: '0.8rem', color: 'var(--primary)', fontWeight: '700' }}>{allUsers.length} TOTAL USERS</span>
-                                </div>
-                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.5rem' }}>
-                                    {allUsers.map(u => (
-                                        <div key={u.id} className="glass-card" style={{ padding: '1.5rem', display: 'flex', gap: '15px', alignItems: 'center', border: u.is_premium ? '1px solid rgba(255, 215, 0, 0.3)' : '1px solid var(--border)' }}>
-                                            <div style={{ width: '50px', height: '50px', background: 'var(--gradient)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 'bold', fontSize: '1.2rem' }}>
-                                                {u.avatar_url ? <img src={u.avatar_url} style={{ width: '100%', height: '100%', borderRadius: 'inherit', objectFit: 'cover' }} /> : u.full_name?.charAt(0) || 'U'}
-                                            </div>
-                                            <div style={{ flex: 1 }}>
-                                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                                    <h5 style={{ fontWeight: '700', margin: 0 }}>{u.full_name || 'Anonymous'}</h5>
-                                                    {u.is_premium && <Award size={14} color="#FFD700" title="Premium" />}
-                                                </div>
-                                                <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', margin: '2px 0' }}>{u.role}</p>
-                                                <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', margin: 0 }}>Joined {new Date(u.created_at).toLocaleDateString()}</p>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
-
-                        {activeTab === 'newsletter' && (
-                            <div>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-                                    <h2 style={{ fontSize: '1.25rem', fontWeight: '700' }}>Newsletter Subscribers</h2>
-                                    <span style={{ fontSize: '0.8rem', color: 'var(--primary)', fontWeight: '700' }}>{subscribers.length} TOTAL EMAIL{subscribers.length !== 1 && 'S'}</span>
-                                </div>
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', maxHeight: '600px', overflowY: 'auto', paddingRight: '10px' }}>
-                                    {subscribers.map((sub, i) => (
-                                        <div key={sub.id || i} style={{ padding: '1.2rem', background: 'rgba(255,255,255,0.02)', borderRadius: '14px', border: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-                                                <div style={{ width: '40px', height: '40px', background: 'rgba(255, 255, 255, 0.05)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                                    <Mail size={18} color="var(--primary)" />
-                                                </div>
-                                                <div>
-                                                    <h5 style={{ fontWeight: '700', fontSize: '1.05rem', margin: 0 }}>{sub.email}</h5>
-                                                    <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', margin: '4px 0 0 0' }}>Subscribed on {new Date(sub.created_at).toLocaleDateString()}</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    ))}
-                                    {subscribers.length === 0 && (
-                                        <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-muted)' }}>
-                                            <p>No subscribers yet. They will appear here when users sign up from the footer.</p>
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-                        )}
-                    </div>
-
-                    {/* Sidebar Area (Only for pending/featured) */}
-                    {(activeTab === 'pending' || activeTab === 'featured') && (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-                            <div className="glass-card" style={{ padding: '2rem' }}>
-                                <h2 style={{ fontSize: '1.25rem', fontWeight: '700', marginBottom: '1.5rem' }}>Platform Health</h2>
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                                    <div>
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', marginBottom: '8px' }}>
-                                            <span>Database Connection</span>
-                                            <span style={{ color: 'var(--secondary)' }}>Stable</span>
-                                        </div>
-                                        <div style={{ width: '100%', height: '6px', background: 'rgba(255,255,255,0.05)', borderRadius: '10px' }}>
-                                            <div style={{ width: '100%', height: '100%', background: 'var(--secondary)', borderRadius: '10px' }}></div>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', marginBottom: '8px' }}>
-                                            <span>Auth Service</span>
-                                            <span style={{ color: 'var(--primary)' }}>Active</span>
-                                        </div>
-                                        <div style={{ width: '100%', height: '6px', background: 'rgba(255,255,255,0.05)', borderRadius: '10px' }}>
-                                            <div style={{ width: '100%', height: '100%', background: 'var(--primary)', borderRadius: '10px' }}></div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="glass-card" style={{ padding: '1.5rem', background: 'var(--gradient)', color: 'white' }}>
-                                <h4 style={{ fontWeight: '800', marginBottom: '10px' }}>Admin Shortcuts</h4>
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                                    <Link to="/tools" style={{ color: 'white', textDecoration: 'none', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '5px' }}><ArrowUpRight size={14} /> View Directory</Link>
-                                    <Link to="/blog" style={{ color: 'white', textDecoration: 'none', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '5px' }}><ArrowUpRight size={14} /> View Blog</Link>
-                                </div>
-                            </div>
-                        </div>
-                    )}
+                    <AdminSidebar activeTab={activeTab} />
                 </div>
             </div>
-            {/* Review Modal */}
-            {showReviewModal && selectedReview && (
-                <div key="review-modal" className="modal-overlay" style={{
-                    position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(10px)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '20px'
-                }}>
-                    <div className="glass-card" style={{
-                        width: '100%', maxWidth: '900px', maxHeight: '90vh', overflowY: 'auto',
-                        padding: '2.5rem', border: '1px solid var(--border)', position: 'relative'
-                    }}>
-                        <button onClick={handleCloseReview} style={{ position: 'absolute', right: '25px', top: '25px', color: 'var(--text-muted)', background: 'none', border: 'none', cursor: 'pointer' }}><X /></button>
 
-                        <div style={{ marginBottom: '2rem' }}>
-                            <h2 style={{ fontSize: '1.5rem', fontWeight: '900', marginBottom: '8px' }}>
-                                {selectedReview.is_approved ? 'Review Pending Changes' : 'New Tool Approval'}
-                            </h2>
-                            <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>
-                                For tool: <span style={{ color: 'var(--primary)', fontWeight: '700' }}>{selectedReview.name}</span>
-                            </p>
-                        </div>
-
-                        <div className="review-content" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                            {selectedReview.is_approved ? (
-                                // DIFF VIEW MODE
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                                    {getChangedFields(selectedReview, selectedReview.pending_changes).map(field => (
-                                        <div key={field.key} style={{ padding: '1.5rem', background: 'rgba(255,255,255,0.02)', borderRadius: '16px', border: '1px solid var(--border)' }}>
-                                            <h4 style={{ fontSize: '0.8rem', fontWeight: '800', color: 'var(--primary)', marginBottom: '15px', textTransform: 'uppercase' }}>{field.label}</h4>
-                                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
-                                                <div className="diff-old">
-                                                    <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginBottom: '8px' }}>CURRENT</p>
-                                                    {field.isImage ? <img src={field.oldValue} style={{ width: '100%', borderRadius: '8px' }} /> :
-                                                        field.isArray ? (field.oldValue || []).map((f, i) => <div key={i} style={{ fontSize: '0.85rem' }}>• {f}</div>) :
-                                                            <div style={{ fontSize: '0.85rem', color: '#ff5050', textDecoration: 'line-through opacity: 0.6' }}>{field.oldValue || 'None'}</div>}
-                                                </div>
-                                                <div className="diff-new">
-                                                    <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginBottom: '8px' }}>PROPOSED</p>
-                                                    {field.isImage ? <img src={field.newValue} style={{ width: '100%', borderRadius: '8px', border: '2px solid #00ff88' }} /> :
-                                                        field.isArray ? (field.newValue || []).map((f, i) => <div key={i} style={{ fontSize: '0.85rem', color: '#00ff88', fontWeight: '600' }}>• {f}</div>) :
-                                                            <div style={{ fontSize: '0.85rem', color: '#00ff88', fontWeight: '700' }}>{field.newValue}</div>}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            ) : (
-                                // FULL PREVIEW MODE
-                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '2rem' }}>
-                                    <div>
-                                        <img src={selectedReview.image_url} style={{ width: '100%', borderRadius: '20px', border: '1px solid var(--border)' }} />
-                                        <div style={{ marginTop: '1.5rem', wordBreak: 'break-all' }}>
-                                            <h5 style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>URL</h5>
-                                            <a href={selectedReview.url} target="_blank" style={{ color: 'var(--primary)', fontSize: '0.9rem' }}>{selectedReview.url}</a>
-                                        </div>
-                                    </div>
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                                        <div className="info-block">
-                                            <h5 style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Short Pitch</h5>
-                                            <p style={{ fontWeight: '700' }}>{selectedReview.short_description}</p>
-                                        </div>
-                                        <div className="info-block">
-                                            <h5 style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Full Description</h5>
-                                            <p style={{ fontSize: '0.9rem', lineHeight: '1.6', color: 'rgba(255,255,255,0.8)' }}>{selectedReview.description}</p>
-                                        </div>
-                                        <div className="info-block">
-                                            <h5 style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '10px' }}>Features</h5>
-                                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                                                {(selectedReview.features || []).map((f, i) => (
-                                                    <span key={i} style={{ padding: '6px 12px', background: 'rgba(255,255,255,0.05)', borderRadius: '8px', fontSize: '0.8rem' }}>• {f}</span>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-
-                        <div style={{ marginTop: '3rem', pt: '2rem', borderTop: '1px solid var(--border)', display: 'flex', gap: '1.5rem' }}>
-                            <button
-                                onClick={async () => {
-                                    await handleApprove(selectedReview);
-                                    handleCloseReview();
-                                }}
-                                className="btn-primary"
-                                style={{ flex: 1, padding: '18px', background: '#00ff88', color: '#000', fontWeight: '900' }}
-                            >
-                                {selectedReview.is_approved ? 'Apply Changes' : 'Approve & Publish'}
-                            </button>
-                            <button
-                                onClick={async () => {
-                                    await handleReject(selectedReview);
-                                    handleCloseReview();
-                                }}
-                                style={{ flex: 1, padding: '18px', background: 'rgba(255,80,80,0.1)', color: '#ff5050' }}
-                                className="btn-outline"
-                            >
-                                {selectedReview.is_approved ? 'Discard Changes' : 'Reject Tool'}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
+            <AdminReviewModal 
+                showReviewModal={showReviewModal} selectedReview={selectedReview}
+                handleCloseReview={() => { setShowReviewModal(false); setSelectedReview(null); }}
+                handleApprove={handleApprove} handleReject={handleReject}
+                getChangedFields={(live, proposed) => {
+                    if (!proposed) return [];
+                    const fields = [
+                        { key: 'name', label: 'Tool Name' }, { key: 'short_description', label: 'Short Pitch' },
+                        { key: 'description', label: 'Description' }, { key: 'url', label: 'Website URL' },
+                        { key: 'category_id', label: 'Category' }, { key: 'pricing_type', label: 'Pricing Type' },
+                        { key: 'features', label: 'Key Features', isArray: true }, { key: 'image_url', label: 'Thumbnail', isImage: true }
+                    ];
+                    return fields.filter(f => JSON.stringify(live[f.key]) !== JSON.stringify(proposed[f.key]))
+                                 .map(f => ({ ...f, oldValue: live[f.key], newValue: proposed[f.key], isImage: f.key === 'image_url', isArray: f.key === 'features' }));
+                }}
+            />
         </div>
     );
 };

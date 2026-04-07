@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, User, LogIn, LayoutGrid, Zap, Menu, X, Sparkles, Info, Rss, RefreshCcw, ChevronDown, Bell, Settings, LogOut, Heart, Star } from 'lucide-react';
+import { Search, User, LogIn, LayoutGrid, Zap, Menu, X, Sparkles, Info, Rss, RefreshCcw, ChevronDown, Bell, Settings, LogOut, Heart, Star, Home } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
 import { useAuth } from '../context/AuthContext';
 import NotificationPanel from './NotificationPanel';
 import AccountMenu from './AccountMenu';
+import MobileMenu from './MobileMenu';
 
 const Navbar = () => {
     const { user, loading: authLoading, signOut } = useAuth();
@@ -22,16 +23,16 @@ const Navbar = () => {
 
             subscription = supabase
                 .channel(`public:notifications:${user.id}`)
-                .on('postgres_changes', { 
-                    event: '*', 
-                    schema: 'public', 
+                .on('postgres_changes', {
+                    event: '*',
+                    schema: 'public',
                     table: 'notifications',
                     filter: `user_id=eq.${user.id}`
                 }, (_payload) => {
                     fetchUnreadCount(user.id);
                 })
                 .subscribe();
-            
+
             // Custom Event Listener for instant sync
             const handleSync = () => fetchUnreadCount(user.id);
             window.addEventListener('notifications-updated', handleSync);
@@ -42,15 +43,6 @@ const Navbar = () => {
             };
         }
     }, [user?.id]);
-
-    // Locking Body Scroll when Menu is Open
-    useEffect(() => {
-        if (isMenuOpen) {
-            document.body.style.overflow = 'hidden';
-        } else {
-            document.body.style.overflow = 'unset';
-        }
-    }, [isMenuOpen]);
 
     const fetchUnreadCount = async (userId) => {
         try {
@@ -77,8 +69,10 @@ const Navbar = () => {
         <nav className="navbar">
             <div className="nav-container">
                 <Link to="/" className="logo-section" onClick={() => setIsMenuOpen(false)}>
-                    <div className="logo-icon"><LayoutGrid size={22} /></div>
-                    <div className="logo-text">ServicesHUB</div>
+                    <img src="/logo.png" alt="HUBly" style={{ height: '32px', width: 'auto' }} />
+                    <div className="logo-text">
+                        <span className="logo-white">HUB</span><span className="logo-gradient">ly</span>
+                    </div>
                 </Link>
 
                 {/* Navbar Search - Centered */}
@@ -97,65 +91,28 @@ const Navbar = () => {
                     ></div>
                 )}
 
-                <div className={`nav-links ${isMenuOpen ? 'active' : ''}`}>
-                    {user ? (
-                        <>
-                            <Link to="/profile" className="mobile-only-link-direct" style={{ fontWeight: 800, color: 'var(--primary)' }} onClick={() => setIsMenuOpen(false)}>
-                                <User size={18} /> My Account
-                            </Link>
-                            <Link to="/dashboard" className="mobile-only-link-direct" onClick={() => setIsMenuOpen(false)}><LayoutGrid size={18} /> Dashboard</Link>
-                            <Link to="/profile" className="mobile-only-link-direct" onClick={() => setIsMenuOpen(false)}><Heart size={18} /> My Favorites</Link>
-                            <div className="mobile-only-divider" style={{ opacity: 0.5 }}></div>
-                        </>
-                    ) : authLoading ? (
-                        <div className="mobile-only-link-direct" style={{ opacity: 0.5 }}>...</div>
-                    ) : (
-                        <Link to="/auth" className="mobile-only-link-direct" style={{ fontWeight: 800, color: 'var(--primary)' }} onClick={() => setIsMenuOpen(false)}>
-                            <LogIn size={18} /> Login / Register
-                        </Link>
-                    )}
+                <div className="nav-links desktop-only">
+                    <Link to="/tools"><LayoutGrid size={18} /> Tools</Link>
+                    <Link to="/categories"><Zap size={18} /> Categories</Link>
+                    <Link to="/promote"><Sparkles size={18} /> Promote</Link>
 
-                    <Link to="/tools" onClick={() => setIsMenuOpen(false)}><Sparkles size={18} /> Explore Tools</Link>
-                    <Link to="/compare" onClick={() => setIsMenuOpen(false)}><RefreshCcw size={18} /> Compare</Link>
-
-                    <Link to="/categories" className="mobile-only-link-direct" onClick={() => setIsMenuOpen(false)}><LayoutGrid size={18} /> Categories</Link>
-                    <Link to="/blog" className="mobile-only-link-direct" onClick={() => setIsMenuOpen(false)}><Rss size={18} /> Blog Hub</Link>
-                    <Link to="/faq" className="mobile-only-link-direct" onClick={() => setIsMenuOpen(false)}><Info size={18} /> FAQ & Help</Link>
-                    <Link to="/promote" className="mobile-only-link-direct" onClick={() => setIsMenuOpen(false)}><Zap size={18} /> Advertising</Link>
-
-                    {user && (
-                        <>
-                            <div className="mobile-only-divider"></div>
-                            <Link to="/notifications" className="mobile-only-link-direct" onClick={() => setIsMenuOpen(false)}><Bell size={18} /> Notifications</Link>
-                            <Link to="/settings" className="mobile-only-link-direct" onClick={() => setIsMenuOpen(false)}><Settings size={18} /> Settings</Link>
-                            <button className="mobile-only-link-direct" onClick={handleLogout} style={{ background: 'none', border: 'none', width: '100%', textAlign: 'left', cursor: 'pointer', fontFamily: 'inherit', fontSize: 'inherit', color: '#FF5252' }}>
-                                <LogOut size={18} /> Logout
-                            </button>
-                        </>
-                    )}
-
-                    {/* Desktop More Menu */}
-                    <div className="nav-more-container desktop-only">
+                    <div className="nav-more-container">
                         <button
                             className="nav-more-trigger"
                             onClick={() => { setIsMoreOpen(!isMoreOpen); setIsNotifOpen(false); setIsAccountOpen(false); }}
-                            onBlur={() => setTimeout(() => setIsMoreOpen(false), 200)}
                         >
-                            Explore <ChevronDown size={14} className={isMoreOpen ? 'rotated' : ''} />
+                            More <ChevronDown size={14} className={isMoreOpen ? 'rotated' : ''} />
                         </button>
                         {isMoreOpen && (
                             <div className="nav-more-dropdown glass-card">
-                                <Link to="/categories" onClick={() => setIsMoreOpen(false)}><LayoutGrid size={16} /> All Categories</Link>
+                                <Link to="/premium" onClick={() => setIsMoreOpen(false)}><Star size={16} /> Premium Access</Link>
                                 <Link to="/blog" onClick={() => setIsMoreOpen(false)}><Rss size={16} /> Blog Hub</Link>
+                                <Link to="/about" onClick={() => setIsMoreOpen(false)}><Info size={16} /> Who We Are</Link>
+                                <Link to="/compare" onClick={() => setIsMoreOpen(false)}><RefreshCcw size={16} /> Compare Tools</Link>
                                 <Link to="/faq" onClick={() => setIsMoreOpen(false)}><Info size={16} /> FAQ & Help</Link>
-                                <Link to="/promote" onClick={() => setIsMoreOpen(false)}><Zap size={16} /> Advertising</Link>
                             </div>
                         )}
                     </div>
-
-                    <Link to="/submit" className="mobile-only-link" onClick={() => setIsMenuOpen(false)}>
-                        <Zap size={18} /> Submit Tool
-                    </Link>
                 </div>
 
                 <div className="nav-actions">
@@ -178,8 +135,8 @@ const Navbar = () => {
                         </Link>
                     )}
                     <Link to="/submit" className="btn-primary-slim">Submit Tool</Link>
-                    
-                    
+
+
                     {authLoading ? (
                         <div style={{ width: 68, height: 38, background: 'rgba(255,255,255,0.05)', borderRadius: '12px' }} />
                     ) : !user ? (
@@ -192,7 +149,7 @@ const Navbar = () => {
                                     onClick={() => { setIsNotifOpen(!isNotifOpen); setIsMoreOpen(false); setIsAccountOpen(false); }}
                                     title="Notifications"
                                 >
-                                    <Bell size={24} />
+                                    <Bell size={20} />
                                     {unreadCount > 0 && <span className="notif-badge">{unreadCount}</span>}
                                 </button>
                                 {isNotifOpen && (
@@ -206,7 +163,7 @@ const Navbar = () => {
                                     onClick={() => { setIsAccountOpen(!isAccountOpen); setIsNotifOpen(false); setIsMoreOpen(false); }}
                                     title="Account"
                                 >
-                                    <User size={26} />
+                                    <User size={22} />
                                 </button>
                                 {isAccountOpen && (
                                     <AccountMenu onClose={() => setIsAccountOpen(false)} handleLogout={handleLogout} user={user} />
@@ -215,11 +172,26 @@ const Navbar = () => {
                         </>
                     )}
 
-                    <button className="menu-toggle" onClick={() => setIsMenuOpen(!isMenuOpen)}>
-                        {isMenuOpen ? <X size={28} /> : <Menu size={28} />}
-                    </button>
+                    {!isMenuOpen && (
+                        <button
+                            className="menu-toggle-premium"
+                            onClick={() => setIsMenuOpen(true)}
+                            aria-label="Open Menu"
+                        >
+                            <div className="hamburger-box">
+                                <div className="hamburger-inner"></div>
+                            </div>
+                        </button>
+                    )}
                 </div>
             </div>
+
+            <MobileMenu
+                isOpen={isMenuOpen}
+                onClose={() => setIsMenuOpen(false)}
+                user={user}
+                handleLogout={handleLogout}
+            />
         </nav>
     );
 };

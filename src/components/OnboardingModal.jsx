@@ -29,12 +29,12 @@ const OnboardingModal = () => {
 
                 {step === 1 ? (
                     <div className="step-content">
-                        <div className="onboarding-badge">WELCOME TO SERVICESHUB</div>
+                        <div className="onboarding-badge">WELCOME TO HUBLY</div>
                         <h2>What&apos;s your <span className="gradient-text">Mission</span>?</h2>
                         <p>We&apos;ve tailored the platform to suit your specific needs. Tell us who you are.</p>
-                        
+
                         <div className="role-selection">
-                            <button 
+                            <button
                                 className={`role-card ${role === 'seeker' ? 'active' : ''}`}
                                 onClick={() => { setRole('seeker'); setStep(2); }}
                             >
@@ -42,7 +42,7 @@ const OnboardingModal = () => {
                                 <h3>Tool Seeker</h3>
                                 <p>I&apos;m here to find AI tools to boost my work.</p>
                             </button>
-                            <button 
+                            <button
                                 className={`role-card ${role === 'publisher' ? 'active' : ''}`}
                                 onClick={() => { setRole('publisher'); setStep(2); }}
                             >
@@ -56,7 +56,7 @@ const OnboardingModal = () => {
                     <div className="step-content">
                         <div className="onboarding-badge">{role === 'seeker' ? 'FOR TOOL SEEKERS' : 'FOR TOOL PUBLISHERS'}</div>
                         <h2>3 Easy Steps to <span className="gradient-text">Success</span></h2>
-                        
+
                         <div className="steps-list">
                             {role === 'seeker' ? (
                                 <>
@@ -117,7 +117,8 @@ const OnboardingModal = () => {
                 )}
             </div>
 
-            <style dangerouslySetInnerHTML={{ __html: `
+            <style dangerouslySetInnerHTML={{
+                __html: `
                 .onboarding-overlay {
                     position: fixed;
                     top: 0;

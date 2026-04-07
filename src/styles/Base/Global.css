@@ -1,0 +1,601 @@
+/* ==========================================================================
+   GLOBAL UI COMPONENTS (EXTRACTED FROM INDEX.CSS)
+   ========================================================================== */
+
+/* 1. Global Layout Wrappers */
+.main-section {
+  padding: 80px 5%;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.glass-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 24px;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  position: relative;
+  z-index: 1;
+}
+
+.glass-card:hover {
+  background: var(--bg-card-hover);
+  border-color: var(--primary);
+  transform: translateY(-12px);
+  z-index: 10;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+}
+
+/* 2. Global Button & Select Styles */
+.custom-select-container {
+  position: relative;
+  width: 200px;
+  z-index: 50;
+}
+
+.custom-select-trigger {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border);
+  padding: 10px 16px;
+  border-radius: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  transition: 0.3s;
+  color: white;
+}
+
+.custom-select-trigger:hover {
+  border-color: var(--primary);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.custom-options {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  background: rgba(15, 15, 18, 0.95);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+  display: none;
+  z-index: 100;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+}
+
+.custom-options.show {
+  display: block;
+  animation: fadeInDown 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.custom-option {
+  padding: 12px 16px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.custom-option:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: white;
+}
+
+.custom-option.selected {
+  color: var(--primary);
+  background: rgba(0, 136, 204, 0.08);
+}
+
+.btn-primary {
+  background: var(--gradient);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 0.95rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px var(--primary-glow);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border);
+  color: white;
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 0.95rem;
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: var(--primary);
+  transform: translateY(-2px);
+}
+
+.btn-outline {
+  background: transparent;
+  border: 1.5px solid var(--primary);
+  color: var(--primary);
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 0.95rem;
+  text-decoration: none;
+}
+
+.btn-outline:hover {
+  background: var(--primary);
+  color: white;
+  box-shadow: 0 0 20px var(--primary-glow);
+  transform: translateY(-2px);
+}
+
+.btn-text {
+  background: transparent;
+  border: none;
+  color: var(--primary);
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  text-decoration: none;
+  cursor: pointer;
+  padding: 5px 0;
+  transition: 0.3s;
+  font-size: 0.95rem;
+}
+
+.btn-text:hover {
+  gap: 10px;
+  text-shadow: 0 0 10px var(--primary-glow);
+}
+
+/* 3. Global Typography & Badges */
+.badge {
+  display: inline-block;
+  background: rgba(0, 136, 204, 0.15);
+  padding: 6px 16px;
+  border-radius: 100px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--primary);
+  margin-bottom: 1.5rem;
+  letter-spacing: 1px;
+}
+
+/* Global Pill Badges */
+.badge-pill-verified {
+  background: rgba(0, 210, 255, 0.08);
+  color: var(--primary);
+  border: 1px solid rgba(0, 210, 255, 0.2);
+  padding: 3px 10px;
+  border-radius: 100px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.badge-pill-featured {
+  background: rgba(255, 170, 0, 0.1);
+  color: #ffaa00;
+  border: 1px solid rgba(255, 170, 0, 0.2);
+  padding: 3px 10px;
+  border-radius: 100px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.badge-pill-price {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-muted);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 3px 10px;
+  border-radius: 100px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.gradient-text {
+  background: var(--gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.section-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 4rem;
+}
+
+.section-title {
+  font-size: 2.5rem;
+  font-weight: 800;
+  margin-bottom: 1rem;
+}
+
+.section-desc {
+  color: var(--text-muted);
+  font-size: 1.1rem;
+}
+
+/* ==========================================================================
+   MIGRATED FROM INDEX.CSS (BLOCK A & C)
+   ========================================================================== */
+
+.app-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding-top: 68px;
+}
+
+/* Compact Card System */
+.compact-glass-card {
+  padding: 1.2rem !important;
+  gap: 0.8rem !important;
+}
+
+.skeleton {
+  background: rgba(255, 255, 255, 0.05);
+  background: linear-gradient(90deg,
+      rgba(255, 255, 255, 0.05) 25%,
+      rgba(255, 255, 255, 0.1) 50%,
+      rgba(255, 255, 255, 0.05) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite linear;
+  border-radius: 8px;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.skeleton-img {
+  width: 100%;
+  height: 200px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 16px;
+  margin-bottom: 1.5rem;
+}
+
+.skeleton-line {
+  width: 80%;
+  height: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 6px;
+  margin-bottom: 0.8rem;
+}
+
+.skeleton-line.short {
+  width: 50%;
+}
+
+.mobile-only-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 1rem 0;
+  display: none;
+}
+
+@media (max-width: 1024px) {
+  .mobile-only-divider {
+    display: block;
+  }
+
+  .mobile-logout-btn {
+    display: flex !important;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    background: rgba(255, 80, 80, 0.1);
+    color: #ff5050;
+    padding: 12px 15px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 80, 80, 0.2);
+    margin-top: 10px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+}
+
+.feature-item-premium:hover {
+  transform: translateY(-8px);
+  border-color: var(--primary) !important;
+  background: rgba(0, 210, 255, 0.03) !important;
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+}
+
+.claim-tool-card {
+  transition: all 0.3s ease;
+}
+
+.claim-tool-card:hover {
+  transform: scale(1.02) !important;
+  border-color: var(--primary) !important;
+  border-style: solid !important;
+  box-shadow: 0 10px 25px rgba(0, 136, 204, 0.1);
+}
+
+/* --- GLOBAL RESPONSIVE FIXES (MIGRATED BLOCKS) --- */
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+@media (max-width: 768px) {
+  .main-section {
+    padding: 3rem 5% !important;
+  }
+
+  .hero-title {
+    font-size: 2.2rem !important;
+    text-align: center !important;
+    justify-content: center;
+  }
+
+  .hero-subtitle-slim {
+    font-size: 1rem !important;
+    text-align: center;
+  }
+
+  .section-title {
+    font-size: 1.8rem !important;
+  }
+
+  .section-header-row {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+    align-items: center;
+  }
+
+  .view-all-link {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* Tool Detail Page Mobile Fixes */
+@media (max-width: 992px) {
+  .tool-header-flex {
+    flex-direction: column;
+    text-align: center;
+    gap: 2rem !important;
+  }
+
+  .tool-header-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .tool-sidebar {
+    order: 2;
+  }
+
+  .tool-main-info {
+    order: 1;
+  }
+
+  .tool-header-actions {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 600px) {
+  .tool-header-actions {
+    flex-direction: column;
+  }
+
+  .tool-header-actions .btn-primary {
+    width: 100%;
+  }
+
+  .tool-header-actions .icon-btn {
+    width: 100% !important;
+    justify-content: center;
+  }
+}
+
+/* Categories Page Mobile Fixes */
+@media (max-width: 768px) {
+  .categories-grid-large {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 1rem !important;
+  }
+
+  .category-card-premium {
+    padding: 1.5rem !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .categories-grid-large {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* --- GLOBAL MOBILE RESPONSIVENESS OVERHAUL --- */
+@media (max-width: 1024px) {
+  .menu-toggle-premium {
+    display: flex !important;
+  }
+
+  .desktop-only {
+    display: none !important;
+  }
+}
+
+@media (max-width: 768px) {
+  /* General Layout & Typography */
+  h1 {
+    font-size: 2.2rem !important;
+  }
+
+  h2 {
+    font-size: 1.8rem !important;
+  }
+
+  .container {
+    padding-left: 15px !important;
+    padding-right: 15px !important;
+  }
+
+  /* Forms & Input Groups */
+  .glass-card-slim,
+  .glass-card {
+    padding: 1.5rem !important;
+    border-radius: 20px !important;
+  }
+
+  div[style*="gridTemplateColumns"],
+  .input-panel-grid {
+    grid-template-columns: 1fr !important;
+    gap: 1.2rem !important;
+  }
+
+
+/* Removed global slim-input-field to enforce page isolation */
+
+  /* Comparison Page */
+  .comparison-container {
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 1.5rem !important;
+    padding: 0 10px !important;
+  }
+
+  .vs-divider {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+    order: 2;
+  }
+
+  .compare-column:nth-child(1) {
+    order: 1;
+  }
+
+  .compare-column:nth-child(3) {
+    order: 3;
+  }
+
+  .feature-matrix {
+    padding: 1rem !important;
+    margin: 2rem 5px !important;
+  }
+
+  .feature-matrix>div>div {
+    grid-template-columns: 1fr 60px 60px !important;
+    padding: 0.6rem 0.8rem !important;
+    font-size: 0.85rem !important;
+  }
+
+  .editorial-grid-layout {
+    grid-template-columns: 1fr !important;
+    gap: 1.5rem !important;
+  }
+
+  .hero-section-slim .icon-btn-small {
+    right: 50% !important;
+    transform: translateX(50px) !important;
+  }
+
+  .hero-section-slim .hero-flex-container {
+    width: 100%;
+  }
+
+  .hero-section-slim .hero-actions-container {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* Submit/Edit Tool sections */
+  .upload-wrapper-slim .upload-header-container {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  h1 {
+    font-size: 1.8rem !important;
+  }
+
+  .hero-section-slim h1 {
+    font-size: 1.5rem !important;
+  }
+
+  /* Buttons stacking */
+  .action-buttons-container,
+  .hero-background-container {
+    flex-direction: column !important;
+  }
+
+  .btn-primary,
+  .btn-secondary,
+  .btn-outline {
+    width: 100% !important;
+    text-align: center;
+    justify-content: center;
+  }
+}

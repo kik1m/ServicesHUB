@@ -1,0 +1,283 @@
+/* ==========================================================================
+   PROMOTE & ADVERTISING PAGE STYLES - SaaS 2.0 REFINEMENT
+   ========================================================================== */
+
+.promote-view-container {
+  min-height: 100vh;
+  padding-top: 2rem;
+}
+
+/* Hero Section Styles */
+.promote-header-slim {
+  margin-bottom: 3.5rem; /* Large gap before Step 1 */
+  position: relative;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.promote-status-badge {
+  display: inline-flex;
+  background: rgba(var(--primary-rgb), 0.08);
+  padding: 5px 14px;
+  border-radius: 100px;
+  font-size: 0.65rem;
+  font-weight: 950;
+  color: var(--primary);
+  letter-spacing: 1px;
+  border: 1px solid rgba(var(--primary-rgb), 0.2);
+  margin-bottom: 1.2rem;
+}
+
+.promote-header-slim h1 {
+  font-size: 3.2rem;
+  font-weight: 950;
+  letter-spacing: -2px;
+  margin-bottom: 1rem;
+  color: white;
+  line-height: 1.1;
+}
+
+.purple-magenta-gradient {
+  background: linear-gradient(135deg, #bf5af2 0%, #ff2d55 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.promote-header-slim p {
+  font-size: 1.05rem;
+  color: var(--text-muted);
+  max-width: 650px;
+  line-height: 1.6;
+  margin: 0 auto;
+}
+
+/* Section Headers */
+.section-header-compact {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 1.5rem;
+}
+
+.badge-step {
+  background: var(--primary);
+  color: white;
+  padding: 3px 10px;
+  border-radius: 6px;
+  font-size: 0.65rem;
+  font-weight: 900;
+  letter-spacing: 0.5px;
+}
+
+.section-header-compact h3 {
+  font-weight: 800;
+  margin: 0;
+  font-size: 1.15rem;
+}
+
+/* Promotion Plans Grid */
+.promote-plans-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 4rem;
+}
+
+.promote-plan-card {
+  position: relative;
+  padding: 2.2rem 1.8rem;
+  border-radius: 30px;
+  background: rgba(255, 255, 255, 0.015) !important;
+  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.promote-plan-card:hover {
+  transform: translateY(-8px);
+  border-color: rgba(255, 255, 255, 0.15) !important;
+  background: rgba(255, 255, 255, 0.02) !important;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+}
+
+.plan-glow-overlay {
+  position: absolute;
+  top: -20%;
+  left: 0;
+  right: 0;
+  height: 100%;
+  opacity: 0.12;
+  z-index: -1;
+  pointer-events: none;
+  filter: blur(50px);
+}
+
+.recommended-badge {
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  color: black;
+  padding: 4px 12px;
+  border-radius: 100px;
+  font-size: 0.6rem;
+  font-weight: 950;
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.plan-title-box {
+  margin-bottom: 1.5rem;
+}
+
+.plan-title-box h4 {
+  font-size: 1.4rem;
+  font-weight: 900;
+  color: white;
+  margin-bottom: 6px;
+}
+
+.plan-title-box p {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+.plan-price-tag {
+  margin-bottom: 2rem;
+}
+
+.plan-price-tag .amount {
+  font-size: 2.8rem;
+  font-weight: 950;
+  color: white;
+  letter-spacing: -1.5px;
+}
+
+.plan-price-tag .period {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin-left: 4px;
+}
+
+.plan-features-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 2.5rem 0;
+  flex: 1;
+}
+
+.plan-features-list li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 0.8rem;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.plan-cta-btn {
+  width: 100%;
+  padding: 15px;
+  border-radius: 15px;
+  color: black;
+  border: none;
+  font-weight: 900;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+}
+
+.plan-cta-btn:hover:not(:disabled) {
+  transform: scale(1.01);
+  filter: brightness(1.1);
+}
+
+/* Trust Footer Section */
+.promote-trust-footer {
+  margin-top: 3rem;
+  padding: 3.5rem 2rem;
+  border-radius: 35px;
+  background: rgba(255, 255, 255, 0.015);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.trust-icon-box {
+  width: 60px;
+  height: 60px;
+  background: rgba(0, 136, 204, 0.06);
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary);
+  margin-bottom: 1.5rem;
+  border: 1px solid rgba(0, 136, 204, 0.12);
+}
+
+.promote-trust-footer h3 {
+  font-size: 1.5rem;
+  font-weight: 900;
+  margin-bottom: 0.8rem;
+  color: white;
+}
+
+.trust-desc {
+  max-width: 550px;
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+  margin-bottom: 2.5rem !important;
+}
+
+.trust-tags-row {
+  display: flex;
+  gap: 2.5rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.trust-tag-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.trust-tag-item span {
+  color: var(--primary);
+  display: flex;
+}
+
+@media (max-width: 768px) {
+  .promote-plans-grid {
+    grid-template-columns: 1fr;
+    margin-bottom: 4rem;
+  }
+  
+  .promote-trust-footer {
+    padding: 3rem 1.5rem;
+    margin-top: 2rem;
+  }
+  
+  .trust-tags-row {
+    gap: 1.5rem;
+  }
+}

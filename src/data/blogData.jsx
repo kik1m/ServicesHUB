@@ -19,7 +19,7 @@ export const blogPosts = [
             <h3>2. Autonomous Agents</h3>
             <p>We are seeing most tools move from "assistance" to "autonomy," where software can perform multi-step tasks independently.</p>
             <h3>Conclusion</h3>
-            <p>Staying ahead in 2026 means embracing these changes early. ServicesHUB is committed to bringing you the latest of these innovations.</p>
+            <p>Staying ahead in 2026 means embracing these changes early. HUBly is committed to bringing you the latest of these innovations.</p>
         `,
         author: "Alex Rivera",
         date: "March 20, 2026",

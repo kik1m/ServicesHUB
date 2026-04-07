@@ -59,10 +59,9 @@ const SmartBanner = () => {
     return (
         <div className="smart-banner-new">
             <div className="banner-inner">
-                {/* Visual Section */}
+                {/* Visual Section - Large Icon Look */}
                 <div className="banner-visual">
                     <img src={currentTool.image_url || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1964&auto=format&fit=crop'} alt={currentTool.name} className="banner-img" />
-                    <div className="img-overlay"></div>
                 </div>
 
                 {/* Content Section */}
@@ -83,7 +82,7 @@ const SmartBanner = () => {
                     </div>
 
                     <div className="banner-text-content">
-                        <h2 style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <h2 style={{ display: 'flex', alignItems: 'center', gap: '12px', margin: 0 }}>
                             {currentTool.name}
                             {currentTool.is_verified && <CheckCircle2 size={24} color="#00d2ff" fill="rgba(0,210,255,0.1)" />}
                         </h2>
@@ -115,35 +114,35 @@ const SmartBanner = () => {
                     max-width: 1400px;
                     margin: 0 auto;
                     display: grid;
-                    grid-template-columns: 450px 1fr;
-                    min-height: 280px;
-                    padding: 0;
+                    grid-template-columns: 320px 1fr;
+                    min-height: 220px;
+                    padding: 20px 0;
                 }
                 .banner-visual {
                     position: relative;
-                    height: 100%;
-                    overflow: hidden;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    padding: 20px;
                 }
                 .banner-img {
-                    width: 100%;
-                    height: 100%;
+                    width: 150px;
+                    height: 150px;
                     object-fit: cover;
-                    transition: transform 10s linear;
+                    border-radius: 32px;
+                    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
                 }
                 .smart-banner-new:hover .banner-img {
-                    transform: scale(1.1);
-                }
-                .img-overlay {
-                    position: absolute;
-                    inset: 0;
-                    background: linear-gradient(90deg, transparent 50%, rgba(7, 7, 9, 1) 100%);
+                    transform: scale(1.08) rotate(3deg);
                 }
                 .banner-details {
-                    padding: 40px 60px;
+                    padding: 20px 40px;
                     display: flex;
                     flex-direction: column;
                     justify-content: center;
-                    gap: 1.5rem;
+                    gap: 1.2rem;
                 }
                 .banner-top-meta {
                     display: flex;
@@ -154,9 +153,9 @@ const SmartBanner = () => {
                     background: rgba(var(--primary-rgb), 0.15);
                     border: 1px solid rgba(var(--primary-rgb), 0.3);
                     color: var(--primary);
-                    padding: 6px 16px;
+                    padding: 5px 15px;
                     border-radius: 100px;
-                    font-size: 0.75rem;
+                    font-size: 0.72rem;
                     font-weight: 800;
                     display: flex;
                     align-items: center;
@@ -187,16 +186,16 @@ const SmartBanner = () => {
                 .banner-text-content h2 {
                     font-size: 2.2rem;
                     font-weight: 900;
-                    margin-bottom: 0.5rem;
-                    background: linear-gradient(to right, #fff, rgba(255,255,255,0.7));
+                    margin-bottom: 0.4rem;
+                    background: linear-gradient(to right, #fff, rgba(255,255,255,0.8));
                     -webkit-background-clip: text;
                     background-clip: text;
                     -webkit-text-fill-color: transparent;
                 }
                 .banner-text-content p {
-                    font-size: 1.05rem;
+                    font-size: 1.02rem;
                     color: var(--text-muted);
-                    max-width: 700px;
+                    max-width: 800px;
                     line-height: 1.5;
                     display: -webkit-box;
                     -webkit-line-clamp: 2;
@@ -209,9 +208,9 @@ const SmartBanner = () => {
                     gap: 15px;
                 }
                 .banner-cta {
-                    padding: 12px 28px;
+                    padding: 10px 24px;
                     border-radius: 14px;
-                    font-size: 0.95rem;
+                    font-size: 0.9rem;
                     font-weight: 800;
                     text-decoration: none;
                     display: flex;
@@ -222,7 +221,6 @@ const SmartBanner = () => {
                 .banner-cta.visit {
                     background: var(--gradient);
                     color: white;
-                    box-shadow: 0 4px 20px var(--primary-glow);
                 }
                 .banner-cta.detail {
                     background: rgba(255,255,255,0.05);
@@ -234,59 +232,36 @@ const SmartBanner = () => {
                 @media (max-width: 1024px) {
                     .banner-inner { 
                         grid-template-columns: 1fr; 
-                        position: relative;
-                        min-height: 380px;
-                        border-radius: 0;
+                        padding: 40px 20px;
+                        text-align: center;
                     }
-                    .banner-visual { 
-                        position: absolute; 
-                        inset: 0; 
-                        z-index: 0;
-                        height: 100%;
+                    .banner-visual {
+                        padding-bottom: 0;
                     }
                     .banner-img {
-                        filter: brightness(0.6) saturate(1.2);
-                    }
-                    .img-overlay {
-                        background: linear-gradient(to top, rgba(7, 7, 9, 1) 20%, rgba(7, 7, 9, 0.4) 60%, transparent 100%);
-                        z-index: 1;
+                        width: 120px;
+                        height: 120px;
+                        border-radius: 28px;
                     }
                     .banner-details { 
-                        position: relative;
-                        z-index: 2;
-                        padding: 60px 25px 40px; 
-                        gap: 1.5rem; 
-                        background: radial-gradient(circle at top right, rgba(255,255,255,0.05), transparent);
-                        justify-content: flex-end;
+                        align-items: center;
+                        padding: 20px 0;
                     }
-                    .banner-text-content h2 { 
-                        font-size: 2rem; 
-                        text-shadow: 0 2px 10px rgba(0,0,0,0.5);
-                    }
-                    .banner-text-content p { 
-                        font-size: 1rem; 
-                        -webkit-line-clamp: 3; 
-                        color: rgba(255,255,255,0.9);
-                        text-shadow: 0 1px 5px rgba(0,0,0,0.3);
+                    .banner-text-content p {
+                        margin: 0 auto;
                     }
                     .banner-top-meta {
-                        position: absolute;
-                        top: 25px;
-                        left: 25px;
-                        right: 25px;
-                        width: auto;
-                    }
-                    .banner-cta-group {
-                        margin-top: 10px;
+                        width: 100%;
+                        margin-bottom: 10px;
                     }
                 }
 
                 @media (max-width: 480px) {
-                    .banner-inner { min-height: 420px; }
+                    .banner-inner { min-height: auto; }
                     .banner-text-content h2 { font-size: 1.7rem; }
-                    .banner-top-meta { flex-direction: row; justify-content: space-between; align-items: center; }
                     .banner-cta-group { flex-direction: column; width: 100%; gap: 12px; }
-                    .banner-cta { justify-content: center; width: 100%; padding: 16px; border-radius: 16px; backdrop-filter: blur(10px); }
+                    .banner-cta { justify-content: center; width: 100%; }
+                    .banner-img { width: 100px; height: 100px; }
                 }
             ` }} />
         </div>

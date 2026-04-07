@@ -1,0 +1,150 @@
+/* ==========================================================================
+   CATEGORIES & CATEGORY DETAIL STYLES
+   ========================================================================== */
+
+/* Main List Layout */
+.categories-grid-large {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1.25rem;
+}
+
+/* Category Card Premium Styling */
+.category-card-premium {
+  text-align: center;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  padding: 1.8rem !important;
+  text-decoration: none;
+  transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1) !important;
+  position: relative;
+  overflow: hidden;
+  border-radius: 24px !important;
+  background: rgba(255, 255, 255, 0.01) !important;
+  border: 1px solid rgba(255, 255, 255, 0.04) !important;
+}
+
+.category-card-premium:hover {
+  transform: translateY(-8px);
+  background: rgba(255, 255, 255, 0.03) !important;
+  border-color: var(--primary) !important;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+}
+
+.cat-count-badge {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  background: rgba(0, 136, 204, 0.1);
+  padding: 4px 12px;
+  border-radius: 100px;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  transition: 0.3s;
+}
+
+.category-card-premium:hover .cat-count-badge {
+  background: var(--primary) !important;
+  color: white !important;
+  border-color: var(--primary) !important;
+}
+
+.cat-icon-glow {
+  background: rgba(0, 136, 204, 0.04) !important;
+  width: 54px;
+  height: 54px;
+  border-radius: 16px !important;
+  color: var(--primary) !important;
+  margin-bottom: 1.2rem !important;
+  border: 1px solid rgba(0, 136, 204, 0.1) !important;
+  transition: all 0.3s ease !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.category-card-premium:hover .cat-icon-glow {
+  transform: scale(1.1);
+  background: rgba(0, 136, 204, 0.2) !important;
+  box-shadow: 0 0 30px rgba(0, 136, 204, 0.2);
+  color: white !important;
+}
+
+.category-card-premium h3 {
+  font-size: 1.15rem;
+  font-weight: 800;
+  margin-bottom: 0.4rem;
+  color: white;
+  letter-spacing: -0.3px;
+}
+
+.category-card-premium p {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  opacity: 0.8;
+  transition: 0.3s;
+}
+
+.category-card-premium:hover p {
+  color: var(--primary);
+  opacity: 1;
+}
+
+/* Category Detail Header */
+.category-header-icon-box {
+  color: var(--primary);
+  margin-bottom: 1.5rem;
+  background: rgba(255, 255, 255, 0.03);
+  width: 90px;
+  height: 90px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 24px;
+  margin: 0 auto 2rem;
+  border: 1px solid var(--border);
+  transition: 0.4s;
+}
+
+.category-header-glow-bg {
+  position: absolute;
+  top: -10%;
+  right: -5%;
+  width: 500px;
+  height: 500px;
+  filter: blur(150px);
+  opacity: 0.12;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* Category Detail Tools Grid (Reuse from Search or Tools where possible, but encapsulated here) */
+.category-tools-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1.5rem;
+  margin-top: 3rem;
+}
+
+.submit-cta-category {
+  margin-top: 6rem;
+  padding: 4rem 2rem;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.01) !important;
+  border: 1px dashed var(--border) !important;
+  border-radius: 40px !important;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 640px) {
+  .categories-grid-large {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+}
