@@ -13,7 +13,7 @@ import PromotionPlans from '../components/Promote/PromotionPlans';
 import PromoteTrustFooter from '../components/Promote/PromoteTrustFooter';
 
 // Import Modular CSS
-import '../styles/Pages/Promote.css';
+import '../styles/pages/Promote.css';
 
 const Promote = () => {
     const [searchParams] = useSearchParams();

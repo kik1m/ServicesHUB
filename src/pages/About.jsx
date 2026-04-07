@@ -9,7 +9,7 @@ import AboutMission from '../components/About/AboutMission';
 import AboutSideCards from '../components/About/AboutSideCards';
 
 // Import Modular CSS
-import '../styles/Pages/About.css';
+import '../styles/pages/About.css';
 
 const About = () => {
     const [loading, setLoading] = useState(true);

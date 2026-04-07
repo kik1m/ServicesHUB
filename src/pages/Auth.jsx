@@ -13,7 +13,7 @@ import ForgotPasswordForm from '../components/Auth/ForgotPasswordForm';
 import SocialLogins from '../components/Auth/SocialLogins';
 
 // Import Modular CSS
-import '../styles/Pages/Auth.css';
+import '../styles/pages/Auth.css';
 
 const Auth = () => {
     const { user, loading: authLoading } = useAuth();

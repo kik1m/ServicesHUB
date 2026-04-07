@@ -16,7 +16,7 @@ import ToolDetailSidebar from '../components/ToolDetail/ToolDetailSidebar';
 import ToolDetailRelated from '../components/ToolDetail/ToolDetailRelated';
 
 // Import Modular CSS
-import '../styles/Pages/ToolDetail.css';
+import '../styles/pages/ToolDetail.css';
 
 const ToolDetail = () => {
     const { id } = useParams();

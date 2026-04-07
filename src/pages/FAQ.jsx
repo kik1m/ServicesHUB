@@ -9,7 +9,7 @@ import FAQList from '../components/FAQ/FAQList';
 import FAQContactCTA from '../components/FAQ/FAQContactCTA';
 
 // Import Modular CSS
-import '../styles/Pages/FAQ.css';
+import '../styles/pages/FAQ.css';
 
 // FAQ Static Data
 const FAQ_DATA = [

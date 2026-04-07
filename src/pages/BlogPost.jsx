@@ -9,7 +9,7 @@ import BlogSidebar from '../components/Blog/BlogSidebar';
 import SkeletonLoader from '../components/SkeletonLoader';
 
 // Import Modular CSS
-import '../styles/Pages/Blog.css';
+import '../styles/pages/Blog.css';
 
 const BlogPost = () => {
     const { id } = useParams();

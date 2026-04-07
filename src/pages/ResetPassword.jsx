@@ -9,7 +9,7 @@ import ResetPasswordForm from '../components/Auth/ResetPasswordForm';
 import ResetPasswordSuccess from '../components/Auth/ResetPasswordSuccess';
 
 // Import Modular CSS
-import '../styles/Pages/AuthPages.css';
+import '../styles/pages/AuthPages.css';
 
 const ResetPassword = () => {
     const [password, setPassword] = useState('');

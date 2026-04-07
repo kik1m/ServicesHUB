@@ -11,7 +11,7 @@ import PremiumPricingCard from '../components/Premium/PremiumPricingCard';
 import PremiumFAQ from '../components/Premium/PremiumFAQ';
 
 // Import Modular CSS
-import '../styles/Pages/Premium.css';
+import '../styles/pages/Premium.css';
 
 const Premium = () => {
     const { user } = useAuth();

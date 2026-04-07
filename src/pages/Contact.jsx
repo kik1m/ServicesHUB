@@ -8,7 +8,7 @@ import ContactInfoSidebar from '../components/Contact/ContactInfoSidebar';
 import ContactForm from '../components/Contact/ContactForm';
 
 // Import Modular CSS
-import '../styles/Pages/Contact.css';
+import '../styles/pages/Contact.css';
 
 const Contact = () => {
     const [loading, setLoading] = useState(true);

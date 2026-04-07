@@ -17,7 +17,7 @@ import ProfileAboutSidebar from '../components/Profile/ProfileAboutSidebar';
 import ProfileMembershipSidebar from '../components/Profile/ProfileMembershipSidebar';
 
 // Import Modular CSS
-import '../styles/Pages/Profile.css';
+import '../styles/pages/Profile.css';
 
 const Profile = () => {
     const navigate = useNavigate();

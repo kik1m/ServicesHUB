@@ -10,7 +10,7 @@ import BlogFilters from '../components/Blog/BlogFilters';
 import BlogGrid from '../components/Blog/BlogGrid';
 
 // Import Modular CSS
-import '../styles/Pages/Blog.css';
+import '../styles/pages/Blog.css';
 
 const Blog = () => {
     const [searchQuery, setSearchQuery] = useState('');

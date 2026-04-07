@@ -7,7 +7,7 @@ import LegalHero from '../components/Legal/LegalHero';
 import LegalSection from '../components/Legal/LegalSection';
 
 // Import Modular CSS
-import '../styles/Pages/Legal.css';
+import '../styles/pages/Legal.css';
 
 const Privacy = () => {
     const [loading, setLoading] = useState(true);

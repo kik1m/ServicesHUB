@@ -8,7 +8,7 @@ import SearchSidebar from '../components/Search/SearchSidebar';
 import SearchResults from '../components/Search/SearchResults';
 
 // Import Modular CSS
-import '../styles/Pages/Search.css';
+import '../styles/pages/Search.css';
 
 const Search = () => {
     const [isLoading, setIsLoading] = useState(true);

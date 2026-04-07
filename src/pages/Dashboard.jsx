@@ -16,7 +16,7 @@ import DashboardFavorites from '../components/Dashboard/DashboardFavorites';
 import DashboardWelcomeCTA from '../components/Dashboard/DashboardWelcomeCTA';
 
 // Import Modular CSS
-import '../styles/Pages/Dashboard.css';
+import '../styles/pages/Dashboard.css';
 
 const Dashboard = () => {
     const navigate = useNavigate();

@@ -12,7 +12,7 @@ import ProfilePortfolio from '../components/Profile/ProfilePortfolio';
 import ProfileNotFound from '../components/Profile/ProfileNotFound';
 
 // Import Modular CSS
-import '../styles/Pages/PublicProfile.css';
+import '../styles/pages/PublicProfile.css';
 
 const PublicProfile = () => {
     const { id } = useParams();

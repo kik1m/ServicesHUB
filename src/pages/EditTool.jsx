@@ -14,7 +14,7 @@ import ToolFormFeatures from '../components/ToolForm/ToolFormFeatures';
 import ToolFormActions from '../components/ToolForm/ToolFormActions';
 
 // Import Unified CSS
-import '../styles/Pages/SubmitTool.css';
+import '../styles/pages/SubmitTool.css';
 
 const EditTool = () => {
     const { id } = useParams();

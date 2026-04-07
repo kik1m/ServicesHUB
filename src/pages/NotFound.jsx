@@ -6,7 +6,7 @@ import NotFoundHero from '../components/NotFound/NotFoundHero';
 import NotFoundActions from '../components/NotFound/NotFoundActions';
 
 // Import Modular CSS
-import '../styles/Pages/NotFound.css';
+import '../styles/pages/NotFound.css';
 
 const NotFound = () => {
     const [loading, setLoading] = useState(true);

@@ -11,7 +11,7 @@ import NotificationCard from '../components/Notifications/NotificationCard';
 import NotificationsEmptyState from '../components/Notifications/NotificationsEmptyState';
 
 // Import Modular CSS
-import '../styles/Pages/Notifications.css';
+import '../styles/pages/Notifications.css';
 
 const Notifications = () => {
     const { user, loading: authLoading } = useAuth();

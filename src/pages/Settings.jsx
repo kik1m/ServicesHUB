@@ -17,7 +17,7 @@ import SettingsBilling from '../components/Settings/SettingsBilling';
 import SettingsNotifications from '../components/Settings/SettingsNotifications';
 
 // Import Modular CSS
-import '../styles/Pages/Settings.css';
+import '../styles/pages/Settings.css';
 
 const Settings = () => {
     const navigate = useNavigate();

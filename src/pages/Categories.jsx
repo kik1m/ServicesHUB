@@ -10,7 +10,7 @@ import CategoriesGrid from '../components/Categories/CategoriesGrid';
 import CategoriesSuggestCTA from '../components/Categories/CategoriesSuggestCTA';
 
 // Import Modular CSS
-import '../styles/Pages/Categories.css';
+import '../styles/pages/Categories.css';
 
 const Categories = () => {
     const [categories, setCategories] = useState([]);

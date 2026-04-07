@@ -12,7 +12,7 @@ import CategoryDetailTools from '../components/CategoryDetail/CategoryDetailTool
 import CategoryDetailEmpty from '../components/CategoryDetail/CategoryDetailEmpty';
 
 // Import Modular CSS
-import '../styles/Pages/Categories.css';
+import '../styles/pages/Categories.css';
 
 const CategoryDetail = () => {
     const { id: slug } = useParams();

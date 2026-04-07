@@ -10,7 +10,7 @@ import ToolsGrid from '../components/Tools/ToolsGrid';
 import ToolsSubmitCTA from '../components/Tools/ToolsSubmitCTA';
 
 // Import Modular CSS
-import '../styles/Pages/Tools.css';
+import '../styles/pages/Tools.css';
 
 const Tools = () => {
     const [tools, setTools] = useState([]);

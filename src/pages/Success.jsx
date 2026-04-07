@@ -11,7 +11,7 @@ import SuccessMessage from '../components/Success/SuccessMessage';
 import SuccessActions from '../components/Success/SuccessActions';
 
 // Import Modular CSS
-import '../styles/Pages/Success.css';
+import '../styles/pages/Success.css';
 
 const Success = () => {
     const { user, loading: authLoading } = useAuth();

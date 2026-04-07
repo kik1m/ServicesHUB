@@ -11,7 +11,7 @@ import ComparisonMatrix from '../components/Compare/ComparisonMatrix';
 import ToolSelectionModal from '../components/Compare/ToolSelectionModal';
 
 // Import Modular CSS
-import '../styles/Pages/Compare.css';
+import '../styles/pages/Compare.css';
 
 const Compare = () => {
     const [tool1, setTool1] = useState(null);
