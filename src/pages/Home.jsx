@@ -20,8 +20,8 @@ import HomePublisherCTA from '../components/Home/HomePublisherCTA';
 import HomeBlogSection from '../components/Home/HomeBlogSection';
 
 // Import Modular CSS
-import '../styles/Pages/Home.css';
-import '../styles/Pages/Tools.css';
+import '../styles/pages/Home.css';
+import '../styles/pages/Tools.css';
 
 const Home = () => {
     const [categories, setCategories] = useState([]);

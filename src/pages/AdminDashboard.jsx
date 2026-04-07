@@ -13,7 +13,7 @@ import { useNavigate } from 'react-router-dom';
 import SkeletonLoader from '../components/SkeletonLoader';
 import { useToast } from '../context/ToastContext';
 import { sendNotification } from '../utils/notifications';
-import '../styles/Pages/AdminDashboard.css';
+import '../styles/pages/AdminDashboard.css';
 
 // Import Modular Components
 import AdminStats from '../components/Admin/AdminStats';

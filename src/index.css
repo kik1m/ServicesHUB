@@ -7,14 +7,14 @@
 @import './styles/Base/Global.css';
 
 /* 2. Layout Components */
-@import './styles/Components/Navbar.css';
+@import './styles/components/Navbar.css';
 @import './styles/Layout/Footer.css';
 
 /* 3. Page Specific Styles */
-@import './styles/Pages/Home.css';
-@import './styles/Pages/Dashboard.css';
-@import './styles/Pages/Search.css';
-@import './styles/Pages/ToolDetail.css';
-@import './styles/Pages/Categories.css';
-@import './styles/Pages/Blog.css';
-@import './styles/Pages/SubmitTool.css';
+@import './styles/pages/Home.css';
+@import './styles/pages/Dashboard.css';
+@import './styles/pages/Search.css';
+@import './styles/pages/ToolDetail.css';
+@import './styles/pages/Categories.css';
+@import './styles/pages/Blog.css';
+@import './styles/pages/SubmitTool.css';
