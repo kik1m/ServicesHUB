@@ -1,0 +1,17 @@
+/* Promote.module.css */
+
+.promoteViewContainer {
+  min-height: 100vh;
+  padding: 40px 5% 80px;
+}
+
+.promoteContent {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+@media (max-width: 768px) {
+    .promoteViewContainer {
+        padding: 20px 5% 40px;
+    }
+}

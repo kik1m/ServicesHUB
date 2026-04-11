@@ -1,0 +1,117 @@
+/* HomeTrending.module.css */
+
+.trendingSection {
+  margin-top: 3rem;
+  margin-bottom: 3rem;
+}
+
+.livePill {
+  background: rgba(0, 230, 118, 0.08);
+  color: #00e676;
+  padding: 6px 14px;
+  border-radius: 100px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid rgba(0, 230, 118, 0.15);
+  letter-spacing: 1px;
+}
+
+.dot {
+  width: 7px;
+  height: 7px;
+  background: #00e676;
+  border-radius: 50%;
+  box-shadow: 0 0 12px #00e676;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 230, 118, 0.7); }
+  70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(0, 230, 118, 0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 230, 118, 0); }
+}
+
+.trendingGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.trendingItem {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  padding: 1.2rem 1.5rem !important;
+  text-decoration: none;
+  color: inherit;
+  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+  border-radius: 20px; /* Added explicit radius */
+}
+
+.trendingItem:hover {
+  transform: translateY(-5px) scale(1.02);
+  background: rgba(255, 255, 255, 0.04) !important;
+  border-color: var(--primary) !important;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+}
+
+.trendingToolIcon {
+  width: 56px;
+  height: 56px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 14px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary);
+  border: 1px solid var(--border);
+  flex-shrink: 0;
+  transition: 0.3s;
+}
+
+.trendingItem:hover .trendingToolIcon {
+  background: rgba(0, 136, 204, 0.1);
+  border-color: var(--primary);
+  transform: rotate(-5deg);
+}
+
+.trendingToolIcon img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.trendingToolInfo h4 {
+  font-size: 1.05rem;
+  font-weight: 800;
+  margin-bottom: 4px;
+  color: var(--text-main);
+}
+
+.trendingStats {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+}
+
+.trendingArrow {
+  margin-left: auto;
+  opacity: 0;
+  transition: 0.4s;
+  color: var(--primary);
+  transform: translateX(-10px);
+}
+
+.trendingItem:hover .trendingArrow {
+  opacity: 1;
+  transform: translateX(0);
+}

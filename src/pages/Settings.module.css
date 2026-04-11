@@ -1,0 +1,58 @@
+/* Settings.module.css - Modular styles for the Settings page */
+
+.settingsView {
+    padding: 80px 5% 60px;
+    min-height: 100vh;
+}
+
+.settingsContainer {
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.settingsHeader {
+    margin-bottom: 3rem;
+}
+
+.settingsHeader h1 {
+    font-size: 2.5rem;
+    font-weight: 900;
+    margin-bottom: 8px;
+}
+
+.settingsHeader p {
+    color: var(--text-muted);
+    font-size: 1rem;
+}
+
+.settingsLayout {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 2.5rem;
+}
+
+.settingsMainContent {
+    animation: fadeIn 0.5s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 1024px) {
+    .settingsLayout {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .settingsView {
+        padding: 60px 4% 40px;
+    }
+
+    .settingsHeader h1 {
+        font-size: 2rem;
+    }
+}

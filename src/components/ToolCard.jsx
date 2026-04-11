@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowUpRight, Star, Zap, LayoutGrid, Cpu, Code, Palette, Globe, CheckCircle2, TrendingUp } from 'lucide-react';
+import { ArrowUpRight, Star, Zap, LayoutGrid, Cpu, Code, Palette, Globe, CheckCircle2 } from 'lucide-react';
+import styles from './ToolCard.module.css';
 
 const iconMap = {
     Zap: Zap,
@@ -18,7 +19,7 @@ const ToolCard = ({ tool }) => {
                 <img 
                     src={tool.image_url} 
                     alt={tool.name} 
-                    style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                    className={styles.cardLogoImage}
                     onError={(e) => {
                         e.target.style.display = 'none';
                         e.target.parentElement.innerHTML = `<div style="color:var(--primary);display:flex;align-items:center;justify-content:center;height:100%"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-zap"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>`;
@@ -33,14 +34,14 @@ const ToolCard = ({ tool }) => {
     return (
         <Link 
             to={`/tool/${tool.slug}`} 
-            className={`tool-card ${tool.is_featured ? 'featured-glow-card' : 'standard-tool-card'}`}
+            className={`${styles.toolCard} ${tool.is_featured ? styles.featuredGlowCard : styles.standardToolCard}`}
         >
-            <div className="card-logo-box">
+            <div className={styles.cardLogoBox}>
                 {renderIcon()}
             </div>
 
-            <div className="card-content">
-                <div className="card-title-row">
+            <div className={styles.cardContent}>
+                <div className={styles.cardTitleRow}>
                     <h3>{tool.name}</h3>
                     <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
                         {tool.is_verified && (
@@ -57,12 +58,12 @@ const ToolCard = ({ tool }) => {
                 <p>{tool.short_description || tool.description}</p>
             </div>
 
-            <div className="card-footer">
-                <div className="card-rating">
+            <div className={styles.cardFooter}>
+                <div className={styles.cardRating}>
                     <Star size={12} fill="#ffaa00" /> 
                     <span>{tool.rating?.toFixed(1) || '5.0'}</span>
                 </div>
-                <div className="card-link">
+                <div className={styles.cardLink}>
                     View <ArrowUpRight size={14} />
                 </div>
             </div>

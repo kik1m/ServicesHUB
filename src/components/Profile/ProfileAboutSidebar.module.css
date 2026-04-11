@@ -1,0 +1,112 @@
+/* ProfileAboutSidebar.module.css */
+
+.sidebarCard {
+  padding: 2rem;
+  border-radius: 28px !important;
+}
+
+.sidebarTitle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.2rem;
+  font-weight: 900;
+  margin-bottom: 1.5rem;
+  color: white;
+  letter-spacing: -0.5px;
+}
+
+.bioText {
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+  margin-bottom: 2rem;
+}
+
+.sidebarSubtitle {
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-bottom: 1.2rem;
+  opacity: 0.6;
+}
+
+.identityList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 2rem;
+}
+
+.identityItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: white;
+  text-decoration: none;
+  transition: 0.3s;
+}
+
+.identityItem.socialLinkHover:hover {
+  color: var(--primary);
+}
+
+.iconBox {
+  width: 34px;
+  height: 34px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: 0.3s;
+}
+
+.identityItem:hover .iconBox {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--primary);
+  color: var(--primary) !important;
+}
+
+.externalIcon {
+  opacity: 0.5;
+  margin-left: auto;
+}
+
+.socialLinksGrid {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.socialBoxSlim {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  color: var(--text-muted);
+  transition: 0.3s;
+}
+
+.socialBoxSlim:hover {
+  background: var(--primary);
+  color: white;
+  transform: translateY(-3px);
+  border-color: var(--primary);
+}
+
+.noSocials {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-style: italic;
+  margin: 0;
+}

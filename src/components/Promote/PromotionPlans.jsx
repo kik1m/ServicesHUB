@@ -1,36 +1,37 @@
 import React from 'react';
 import { CheckCircle2, ArrowRight, Loader2 } from 'lucide-react';
+import styles from './PromotionPlans.module.css';
 
 const PromotionPlans = ({ plans, handlePromote, loadingPlan, selectedToolId }) => {
     return (
-        <section className="promote-step-card">
-            <div className="section-header-compact">
-                <div className="badge-step">STEP 2</div>
+        <section className={styles.promoteStepCard}>
+            <div className={styles.sectionHeaderCompact}>
+                <div className={styles.badgeStep}>STEP 2</div>
                 <h3>Choose Promotion Level</h3>
             </div>
 
-            <div className="promote-plans-grid">
+            <div className={styles.promotePlansGrid}>
                 {plans.map((plan) => (
-                    <div key={plan.id} className="promote-plan-card">
-                        <div className="plan-glow-overlay" style={{
+                    <div key={plan.id} className={styles.promotePlanCard}>
+                        <div className={styles.planGlowOverlay} style={{
                             background: `radial-gradient(circle at 50% 10%, ${plan.glow} 0%, transparent 60%)`
                         }}></div>
 
                         {plan.recommended && (
-                            <div className="recommended-badge" style={{ background: plan.theme }}>MOST POPULAR</div>
+                            <div className={styles.recommendedBadge} style={{ background: plan.theme }}>MOST POPULAR</div>
                         )}
 
-                        <div className="plan-title-box">
+                        <div className={styles.planTitleBox}>
                             <h4>{plan.name}</h4>
                             <p>{plan.desc}</p>
                         </div>
 
-                        <div className="plan-price-tag">
-                            <span className="amount">{plan.price}</span>
-                            <span className="period">{plan.period}</span>
+                        <div className={styles.planPriceTag}>
+                            <span className={styles.amount}>{plan.price}</span>
+                            <span className={styles.period}>{plan.period}</span>
                         </div>
 
-                        <ul className="plan-features-list">
+                        <ul className={styles.planFeaturesList}>
                             {plan.features.map((f, i) => (
                                 <li key={i}>
                                     <CheckCircle2 size={18} style={{ color: plan.theme }} />
@@ -42,7 +43,7 @@ const PromotionPlans = ({ plans, handlePromote, loadingPlan, selectedToolId }) =
                         <button
                             onClick={() => handlePromote(plan)}
                             disabled={loadingPlan === plan.name || !selectedToolId}
-                            className="plan-cta-btn"
+                            className={styles.planCtaBtn}
                             style={{
                                 background: plan.theme,
                                 boxShadow: selectedToolId ? `0 10px 30px ${plan.glow}` : 'none',

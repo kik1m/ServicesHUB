@@ -1,0 +1,105 @@
+.splitLayout {
+    display: grid; 
+    grid-template-columns: 1fr 1.5fr; 
+    gap: 3rem;
+}
+
+.title {
+    font-size: 1.1rem; 
+    font-weight: 800; 
+    margin-bottom: 1.5rem;
+    color: white;
+}
+
+.formGroup {
+    display: flex; 
+    flex-direction: column; 
+    gap: 1.2rem;
+}
+
+.inputField {
+    width: 100%; 
+    padding: 12px 14px; 
+    background: rgba(255, 255, 255, 0.03); 
+    border: 1px solid var(--border); 
+    color: white;
+    border-radius: 10px;
+    font-family: inherit;
+    transition: all 0.2s;
+    font-size: 0.9rem;
+}
+
+.inputField:focus {
+    border-color: var(--primary);
+    background: rgba(255, 255, 255, 0.05);
+    outline: none;
+}
+
+.scrollArea {
+    max-height: 600px; 
+    overflow-y: auto; 
+    padding-right: 10px;
+}
+
+/* Custom Scrollbar */
+.scrollArea::-webkit-scrollbar {
+    width: 4px;
+}
+.scrollArea::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.02);
+}
+.scrollArea::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+}
+
+.itemRow {
+    padding: 1rem 1.2rem; 
+    background: rgba(255, 255, 255, 0.02); 
+    border-radius: 14px;
+    border: 1px solid var(--border); 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center;
+    margin-bottom: 10px;
+    transition: 0.2s;
+}
+
+.itemRow:hover {
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.info h5 {
+    font-weight: 700; 
+    margin: 0 0 4px;
+    color: white;
+    font-size: 0.95rem;
+}
+
+.info p {
+    font-size: 0.75rem; 
+    color: var(--text-muted);
+    margin: 0;
+}
+
+.deleteBtn {
+    color: #ff5050; 
+    background: transparent; 
+    border: none; 
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 8px;
+    transition: 0.2s;
+    display: flex;
+}
+
+.deleteBtn:hover {
+    background: rgba(255, 80, 80, 0.1);
+}
+
+@media (max-width: 991px) {
+    .splitLayout {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+}

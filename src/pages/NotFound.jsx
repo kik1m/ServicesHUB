@@ -1,32 +1,36 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import SkeletonLoader from '../components/SkeletonLoader';
+import useSEO from '../hooks/useSEO';
+import { useNotFoundData } from '../hooks/useNotFoundData';
 
 // Import Modular Components
 import NotFoundHero from '../components/NotFound/NotFoundHero';
 import NotFoundActions from '../components/NotFound/NotFoundActions';
 
 // Import Modular CSS
-import '../styles/pages/NotFound.css';
+import styles from './NotFound.module.css';
 
 const NotFound = () => {
-    const [loading, setLoading] = useState(true);
+    const { loading } = useNotFoundData();
 
-    useEffect(() => {
-        const timer = setTimeout(() => setLoading(false), 400);
-        return () => clearTimeout(timer);
-    }, []);
+    useSEO({
+        title: "404 - Page Not Found | HUBly",
+        description: "Oops! The page you're looking for doesn't exist. Head back to HUBly to discover the best AI and SaaS tools.",
+    });
 
     if (loading) {
         return (
-            <div className="not-found-page not-found-wrapper">
-                <SkeletonLoader height="400px" width="600px" borderRadius="24px" />
+            <div className={`page-wrapper ${styles.notFoundWrapper}`}>
+                <div className={`glass-card ${styles.notFoundCard}`}>
+                    <SkeletonLoader height="400px" borderRadius="24px" />
+                </div>
             </div>
         );
     }
 
     return (
-        <div className="not-found-page not-found-wrapper">
-            <div className="glass-card not-found-card">
+        <div className={`page-wrapper ${styles.notFoundWrapper}`}>
+            <div className={`glass-card ${styles.notFoundCard}`}>
                 
                 <NotFoundHero />
 

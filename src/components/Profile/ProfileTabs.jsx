@@ -1,17 +1,18 @@
 import React from 'react';
+import styles from './ProfileTabs.module.css';
 
 const ProfileTabs = ({ activeTab, setActiveTab, favoritesCount, reviewsCount = 0 }) => {
     return (
-        <div className="profile-tabs-nav">
+        <div className={styles.tabsNav}>
             <button
                 onClick={() => setActiveTab('favorites')}
-                className={`profile-tab-btn ${activeTab === 'favorites' ? 'active' : ''}`}
+                className={`${styles.tabBtn} ${activeTab === 'favorites' ? styles.active : ''}`}
             >
                 My Collection ({favoritesCount})
             </button>
             <button
                 onClick={() => setActiveTab('reviews')}
-                className={`profile-tab-btn ${activeTab === 'reviews' ? 'active' : ''}`}
+                className={`${styles.tabBtn} ${activeTab === 'reviews' ? styles.active : ''}`}
             >
                 My Reviews ({reviewsCount})
             </button>

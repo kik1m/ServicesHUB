@@ -1,0 +1,62 @@
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 2.5rem;
+}
+
+.metricCard {
+  padding: 1rem 1.2rem !important;
+  background: rgba(24, 24, 27, 0.4) !important;
+  border: 1px solid #27272a !important;
+  border-radius: 14px !important;
+  min-height: 100px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.metricHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.metricLabel {
+  color: #71717a;
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+}
+
+.metricValue {
+  font-size: 2.0rem;
+  font-weight: 800;
+  color: white;
+  letter-spacing: -0.5px;
+  line-height: 1;
+}
+
+.premiumValue {
+  color: #ffce00;
+  text-shadow: 0 0 20px rgba(255, 206, 0, 0.2);
+}
+
+@media (max-width: 992px) {
+  .statsGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 1200px) {
+  .metricValue {
+    font-size: 2.8rem;
+  }
+}
+
+@media (max-width: 992px) {
+  .statsGrid {
+    grid-template-columns: 1fr;
+  }
+}

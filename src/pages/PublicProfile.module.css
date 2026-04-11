@@ -1,0 +1,30 @@
+/* PublicProfile.module.css */
+
+.publicProfileView {
+  min-height: 100vh;
+  padding-bottom: 5rem;
+}
+
+.publicContainer {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 80px 5% 60px;
+}
+
+.loadingWrapper {
+  padding: 100px 5% 60px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.toolsSkeletonGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 2rem;
+}
+
+@media (max-width: 768px) {
+  .publicContainer {
+    padding: 60px 1rem 40px;
+  }
+}

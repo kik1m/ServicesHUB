@@ -1,0 +1,51 @@
+.iconBox {
+  margin: 0 auto 1.5rem;
+  width: 80px;
+  height: 80px;
+  background: var(--gradient);
+  padding: 20px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 10px 30px rgba(0, 210, 255, 0.3);
+}
+
+.title404 {
+  font-size: 5rem;
+  font-weight: 950;
+  margin-bottom: 0.5rem;
+  margin-top: 0;
+  background: var(--gradient);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  line-height: 1.1;
+}
+
+.title {
+  font-size: 1.8rem;
+  font-weight: 800;
+  margin-bottom: 1.5rem;
+  margin-top: 0;
+}
+
+.subtitle {
+  color: var(--text-muted);
+  margin-bottom: 2.5rem;
+  font-size: 1.1rem;
+  line-height: 1.7;
+  max-width: 450px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+@media (max-width: 600px) {
+  .title404 {
+    font-size: 4rem;
+  }
+  
+  .title {
+    font-size: 1.5rem;
+  }
+}

@@ -1,30 +1,52 @@
 import React from 'react';
-import { Mail, Loader2 } from 'lucide-react';
+import { Mail, ArrowLeft, Send, Loader2 } from 'lucide-react';
+import styles from './ForgotPasswordForm.module.css';
 
-const ForgotPasswordForm = ({ email, setEmail, handleForgotPassword, setForgotPasswordMode, loading }) => {
+/**
+ * ForgotPasswordForm - Handles the email submission for recovery
+ */
+const ForgotPasswordForm = ({ 
+    email, setEmail, 
+    handleForgotPassword, 
+    setForgotPasswordMode, 
+    loading 
+}) => {
     return (
-        <form onSubmit={handleForgotPassword} className="auth-form fade-in">
-            <div className="input-group-slim">
-                <label><Mail size={14} /> Email Address</label>
+        <form onSubmit={handleForgotPassword} className={styles.form}>
+            <div className={styles.inputGroup}>
+                <label><Mail size={14} /> Recovery Email</label>
                 <input 
                     type="email" 
+                    placeholder="Enter your registered email" 
                     value={email} 
-                    onChange={(e) => setEmail(e.target.value)} 
-                    className="slim-input-field" 
-                    placeholder="name@company.com" 
-                    required 
+                    onChange={(e) => setEmail(e.target.value)}
+                    className={styles.inputField}
+                    required
                 />
             </div>
-            <button type="submit" disabled={loading} className="btn-primary btn-auth-submit">
-                {loading ? <Loader2 className="animate-spin" size={20} /> : 'Send Reset Link'}
+
+            <button 
+                type="submit" 
+                className={`${styles.submitBtn} btn-primary`}
+                disabled={loading}
+            >
+                {loading ? <Loader2 className="animate-spin" size={20} /> : <><Send size={18} /> Send Recovery Link</>}
             </button>
+
             <button 
                 type="button" 
-                onClick={() => setForgotPasswordMode(false)} 
-                className="text-link-slim auth-switch-text"
-                style={{ width: '100%', textAlign: 'center' }}
+                onClick={() => setForgotPasswordMode(false)}
+                className={styles.textLink}
+                style={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'center', 
+                    gap: '5px',
+                    width: '100%',
+                    marginTop: '1rem'
+                }}
             >
-                Back to Login
+                <ArrowLeft size={16} /> Back to Sign In
             </button>
         </form>
     );

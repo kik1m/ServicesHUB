@@ -1,0 +1,10 @@
+/* Tools.module.css */
+
+.toolsDirectoryPage {
+  min-height: 100vh;
+  background: var(--bg);
+}
+
+@media (max-width: 768px) {
+  /* Any page-level responsive adjustments */
+}

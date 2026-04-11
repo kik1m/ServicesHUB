@@ -1,6 +1,7 @@
 import React from 'react';
 import { Search, Link } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import styles from './HomeHero.module.css';
 
 const UsersGroup = ({ statsCount }) => (
     <div className="users-group" style={{ display: 'flex', alignItems: 'center', marginLeft: '0.5rem' }}>
@@ -21,17 +22,17 @@ const UsersGroup = ({ statsCount }) => (
 
 const HomeHero = ({ searchQuery, setSearchQuery, navigate, statsCount }) => {
     return (
-        <header className="hero-section-slim">
-            <div className="hero-content">
+        <header className={styles.heroSectionSlim}>
+            <div className={styles.heroContent}>
                 <div className="badge">Expertly Curated Tool Directory</div>
-                <h1 className="hero-title-slim">
+                <h1 className={styles.heroTitleSlim}>
                     Get the Best Professional Tools for <span className="gradient-text">Your Projects</span>
                 </h1>
-                <p className="hero-subtitle-slim">
+                <p className={styles.heroSubtitleSlim}>
                     HUBly is your transparent window to the world&apos;s most innovative and reliable technical solutions. We save your valuable time by handpicking high-value, high-credibility tools that empower you to master new skills and scale your projects.
                 </p>
 
-                <div className="hero-search-wrapper-large glass-card">
+                <div className={`${styles.heroSearchWrapperLarge} glass-card`}>
                     <Search size={22} color="var(--primary)" />
                     <input
                         type="text"
@@ -43,29 +44,29 @@ const HomeHero = ({ searchQuery, setSearchQuery, navigate, statsCount }) => {
                     <button onClick={() => navigate(`/search?q=${searchQuery}`)} className="btn-primary">Search</button>
                 </div>
 
-                <div className="popular-tags">
+                <div className={styles.popularTags}>
                     <span>Popular:</span>
                     {['ChatGPT', 'SEO Tools', 'Logo Maker', 'Translation', 'Video AI'].map(tag => (
-                        <button key={tag} onClick={() => navigate(`/search?q=${tag}`)} className="tag-link border-none bg-transparent cursor-pointer">
+                        <button key={tag} onClick={() => navigate(`/search?q=${tag}`)} className={styles.tagLink}>
                             {tag}
                         </button>
                     ))}
                 </div>
 
                 <div className="hero-cta" style={{ marginTop: '2.5rem' }}>
-                    <div className="user-trust">
+                    <div className={styles.userTrust}>
                         <UsersGroup statsCount={statsCount} /> 
                         <span>A community of <strong>{(statsCount.users || 1200).toLocaleString()}</strong> makers worldwide</span>
                     </div>
                 </div>
 
-                <div className="trust-logos">
+                <div className={styles.trustLogos}>
                     <p>Trusted by creators from</p>
-                    <div className="logo-row">
-                        <span className="logo-item">Product Hunt</span>
-                        <span className="logo-item">Hacker News</span>
-                        <span className="logo-item">Indie Hackers</span>
-                        <span className="logo-item">Dev.to</span>
+                    <div className={styles.logoRow}>
+                        <span className={styles.logoItem}>Product Hunt</span>
+                        <span className={styles.logoItem}>Hacker News</span>
+                        <span className={styles.logoItem}>Indie Hackers</span>
+                        <span className={styles.logoItem}>Dev.to</span>
                     </div>
                 </div>
             </div>

@@ -1,11 +1,13 @@
 import React from 'react';
-import { Bell } from 'lucide-react';
+import { BellOff } from 'lucide-react';
+import styles from './NotificationsEmptyState.module.css';
 
 const NotificationsEmptyState = () => {
     return (
-        <div className="notifications-empty-state">
-            <Bell size={64} style={{ margin: '0 auto 1.5rem' }} />
-            <h3>No notifications yet</h3>
+        <div className={styles.emptyState}>
+            <BellOff size={64} className={styles.icon} />
+            <h3 className={styles.title}>All caught up!</h3>
+            <p className={styles.subtitle}>You don't have any notifications at the moment. We'll let you know when something happens.</p>
         </div>
     );
 };

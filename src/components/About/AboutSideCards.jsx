@@ -1,36 +1,38 @@
 import React from 'react';
-import { Target, Shield, Rocket } from 'lucide-react';
+import { Rocket, Sparkles, Plus } from 'lucide-react';
+import styles from './AboutSideCards.module.css';
 
 const AboutSideCards = () => {
     return (
-        <div className="about-side-cards">
-            <div className="glass-card" style={{ padding: '2rem', borderRadius: '24px' }}>
-                <div className="about-icon-box"><Target size={22} color="var(--secondary)" /></div>
-                <h3>The Vision</h3>
-                <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', lineHeight: '1.6' }}>
-                    To create the most trusted authority for software discovery in the AI era.
+        <div className={styles.sideStack}>
+            <div className={`${styles.card} glass-card`} style={{ padding: '2.5rem' }}>
+                <div className={styles.iconBox}>
+                    <Rocket size={20} color="var(--primary)" />
+                </div>
+                <h3 style={{ fontSize: '1.2rem', fontWeight: '800', marginBottom: '1rem' }}>Our Vision</h3>
+                <p className="text-muted-small" style={{ lineHeight: '1.7' }}>
+                    To become the global standard for software discovery, where every project finds its perfect technical companion.
                 </p>
             </div>
-            
-            <div className="glass-card" style={{ padding: '2rem', borderRadius: '24px' }}>
-                <div className="about-icon-box"><Shield size={22} color="var(--primary)" /></div>
-                <h3>The Trust</h3>
-                <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', lineHeight: '1.6' }}>
-                    We partner with vetted creators to ensure every tool provides real value.
+
+            <div className={`${styles.card} glass-card`} style={{ padding: '2.5rem' }}>
+                <div className={styles.iconBox}>
+                    <Sparkles size={20} color="var(--primary)" />
+                </div>
+                <h3 style={{ fontSize: '1.2rem', fontWeight: '800', marginBottom: '1rem' }}>Constant Growth</h3>
+                <p className="text-muted-small" style={{ lineHeight: '1.7' }}>
+                    We are constantly iterating, adding new features, and refining our database to serve you better every day.
                 </p>
             </div>
-            
-            <div className="glass-card about-join-card" style={{ padding: '2.5rem 2rem' }}>
-                <Rocket size={24} style={{ marginBottom: '1rem' }} />
-                <h3>Join the Journey</h3>
-                <p style={{ fontSize: '0.9rem', opacity: 0.9, marginBottom: '1.5rem' }}>
-                    Be part of the fastest growing AI community.
+
+            <div className={`${styles.card} ${styles.joinCard} glass-card`} style={{ padding: '2.5rem' }}>
+                <h3 style={{ marginBottom: '1rem', fontWeight: '800' }}>Join the Journey</h3>
+                <p style={{ marginBottom: '1.5rem', fontSize: '0.9rem', opacity: '0.9' }}>
+                    Have a tool to share? Be part of our growing ecosystem.
                 </p>
-                <a href="/auth" className="btn-white-slim" style={{
-                    display: 'inline-block', padding: '12px 24px', background: 'white',
-                    color: 'var(--bg-dark)', borderRadius: '12px', fontWeight: '800',
-                    fontSize: '0.85rem', textDecoration: 'none'
-                }}>Get Started</a>
+                <button className={`btn-secondary ${styles.joinBtn}`}>
+                    Submit a Tool <Plus size={18} />
+                </button>
             </div>
         </div>
     );

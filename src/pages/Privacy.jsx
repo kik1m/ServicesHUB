@@ -1,27 +1,29 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Shield, Lock, Eye, Globe } from 'lucide-react';
 import SkeletonLoader from '../components/SkeletonLoader';
+import useSEO from '../hooks/useSEO';
+import { useLegalData } from '../hooks/useLegalData';
 
 // Import Shared Legal Components
 import LegalHero from '../components/Legal/LegalHero';
 import LegalSection from '../components/Legal/LegalSection';
 
 // Import Modular CSS
-import '../styles/pages/Legal.css';
+import styles from './Privacy.module.css';
 
 const Privacy = () => {
-    const [loading, setLoading] = useState(true);
+    const { loading } = useLegalData();
 
-    useEffect(() => {
-        const timer = setTimeout(() => setLoading(false), 500);
-        return () => clearTimeout(timer);
-    }, []);
+    useSEO({
+        title: "Privacy Policy | HUBly Safety",
+        description: "Learn how ServicesHUB handles and protects your data. Transparency and security are our top priorities.",
+    });
 
     if (loading) {
         return (
-            <div className="page-wrapper legal-page">
+            <div className={`page-wrapper ${styles.privacyPage}`}>
                 <LegalHero loading={true} />
-                <section className="main-section" style={{ maxWidth: '800px', margin: '0 auto' }}>
+                <section className={styles.mainSection}>
                     <SkeletonLoader height="300px" borderRadius="16px" style={{ marginBottom: '2rem' }} />
                     <SkeletonLoader height="200px" borderRadius="16px" style={{ marginBottom: '2rem' }} />
                 </section>
@@ -30,7 +32,7 @@ const Privacy = () => {
     }
 
     return (
-        <div className="page-wrapper legal-page">
+        <div className={`page-wrapper ${styles.privacyPage}`}>
             <LegalHero 
                 loading={false}
                 badge="LEGAL DOCUMENTS"
@@ -39,8 +41,8 @@ const Privacy = () => {
                 subtitle="Last updated: March 26, 2026"
             />
 
-            <section className="main-section" style={{ maxWidth: '850px', margin: '0 auto' }}>
-                <div className="glass-card legal-content">
+            <section className={styles.mainSection}>
+                <div className={`glass-card ${styles.legalContent}`}>
                     <LegalSection icon={Eye} number="1" title="Data Collection">
                         We collect basic information when you use HUBly, such as your email
                         address when you sign up or submit a tool. This information is used

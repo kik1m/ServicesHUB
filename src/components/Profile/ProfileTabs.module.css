@@ -1,0 +1,47 @@
+/* ProfileTabs.module.css */
+
+.tabsNav {
+  display: flex;
+  gap: 2rem;
+}
+
+.tabBtn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1rem;
+  font-weight: 700;
+  padding: 0.5rem 0;
+  cursor: pointer;
+  position: relative;
+  transition: 0.3s;
+}
+
+.tabBtn:hover {
+  color: white;
+}
+
+.tabBtn.active {
+  color: var(--primary);
+}
+
+.tabBtn.active::after {
+  content: '';
+  position: absolute;
+  bottom: -1rem;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: var(--primary);
+  box-shadow: 0 0 10px var(--primary);
+}
+
+@media (max-width: 480px) {
+  .tabsNav {
+    gap: 1rem;
+  }
+  
+  .tabBtn {
+    font-size: 0.9rem;
+  }
+}

@@ -1,17 +1,18 @@
 import React from 'react';
 import { ArrowLeft } from 'lucide-react';
 import Breadcrumbs from '../Breadcrumbs';
+import styles from './ToolFormHeader.module.css';
 
-const ToolFormHeader = ({ title, subtitle, onBack, breadcrumbs }) => {
+const ToolFormHeader = ({ title, subtitle, onBack, breadcrumbs, isEdit = false }) => {
     return (
-        <div className="submit-wrapper">
-            <div className="submit-breadcrumbs-wrapper">
+        <div className={styles.headerWrapper}>
+            <div className={styles.breadcrumbsContainer}>
                 <Breadcrumbs items={breadcrumbs} />
             </div>
 
-            <header className="submit-header">
-                <div className="submit-header-title-row">
-                    <button onClick={onBack} className="icon-btn-slim">
+            <header className={styles.header}>
+                <div className={styles.titleRow}>
+                    <button onClick={onBack} className={styles.backBtn}>
                         <ArrowLeft size={22} color="white" />
                     </button>
                     <h1>
@@ -21,15 +22,15 @@ const ToolFormHeader = ({ title, subtitle, onBack, breadcrumbs }) => {
                                     <span className="gradient-text">{word}</span>
                                 ) : (
                                     word
-                                )}
-                                {i < arr.length - 1 ? ' ' : ''}
+                                )}{i < arr.length - 1 ? ' ' : ''}
                             </React.Fragment>
                         ))}
                     </h1>
                 </div>
                 {subtitle && (
-                    <p>
-                        Modifying <span style={{ color: 'var(--primary)', fontWeight: '700' }}>{subtitle}</span>
+                    <p className={styles.subtitle}>
+                        {isEdit && "Modifying "}
+                        <span className={styles.targetName}>{subtitle}</span>
                     </p>
                 )}
             </header>

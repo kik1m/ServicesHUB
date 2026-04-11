@@ -1,39 +1,49 @@
 import React from 'react';
+import { Plus, Share2, Home, ChevronRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { Share2, Plus } from 'lucide-react';
-import Breadcrumbs from '../Breadcrumbs';
+import styles from './DashboardHeader.module.css';
 
 const DashboardHeader = ({ isCreator, user, showToast }) => {
+    const handleShare = () => {
+        const url = `${window.location.origin}/u/${user?.id}`;
+        navigator.clipboard.writeText(url);
+        showToast('Profile link copied!', 'success');
+    };
+
     return (
-        <header className="dashboard-header-premium">
-            <div className="dash-breadcrumb-wrapper">
-                <Breadcrumbs items={[{ label: 'Home', path: '/' }, { label: 'Dashboard' }]} />
+        <header className={styles.headerPremium}>
+            <div className={styles.breadcrumbWrapper}>
+                <Link to="/" className={styles.breadcrumbItem}>
+                    <Home size={14} className={styles.breadcrumbIcon} />
+                    Home
+                </Link>
+                <ChevronRight size={14} className={styles.breadcrumbIcon} />
+                <span className={styles.breadcrumbItem} style={{ color: 'var(--primary)', fontWeight: '700' }}>
+                    Dashboard
+                </span>
             </div>
             
-            <div className="dash-header-main">
-                <div className="dash-header-info">
-                    <div className="dash-badge-pill">MEMBER AREA</div>
-                    <h1 className="dash-title">
+            <div className={styles.headerMain}>
+                <div className={styles.headerInfo}>
+                    <span className={styles.badgePill}>MEMBER AREA</span>
+                    <h1 className={styles.title}>
                         {isCreator ? 'Creator ' : 'My '}<span>Dashboard</span>
                     </h1>
-                    <p className="dash-subtitle">
-                        {isCreator ? 'Monitoring your tool clinical performance and listings' : 'Explore your favorites and community activity'}
+                    <p className={styles.subtitle}>
+                        {isCreator 
+                            ? "Monitoring your tool clinical performance and listings" 
+                            : "Explore your saved favorites and manage your discovery journey."}
                     </p>
                 </div>
 
-                <div className="dash-header-actions">
-                    <button
-                        onClick={() => {
-                            const url = `${window.location.origin}/u/${user.id}`;
-                            navigator.clipboard.writeText(url);
-                            showToast('Public profile link copied!', 'success');
-                        }}
-                        className="btn-secondary dash-action-btn"
-                    >
-                        <Share2 size={18} /> <span>Share Profile</span>
+                <div className={styles.headerActions}>
+                    <button onClick={handleShare} className={styles.btnShare}>
+                        <Share2 size={18} />
+                        Share Profile
                     </button>
-                    <Link to="/submit" className="btn-primary dash-action-btn">
-                        <Plus size={18} /> <span>{isCreator ? 'Submit Tool' : 'Become Creator'}</span>
+                    <Link to="/submit" className={styles.btnSubmit}>
+                        <Plus size={20} />
+                        Submit Tool
                     </Link>
                 </div>
             </div>

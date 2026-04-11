@@ -1,0 +1,154 @@
+/* ToolCard.module.css */
+
+.toolCard {
+  padding: 1.2rem !important;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1) !important;
+  border-radius: 32px !important;
+  background: rgba(255, 255, 255, 0.01) !important;
+  border: 1px solid rgba(255, 255, 255, 0.03) !important;
+  position: relative;
+  overflow: hidden;
+  text-decoration: none;
+  min-height: 200px;
+}
+
+.toolCard:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+  background: rgba(255, 255, 255, 0.02) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Promoted (Featured) Variant */
+.featuredGlowCard {
+  border: 1px solid rgba(0, 210, 255, 0.2) !important;
+  background: linear-gradient(135deg, rgba(0, 210, 255, 0.03) 0%, rgba(0, 136, 204, 0.01) 100%) !important;
+  box-shadow: 0 0 20px rgba(0, 136, 204, 0.05);
+}
+
+.featuredGlowCard::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--primary), transparent);
+  animation: scanning 3s linear infinite;
+}
+
+@keyframes scanning {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.featuredGlowCard:hover {
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 30px rgba(0, 136, 204, 0.2);
+}
+
+.featuredGlowCard .cardLogoBox {
+  background: rgba(0, 210, 255, 0.05) !important;
+  border-color: rgba(0, 210, 255, 0.2) !important;
+}
+
+/* Standard Variant */
+.standardToolCard:hover {
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  background: rgba(255, 255, 255, 0.03) !important;
+}
+
+.cardLogoBox {
+  width: 48px;
+  height: 48px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  margin-bottom: 1rem;
+  transition: 0.3s;
+}
+
+.cardLogoImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.toolCard:hover .cardLogoBox {
+  transform: scale(1.1);
+  border-color: var(--primary);
+}
+
+.cardContent {
+  display: flex;
+  flex-direction: column;
+}
+
+.cardTitleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 0.6rem;
+}
+
+.cardTitleRow h3 {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: white;
+  margin: 0;
+  letter-spacing: -0.2px;
+}
+
+.toolCard p {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  line-height: 1.6;
+  margin-bottom: 1rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  opacity: 0.8;
+}
+
+.cardFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: auto;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.cardRating {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #ffaa00;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.cardLink {
+  color: var(--primary);
+  font-weight: 700;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: 0.3s;
+}
+
+.toolCard:hover .cardLink {
+  gap: 8px;
+  text-shadow: 0 0 10px var(--primary-glow);
+}

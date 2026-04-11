@@ -1,15 +1,16 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Home, Search } from 'lucide-react';
+import styles from './NotFoundActions.module.css';
 
 const NotFoundActions = () => {
     return (
-        <div className="not-found-actions-row">
-            <Link to="/" className="btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none' }}>
-                <Home size={20} /> Go Home
+        <div className={styles.actionsRow}>
+            <Link to="/" className="btn-primary">
+                Return Home <Home size={18} />
             </Link>
-            <Link to="/tools" className="btn-outline" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none' }}>
-                <Search size={20} /> Discover Tools
+            <Link to="/tools" className="btn-secondary">
+                Explore Tools <Search size={18} />
             </Link>
         </div>
     );

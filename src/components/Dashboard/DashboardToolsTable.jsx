@@ -1,12 +1,13 @@
 import React from 'react';
-import { Zap, TrendingUp, CheckCircle2, Edit3, ExternalLink, Trash2 } from 'lucide-react';
+import { Edit2, Trash2, ExternalLink, ShieldCheck, Zap, TrendingUp } from 'lucide-react';
+import styles from './DashboardToolsTable.module.css';
 
 const DashboardToolsTable = ({ userTools, navigate, handleDeleteTool }) => {
     if (!userTools || userTools.length === 0) return null;
 
     return (
-        <div className="dashboard-table-wrapper">
-            <table className="dashboard-table">
+        <div className={styles.tableWrapper}>
+            <table className={styles.table}>
                 <thead>
                     <tr>
                         <th>Tool Info</th>
@@ -18,60 +19,56 @@ const DashboardToolsTable = ({ userTools, navigate, handleDeleteTool }) => {
                     </tr>
                 </thead>
                 <tbody>
-                    {userTools.map(tool => (
-                        <tr key={tool.id}>
-                            <td>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                    <div style={{ width: '32px', height: '32px', background: 'rgba(255,255,255,0.05)', borderRadius: '8px', overflow: 'hidden', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                        {tool.image_url ? 
-                                            <img src={tool.image_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : 
-                                            <Zap size={14} color="var(--primary)" />
-                                        }
+                    {userTools.map((tool) => {
+                        // Calculate days left for featured status
+                        const featuredUntil = tool.featured_until ? new Date(tool.featured_until) : null;
+                        const daysLeft = featuredUntil 
+                            ? Math.max(0, Math.ceil((featuredUntil - new Date()) / (1000 * 60 * 60 * 24)))
+                            : 0;
+
+                        return (
+                            <tr key={tool.id}>
+                                <td>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                                        <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: `url(${tool.image_url}) center/cover no-repeat`, border: '1px solid rgba(255,255,255,0.05)', flexShrink: 0 }}></div>
+                                        <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                            <span style={{ fontWeight: '800', color: 'white', fontSize: '1.05rem' }}>{tool.name}</span>
+                                            <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Created {new Date(tool.created_at).toLocaleDateString()}</span>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <div style={{ fontWeight: '700', fontSize: '0.9rem', color: 'white' }}>{tool.name}</div>
-                                        <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Created {new Date(tool.created_at).toLocaleDateString()}</div>
+                                </td>
+                                <td>
+                                    <span className={`${styles.statusBadge} ${tool.is_approved ? styles.statusPublished : styles.statusPending}`}>
+                                        {tool.is_approved ? 'Published' : 'Pending'}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div className={styles.marketingCell}>
+                                        <div style={{ display: 'flex', gap: '8px' }}>
+                                            {tool.is_featured && <TrendingUp size={16} color="var(--secondary)" />}
+                                            {tool.is_verified && <ShieldCheck size={16} color="var(--primary)" />}
+                                        </div>
+                                        {tool.is_featured && daysLeft > 0 && (
+                                            <span className={styles.daysLeft}>{daysLeft}d left</span>
+                                        )}
                                     </div>
-                                </div>
-                            </td>
-                            <td>
-                                <span className={`status-badge ${tool.is_approved ? 'status-published' : 'status-pending'}`}>
-                                    {tool.is_approved ? 'Published' : 'Pending'}
-                                </span>
-                            </td>
-                            <td>
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                                    <div style={{ display: 'flex', gap: '5px' }}>
-                                        {tool.is_featured && <TrendingUp size={14} color="#FFD700" title="Featured" />}
-                                        {tool.is_verified && <CheckCircle2 size={14} color="var(--secondary)" title="Verified" />}
-                                        {!tool.is_featured && !tool.is_verified && <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>-</span>}
+                                </td>
+                                <td>
+                                    <span style={{ fontWeight: '700', fontSize: '1rem' }}>{tool.pricing_type}</span>
+                                </td>
+                                <td>
+                                    <span className={styles.viewsCount}>{(tool.view_count || 0).toLocaleString()}</span>
+                                </td>
+                                <td>
+                                    <div style={{ display: 'flex', gap: '15px' }}>
+                                        <button onClick={() => navigate(`/edit-tool/${tool.id}`)} className={styles.actionBtn} title="Edit"><Edit2 size={16} /></button>
+                                        <a href={`/tool/${tool.slug}`} target="_blank" rel="noopener noreferrer" className={styles.actionBtn} title="View"><ExternalLink size={16} /></a>
+                                        <button onClick={() => handleDeleteTool(tool.id, tool.name)} className={`${styles.actionBtn} ${styles.actionDelete}`} title="Delete"><Trash2 size={16} /></button>
                                     </div>
-                                    {tool.is_featured && tool.featured_until && (() => {
-                                        const daysLeft = Math.max(0, Math.ceil((new Date(tool.featured_until) - new Date()) / (1000 * 60 * 60 * 24)));
-                                        const isExpired = daysLeft === 0;
-                                        return (
-                                            <div style={{ fontSize: '0.65rem', display: 'flex', flexDirection: 'column', gap: '1px' }}>
-                                                <span style={{ color: isExpired ? '#ff4757' : daysLeft <= 5 ? '#ffa500' : '#00e676', fontWeight: 'bold' }}>
-                                                    {isExpired ? 'Expired' : `${daysLeft}d left`}
-                                                </span>
-                                            </div>
-                                        );
-                                    })()}
-                                </div>
-                            </td>
-                            <td style={{ fontSize: '0.85rem' }}>{tool.pricing_type}</td>
-                            <td style={{ fontSize: '0.85rem', fontWeight: '800', color: 'var(--primary)' }}>
-                                {(tool.view_count || 0).toLocaleString()}
-                            </td>
-                            <td>
-                                <div style={{ display: 'flex', gap: '0.8rem' }}>
-                                    <button onClick={() => navigate(`/edit-tool/${tool.id}`)} className="action-btn" title="Edit"><Edit3 size={16} /></button>
-                                    <button onClick={() => navigate(`/tool/${tool.slug}`)} className="action-btn" title="View"><ExternalLink size={16} /></button>
-                                    <button onClick={() => handleDeleteTool(tool.id, tool.name)} className="action-btn action-delete" title="Delete"><Trash2 size={16} /></button>
-                                </div>
-                            </td>
-                        </tr>
-                    ))}
+                                </td>
+                            </tr>
+                        );
+                    })}
                 </tbody>
             </table>
         </div>

@@ -1,0 +1,40 @@
+/* ProfileNotFound.module.css */
+
+.notFoundWrapper {
+  padding: 120px 5%;
+  text-align: center;
+  min-height: 50vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon {
+  opacity: 0.1;
+  margin-bottom: 2rem;
+  color: var(--text-muted);
+}
+
+.title {
+  font-size: 3rem;
+  font-weight: 900;
+  color: white;
+  margin-bottom: 1rem;
+  letter-spacing: -1.5px;
+}
+
+.text {
+  color: var(--text-muted);
+  font-size: 1.1rem;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.returnBtn {
+  margin-top: 2.5rem;
+  padding: 1rem 2.5rem !important;
+  font-weight: 800 !important;
+  display: inline-block;
+  text-decoration: none;
+}

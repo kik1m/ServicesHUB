@@ -1,42 +1,47 @@
 import React from 'react';
-import { X } from 'lucide-react';
+import { X, CheckCircle, AlertCircle, ExternalLink } from 'lucide-react';
+import styles from './AdminReviewModal.module.css';
 
 const AdminReviewModal = ({ showReviewModal, selectedReview, handleCloseReview, handleApprove, handleReject, getChangedFields }) => {
     if (!showReviewModal || !selectedReview) return null;
 
-    return (
-        <div key="review-modal" className="admin-modal-overlay">
-            <div className="glass-card admin-modal-content">
-                <button onClick={handleCloseReview} className="admin-modal-close"><X /></button>
+    const isUpdate = !!selectedReview.pending_changes;
 
-                <div className="admin-modal-header">
+    return (
+        <div key="review-modal" className={styles.overlay}>
+            <div className={`${styles.content} glass-card`}>
+                <button onClick={handleCloseReview} className={styles.close} aria-label="Close modal">
+                    <X size={24} />
+                </button>
+
+                <div className={styles.header}>
                     <h2>
-                        {selectedReview.is_approved ? 'Review Pending Changes' : 'New Tool Approval'}
+                        {isUpdate ? 'Review Pending Changes' : 'New Tool Approval'}
                     </h2>
                     <p>
-                        For tool: <span className="admin-text-primary-bold">{selectedReview.name}</span>
+                        For tool: <span className={styles.textPrimaryBold}>{selectedReview.name}</span>
                     </p>
                 </div>
 
-                <div className="admin-diff-container">
-                    {selectedReview.is_approved ? (
+                <div className={styles.diffContainer}>
+                    {isUpdate ? (
                         // DIFF VIEW MODE
-                        <div className="admin-diff-container">
+                        <div className={styles.diffContainer}>
                             {getChangedFields(selectedReview, selectedReview.pending_changes).map(field => (
-                                <div key={field.key} className="admin-diff-card">
-                                    <h4 className="admin-diff-label">{field.label}</h4>
-                                    <div className="admin-diff-grid">
-                                        <div className="admin-diff-col">
+                                <div key={field.key} className={styles.diffCard}>
+                                    <h4 className={styles.diffLabel}>{field.label}</h4>
+                                    <div className={styles.diffGrid}>
+                                        <div className={styles.diffCol}>
                                             <h6>CURRENT</h6>
-                                            {field.isImage ? <img src={field.oldValue} alt="Current" className="admin-img-rounded" /> :
-                                                field.isArray ? (field.oldValue || []).map((f, i) => <div key={i} className="admin-diff-old-text">• {f}</div>) :
-                                                    <div className="admin-diff-old-val">{field.oldValue || 'None'}</div>}
+                                            {field.isImage ? <img src={field.oldValue} alt="Current" className={styles.imgRounded} /> :
+                                                field.isArray ? (field.oldValue || []).map((f, i) => <div key={i} className={styles.oldText}>• {f}</div>) :
+                                                    <div className={styles.oldVal}>{field.oldValue || 'None'}</div>}
                                         </div>
-                                        <div className="admin-diff-col">
+                                        <div className={styles.diffCol}>
                                             <h6>PROPOSED</h6>
-                                            {field.isImage ? <img src={field.newValue} alt="Proposed" className="admin-img-rounded" style={{ border: '2px solid #00ff88' }} /> :
-                                                field.isArray ? (field.newValue || []).map((f, i) => <div key={i} className="admin-diff-new-text">• {f}</div>) :
-                                                    <div className="admin-diff-new-val">{field.newValue}</div>}
+                                            {field.isImage ? <img src={field.newValue} alt="Proposed" className={styles.imgRounded} style={{ border: '2px solid #00ff88' }} /> :
+                                                field.isArray ? (field.newValue || []).map((f, i) => <div key={i} className={styles.newText}>• {f}</div>) :
+                                                    <div className={styles.newVal}>{field.newValue}</div>}
                                         </div>
                                     </div>
                                 </div>
@@ -44,28 +49,32 @@ const AdminReviewModal = ({ showReviewModal, selectedReview, handleCloseReview, 
                         </div>
                     ) : (
                         // FULL PREVIEW MODE
-                        <div className="admin-modal-preview-grid">
+                        <div className={styles.previewGrid}>
                             <div>
-                                <img src={selectedReview.image_url} alt={selectedReview.name} className="admin-img-large" />
-                                <div style={{ marginTop: '1.5rem', wordBreak: 'break-all' }}>
-                                    <h5 style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>URL</h5>
-                                    <a href={selectedReview.url} target="_blank" rel="noreferrer" className="admin-text-primary-bold" style={{ fontSize: '0.9rem' }}>{selectedReview.url}</a>
+                                <img src={selectedReview.image_url} alt={selectedReview.name} className={styles.imgLarge} />
+                                <div style={{ marginTop: '1.5rem' }}>
+                                    <div className={styles.infoBlock}>
+                                        <h5>Source / Website URL</h5>
+                                        <a href={selectedReview.url} target="_blank" rel="noreferrer" className={styles.textPrimaryBold} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.9rem' }}>
+                                            {selectedReview.url} <ExternalLink size={12} />
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
-                            <div className="admin-form-group">
-                                <div>
-                                    <h5 style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Short Pitch</h5>
-                                    <p style={{ fontWeight: '700', margin: 0 }}>{selectedReview.short_description}</p>
+                            <div className={styles.previewInfo}>
+                                <div className={styles.infoBlock}>
+                                    <h5>Quick Pitch</h5>
+                                    <p style={{ fontWeight: '700' }}>{selectedReview.short_description}</p>
                                 </div>
-                                <div>
-                                    <h5 style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Full Description</h5>
-                                    <p style={{ fontSize: '0.9rem', lineHeight: '1.6', color: 'rgba(255,255,255,0.8)', margin: 0 }}>{selectedReview.description}</p>
+                                <div className={styles.infoBlock}>
+                                    <h5>Full Capabilities</h5>
+                                    <p>{selectedReview.description}</p>
                                 </div>
-                                <div>
-                                    <h5 style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '10px' }}>Features</h5>
-                                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                                <div className={styles.infoBlock}>
+                                    <h5>Key Features & Specs</h5>
+                                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '8px' }}>
                                         {(selectedReview.features || []).map((f, i) => (
-                                            <span key={i} className="admin-feature-tag">• {f}</span>
+                                            <span key={i} className={styles.featureTag}>{f}</span>
                                         ))}
                                     </div>
                                 </div>
@@ -74,24 +83,26 @@ const AdminReviewModal = ({ showReviewModal, selectedReview, handleCloseReview, 
                     )}
                 </div>
 
-                <div className="admin-modal-footer">
+                <div className={styles.footer}>
                     <button
                         onClick={async () => {
                             await handleApprove(selectedReview);
                             handleCloseReview();
                         }}
-                        className="admin-btn-approve"
+                        className={styles.btnApprove}
                     >
-                        {selectedReview.is_approved ? 'Apply Changes' : 'Approve & Publish'}
+                        <CheckCircle size={18} style={{ marginRight: '8px', verticalAlign: 'middle' }} />
+                        {isUpdate ? 'Apply Changes' : 'Approve & Publish'}
                     </button>
                     <button
                         onClick={async () => {
                             await handleReject(selectedReview);
                             handleCloseReview();
                         }}
-                        className="admin-btn-reject"
+                        className={styles.btnReject}
                     >
-                        {selectedReview.is_approved ? 'Discard Changes' : 'Reject Tool'}
+                        <AlertCircle size={18} style={{ marginRight: '8px', verticalAlign: 'middle' }} />
+                        {isUpdate ? 'Discard Changes' : 'Reject & Delete'}
                     </button>
                 </div>
             </div>

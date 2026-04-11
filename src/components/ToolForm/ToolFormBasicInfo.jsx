@@ -1,43 +1,44 @@
 import React from 'react';
 import { Zap, Globe, Layout, Star, MousePointer2, Info } from 'lucide-react';
 import CustomSelect from '../CustomSelect';
+import styles from './ToolFormBasicInfo.module.css';
 
 const ToolFormBasicInfo = ({ formData, setFormData, categories, fieldErrors }) => {
     return (
-        <div className="form-section-card">
-            <div className="section-title-row">
-                <div className="title-icon-bg">
+        <div className={styles.sectionCard}>
+            <div className={styles.sectionTitleRow}>
+                <div className={styles.titleIconBg}>
                     <Info size={22} className="text-primary" />
                 </div>
                 <h3>Basic Details</h3>
             </div>
 
-            <div className="input-grid-2">
-                <div className="input-group-slim">
+            <div className={styles.inputGrid2}>
+                <div className={styles.inputGroupSlim}>
                     <label><Zap size={14} /> Tool Name</label>
                     <input 
                         type="text" 
-                        className="slim-input-field" 
+                        className={styles.slimInputField} 
                         value={formData.name || ''} 
                         onChange={(e) => setFormData({...formData, name: e.target.value})} 
                         placeholder="e.g. ChatGPT"
                     />
-                    {fieldErrors.name && <span className="error-text">{fieldErrors.name}</span>}
+                    {fieldErrors.name && <span className={styles.errorText}>{fieldErrors.name}</span>}
                 </div>
-                <div className="input-group-slim">
+                <div className={styles.inputGroupSlim}>
                     <label><Globe size={14} /> Website URL</label>
                     <input 
                         type="url" 
-                        className="slim-input-field" 
+                        className={styles.slimInputField} 
                         value={formData.url || ''} 
                         onChange={(e) => setFormData({...formData, url: e.target.value})} 
                         placeholder="https://yourapp.com"
                     />
-                    {fieldErrors.url && <span className="error-text">{fieldErrors.url}</span>}
+                    {fieldErrors.url && <span className={styles.errorText}>{fieldErrors.url}</span>}
                 </div>
             </div>
 
-            <div className="input-split-layout">
+            <div className={styles.inputSplitLayout}>
                 <CustomSelect 
                     label="Primary Category" 
                     options={categories} 
@@ -46,7 +47,7 @@ const ToolFormBasicInfo = ({ formData, setFormData, categories, fieldErrors }) =
                     icon={Layout}
                 />
                 
-                <div className="pricing-grid-group">
+                <div className={styles.pricingGridGroup}>
                     <CustomSelect 
                         label="Pricing Model" 
                         options={[
@@ -59,17 +60,17 @@ const ToolFormBasicInfo = ({ formData, setFormData, categories, fieldErrors }) =
                         onChange={(val) => setFormData({...formData, pricing_type: val})} 
                         icon={Star}
                     />
-                    <div className="pricing-details-container">
-                        <label className="slim-detail-label">PRICE DETAILS</label>
-                        <div className="slim-input-wrapper">
+                    <div className={styles.pricingDetailsContainer}>
+                        <label className={styles.slimDetailLabel}>PRICE DETAILS</label>
+                        <div className={styles.slimInputWrapper}>
                             <input 
                                 type="text" 
-                                className="slim-input-field" 
+                                className={styles.slimInputField} 
                                 placeholder="e.g. $10/mo"
                                 value={formData.pricing_details || ''} 
                                 onChange={(e) => setFormData({...formData, pricing_details: e.target.value})}
                             />
-                            <div className="input-icon-right">
+                            <div className={styles.inputIconRight}>
                                 <MousePointer2 size={16} />
                             </div>
                         </div>

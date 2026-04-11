@@ -1,0 +1,43 @@
+/* EditTool.module.css - Isolated styles for tool editing page */
+
+.submitContainer {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 80px 5% 60px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.loadingWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 80vh;
+  width: 100%;
+}
+
+.submitWrapper {
+  max-width: 900px;
+  margin: 1.5rem auto;
+  width: 100%;
+}
+
+.submitForm {
+  background: transparent;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 3.5rem;
+}
+
+@media (max-width: 768px) {
+  .submitContainer {
+    padding: 60px 1rem 40px;
+  }
+  
+  .submitWrapper {
+    gap: 1.5rem;
+    margin: 1rem auto;
+  }
+}

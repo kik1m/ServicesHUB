@@ -1,0 +1,68 @@
+.adminPage {
+    padding: 120px 5% 60px;
+    min-height: 100vh;
+    background: #000;
+}
+
+.wrapper {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.headerSection {
+    margin-bottom: 3rem;
+}
+
+.headerSection h1 {
+    font-size: 2.5rem; 
+    font-weight: 800; 
+    margin-bottom: 8px;
+    color: white;
+}
+
+.headerSection p {
+    color: var(--text-muted);
+}
+
+.contentGrid {
+    display: grid; 
+    gap: 2.5rem;
+}
+
+.contentGrid.withSidebar {
+    grid-template-columns: 2fr 1fr;
+}
+
+.mainCard {
+    padding: 2.5rem;
+    min-height: 500px;
+    border: 1px solid var(--border);
+    position: relative;
+    background: rgba(255, 255, 255, 0.01) !important;
+}
+
+.loadingWrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 400px;
+    flex-direction: column;
+    gap: 15px;
+    color: var(--text-muted);
+}
+
+@media (max-width: 991px) {
+    .contentGrid.withSidebar {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 576px) {
+    .adminPage {
+        padding: 100px 15px 40px;
+    }
+    
+    .headerSection h1 {
+        font-size: 1.8rem;
+    }
+}

@@ -1,0 +1,70 @@
+/* ProfileStats.module.css */
+
+.statsContainer {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.statBoxModern {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.iconWrapper {
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: 0.3s;
+}
+
+.iconWrapper.heart {
+  color: #ff3366;
+  background: rgba(255, 51, 102, 0.1);
+}
+
+.iconWrapper.star {
+  color: #ffcc00;
+  background: rgba(255, 204, 0, 0.1);
+}
+
+.statContent {
+  display: flex;
+  flex-direction: column;
+}
+
+.statNumber {
+  font-size: 1.2rem;
+  font-weight: 900;
+  color: white;
+  line-height: 1;
+}
+
+.statLabel {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 4px;
+}
+
+.verticalLine {
+  width: 1px;
+  height: 30px;
+  background: var(--border);
+  opacity: 0.5;
+}
+
+@media (max-width: 480px) {
+  .statsContainer {
+    width: 100%;
+    justify-content: space-between;
+  }
+}

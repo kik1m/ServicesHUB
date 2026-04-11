@@ -1,13 +1,14 @@
 import React from 'react';
 import { Save, Loader2 } from 'lucide-react';
+import styles from './ToolFormActions.module.css';
 
 const ToolFormActions = ({ saving, uploading, onCancel, submitText = "Save & Submit for Review" }) => {
     return (
-        <div className="form-action-bar">
+        <div className={styles.formActionBar}>
             <button 
                 type="submit" 
                 disabled={saving || uploading} 
-                className="premium-submit-btn"
+                className={styles.premiumSubmitBtn}
             >
                 {saving ? <Loader2 className="animate-spin" size={24} /> : <Save size={24} />}
                 {saving ? 'Processing...' : submitText}
@@ -15,7 +16,7 @@ const ToolFormActions = ({ saving, uploading, onCancel, submitText = "Save & Sub
             <button 
                 type="button" 
                 onClick={onCancel} 
-                className="premium-cancel-btn"
+                className={styles.premiumCancelBtn}
             >
                 Cancel
             </button>

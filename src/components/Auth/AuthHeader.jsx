@@ -1,15 +1,20 @@
 import React from 'react';
-import { LayoutGrid } from 'lucide-react';
+import Logo from '../Logo';
+import styles from './AuthHeader.module.css';
 
+/**
+ * AuthHeader - Dynamic header for login/signup/forgot password
+ */
 const AuthHeader = ({ isLogin, forgotPasswordMode }) => {
+    let title = isLogin ? "Welcome Back" : "Join the Universe";
+    if (forgotPasswordMode) title = "Recover Access";
+
     return (
-        <div className="auth-header">
-            <div className="auth-logo-box">
-                <LayoutGrid size={32} color="black" />
+        <div className={styles.header}>
+            <div className={styles.logoWrapper}>
+                <Logo size={42} className={styles.centeredLogo} />
             </div>
-            <h1 className="auth-title">
-                {forgotPasswordMode ? 'Reset Password' : (isLogin ? 'Welcome Back' : 'Join the Future')}
-            </h1>
+            <h2 className={styles.title}>{title}</h2>
         </div>
     );
 };

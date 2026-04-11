@@ -1,28 +1,32 @@
 import React from 'react';
-import { Award, Mail } from 'lucide-react';
+import { Award, Mail, Calendar, User } from 'lucide-react';
+import styles from './AdminUserManager.module.css';
 
 const AdminUserManager = ({ activeTab, allUsers, subscribers }) => {
     
     if (activeTab === 'users') {
         return (
-            <div>
-                <div className="admin-section-header">
-                    <h2>Users Manager</h2>
-                    <span className="badge">{allUsers.length} TOTAL USERS</span>
+            <div className={styles.wrapper}>
+                <div className={styles.sectionHeader}>
+                    <h2 className={styles.title}>Users Manager</h2>
+                    <span className={styles.badge}>{allUsers.length} TOTAL USERS</span>
                 </div>
-                <div className="admin-users-grid">
+                <div className={styles.usersGrid}>
                     {allUsers.map(u => (
-                        <div key={u.id} className="glass-card admin-user-card" style={{ border: u.is_premium ? '1px solid rgba(255, 215, 0, 0.3)' : '1px solid var(--border)' }}>
-                            <div className="admin-user-avatar">
-                                {u.avatar_url ? <img src={u.avatar_url} alt={u.full_name} /> : u.full_name?.charAt(0) || 'U'}
+                        <div key={u.id} className={`${styles.userCard} ${u.is_premium ? styles.premium : ''} glass-card`}>
+                            <div className={styles.avatar}>
+                                {u.avatar_url ? <img src={u.avatar_url} alt={u.full_name} /> : <User size={24} />}
                             </div>
-                            <div style={{ flex: 1 }}>
+                            <div className={styles.info}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                    <h5 style={{ fontWeight: '700', margin: 0 }}>{u.full_name || 'Anonymous'}</h5>
-                                    {u.is_premium && <Award size={14} color="#FFD700" title="Premium" />}
+                                    <h5>{u.full_name || 'Anonymous User'}</h5>
+                                    {u.is_premium && <Award size={14} color="#FFD700" title="Premium Subscriber" />}
                                 </div>
-                                <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', margin: '2px 0' }}>{u.role}</p>
-                                <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', margin: 0 }}>Joined {new Date(u.created_at).toLocaleDateString()}</p>
+                                <p className={styles.role}>{u.role}</p>
+                                <p className={styles.date}>
+                                    <Calendar size={10} style={{ marginRight: '4px', verticalAlign: 'middle' }} />
+                                    Joined {new Date(u.updated_at).toLocaleDateString()}
+                                </p>
                             </div>
                         </div>
                     ))}
@@ -33,21 +37,21 @@ const AdminUserManager = ({ activeTab, allUsers, subscribers }) => {
 
     if (activeTab === 'newsletter') {
         return (
-            <div>
-                <div className="admin-section-header">
-                    <h2>Newsletter Subscribers</h2>
-                    <span className="badge">{subscribers.length} TOTAL EMAIL{subscribers.length !== 1 && 'S'}</span>
+            <div className={styles.wrapper}>
+                <div className={styles.sectionHeader}>
+                    <h2 className={styles.title}>Newsletter Subscribers</h2>
+                    <span className={styles.badge}>{subscribers.length} TOTAL EMAIL{subscribers.length !== 1 && 'S'}</span>
                 </div>
-                <div className="admin-scroll-area">
+                <div className={styles.scrollArea}>
                     {subscribers.map((sub, i) => (
-                        <div key={sub.id || i} className="admin-item-row">
+                        <div key={sub.id || i} className={styles.itemRow}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-                                <div style={{ width: '40px', height: '40px', background: 'rgba(255, 255, 255, 0.05)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <div className={styles.subIcon}>
                                     <Mail size={18} color="var(--primary)" />
                                 </div>
                                 <div>
-                                    <h5 style={{ fontWeight: '700', fontSize: '1.05rem', margin: 0 }}>{sub.email}</h5>
-                                    <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', margin: '4px 0 0 0' }}>Subscribed on {new Date(sub.created_at).toLocaleDateString()}</p>
+                                    <h5 className={styles.subEmail}>{sub.email}</h5>
+                                    <p className={styles.subDate}>Subscribed on {new Date(sub.created_at).toLocaleDateString()}</p>
                                 </div>
                             </div>
                         </div>

@@ -1,27 +1,29 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { FileText, Clock, Scale, Shield } from 'lucide-react';
 import SkeletonLoader from '../components/SkeletonLoader';
+import useSEO from '../hooks/useSEO';
+import { useLegalData } from '../hooks/useLegalData';
 
 // Import Shared Legal Components
 import LegalHero from '../components/Legal/LegalHero';
 import LegalSection from '../components/Legal/LegalSection';
 
 // Import Modular CSS
-import '../styles/pages/Legal.css';
+import styles from './Terms.module.css';
 
 const Terms = () => {
-    const [loading, setLoading] = useState(true);
+    const { loading } = useLegalData();
 
-    useEffect(() => {
-        const timer = setTimeout(() => setLoading(false), 500);
-        return () => clearTimeout(timer);
-    }, []);
+    useSEO({
+        title: "Terms of Service | HUBly Usage",
+        description: "Review the terms and conditions for using ServicesHUB. Understand your rights and responsibilities as a user.",
+    });
 
     if (loading) {
         return (
-            <div className="page-wrapper legal-page">
+            <div className={`page-wrapper ${styles.termsPage}`}>
                 <LegalHero loading={true} isCompact={true} />
-                <section className="main-section" style={{ maxWidth: '800px', margin: '0 auto' }}>
+                <section className={styles.mainSection}>
                     <SkeletonLoader height="400px" borderRadius="16px" />
                 </section>
             </div>
@@ -29,7 +31,7 @@ const Terms = () => {
     }
 
     return (
-        <div className="page-wrapper legal-page">
+        <div className={`page-wrapper ${styles.termsPage}`}>
             <LegalHero 
                 loading={false}
                 isCompact={true}
@@ -39,8 +41,8 @@ const Terms = () => {
                 subtitle="Last updated: March 26, 2026"
             />
 
-            <section className="main-section" style={{ maxWidth: '850px', margin: '0 auto' }}>
-                <div className="glass-card legal-content">
+            <section className={styles.mainSection}>
+                <div className={`glass-card ${styles.legalContent}`}>
                     <LegalSection icon={Scale} number="1" title="Acceptance of Terms">
                         By accessing or using HUBly, you agree to be bound by these Terms of Service.
                         If you do not agree with any part of these terms, you may not access our services.

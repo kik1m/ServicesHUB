@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { supabase } from '../lib/supabaseClient';
-import { useAuth } from '../context/AuthContext';
-import { Bell } from 'lucide-react';
-import SkeletonLoader from '../components/SkeletonLoader';
+import React from 'react';
+import { Bell, Loader2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import SkeletonLoader from '../components/SkeletonLoader';
+import useSEO from '../hooks/useSEO';
+import { useNotificationsData } from '../hooks/useNotificationsData';
 
 // Import Modular Components
 import NotificationsHeader from '../components/Notifications/NotificationsHeader';
@@ -11,97 +11,60 @@ import NotificationCard from '../components/Notifications/NotificationCard';
 import NotificationsEmptyState from '../components/Notifications/NotificationsEmptyState';
 
 // Import Modular CSS
-import '../styles/pages/Notifications.css';
+import styles from './Notifications.module.css';
 
 const Notifications = () => {
-    const { user, loading: authLoading } = useAuth();
-    const [notifications, setNotifications] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const { 
+        user, 
+        notifications, 
+        loading, 
+        error, 
+        markAsRead, 
+        clearAll 
+    } = useNotificationsData();
 
-    useEffect(() => {
-        if (authLoading) return;
-        if (user) fetchNotifications(user.id);
-        else setLoading(false);
-    }, [user, authLoading]);
+    useSEO({
+        title: "Notifications | ServicesHUB Activity",
+        description: "Stay updated with your tool submissions, approval status, and account activity.",
+    });
 
-    const fetchNotifications = async (userId) => {
-        setLoading(true);
-        try {
-            const { data, error } = await supabase
-                .from('notifications')
-                .select('*')
-                .eq('user_id', userId)
-                .order('created_at', { ascending: false });
-            
-            if (error) throw error;
-            setNotifications(data || []);
-        } catch (err) {
-            console.error('Fetch notifications error:', err);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const markAsRead = async (id) => {
-        try {
-            const { error } = await supabase
-                .from('notifications')
-                .update({ is_unread: false })
-                .eq('id', id);
-            
-            if (error) throw error;
-            setNotifications(prev => prev.map(n => n.id === id ? { ...n, is_unread: false } : n));
-            
-            // Dispatch sync event
-            window.dispatchEvent(new CustomEvent('notifications-updated'));
-        } catch (err) {
-            console.error('Mark read error:', err);
-        }
-    };
-
-    const clearAll = async () => {
-        if (!user || notifications.length === 0) return;
-        if (!window.confirm('Clear all notifications?')) return;
-
-        try {
-            const { error } = await supabase
-                .from('notifications')
-                .delete()
-                .eq('user_id', user.id);
-            
-            if (error) throw error;
-            setNotifications([]);
-            
-            // Dispatch sync event
-            window.dispatchEvent(new CustomEvent('notifications-updated'));
-        } catch (err) {
-            console.error('Clear all error:', err);
-        }
-    };
-
+    // Handle Unauthenticated State
     if (!user && !loading) {
         return (
-            <div className="notifications-page" style={{ padding: '120px 5%', textAlign: 'center' }}>
-                <Bell size={64} style={{ opacity: 0.1, marginBottom: '2rem' }} />
-                <h2>Please sign in to view notifications</h2>
-                <Link to="/auth" className="btn-primary" style={{ marginTop: '2rem', display: 'inline-block', textDecoration: 'none' }}>Sign In</Link>
+            <div className={`page-wrapper ${styles.authRequired}`}>
+                <Bell size={64} className={styles.authIcon} />
+                <h2 className={styles.authTitle}>Please sign in to view notifications</h2>
+                <Link to="/auth" className={`btn-primary ${styles.authBtn}`}>Sign In</Link>
             </div>
         );
     }
 
+    const handleClearAll = () => {
+        if (window.confirm('Are you sure you want to clear all notifications? This action cannot be undone.')) {
+            clearAll();
+        }
+    };
+
     return (
-        <div className="notifications-page" style={{ padding: '120px 5% 60px' }}>
-            <div className="container" style={{ maxWidth: '800px', margin: '0 auto' }}>
+        <div className={`page-wrapper ${styles.notificationsView}`}>
+            <div className={styles.container}>
                 
                 <NotificationsHeader 
                     hasNotifications={notifications.length > 0}
-                    onClearAll={clearAll}
+                    onClearAll={handleClearAll}
                 />
 
-                <div className="notifications-list">
+                <div className={styles.notificationsList}>
                     {loading ? (
                         [1, 2, 3, 4].map(i => (
-                            <div key={i} className="glass-card notification-card" style={{ border: '1px solid var(--border)' }}>
+                            <div key={i} className={styles.skeletonCard} style={{ 
+                                padding: '1.5rem', 
+                                display: 'flex', 
+                                gap: '20px', 
+                                background: 'rgba(255,255,255,0.02)',
+                                borderRadius: '20px',
+                                border: '1px solid var(--border)'
+                            }}>
                                 <SkeletonLoader type="avatar" width="44px" height="44px" borderRadius="12px" />
                                 <div style={{ flex: 1 }}>
                                     <SkeletonLoader type="title" width="40%" height="20px" style={{ marginBottom: '10px' }} />
@@ -119,6 +82,12 @@ const Notifications = () => {
                         ))
                     ) : (
                         <NotificationsEmptyState />
+                    )}
+
+                    {error && (
+                        <div style={{ textAlign: 'center', color: '#ff4444', marginTop: '2rem' }}>
+                            {error}
+                        </div>
                     )}
                 </div>
             </div>

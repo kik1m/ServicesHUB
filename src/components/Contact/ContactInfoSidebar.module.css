@@ -1,0 +1,93 @@
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.infoCard {
+  padding: 3rem !important;
+}
+
+.infoItem {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.infoItem:last-child {
+  margin-bottom: 0;
+}
+
+.iconWrapper {
+    min-width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary);
+}
+
+.infoContent h4 {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+.infoContent p {
+  font-weight: 600;
+  margin: 0;
+}
+
+.infoTitle {
+    font-size: 1.5rem;
+    margin-bottom: 2rem !important;
+    font-weight: 800;
+    margin: 0;
+}
+
+.socialBox {
+    text-align: center;
+    padding: 2rem !important;
+}
+
+.socialBoxTitle {
+    margin-bottom: 1.5rem;
+    font-size: 1rem;
+    margin-top: 0;
+    font-weight: 700;
+}
+
+.socialLinks {
+    display: flex;
+    justify-content: center;
+    gap: 1.2rem;
+}
+
+.socialIcon {
+    width: 44px;
+    height: 44px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+}
+
+.socialIcon:hover {
+    background: rgba(0, 210, 255, 0.1);
+    border-color: var(--secondary);
+    color: var(--secondary);
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 210, 255, 0.1);
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    order: 2;
+  }
+}

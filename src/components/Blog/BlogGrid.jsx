@@ -1,7 +1,8 @@
 import React from 'react';
 import { BookOpen } from 'lucide-react';
 import BlogCard from './BlogCard';
-import SkeletonLoader from '../SkeletonLoader';
+import BlogCardSkeleton from './BlogCardSkeleton';
+import styles from './BlogGrid.module.css';
 
 const BlogGrid = ({ 
     posts, 
@@ -11,18 +12,18 @@ const BlogGrid = ({
     setPage 
 }) => {
     return (
-        <div className="blog-posts-container">
-            <div className="blog-posts-grid">
+        <div className={styles.gridContainer}>
+            <div className={styles.postsGrid}>
                 {loading ? (
                     [1, 2, 3, 4, 5, 6].map(i => (
-                        <SkeletonLoader key={i} type="card" height="450px" />
+                        <BlogCardSkeleton key={i} />
                     ))
                 ) : posts.length > 0 ? (
                     posts.map(post => (
                         <BlogCard key={post.id} post={post} />
                     ))
                 ) : (
-                    <div className="no-posts-found">
+                    <div className={styles.noPostsFound}>
                         <BookOpen size={64} style={{ marginBottom: '1.5rem', opacity: 0.2 }} />
                         <h3>No articles found matching your criteria.</h3>
                     </div>
@@ -30,12 +31,11 @@ const BlogGrid = ({
             </div>
 
             {hasMore && posts.length > 0 && !loading && (
-                <div className="load-more-wrap">
+                <div className={styles.loadMoreWrap}>
                     <button
                         onClick={() => setPage(prev => prev + 1)}
-                        className="btn-primary"
+                        className={styles.loadMoreBtn}
                         disabled={loadingMore}
-                        style={{ padding: '1rem 3rem' }}
                     >
                         {loadingMore ? 'Loading articles...' : 'Load More Articles'}
                     </button>

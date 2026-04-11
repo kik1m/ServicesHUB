@@ -1,19 +1,13 @@
 import React from 'react';
-import { CheckCircle2 } from 'lucide-react';
+import { CheckCircle, Rocket, Sparkles } from 'lucide-react';
+import styles from './SuccessHero.module.css';
 
 const SuccessHero = ({ type }) => {
-    return (
-        <div className="success-hero-group">
-            <div className="success-pulse-icon">
-                <CheckCircle2 size={100} />
-            </div>
+    const Icon = type === 'account_premium' ? Sparkles : Rocket;
 
-            <h1 className="success-title">
-                {type === 'account_premium' ? 
-                    <>Welcome to <span className="gradient-text">Premium!</span></> : 
-                    <>Promotion <span className="gradient-text">Activated!</span></>
-                }
-            </h1>
+    return (
+        <div className={styles.successPulseIcon}>
+            <Icon size={100} />
         </div>
     );
 };

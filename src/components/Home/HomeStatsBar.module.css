@@ -1,0 +1,59 @@
+/* HomeStatsBar.module.css */
+
+.statsBarWrapper {
+  max-width: 1000px;
+  margin: 3rem auto 3rem;
+  padding: 0 5%;
+  position: relative;
+  z-index: 10;
+}
+
+.statsBar {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 2.5rem !important;
+  background: rgba(10, 10, 12, 0.8) !important;
+  backdrop-filter: blur(40px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5) !important;
+  border-radius: 24px; /* Added fallback for glass-card if needed */
+}
+
+.statItem {
+  text-align: center;
+}
+
+.statVal {
+  font-size: 2.2rem;
+  font-weight: 900;
+  color: white;
+  margin-bottom: 4px;
+}
+
+.statLabel {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  font-weight: 600;
+}
+
+.statDivider {
+  width: 1px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+@media (max-width: 768px) {
+  .statsBar {
+    flex-direction: column;
+    gap: 2rem;
+    padding: 2rem !important;
+  }
+  
+  .statDivider {
+    width: 60px;
+    height: 1px;
+  }
+}

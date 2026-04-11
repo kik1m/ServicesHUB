@@ -1,0 +1,100 @@
+/* ProfileMembershipSidebar.module.css */
+
+.sidebarCard {
+  padding: 2rem;
+  border-radius: 28px !important;
+}
+
+.sidebarTitle {
+  font-size: 1.1rem;
+  font-weight: 900;
+  margin-bottom: 1.5rem;
+  color: white;
+  letter-spacing: -0.5px;
+}
+
+.membershipCardContent {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 1.2rem;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  margin-bottom: 1.5rem;
+  transition: 0.3s;
+}
+
+.membershipCardContent.premium {
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.05), rgba(255, 165, 0, 0.05));
+  border-color: rgba(255, 215, 0, 0.2);
+}
+
+.iconBox {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 14px;
+}
+
+.membershipCardContent.premium .iconBox {
+  background: rgba(255, 215, 0, 0.1);
+  border-color: rgba(255, 215, 0, 0.2);
+}
+
+.membershipInfo h5 {
+  margin: 0;
+  font-size: 0.8rem;
+  font-weight: 900;
+  color: white;
+  letter-spacing: 1px;
+}
+
+.membershipInfo p {
+  margin: 4px 0 0;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-weight: 700;
+}
+
+.upgradeBtn {
+  width: 100%;
+  margin-bottom: 1.2rem;
+  padding: 14px !important;
+  font-size: 0.85rem !important;
+  font-weight: 900 !important;
+  display: block;
+  text-align: center;
+}
+
+.premiumStatusBadge {
+  background: linear-gradient(to right, #FFD700, #FFA500);
+  color: black;
+  font-size: 0.7rem;
+  font-weight: 900;
+  padding: 8px 16px;
+  border-radius: 100px;
+  text-align: center;
+  margin-bottom: 1.5rem;
+  letter-spacing: 1px;
+}
+
+.sidebarFooter {
+  margin-top: 1rem;
+}
+
+.settingsBtn {
+  width: 100%;
+  padding: 14px !important;
+  border-radius: 16px !important;
+  font-size: 0.9rem !important;
+  font-weight: 800 !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}

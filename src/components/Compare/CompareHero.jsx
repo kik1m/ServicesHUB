@@ -1,19 +1,18 @@
 import React from 'react';
-import Breadcrumbs from '../Breadcrumbs';
+import styles from './CompareHero.module.css';
 
 const CompareHero = () => {
     return (
-        <header className="page-header hero-section-slim">
-            <div className="hero-content">
-                <Breadcrumbs items={[
-                    { label: 'Directory', link: '/tools' },
-                    { label: 'Comparison', link: '/compare' }
-                ]} />
-                <div className="badge">DECISION TOOL</div>
-                <h1 className="hero-title-slim">Compare <span className="gradient-text">AI Tools</span></h1>
-                <p className="hero-subtitle-slim">Make data-driven decisions by comparing features and pricing side-by-side.</p>
+        <section className={styles.heroSection}>
+            <div className={styles.heroContent}>
+                <h1 className={styles.title}>
+                    Compare AI <span className="gradient-text">Tools</span>
+                </h1>
+                <p className={styles.subtitle}>
+                    Make informed decisions by comparing the world's most innovative AI and SaaS tools side-by-side. Analyze features, ratings, and pricing in one view.
+                </p>
             </div>
-        </header>
+        </section>
     );
 };
 

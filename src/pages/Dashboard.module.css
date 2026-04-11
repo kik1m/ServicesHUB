@@ -1,0 +1,35 @@
+.dashboardPage {
+  min-height: 100vh;
+  padding: 80px 5% 60px;
+}
+
+.alertBox {
+  padding: 1rem;
+  margin-bottom: 2rem;
+  border: 1px solid rgba(255, 71, 87, 0.2);
+  background: rgba(255, 71, 87, 0.05);
+  color: #ff4757;
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  font-size: 0.9rem;
+  border-radius: 16px;
+}
+
+.creatorGrid {
+  display: block; /* Overridden if needed */
+}
+
+.discoveryGrid {
+  display: grid;
+  grid-template-columns: 2.2fr 1fr;
+  gap: 3rem;
+  align-items: flex-start;
+}
+
+@media (max-width: 992px) {
+  .discoveryGrid {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+}

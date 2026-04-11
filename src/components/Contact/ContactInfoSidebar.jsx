@@ -1,5 +1,6 @@
 import React from 'react';
 import { Mail, MessageCircle, MapPin, Twitter, Github, Linkedin } from 'lucide-react';
+import styles from './ContactInfoSidebar.module.css';
 
 const ContactInfoSidebar = () => {
     const infoItems = [
@@ -24,27 +25,21 @@ const ContactInfoSidebar = () => {
     ];
 
     return (
-        <div className="contact-info-sidebar">
-            <div className="glass-card" style={{ padding: '3rem' }}>
-                <h3 style={{ fontSize: '1.5rem', marginBottom: '2rem', fontWeight: '800', margin: 0 }}>
+        <div className={styles.sidebar}>
+            <div className={`${styles.infoCard} glass-card`}>
+                <h3 className={styles.infoTitle}>
                     Contact Information
                 </h3>
 
                 {infoItems.map((item, i) => (
-                    <div key={i} className="info-item">
+                    <div key={i} className={styles.infoItem}>
                         <div 
-                            className="cat-icon-wrapper" 
-                            style={{ 
-                                minWidth: '48px', height: '48px', 
-                                background: item.color, 
-                                borderRadius: '12px', 
-                                display: 'flex', alignItems: 'center', justifyContent: 'center', 
-                                color: 'var(--primary)' 
-                            }}
+                            className={styles.iconWrapper} 
+                            style={{ background: item.color }}
                         >
                             {item.icon}
                         </div>
-                        <div className="info-item-content">
+                        <div className={styles.infoContent}>
                             <h4 style={{ margin: 0 }}>{item.title}</h4>
                             <p style={{ margin: 0 }}>{item.value}</p>
                         </div>
@@ -52,12 +47,12 @@ const ContactInfoSidebar = () => {
                 ))}
             </div>
 
-            <div className="glass-card" style={{ padding: '2rem', textAlign: 'center' }}>
-                <h4 style={{ marginBottom: '1.5rem', fontSize: '1rem', margin: 0 }}>Follow our journey</h4>
-                <div className="social-links" style={{ display: 'flex', justifyContent: 'center', gap: '1rem' }}>
-                    <button className="icon-btn"><Twitter size={18} /></button>
-                    <button className="icon-btn"><Github size={18} /></button>
-                    <button className="icon-btn"><Linkedin size={18} /></button>
+            <div className={`${styles.socialBox} glass-card`}>
+                <h4 className={styles.socialBoxTitle}>Follow our journey</h4>
+                <div className={styles.socialLinks}>
+                    <button className={styles.socialIcon}><Twitter size={18} /></button>
+                    <button className={styles.socialIcon}><Github size={18} /></button>
+                    <button className={styles.socialIcon}><Linkedin size={18} /></button>
                 </div>
             </div>
         </div>

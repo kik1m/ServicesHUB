@@ -1,0 +1,15 @@
+.heroSection {
+  min-height: 35vh;
+  padding-bottom: 30px;
+}
+
+.heroContent {
+  text-align: center;
+  padding-top: 60px;
+}
+
+@media (max-width: 768px) {
+  .heroSection {
+    min-height: 30vh;
+  }
+}

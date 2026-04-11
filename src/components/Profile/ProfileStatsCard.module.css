@@ -1,0 +1,58 @@
+/* ProfileStatsCard.module.css */
+
+.statsStack {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.shareTriggerBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  color: white;
+  font-weight: 800;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.shareTriggerBtn:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: var(--primary);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.shareText {
+  letter-spacing: 0.5px;
+}
+
+.statBox {
+  padding: 1.5rem;
+  background: rgba(0, 153, 255, 0.03);
+  border: 1px solid rgba(0, 153, 255, 0.1);
+  border-radius: 20px;
+  text-align: center;
+}
+
+.statValue {
+  font-size: 1.8rem;
+  font-weight: 900;
+  color: var(--primary);
+  margin-bottom: 4px;
+}
+
+.statLabel {
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}

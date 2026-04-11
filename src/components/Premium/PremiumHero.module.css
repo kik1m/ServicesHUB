@@ -1,0 +1,44 @@
+/* PremiumHero.module.css */
+
+.premiumCustomHeader {
+  text-align: center;
+  margin-bottom: 3.5rem;
+  margin-top: 1.5rem;
+}
+
+.premiumDiamondBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 16px;
+  background: rgba(255, 215, 0, 0.1);
+  color: #FFD700;
+  border-radius: 100px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 2px;
+  margin-bottom: 1.5rem;
+  border: 1px solid rgba(255, 215, 0, 0.2);
+  text-transform: uppercase;
+}
+
+.premiumCustomHeader h1 {
+  font-size: clamp(2.2rem, 5vw, 2.8rem);
+  font-weight: 900;
+  margin-bottom: 1rem;
+  line-height: 1.1;
+  color: white;
+}
+
+.premiumCustomHeader p {
+  color: var(--text-muted);
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.goldGradientText {
+  background: linear-gradient(90deg, #FFB800 0%, #FFF7AD 50%, #FFB800 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: inline-block;
+}

@@ -1,0 +1,12 @@
+.helpCTA {
+  text-align: center;
+  padding: 4rem !important;
+  margin-top: 4rem;
+  border-radius: 32px !important;
+}
+
+@media (max-width: 768px) {
+  .helpCTA {
+    padding: 3rem 1.5rem !important;
+  }
+}

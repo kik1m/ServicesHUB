@@ -1,5 +1,6 @@
-import React from 'react';
-import { Filter, Check } from 'lucide-react';
+import React, { useState } from 'react';
+import { Filter, Check, Search } from 'lucide-react';
+import styles from './SearchSidebar.module.css';
 
 const SearchSidebar = ({ 
     categories, 
@@ -9,37 +10,58 @@ const SearchSidebar = ({
     selectedPrice, 
     setSelectedPrice 
 }) => {
+    const [catSearch, setCatSearch] = useState('');
+
+    // Filter categories based on internal search
+    const filteredCategories = categories.filter(cat => 
+        cat.name.toLowerCase().includes(catSearch.toLowerCase())
+    );
+
     return (
-        <aside className="search-sidebar">
-            <div className="glass-card" style={{ padding: '2rem' }}>
-                <div className="sidebar-filter-header">
+        <aside className={styles.searchSidebar}>
+            <div className={`glass-card ${styles.sidebarCard}`}>
+                <div className={styles.sidebarFilterHeader}>
                     <Filter size={20} />
                     <h3>Filter Tools</h3>
                 </div>
 
-                <div className="filter-group">
-                    <label className="filter-label">CATEGORY</label>
-                    <div className="filter-options-vertical">
-                        {categories.map(cat => (
-                            <button
-                                key={cat.id}
-                                onClick={() => setSelectedCategory(cat.id)}
-                                className={`filter-btn ${selectedCategory === cat.id ? 'active' : ''}`}
-                            >
-                                {cat.name} {selectedCategory === cat.id && <Check size={14} />}
-                            </button>
-                        ))}
+                <div className={styles.filterGroup}>
+                    <label className={styles.filterLabel}>CATEGORY</label>
+                    <div className={styles.categorySearchWrapper}>
+                        <Search size={14} className={styles.catSearchIcon} />
+                        <input 
+                            type="text" 
+                            placeholder="Find category..." 
+                            className={styles.categorySearchInput}
+                            value={catSearch}
+                            onChange={(e) => setCatSearch(e.target.value)}
+                        />
+                    </div>
+                    <div className={styles.filterOptionsVertical}>
+                        {filteredCategories.length > 0 ? (
+                            filteredCategories.map(cat => (
+                                <button
+                                    key={cat.id}
+                                    onClick={() => setSelectedCategory(cat.id)}
+                                    className={`${styles.filterBtn} ${selectedCategory === cat.id ? styles.active : ''}`}
+                                >
+                                    {cat.name} {selectedCategory === cat.id && <Check size={14} />}
+                                </button>
+                            ))
+                        ) : (
+                            <p className={styles.noCatsFound}>No categories found</p>
+                        )}
                     </div>
                 </div>
 
-                <div className="filter-group">
-                    <label className="filter-label">PRICING</label>
-                    <div className="pricing-filter-chips">
+                <div className={styles.filterGroup}>
+                    <label className={styles.filterLabel}>PRICING</label>
+                    <div className={styles.pricingFilterChips}>
                         {pricingModels.map(price => (
                             <button
                                 key={price}
                                 onClick={() => setSelectedPrice(price)}
-                                className={`pricing-chip ${selectedPrice === price ? 'active' : ''}`}
+                                className={`${styles.pricingChip} ${selectedPrice === price ? styles.active : ''}`}
                             >
                                 {price}
                             </button>

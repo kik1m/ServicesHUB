@@ -1,0 +1,35 @@
+/* HomeFeatured.module.css */
+
+.featuredToolsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.25rem;
+  margin-top: 1.5rem;
+}
+
+.errorMessageContainer {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 5rem;
+}
+
+.errorMessageContainer p {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.errorMessageContainer button {
+  margin-top: 1rem;
+}
+
+.emptyState {
+  grid-column: 1 / -1;
+  padding: 4rem;
+  text-align: center;
+}
+
+.emptyStateIcon {
+  opacity: 0.1;
+  margin-bottom: 1.5rem;
+  margin: 0 auto;
+}

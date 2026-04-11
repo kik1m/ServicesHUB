@@ -1,0 +1,173 @@
+/* SearchSidebar.module.css */
+
+.searchSidebar {
+  position: sticky;
+  top: 120px;
+}
+
+.sidebarCard {
+  padding: 2rem !important;
+}
+
+.sidebarFilterHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 2rem;
+  color: var(--primary);
+}
+
+.sidebarFilterHeader h3 {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: white;
+  margin: 0;
+}
+
+.filterGroup {
+  margin-bottom: 2.5rem;
+}
+
+.filterGroup:last-child {
+  margin-bottom: 0;
+}
+
+.filterLabel {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: var(--text-muted);
+  letter-spacing: 1.5px;
+  margin-bottom: 1.2rem;
+}
+
+.categorySearchWrapper {
+  position: relative;
+  margin-bottom: 1rem;
+}
+
+.catSearchIcon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  opacity: 0.5;
+}
+
+.categorySearchInput {
+  width: 100%;
+  padding: 10px 10px 10px 35px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: white;
+  font-size: 0.85rem;
+  transition: 0.3s;
+}
+
+.categorySearchInput:focus {
+  border-color: var(--primary);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.filterOptionsVertical {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 250px;
+  overflow-y: auto;
+  padding-right: 5px;
+}
+
+/* Custom Scrollbar */
+.filterOptionsVertical::-webkit-scrollbar {
+  width: 4px;
+}
+.filterOptionsVertical::-webkit-scrollbar-track {
+  background: transparent;
+}
+.filterOptionsVertical::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+
+.noCatsFound {
+  padding: 20px;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  font-style: italic;
+  opacity: 0.7;
+}
+
+.filterBtn {
+  width: 100%;
+  padding: 12px 16px;
+  text-align: left;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  font-weight: 600;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: 0.3s;
+  cursor: pointer;
+}
+
+.filterBtn:hover {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+.filterBtn.active {
+  background: rgba(0, 210, 255, 0.1);
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.pricingFilterChips {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.pricingChip {
+  width: 100%;
+  padding: 12px 10px;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.pricingChip:hover {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: white;
+  transform: translateY(-2px);
+}
+
+.pricingChip.active {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: white;
+  box-shadow: 0 8px 20px rgba(0, 210, 255, 0.3);
+  transform: scale(1.05);
+}
+
+@media (max-width: 1024px) {
+  .searchSidebar {
+    position: static;
+    margin-bottom: 2rem;
+  }
+}

@@ -1,6 +1,10 @@
 import React from 'react';
 import { Lock, Loader2, ArrowRight } from 'lucide-react';
+import styles from './ResetPasswordForm.module.css';
 
+/**
+ * ResetPasswordForm - Form for setting a new password
+ */
 const ResetPasswordForm = ({ 
     password, 
     setPassword, 
@@ -10,38 +14,36 @@ const ResetPasswordForm = ({
     onSubmit 
 }) => {
     return (
-        <form onSubmit={onSubmit}>
-            <div className="auth-input-group">
-                <label className="auth-input-label">New Password</label>
-                <div className="nav-search-wrapper" style={{ padding: '12px 15px', background: 'rgba(255,255,255,0.03)' }}>
-                    <Lock className="search-icon" size={18} />
-                    <input 
-                        type="password" 
-                        placeholder="Min 6 characters" 
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                        style={{ width: '100%', border: 'none', background: 'transparent', color: 'white', paddingLeft: '10px', outline: 'none' }} 
-                    />
-                </div>
+        <form onSubmit={onSubmit} className={styles.form}>
+            <div className={styles.inputGroup}>
+                <label><Lock size={14} /> New Password</label>
+                <input 
+                    type="password" 
+                    placeholder="Min 6 characters" 
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className={styles.inputField}
+                    required
+                />
             </div>
 
-            <div className="auth-input-group" style={{ marginBottom: '2.5rem' }}>
-                <label className="auth-input-label">Confirm Password</label>
-                <div className="nav-search-wrapper" style={{ padding: '12px 15px', background: 'rgba(255,255,255,0.03)' }}>
-                    <Lock className="search-icon" size={18} />
-                    <input 
-                        type="password" 
-                        placeholder="Repeat password" 
-                        value={confirmPassword}
-                        onChange={(e) => setConfirmPassword(e.target.value)}
-                        required
-                        style={{ width: '100%', border: 'none', background: 'transparent', color: 'white', paddingLeft: '10px', outline: 'none' }} 
-                    />
-                </div>
+            <div className={styles.inputGroup}>
+                <label><Lock size={14} /> Confirm Password</label>
+                <input 
+                    type="password" 
+                    placeholder="Repeat password" 
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    className={styles.inputField}
+                    required
+                />
             </div>
 
-            <button className="btn-primary" style={{ width: '100%', height: '56px' }} disabled={loading}>
+            <button 
+                type="submit" 
+                className={`${styles.submitBtn} btn-primary`}
+                disabled={loading}
+            >
                 {loading ? <Loader2 className="animate-spin" size={20} /> : <>Update & Login <ArrowRight size={20} /></>}
             </button>
         </form>

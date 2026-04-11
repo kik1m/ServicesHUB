@@ -1,0 +1,25 @@
+/* CategoryDetail.module.css */
+
+.categoryDetailPage {
+  min-height: 100vh;
+}
+
+.categoryContent {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 5% 5rem;
+}
+
+.loadingHero {
+  min-height: 35vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+@media (max-width: 768px) {
+  .categoryContent {
+    padding: 0 1rem 3rem;
+  }
+}

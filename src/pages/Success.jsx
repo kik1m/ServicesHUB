@@ -1,9 +1,6 @@
-import { useEffect, useState } from 'react';
-import { useToast } from '../context/ToastContext';
-import { sendNotification } from '../utils/notifications';
-import { useAuth } from '../context/AuthContext';
+import React from 'react';
 import SkeletonLoader from '../components/SkeletonLoader';
-import { useSearchParams } from 'react-router-dom';
+import { useSuccessData } from '../hooks/useSuccessData';
 
 // Import Modular Components
 import SuccessHero from '../components/Success/SuccessHero';
@@ -11,50 +8,24 @@ import SuccessMessage from '../components/Success/SuccessMessage';
 import SuccessActions from '../components/Success/SuccessActions';
 
 // Import Modular CSS
-import '../styles/pages/Success.css';
+import styles from './Success.module.css';
 
 const Success = () => {
-    const { user, loading: authLoading } = useAuth();
-    const [loading, setLoading] = useState(true);
-    const { showToast } = useToast();
-    const [searchParams] = useSearchParams();
-    const type = searchParams.get('type');
-    const toolName = searchParams.get('toolName');
-
-    useEffect(() => {
-        const handleSuccess = async () => {
-            if (authLoading) return;
-
-            document.title = "Payment Successful | HUBly";
-
-            if (user) {
-                const message = type === 'account_premium'
-                    ? 'Premium account activated'
-                    : `Promotion activated for ${toolName || 'your tool'}`;
-
-                const notifBody = type === 'account_premium'
-                    ? 'Congratulations. Your lifetime premium membership is now active.'
-                    : `Your tool "${toolName || 'the tool'}" is now featured on the homepage.`;
-
-                await sendNotification(user.id, message, notifBody, 'subscription');
-                showToast(message, 'success');
-            }
-            setLoading(false);
-        };
-        handleSuccess();
-    }, [user, authLoading, showToast, toolName, type]);
+    const { loading, type, toolName } = useSuccessData();
 
     if (loading) {
         return (
-            <div className="success-page success-view-wrapper">
-                <SkeletonLoader height="400px" width="500px" borderRadius="24px" />
+            <div className={`page-wrapper ${styles.successViewWrapper}`}>
+                <div className={`glass-card ${styles.successGlassCard}`}>
+                    <SkeletonLoader height="300px" borderRadius="16px" />
+                </div>
             </div>
         );
     }
 
     return (
-        <div className="success-page success-view-wrapper">
-            <div className="glass-card success-glass-card">
+        <div className={`page-wrapper ${styles.successViewWrapper}`}>
+            <div className={`glass-card ${styles.successGlassCard}`}>
                 
                 <SuccessHero type={type} />
                 

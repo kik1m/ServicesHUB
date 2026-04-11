@@ -1,5 +1,6 @@
 import React from 'react';
 import { Award, Rocket, Star, Zap, Globe, ArrowRight, Loader2, ShieldCheck } from 'lucide-react';
+import styles from './PremiumPricingCard.module.css';
 
 const PremiumPricingCard = ({ user, loading, onUpgrade }) => {
     const perks = [
@@ -10,35 +11,31 @@ const PremiumPricingCard = ({ user, loading, onUpgrade }) => {
     ];
 
     return (
-        <section className="premium-main-card-container">
-            <div className="gold-mesh-glow"></div>
+        <section className={styles.premiumMainCardContainer}>
+            <div className={styles.goldMeshGlow}></div>
 
-            <div className="premium-glass-panel">
+            <div className={styles.premiumGlassPanel}>
                 {/* Features Column */}
-                <div className="premium-features-col">
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '2rem' }}>
-                        <div style={{
-                            width: '44px', height: '44px', borderRadius: '12px',
-                            background: 'rgba(255, 215, 0, 0.1)', display: 'flex',
-                            alignItems: 'center', justifyContent: 'center'
-                        }}>
+                <div className={styles.premiumFeaturesCol}>
+                    <div className={styles.featureHeader}>
+                        <div className={styles.awardIconBox}>
                             <Award size={24} color="#FFD700" />
                         </div>
                         <div>
-                            <h2 style={{ fontSize: '1.4rem', fontWeight: '900', margin: 0 }}>Membership Perks</h2>
-                            <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', margin: 0 }}>Scale with Diamond status.</p>
+                            <h2>Membership Perks</h2>
+                            <p>Scale with Diamond status.</p>
                         </div>
                     </div>
 
-                    <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '1.4rem' }}>
+                    <ul className={styles.perksList}>
                         {perks.map((item, i) => (
-                            <li key={i} className="premium-feature-item">
-                                <div className="feature-icon-box">
+                            <li key={i} className={styles.premiumFeatureItem}>
+                                <div className={styles.featureIconBox}>
                                     {item.icon}
                                 </div>
-                                <div className="feature-content">
-                                    <strong style={{ display: 'block', fontSize: '1rem', color: 'white', marginBottom: '2px' }}>{item.title}</strong>
-                                    <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>{item.desc}</span>
+                                <div className={styles.featureContent}>
+                                    <strong>{item.title}</strong>
+                                    <span>{item.desc}</span>
                                 </div>
                             </li>
                         ))}
@@ -46,32 +43,32 @@ const PremiumPricingCard = ({ user, loading, onUpgrade }) => {
                 </div>
 
                 {/* Pricing Column */}
-                <div className="premium-pricing-col">
-                    <div className="pricing-tag-badge">LIFETIME DEAL</div>
+                <div className={styles.premiumPricingCol}>
+                    <div className={styles.pricingTagBadge}>LIFETIME DEAL</div>
                     
-                    <div className="pricing-amount-row">
-                        <span className="currency">$</span>
-                        <span className="amount">120</span>
-                        <span className="period">ONE-TIME</span>
+                    <div className={styles.pricingAmountRow}>
+                        <span className={styles.currency}>$</span>
+                        <span className={styles.amount}>120</span>
+                        <span className={styles.period}>ONE-TIME</span>
                     </div>
 
                     <div style={{ width: '100%', marginBottom: '2rem' }}>
                         {user?.is_premium ? (
-                            <div className="premium-badge-status">
+                            <div className={styles.premiumBadgeStatus}>
                                 ALREADY A PREMIUM MEMBER
                             </div>
                         ) : (
                             <button
                                 onClick={onUpgrade}
                                 disabled={loading}
-                                className="btn-premium-checkout"
+                                className={styles.btnPremiumCheckout}
                             >
                                 {loading ? <Loader2 className="animate-spin" /> : <>Get Access Now <ArrowRight size={20} /></>}
                             </button>
                         )}
                     </div>
 
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-muted)', fontSize: '0.8rem' }}>
+                    <div className={styles.secureFooter}>
                         <ShieldCheck size={16} color="#00ffaa" />
                         <span>Secure payments via <strong>Lemon Squeezy</strong></span>
                     </div>

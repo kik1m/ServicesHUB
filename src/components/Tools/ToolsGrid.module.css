@@ -1,0 +1,61 @@
+/* ToolsGrid.module.css */
+
+.resultsGridContainer {
+  margin-top: 1rem;
+}
+
+.resultsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.toolsPaginationRow {
+  text-align: center;
+  margin-top: 5rem;
+  padding-bottom: 2rem;
+}
+
+.btnLoadMore {
+  padding: 1.2rem 4rem !important;
+  min-width: 250px;
+  border-radius: 100px !important;
+  font-size: 1rem !important;
+}
+
+.errorMessageContainer {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 6rem 2rem;
+  background: rgba(255, 80, 80, 0.02);
+  border: 1px dashed rgba(255, 80, 80, 0.2);
+  border-radius: 30px;
+}
+
+.errorMessageContainer p {
+  color: #ff5050;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  font-size: 1.1rem;
+}
+
+.emptyStateContainer {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 8rem 2rem;
+  color: var(--text-muted);
+  background: rgba(255, 255, 255, 0.01);
+  border: 1px dashed var(--border);
+  border-radius: 30px;
+}
+
+.emptyIcon {
+  margin-bottom: 1.5rem;
+  opacity: 0.1;
+  margin: 0 auto;
+}
+
+.emptyStateContainer p {
+  font-size: 1.2rem;
+  font-weight: 600;
+}

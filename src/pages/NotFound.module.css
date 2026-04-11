@@ -1,0 +1,21 @@
+.notFoundWrapper {
+  min-height: 80vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 100px 20px;
+}
+
+.notFoundCard {
+  max-width: 600px;
+  width: 100%;
+  text-align: center;
+  padding: 3rem !important;
+  border-radius: 30px !important;
+}
+
+@media (max-width: 600px) {
+  .notFoundCard {
+    padding: 2rem !important;
+  }
+}

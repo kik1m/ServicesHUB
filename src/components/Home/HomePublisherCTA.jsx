@@ -1,20 +1,21 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Zap, ArrowRight } from 'lucide-react';
+import styles from './HomePublisherCTA.module.css';
 
 const HomePublisherCTA = () => {
     return (
-        <section className="main-section publisher-cta-section">
-            <div className="publisher-cta-content">
-                <img src="/logo.png" alt="HUBly" className="publisher-cta-logo" />
+        <section className={`main-section ${styles.publisherCtaSection}`}>
+            <div className={styles.publisherCtaContent}>
+                <img src="/logo.png" alt="HUBly" className={styles.publisherCtaLogo} />
                 
-                <div className="badge publisher-cta-badge">FOR TOOL OWNERS</div>
+                <div className={`badge ${styles.publisherCtaBadge}`}>FOR TOOL OWNERS</div>
                 
                 <h2 className="section-title">
                     Are you building something <span className="gradient-text">Great</span>?
                 </h2>
                 
-                <p className="publisher-cta-desc">
+                <p className={styles.publisherCtaDesc}>
                     Reach thousands of developers, entrepreneurs, and AI enthusiasts. 
                     Submit your tool for free today and get the exposure your product deserves.
                 </p>

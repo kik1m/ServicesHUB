@@ -2,6 +2,8 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import { getIcon } from '../../utils/iconMap';
+import SkeletonLoader from '../SkeletonLoader';
+import styles from './HomeCategories.module.css';
 
 const HomeCategories = ({ categories, loading }) => {
     return (
@@ -11,23 +13,23 @@ const HomeCategories = ({ categories, loading }) => {
                     <h2 className="section-title">Top Categories</h2>
                     <p className="section-desc">Find tools by your specific niche and needs.</p>
                 </div>
-                <Link to="/categories" className="view-all-link">View All Categories <ArrowRight size={18} /></Link>
+                <Link to="/categories" className={styles.viewAllLink}>View All Categories <ArrowRight size={18} /></Link>
             </div>
 
-            <div className="categories-grid-small">
+            <div className={styles.categoriesGridSmall}>
                 {loading ? (
                     [1, 2, 3, 4, 5, 6, 7, 8].map(i => (
-                        <div key={i} className="glass-card skeleton" style={{ height: '80px', borderRadius: '20px' }}></div>
+                        <SkeletonLoader key={i} type="category" />
                     ))
                 ) : (
-                    categories.map((cat, i) => (
-                        <Link to={`/category/${cat.slug}`} key={i} className="glass-card category-item-small">
-                            <div className="cat-icon-wrapper">{getIcon(cat.icon_name)}</div>
-                            <div className="cat-info">
+                    (categories || []).map((cat, i) => (
+                        <Link to={`/category/${cat?.slug}`} key={i} className={`glass-card ${styles.categoryItemSmall}`}>
+                            <div className={styles.catIconWrapper}>{getIcon(cat.icon_name)}</div>
+                            <div className={styles.catInfo}>
                                 <h3>{cat.name}</h3>
                                 <p>Discover</p>
                             </div>
-                            <ArrowRight className="cat-arrow" size={16} />
+                            <ArrowRight className={styles.catArrow} size={16} />
                         </Link>
                     ))
                 )}

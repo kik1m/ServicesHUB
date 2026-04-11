@@ -1,8 +1,9 @@
 import React from 'react';
 import { Search as SearchIcon } from 'lucide-react';
 import ToolCard from '../ToolCard';
-import SkeletonLoader from '../SkeletonLoader';
+import ToolCardSkeleton from '../Tools/ToolCardSkeleton';
 import CustomSelect from '../CustomSelect';
+import styles from './SearchResults.module.css';
 
 const SearchResults = ({ 
     results, 
@@ -15,12 +16,12 @@ const SearchResults = ({
 }) => {
     return (
         <main>
-            <div className="results-header-row">
-                <p style={{ color: 'var(--text-muted)' }}>
-                    Showing <span style={{ color: 'white', fontWeight: '700' }}>{results.length}</span> tools
+            <div className={styles.resultsHeaderRow}>
+                <p className={styles.resultCount}>
+                    Showing <span className={styles.resultCountHighlight}>{results.length}</span> tools
                 </p>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <div style={{ minWidth: '180px' }}>
+                <div className={styles.sortContainer}>
+                    <div className={styles.sortSelectBox}>
                         <CustomSelect
                             options={[
                                 { id: 'Newest', name: 'Newest First' },
@@ -35,32 +36,31 @@ const SearchResults = ({
                 </div>
             </div>
 
-            <div className="results-grid-container">
-                <div className="results-grid">
+            <div className={styles.resultsGridContainer}>
+                <div className={styles.resultsGrid}>
                     {isLoading ? (
                         [1, 2, 3, 4, 5, 6].map(i => (
-                            <SkeletonLoader key={i} type="card" />
+                            <ToolCardSkeleton key={i} />
                         ))
                     ) : results.length > 0 ? (
                         results.map(tool => (
                             <ToolCard key={tool.id} tool={tool} />
                         ))
                     ) : (
-                        <div className="search-results-empty">
-                            <SearchIcon size={48} color="var(--text-muted)" style={{ marginBottom: '1rem', opacity: 0.3 }} />
+                        <div className={styles.searchResultsEmpty}>
+                            <SearchIcon size={48} className={styles.emptyIcon} color="var(--text-muted)" />
                             <h3>No tools found</h3>
-                            <p style={{ color: 'var(--text-muted)' }}>Try adjusting your filters or search query.</p>
+                            <p className={styles.emptyText}>Try adjusting your filters or search query.</p>
                         </div>
                     )}
                 </div>
 
                 {hasMore && results.length > 0 && !isLoading && (
-                    <div className="results-pagination-row">
+                    <div className={styles.resultsPaginationRow}>
                         <button
                             onClick={() => setPage(prev => prev + 1)}
-                            className="btn-primary"
+                            className={`btn-primary ${styles.loadMoreBtn}`}
                             disabled={loadingMore}
-                            style={{ padding: '1rem 3rem' }}
                         >
                             {loadingMore ? 'Searching...' : 'Load More Results'}
                         </button>

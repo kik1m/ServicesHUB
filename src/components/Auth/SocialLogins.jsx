@@ -1,14 +1,26 @@
 import React from 'react';
-import { Chrome, Github } from 'lucide-react';
+import { Github, Chrome } from 'lucide-react';
+import styles from './SocialLogins.module.css';
 
+/**
+ * SocialLogins - Handles OAuth providers (Google, Github)
+ */
 const SocialLogins = ({ handleSocialLogin }) => {
     return (
-        <div className="social-grid">
-            <button onClick={() => handleSocialLogin('google')} className="social-btn-slim">
-                <Chrome size={18} /> Google
+        <div className={styles.socialGrid}>
+            <button 
+                type="button" 
+                className={styles.socialBtn}
+                onClick={() => handleSocialLogin('google')}
+            >
+                <Chrome size={20} /> Google
             </button>
-            <button onClick={() => handleSocialLogin('github')} className="social-btn-slim">
-                <Github size={18} /> Github
+            <button 
+                type="button" 
+                className={styles.socialBtn}
+                onClick={() => handleSocialLogin('github')}
+            >
+                <Github size={20} /> Github
             </button>
         </div>
     );

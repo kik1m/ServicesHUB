@@ -10,9 +10,10 @@ import Breadcrumbs from '../components/Breadcrumbs';
 import PublicProfileHero from '../components/Profile/PublicProfileHero';
 import ProfilePortfolio from '../components/Profile/ProfilePortfolio';
 import ProfileNotFound from '../components/Profile/ProfileNotFound';
+import ToolCardSkeleton from '../components/Tools/ToolCardSkeleton';
 
 // Import Modular CSS
-import '../styles/pages/PublicProfile.css';
+import styles from './PublicProfile.module.css';
 
 const PublicProfile = () => {
     const { id } = useParams();
@@ -75,10 +76,10 @@ const PublicProfile = () => {
 
     if (loading) {
         return (
-            <div className="public-profile-view container" style={{ padding: '100px 5% 60px' }}>
+            <div className={styles.loadingWrapper}>
                 <SkeletonLoader height="220px" borderRadius="24px" style={{ marginBottom: '2rem' }} />
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '2rem' }}>
-                    {[1, 2, 3].map(i => <SkeletonLoader key={i} height="300px" borderRadius="16px" />)}
+                <div className={styles.toolsSkeletonGrid}>
+                    {[1, 2, 3].map(i => <ToolCardSkeleton key={i} />)}
                 </div>
             </div>
         );
@@ -87,8 +88,8 @@ const PublicProfile = () => {
     if (!profile) return <ProfileNotFound />;
 
     return (
-        <div className="public-profile-view">
-            <div className="container" style={{ padding: '80px 5% 60px' }}>
+        <div className={styles.publicProfileView}>
+            <div className={styles.publicContainer}>
                 <Breadcrumbs items={[{ label: 'Home', path: '/' }, { label: 'Publishers', path: '/tools' }, { label: profile.full_name }]} />
 
                 <PublicProfileHero 

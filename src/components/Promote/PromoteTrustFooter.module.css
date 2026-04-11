@@ -1,0 +1,82 @@
+/* PromoteTrustFooter.module.css */
+
+.promoteTrustFooter {
+  margin-top: 3rem;
+  padding: 3.5rem 2rem;
+  border-radius: 35px;
+  background: rgba(255, 255, 255, 0.015);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+  max-width: 800px; /* Reduced width */
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.successGreen {
+  color: #00ff88 !important; /* Vibrant green for trust */
+}
+
+.trustIconBox {
+  width: 60px;
+  height: 60px;
+  background: rgba(0, 136, 204, 0.06);
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary);
+  margin-bottom: 1.5rem;
+  border: 1px solid rgba(0, 136, 204, 0.12);
+}
+
+.promoteTrustFooter h3 {
+  font-size: 1.5rem;
+  font-weight: 900;
+  margin-bottom: 0.8rem;
+  color: white;
+}
+
+.trustDesc {
+  max-width: 550px;
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+  margin-bottom: 2.5rem !important;
+}
+
+.trustTagsRow {
+  display: flex;
+  gap: 2.5rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.trustTagItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.trustTagItem span {
+  color: var(--primary);
+  display: flex;
+}
+
+@media (max-width: 768px) {
+  .promoteTrustFooter {
+    padding: 3rem 1.5rem;
+    margin-top: 2rem;
+  }
+  
+  .trustTagsRow {
+    gap: 1.5rem;
+  }
+}

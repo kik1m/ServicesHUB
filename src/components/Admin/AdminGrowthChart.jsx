@@ -1,13 +1,14 @@
 import React from 'react';
+import styles from './AdminGrowthChart.module.css';
 
 const AdminGrowthChart = () => {
     return (
-        <div className="glass-card admin-chart-card">
-            <div className="admin-chart-header">
-                <h3>Platform Growth Overview</h3>
-                <span className="admin-chart-badge">LIVE METRICS</span>
+        <div className={`${styles.chartCard} glass-card`}>
+            <div className={styles.chartHeader}>
+                <h3 className={styles.title}>Platform Growth Overview</h3>
+                <span className={styles.badge}>LIVE METRICS</span>
             </div>
-            <div className="admin-svg-container">
+            <div className={styles.svgContainer}>
                 <svg viewBox="0 0 1000 150" fill="none" preserveAspectRatio="none">
                     <path
                         d="M0,130 C100,120 200,80 300,90 C400,100 500,40 600,50 C700,60 800,20 900,30 L1000,10"
@@ -23,7 +24,7 @@ const AdminGrowthChart = () => {
                         </linearGradient>
                     </defs>
                 </svg>
-                <div className="admin-chart-xaxis">
+                <div className={styles.xAxis}>
                     <span>JAN</span>
                     <span>FEB</span>
                     <span>MAR</span>

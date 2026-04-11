@@ -1,0 +1,17 @@
+/* Premium.module.css */
+
+.premiumViewWrapper {
+  min-height: 100vh;
+  padding: 80px 5% 80px;
+}
+
+.premiumContent {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+@media (max-width: 768px) {
+    .premiumViewWrapper {
+        padding: 40px 5% 40px;
+    }
+}

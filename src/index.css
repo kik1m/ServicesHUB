@@ -11,10 +11,9 @@
 @import './styles/Layout/Footer.css';
 
 /* 3. Page Specific Styles */
-@import './styles/pages/Home.css';
+/* @import './styles/pages/Home.css'; */
 @import './styles/pages/Dashboard.css';
-@import './styles/pages/Search.css';
-@import './styles/pages/ToolDetail.css';
-@import './styles/pages/Categories.css';
-@import './styles/pages/Blog.css';
-@import './styles/pages/SubmitTool.css';
+/* @import './styles/pages/Search.css'; */
+/* @import './styles/pages/ToolDetail.css'; */
+/* @import './styles/pages/Categories.css'; */
+/* @import './styles/pages/SubmitTool.css'; */

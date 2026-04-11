@@ -1,0 +1,50 @@
+/* ToolDetailInfo.module.css */
+
+.toolMainInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+}
+
+.detailSection {
+  margin-bottom: 2.5rem !important;
+}
+
+.featuresChecklist {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.2rem !important;
+}
+
+.featureItemPremium {
+  padding: 2rem;
+  border: 1px solid var(--border);
+  transition: 0.3s;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 20px;
+}
+
+.featureItemPremium:hover {
+  transform: translateY(-5px);
+  border-color: var(--primary);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.featureIconBox {
+  color: var(--primary);
+  margin-bottom: 1.2rem;
+  background: rgba(0, 210, 255, 0.05);
+  width: 45px;
+  height: 45px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.featureText {
+  font-weight: 700;
+  font-size: 1rem;
+  color: white;
+  line-height: 1.4;
+}

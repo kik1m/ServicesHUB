@@ -1,0 +1,77 @@
+.chartContainer {
+  padding: 1.5rem !important;
+  margin-bottom: 2rem !important;
+  border-radius: 16px !important;
+  background: rgba(24, 24, 27, 0.4) !important;
+  border: 1px solid #27272a !important;
+}
+
+.chartHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1.2rem;
+}
+
+.title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  margin-bottom: 2px;
+  color: white;
+}
+
+.subtitle {
+  color: #71717a;
+  font-size: 0.8rem;
+}
+
+.liveBadge {
+  background: rgba(0, 163, 255, 0.05);
+  color: #00a3ff;
+  padding: 4px 10px;
+  border-radius: 100px;
+  font-size: 0.6rem;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  text-transform: uppercase;
+  border: 1px solid rgba(0, 163, 255, 0.1);
+}
+
+.chartRow {
+  margin-bottom: 1rem;
+}
+
+.labelRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.toolName {
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: white;
+}
+
+.toolCount {
+  color: #00a3ff;
+  font-weight: 700;
+  font-size: 0.75rem;
+}
+
+.barOuter {
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 100px;
+  height: 6px;
+  overflow: hidden;
+}
+
+.barInner {
+  height: 100%;
+  border-radius: 100px;
+  background: #ff8c00;
+  background: linear-gradient(90deg, #ff8c00 0%, #ff6b00 100%);
+}

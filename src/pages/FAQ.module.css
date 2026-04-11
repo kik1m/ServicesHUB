@@ -1,0 +1,10 @@
+.mainSection {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+@media (max-width: 768px) {
+  .mainSection {
+    padding: 0 5%;
+  }
+}

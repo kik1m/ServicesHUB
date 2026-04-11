@@ -1,0 +1,59 @@
+/* ProfileCollections.module.css */
+
+.toolsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+/* Empty State Styling */
+.emptyStateCard {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 6rem 2rem;
+  background: rgba(255, 255, 255, 0.01) !important;
+  border: 1px dashed var(--border) !important;
+  border-radius: 40px !important;
+  transition: 0.4s;
+}
+
+.emptyStateCard:hover {
+  border-color: var(--primary) !important;
+  background: rgba(255, 255, 255, 0.02) !important;
+  transform: translateY(-5px);
+}
+
+.emptyStateIcon {
+  color: #ff3366;
+  margin-bottom: 2rem;
+  opacity: 0.6;
+  filter: drop-shadow(0 0 15px rgba(255, 51, 102, 0.2));
+}
+
+.emptyStateTitle {
+  font-size: 2rem;
+  font-weight: 900;
+  color: white;
+  margin-bottom: 1rem;
+  letter-spacing: -1px;
+}
+
+.emptyStateText {
+  color: var(--text-muted);
+  font-size: 1.1rem;
+  line-height: 1.6;
+  max-width: 500px;
+  margin: 0 auto 2.5rem;
+}
+
+.exploreBtn {
+  font-weight: 800 !important;
+  padding: 1rem 3rem !important;
+  display: inline-flex;
+}
+
+@media (max-width: 640px) {
+  .toolsGrid {
+    grid-template-columns: 1fr;
+  }
+}

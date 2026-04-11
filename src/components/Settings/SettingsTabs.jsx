@@ -1,20 +1,21 @@
 import React from 'react';
 import { ChevronRight } from 'lucide-react';
+import styles from './SettingsTabs.module.css';
 
 const SettingsTabs = ({ tabs, activeTab, setActiveTab }) => {
     return (
-        <aside className="settings-sidebar">
+        <aside className={styles.settingsSidebar}>
             {tabs.map(tab => (
                 <button 
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
-                    className={`settings-tab-btn ${activeTab === tab.id ? 'active' : ''}`}
+                    className={`${styles.settingsTabBtn} ${activeTab === tab.id ? styles.active : ''}`}
                 >
-                    <div className="settings-tab-btn-content">
+                    <div className={styles.settingsTabBtnContent}>
                         {tab.icon}
                         {tab.label}
                     </div>
-                    <ChevronRight size={16} className="lucide-chevron-right" />
+                    <ChevronRight size={16} className={styles.chevron} />
                 </button>
             ))}
         </aside>

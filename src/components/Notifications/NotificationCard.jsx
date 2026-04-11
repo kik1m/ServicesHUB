@@ -1,44 +1,56 @@
-import React from 'react';
-import { CheckCircle, Clock, Rss, Bell, AlertTriangle } from 'lucide-react';
+import { Bell, Info, CheckCircle, AlertTriangle } from 'lucide-react';
+import styles from './NotificationCard.module.css';
+
+const formatTimeAgo = (dateString) => {
+    if (!dateString) return 'Just now';
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInSeconds = Math.floor((now - date) / 1000);
+
+    if (diffInSeconds < 60) return 'Just now';
+    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
+    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
+    return `${Math.floor(diffInSeconds / 86400)}d ago`;
+};
 
 const NotificationCard = ({ notif, onMarkRead }) => {
+    // Determine icon based on type (optional enhancement)
     const getIcon = (type) => {
         switch (type) {
-            case 'approval': return <CheckCircle size={24} color="#00C853" />;
-            case 'rejection': return <AlertTriangle size={24} color="#FF5252" />;
-            case 'pending': return <Clock size={24} color="#FFD700" />;
-            case 'blog': return <Rss size={24} color="var(--primary)" />;
-            default: return <Bell size={24} color="var(--text-muted)" />;
+            case 'success': return <CheckCircle size={20} />;
+            case 'warning': return <AlertTriangle size={20} />;
+            case 'info': return <Info size={20} />;
+            default: return <Bell size={20} />;
         }
     };
 
+    const timeAgo = formatTimeAgo(notif.created_at);
+
     return (
-        <div className={`glass-card notification-card ${notif.is_unread ? 'unread' : 'read'}`}>
-            <div className="notification-icon-box">
+        <div className={`${styles.card} ${notif.is_unread ? styles.unread : styles.read}`}>
+            <div className={styles.iconBox}>
                 {getIcon(notif.type)}
             </div>
-            <div style={{ flex: 1 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
-                    <h3 className="notification-title">
-                        {notif.is_unread && <div className="unread-dot"></div>}
+            
+            <div className={styles.contentBox}>
+                <div className={styles.headerLine}>
+                    <h3 className={styles.title}>
                         {notif.title}
+                        {notif.is_unread && <div className={styles.unreadDot} />}
                     </h3>
-                    <span className="notification-time">
-                        {new Date(notif.created_at).toLocaleDateString()}
-                    </span>
+                    <span className={styles.time}>{timeAgo}</span>
                 </div>
-                <p className="notification-message">{notif.message}</p>
-                <div style={{ marginTop: '1rem', display: 'flex', gap: '1rem' }}>
-                    {notif.is_unread && (
-                        <button 
-                            onClick={onMarkRead} 
-                            className="btn-mark-read"
-                            style={{ fontWeight: '600', fontSize: '0.9rem' }}
-                        >
-                            Mark as read
-                        </button>
-                    )}
-                </div>
+                
+                <p className={styles.message}>{notif.message}</p>
+                
+                {notif.is_unread && (
+                    <button 
+                        onClick={onMarkRead} 
+                        className={styles.markReadBtn}
+                    >
+                        Mark as read
+                    </button>
+                )}
             </div>
         </div>
     );

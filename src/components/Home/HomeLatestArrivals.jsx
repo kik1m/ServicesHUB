@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import SkeletonLoader from '../SkeletonLoader';
 import { getIcon } from '../../utils/iconMap';
+import styles from './HomeLatestArrivals.module.css';
 
 const HomeLatestArrivals = ({ latestTools, loading }) => {
     return (
@@ -12,23 +13,23 @@ const HomeLatestArrivals = ({ latestTools, loading }) => {
                     <h2 className="section-title">New <span className="gradient-text">Arrivals</span></h2>
                     <p className="section-desc">The freshest AI solutions added to our directory this week.</p>
                 </div>
-                <Link to="/tools" className="view-all-link">Browse All <ArrowRight size={18} /></Link>
+                <Link to="/tools" className={styles.viewAllLink}>Browse All <ArrowRight size={18} /></Link>
             </div>
 
-            <div className="latest-tools-grid-mini">
+            <div className={styles.latestToolsGridMini}>
                 {loading ? (
-                    [1, 2, 3, 4].map(i => <SkeletonLoader key={i} type="card" />)
+                    [1, 2, 3, 4, 5, 6].map(i => <SkeletonLoader key={i} type="trending" />)
                 ) : (
-                    latestTools.map((tool) => (
-                        <Link to={`/tool/${tool.slug}`} key={tool.id} className="glass-card latest-tool-mini">
-                            <div className="latest-tool-icon-box">
+                    (latestTools || []).map((tool) => (
+                        <Link to={`/tool/${tool?.slug}`} key={tool?.id} className={`glass-card ${styles.latestToolMini}`}>
+                            <div className={styles.latestToolIconBox}>
                                 {tool.image_url ? (
-                                    <img src={tool.image_url} alt={tool.name} onError={(e) => { e.target.style.display = 'none'; e.target.parentElement.innerHTML = '<svg ...></svg>'; }} />
+                                    <img src={tool.image_url} alt={tool.name} />
                                 ) : (
                                     getIcon(tool.icon_name || 'Zap')
                                 )}
                             </div>
-                            <div className="latest-tool-info-mini">
+                            <div className={styles.latestToolInfoMini}>
                                 <h4>{tool.name}</h4>
                                 <p>{tool.categories?.name}</p>
                             </div>

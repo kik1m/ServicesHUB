@@ -1,0 +1,109 @@
+.card {
+    padding: 1rem 1.5rem;
+    display: flex;
+    gap: 20px;
+    border-radius: 20px;
+    position: relative;
+    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border);
+    backdrop-filter: blur(10px);
+}
+
+.unread {
+    border-color: var(--primary) !important;
+    background: rgba(0, 136, 204, 0.05) !important;
+}
+
+.read {
+    border-color: var(--border) !important;
+    background: rgba(255, 255, 255, 0.02) !important;
+}
+
+.card:hover {
+    transform: translateX(5px);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.iconBox {
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 12px;
+    height: fit-content;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary);
+    border: 1px solid rgba(255,255,255,0.05);
+}
+
+.contentBox {
+    flex: 1;
+}
+
+.headerLine {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+}
+
+.title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+}
+
+.unreadDot {
+    width: 8px;
+    height: 8px;
+    background: var(--primary);
+    border-radius: 50%;
+    flex-shrink: 0;
+    box-shadow: 0 0 10px var(--primary);
+}
+
+.time {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.message {
+    color: var(--text-muted);
+    line-height: 1.6;
+    margin: 4px 0 0;
+    font-size: 0.95rem;
+}
+
+.markReadBtn {
+    background: transparent;
+    border: none;
+    color: var(--primary);
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 0.85rem;
+    padding: 0;
+    margin-top: 1rem;
+    transition: all 0.2s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.markReadBtn:hover {
+    color: white;
+    text-shadow: 0 0 10px var(--primary);
+}
+
+@media (max-width: 768px) {
+    .card {
+        padding: 1.25rem;
+        gap: 15px;
+    }
+    
+    .title {
+        font-size: 1rem;
+    }
+}

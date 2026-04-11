@@ -1,5 +1,6 @@
 import React from 'react';
 import { HelpCircle } from 'lucide-react';
+import styles from './PremiumFAQ.module.css';
 
 const PremiumFAQ = () => {
     const faqs = [
@@ -10,19 +11,19 @@ const PremiumFAQ = () => {
     ];
 
     return (
-        <section style={{ marginTop: '7rem' }}>
-            <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
-                <h2 style={{ fontSize: '2.2rem', fontWeight: '900', margin: 0 }}>Common Questions</h2>
+        <section className={styles.faqSection}>
+            <div className={styles.faqHeader}>
+                <h2>Common Questions</h2>
             </div>
 
-            <div className="premium-faq-grid">
+            <div className={styles.premiumFaqGrid}>
                 {faqs.map((item, i) => (
-                    <div key={i} className="glass-card" style={{ padding: '2rem', borderRadius: '24px', border: '1px solid var(--border)' }}>
-                        <div style={{ display: 'flex', gap: '15px' }}>
+                    <div key={i} className={styles.faqCard}>
+                        <div className={styles.faqContent}>
                             <HelpCircle size={22} color="var(--primary)" style={{ flexShrink: 0 }} />
                             <div>
-                                <h4 style={{ fontSize: '1.1rem', fontWeight: '800', marginBottom: '10px', color: 'white', margin: 0 }}>{item.q}</h4>
-                                <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', lineHeight: '1.6', margin: 0, marginTop: '8px' }}>{item.a}</p>
+                                <h4>{item.q}</h4>
+                                <p>{item.a}</p>
                             </div>
                         </div>
                     </div>

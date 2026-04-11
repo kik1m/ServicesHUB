@@ -1,0 +1,60 @@
+/* HomeHowItWorks.module.css */
+
+.howItWorks {
+  background: radial-gradient(circle at center, rgba(0, 136, 204, 0.03) 0%, transparent 70%);
+  padding: 3rem 5% !important; 
+}
+
+.stepsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.5rem;
+}
+
+.stepCard {
+  padding: 2.2rem 1.8rem;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  text-align: center;
+  transition: 0.4s;
+}
+
+.stepCard:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: var(--primary);
+  transform: translateY(-10px);
+}
+
+.stepNum {
+  font-size: 0.75rem;
+  font-weight: 900;
+  color: var(--primary);
+  margin-bottom: 0.8rem;
+  letter-spacing: 2px;
+  opacity: 0.5;
+}
+
+.stepIcon {
+  width: 54px;
+  height: 54px;
+  background: rgba(0, 136, 204, 0.08);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary);
+  margin: 0 auto 1.2rem;
+}
+
+.stepCard h3 {
+  font-size: 1.25rem;
+  font-weight: 800;
+  margin-bottom: 0.8rem;
+}
+
+.stepCard p {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  line-height: 1.5;
+}

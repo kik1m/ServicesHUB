@@ -1,23 +1,24 @@
 import React from 'react';
 import { CheckCircle2 } from 'lucide-react';
+import styles from './ToolDetailInfo.module.css';
 
 const ToolDetailInfo = ({ tool }) => {
     return (
-        <div className="tool-main-info">
-            <div className="detail-section">
+        <div className={styles.toolMainInfo}>
+            <div className={styles.detailSection}>
                 <h3 className="section-subtitle">About <span className="gradient-text">{tool.name}</span></h3>
                 <p className="section-text">{tool.description}</p>
             </div>
 
-            <div className="detail-section">
+            <div className={styles.detailSection}>
                 <h3 className="section-subtitle">Key Features</h3>
-                <div className="features-checklist">
+                <div className={styles.featuresChecklist}>
                     {tool.features?.map((feature, i) => (
-                        <div key={i} className="glass-card feature-item-premium">
-                            <div className="feature-icon-box">
+                        <div key={i} className={`glass-card ${styles.featureItemPremium}`}>
+                            <div className={styles.featureIconBox}>
                                 <CheckCircle2 size={24} />
                             </div>
-                            <p className="feature-text">{feature}</p>
+                            <p className={styles.featureText}>{feature}</p>
                         </div>
                     ))}
                 </div>

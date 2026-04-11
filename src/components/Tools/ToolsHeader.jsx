@@ -1,5 +1,6 @@
 import React from 'react';
 import { Search } from 'lucide-react';
+import styles from './ToolsHeader.module.css';
 
 const ToolsHeader = ({ 
     searchQuery, 
@@ -9,15 +10,15 @@ const ToolsHeader = ({
 }) => {
     return (
         <>
-            <header className="hero-section-slim">
-                <div className="hero-content">
-                    <h1 className="hero-title-slim">Explore All <span className="gradient-text">Tools</span></h1>
-                    <p className="hero-subtitle-slim">Discover the most powerful AI and SaaS solutions curated for professionals.</p>
+            <header className={styles.heroSectionSlim}>
+                <div className={styles.heroContent}>
+                    <h1 className={styles.heroTitleSlim}>Explore All <span className="gradient-text">Tools</span></h1>
+                    <p className={styles.heroSubtitleSlim}>Discover the most powerful AI and SaaS solutions curated for professionals.</p>
                 </div>
             </header>
 
-            <div className="search-stats-container" style={{ paddingTop: '2rem' }}>
-                <div className="hero-search-wrapper-large glass-card" style={{ maxWidth: '600px', margin: '0 auto 1rem' }}>
+            <div className={styles.searchStatsContainer}>
+                <div className={`${styles.heroSearchWrapperLarge} glass-card`}>
                     <Search size={22} color="var(--primary)" />
                     <input
                         type="text"
@@ -26,7 +27,7 @@ const ToolsHeader = ({
                         onChange={(e) => setSearchQuery(e.target.value)}
                     />
                 </div>
-                <div style={{ textAlign: 'center', marginBottom: '2.5rem', color: 'var(--text-muted)', fontSize: '0.9rem' }}>
+                <div className={styles.resultsCount}>
                     {loading ? 'Searching...' : `Found ${totalResults.toLocaleString()} world-class tools`}
                 </div>
             </div>

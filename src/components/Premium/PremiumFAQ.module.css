@@ -1,0 +1,57 @@
+/* PremiumFAQ.module.css */
+
+.faqSection {
+    marginTop: 7rem;
+}
+
+.faqHeader {
+    text-align: center;
+    margin-bottom: 4rem;
+}
+
+.faqHeader h2 {
+    font-size: 2.2rem;
+    font-weight: 900;
+    margin: 0;
+    color: white;
+}
+
+.premiumFaqGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+
+.faqCard {
+    padding: 2rem;
+    border-radius: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.faqContent {
+    display: flex;
+    gap: 15px;
+}
+
+.faqContent h4 {
+    font-size: 1.1rem;
+    font-weight: 800;
+    margin-bottom: 10px;
+    color: white;
+    margin: 0;
+}
+
+.faqContent p {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    line-height: 1.6;
+    margin: 0;
+    margin-top: 8px;
+}
+
+@media (max-width: 900px) {
+  .premiumFaqGrid {
+    grid-template-columns: 1fr;
+  }
+}

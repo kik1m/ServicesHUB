@@ -1,13 +1,14 @@
 import React from 'react';
+import styles from './BlogFilters.module.css';
 
 const BlogFilters = ({ categories, selectedCategory, setSelectedCategory }) => {
     return (
-        <div className="blog-filters-container-v2">
+        <div className={styles.filtersContainer}>
             {categories.map(cat => (
                 <button
                     key={cat}
                     onClick={() => setSelectedCategory(cat)}
-                    className={`blog-custom-filter-pill ${selectedCategory === cat ? 'active' : ''}`}
+                    className={`${styles.filterPill} ${selectedCategory === cat ? styles.active : ''}`}
                 >
                     {cat}
                 </button>

@@ -1,0 +1,71 @@
+.formCard {
+  padding: 4rem !important;
+  border-radius: 32px !important;
+}
+
+.rowDual {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.formGroup {
+    margin-bottom: 1.5rem;
+}
+
+.formGroup label {
+  display: block;
+  margin-bottom: 0.8rem;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.input,
+.textarea {
+  width: 100%;
+  padding: 15px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border);
+  color: white;
+  outline: none;
+  transition: border-color 0.3s ease;
+}
+
+.input:focus,
+.textarea:focus {
+  border-color: var(--primary);
+}
+
+.textarea {
+  resize: vertical;
+}
+
+.submitBtn {
+    width: 100%;
+    height: 56px;
+}
+
+.submitBtnContent {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+@media (max-width: 992px) {
+  .formCard {
+    padding: 2.5rem !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .rowDual {
+    grid-template-columns: 1fr;
+  }
+  
+  .formCard {
+    order: 1;
+  }
+}

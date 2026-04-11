@@ -1,28 +1,29 @@
 import React from 'react';
-import { Heart, Star, MessageSquare } from 'lucide-react';
+import { Heart, MessageSquare } from 'lucide-react';
+import styles from './ProfileStats.module.css';
 
 const ProfileStats = ({ favoritesCount, reviewsCount = 0 }) => {
     return (
-        <div className="profile-stats-container fade-in">
-            <div className="profile-stat-box-modern">
-                <div className="stat-icon-wrapper heart">
+        <div className={`${styles.statsContainer} fade-in`}>
+            <div className={styles.statBoxModern}>
+                <div className={`${styles.iconWrapper} ${styles.heart}`}>
                     <Heart size={18} fill="currentColor" />
                 </div>
-                <div className="stat-content">
-                    <span className="stat-number">{favoritesCount}</span>
-                    <span className="stat-label">Saved</span>
+                <div className={styles.statContent}>
+                    <span className={styles.statNumber}>{favoritesCount}</span>
+                    <span className={styles.statLabel}>Saved</span>
                 </div>
             </div>
 
-            <div className="stat-vertical-line"></div>
+            <div className={styles.verticalLine}></div>
 
-            <div className="profile-stat-box-modern">
-                <div className="stat-icon-wrapper star">
+            <div className={styles.statBoxModern}>
+                <div className={`${styles.iconWrapper} ${styles.star}`}>
                     <MessageSquare size={18} fill="currentColor" />
                 </div>
-                <div className="stat-content">
-                    <span className="stat-number">{reviewsCount}</span>
-                    <span className="stat-label">Reviews</span>
+                <div className={styles.statContent}>
+                    <span className={styles.statNumber}>{reviewsCount}</span>
+                    <span className={styles.statLabel}>Reviews</span>
                 </div>
             </div>
         </div>

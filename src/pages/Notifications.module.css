@@ -1,0 +1,48 @@
+.notificationsView {
+    padding: 120px 5% 60px;
+    min-height: 80vh;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.notificationsList {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.authRequired {
+    padding: 120px 5%;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 50vh;
+}
+
+.authIcon {
+    opacity: 0.1;
+    margin-bottom: 2rem;
+}
+
+.authTitle {
+    font-size: 1.8rem;
+    font-weight: 800;
+    margin-bottom: 1.5rem;
+}
+
+.authBtn {
+    margin-top: 2rem;
+    display: inline-block;
+    text-decoration: none;
+}
+
+@media (max-width: 768px) {
+    .notificationsView {
+        padding: 80px 5% 40px;
+    }
+}

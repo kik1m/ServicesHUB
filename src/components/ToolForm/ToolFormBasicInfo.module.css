@@ -1,0 +1,145 @@
+/* ToolFormBasicInfo.module.css */
+
+.sectionCard {
+  background: rgba(255, 255, 255, 0.01);
+  border: 1px solid var(--border);
+  padding: 1.5rem; /* Reduced from 2rem */
+  border-radius: 24px; /* Slightly sharper */
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem; /* Tighter gap */
+  transition: 0.3s;
+}
+
+.sectionCard:hover {
+  border-color: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.sectionTitleRow {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.titleIconBg {
+  width: 44px;
+  height: 44px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sectionTitleRow h3 {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: white;
+  margin: 0;
+}
+
+.inputGrid2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.inputGroupSlim {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.inputGroupSlim label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.slimInputField {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border);
+  padding: 14px 18px;
+  border-radius: 14px;
+  color: white;
+  font-size: 0.95rem;
+  width: 100%;
+  transition: 0.3s;
+}
+
+.slimInputField:focus {
+  outline: none;
+  border-color: var(--primary);
+  background: rgba(255, 255, 255, 0.05);
+  box-shadow: 0 0 15px rgba(0, 210, 255, 0.1);
+}
+
+.errorText {
+  color: #ff3366;
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-top: 5px;
+}
+
+.inputSplitLayout {
+  display: grid;
+  grid-template-columns: 1.2fr 2fr;
+  gap: 2rem;
+  align-items: flex-end;
+}
+
+.pricingGridGroup {
+  display: grid;
+  grid-template-columns: 1fr 1.5fr;
+  gap: 1rem;
+  align-items: flex-end;
+}
+
+.pricingDetailsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.slimDetailLabel {
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: var(--text-muted);
+  letter-spacing: 1.5px;
+}
+
+.slimInputWrapper {
+  position: relative;
+}
+
+.inputIconRight {
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+@media (max-width: 992px) {
+  .inputSplitLayout, .pricingGridGroup {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .inputGrid2 {
+    grid-template-columns: 1fr;
+  }
+  
+  .sectionCard {
+    padding: 1.5rem;
+  }
+}

@@ -1,0 +1,78 @@
+/* HomePublisherCTA.module.css */
+
+.publisherCtaSection {
+  margin: 6rem auto;
+  max-width: 1000px;
+  padding: 0 5%;
+}
+
+.publisherCtaContent {
+  position: relative;
+  background: linear-gradient(135deg, rgba(0, 136, 204, 0.1) 0%, rgba(0, 0, 0, 0.4) 100%);
+  border: 1px solid rgba(0, 136, 204, 0.2);
+  border-radius: 40px;
+  padding: 5rem 3rem;
+  text-align: center;
+  overflow: hidden;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+}
+
+.publisherCtaContent::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -20%;
+  width: 140%;
+  height: 200%;
+  background: radial-gradient(circle at center, rgba(0, 136, 204, 0.1) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.publisherCtaLogo {
+  display: block;
+  margin: 0 auto 2rem;
+  width: 60px;
+  height: 60px;
+  filter: drop-shadow(0 0 15px var(--primary-glow));
+  transition: 0.5s;
+}
+
+.publisherCtaLogo:hover {
+  transform: scale(1.1) rotate(360deg);
+}
+
+.publisherCtaBadge {
+  background: var(--primary) !important;
+  color: white !important;
+  padding: 6px 16px !important;
+  font-weight: 800 !important;
+  font-size: 0.75rem !important;
+  margin-bottom: 2rem !important;
+}
+
+.publisherCtaContent h2 {
+  font-size: 2.5rem;
+  font-weight: 900;
+  margin-bottom: 1.5rem;
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.publisherCtaDesc {
+  font-size: 1.1rem;
+  color: var(--text-muted);
+  max-width: 650px;
+  margin: 0 auto 3rem;
+  line-height: 1.6;
+}
+
+@media (max-width: 768px) {
+  .publisherCtaContent {
+    padding: 3.5rem 1.5rem;
+  }
+  
+  .publisherCtaContent h2 {
+    font-size: 1.8rem;
+  }
+}

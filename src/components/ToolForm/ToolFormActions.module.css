@@ -1,0 +1,63 @@
+/* ToolFormActions.module.css */
+
+.formActionBar {
+  display: flex;
+  justify-content: center; /* Center the buttons */
+  gap: 1.5rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--border);
+  margin-top: 1rem;
+}
+
+.premiumSubmitBtn {
+  min-width: 240px; /* Specific width instead of flex-grow */
+  background: white;
+  color: black;
+  border: none;
+  padding: 0.85rem 2rem;
+  border-radius: 14px;
+  font-size: 0.95rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.premiumSubmitBtn:hover:not(:disabled) {
+  background: var(--primary);
+  color: white;
+  transform: translateY(-3px);
+  box-shadow: 0 10px 20px rgba(0, 210, 255, 0.2);
+}
+
+.premiumSubmitBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.premiumCancelBtn {
+  min-width: 140px; /* Specific width */
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  color: white;
+  padding: 0.85rem 2rem;
+  border-radius: 14px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.premiumCancelBtn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+@media (max-width: 640px) {
+  .formActionBar {
+    flex-direction: column;
+  }
+}

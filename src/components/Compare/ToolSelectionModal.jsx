@@ -1,6 +1,6 @@
 import React from 'react';
-import { Search, X, Plus } from 'lucide-react';
-import SkeletonLoader from '../SkeletonLoader';
+import { X, Search, Loader2, ArrowRight } from 'lucide-react';
+import styles from './ToolSelectionModal.module.css';
 
 const ToolSelectionModal = ({ 
     onClose, 
@@ -12,57 +12,56 @@ const ToolSelectionModal = ({
     onSelect 
 }) => {
     return (
-        <div className="modal-overlay">
-            <div className="glass-card modal-content">
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-                    <h3 style={{ margin: 0 }}>Select a Tool</h3>
-                    <button onClick={onClose} style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer' }}>
-                        <X size={24} />
-                    </button>
+        <div className={styles.modalOverlay} onClick={onClose}>
+            <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+                <button className={styles.modalClose} onClick={onClose}>
+                    <X size={24} />
+                </button>
+
+                <div className={styles.modalHeader}>
+                    <h3>Select <span className="gradient-text">AI Tool</span></h3>
+                    <p>Search and choose a tool for comparison</p>
                 </div>
-                
-                <div className="nav-search-wrapper" style={{ marginBottom: '2rem', padding: '10px' }}>
-                    <Search className="search-icon" size={18} />
+
+                <div className={styles.searchWrapper}>
+                    <Search className={styles.searchIcon} size={18} />
                     <input 
                         type="text" 
-                        placeholder="Search tools..." 
+                        placeholder="Search by name..." 
+                        className={styles.searchInput}
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         autoFocus
-                        style={{ width: '100%', border: 'none', background: 'transparent', color: 'white', outline: 'none' }}
                     />
                 </div>
 
-                <div className="tool-select-list">
+                <div className={styles.toolList}>
                     {loading ? (
-                        <SkeletonLoader type="card" count={4} />
+                        <div className={styles.loadingState}>
+                            <Loader2 className="animate-spin" size={32} />
+                            <p>Searching for tools...</p>
+                        </div>
                     ) : error ? (
-                        <div style={{ textAlign: 'center', padding: '1rem', color: '#ff4b4b' }}>{error}</div>
+                        <div className={styles.emptyState}>
+                            <p style={{ color: '#ff4444' }}>{error}</p>
+                        </div>
                     ) : availableTools.length > 0 ? (
-                        availableTools.map(t => (
+                        availableTools.map((tool) => (
                             <button 
-                                key={t.id} 
-                                onClick={() => onSelect(t)}
-                                className="select-item"
+                                key={tool.id} 
+                                className={styles.selectItem}
+                                onClick={() => onSelect(tool)}
                             >
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                    <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
-                                        {t.image_url ? (
-                                            <img src={t.image_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                                        ) : (
-                                            <span>{t.name.charAt(0)}</span>
-                                        )}
-                                    </div>
-                                    <span style={{ fontSize: '0.95rem', fontWeight: '600' }}>
-                                        {t.name} <small style={{ color: 'var(--text-muted)', marginLeft: '4px', fontWeight: '400' }}>({t.categories?.name})</small>
-                                    </span>
+                                <div className={styles.itemInfo}>
+                                    <span className={styles.itemName}>{tool.name}</span>
+                                    <span className={styles.itemCategory}>{tool.categories?.name}</span>
                                 </div>
-                                <Plus size={14} opacity={0.6} />
+                                <ArrowRight size={16} opacity={0.5} />
                             </button>
                         ))
-                    ) : (
-                        <div style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '2rem' }}>
-                            No tools found. Try a different search.
+                    ) : searchQuery && (
+                        <div className={styles.emptyState}>
+                            <p>No tools found matching "{searchQuery}"</p>
                         </div>
                     )}
                 </div>

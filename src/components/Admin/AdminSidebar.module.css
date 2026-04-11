@@ -1,0 +1,98 @@
+.sidebar {
+    display: flex; 
+    flex-direction: column; 
+    gap: 2rem;
+}
+
+.healthCard {
+    padding: 2rem;
+}
+
+.healthCard h2 {
+    font-size: 1.25rem; 
+    font-weight: 700; 
+    margin-bottom: 1.5rem;
+    color: white;
+}
+
+.healthStats {
+    display: flex; 
+    flex-direction: column; 
+    gap: 1.5rem;
+}
+
+.statRow {
+    display: flex; 
+    justify-content: space-between; 
+    font-size: 0.85rem; 
+    margin-bottom: 8px;
+    color: var(--text-muted);
+}
+
+.textSecondary {
+    color: var(--secondary);
+    font-weight: 700;
+}
+
+.textPrimary {
+    color: var(--primary); 
+    font-weight: 700;
+}
+
+.progressBg {
+    width: 100%; 
+    height: 6px; 
+    background: rgba(255, 255, 255, 0.05); 
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.progressBar {
+    height: 100%; 
+    border-radius: 10px;
+    transition: width 1s ease;
+}
+
+.progressBar.secondary {
+    background: var(--secondary);
+}
+
+.progressBar.primary {
+    background: var(--primary);
+}
+
+.shortcutCard {
+    padding: 1.5rem; 
+    background: var(--gradient); 
+    color: white;
+    border-radius: 20px;
+}
+
+.shortcutCard h4 {
+    font-weight: 800; 
+    margin-bottom: 15px;
+    color: white;
+}
+
+.shortcutLinks {
+    display: flex; 
+    flex-direction: column; 
+    gap: 12px;
+}
+
+.shortcutLink {
+    color: white; 
+    text-decoration: none; 
+    font-size: 0.9rem; 
+    display: flex; 
+    align-items: center; 
+    gap: 8px;
+    opacity: 0.85;
+    transition: all 0.2s;
+    font-weight: 600;
+}
+
+.shortcutLink:hover {
+    opacity: 1;
+    transform: translateX(5px);
+}

@@ -1,7 +1,8 @@
 import React from 'react';
 import { Search } from 'lucide-react';
 import ToolCard from '../ToolCard';
-import SkeletonLoader from '../SkeletonLoader';
+import ToolCardSkeleton from '../Tools/ToolCardSkeleton';
+import styles from './CategoryDetailTools.module.css';
 
 const CategoryDetailTools = ({ 
     tools, 
@@ -16,8 +17,8 @@ const CategoryDetailTools = ({
     categoryName 
 }) => {
     return (
-        <section className="main-section" style={{ paddingTop: '2rem' }}>
-            <div className="hero-search-wrapper-large glass-card" style={{ maxWidth: '600px', margin: '0 auto 2rem' }}>
+        <section className={styles.mainSection}>
+            <div className={styles.heroSearchWrapperLarge}>
                 <Search size={20} color="var(--primary)" />
                 <input
                     type="text"
@@ -27,15 +28,15 @@ const CategoryDetailTools = ({
                 />
             </div>
 
-            <div className="section-header-row">
-                <h2 className="section-title">Explore <span className="gradient-text">Top Tools</span></h2>
-                <div className="filter-count">Showing {tools.length} of {totalResults} world-class solutions</div>
+            <div className={styles.sectionHeaderRow}>
+                <h2 className={styles.sectionTitle}>Explore <span className="gradient-text">Top Tools</span></h2>
+                <div className={styles.filterCount}>Showing {tools.length} of {totalResults} world-class solutions</div>
             </div>
 
-            <div className="category-tools-grid">
+            <div className={styles.categoryToolsGrid}>
                 {loading ? (
                     [1, 2, 3, 4, 5, 6].map(i => (
-                        <SkeletonLoader key={i} type="card" />
+                        <ToolCardSkeleton key={i} />
                     ))
                 ) : (
                     filteredTools.map(tool => (
@@ -45,12 +46,11 @@ const CategoryDetailTools = ({
             </div>
 
             {hasMore && tools.length > 0 && !loading && (
-                <div style={{ textAlign: 'center', marginTop: '4rem' }}>
+                <div className={styles.paginationRow}>
                     <button
                         onClick={() => setPage(prev => prev + 1)}
-                        className="btn-primary"
+                        className={`btn-primary ${styles.loadMoreBtn}`}
                         disabled={loadingMore}
-                        style={{ padding: '1rem 3rem' }}
                     >
                         {loadingMore ? 'Loading Tools...' : 'Load More Tools'}
                     </button>

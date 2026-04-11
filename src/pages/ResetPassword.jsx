@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { supabase } from '../lib/supabaseClient';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '../context/ToastContext';
+import { authService } from '../services/authService';
+import { supabase } from '../lib/supabaseClient';
 
 // Import Modular Components
 import ResetPasswordHero from '../components/Auth/ResetPasswordHero';
@@ -9,26 +10,32 @@ import ResetPasswordForm from '../components/Auth/ResetPasswordForm';
 import ResetPasswordSuccess from '../components/Auth/ResetPasswordSuccess';
 
 // Import Modular CSS
-import '../styles/pages/AuthPages.css';
+import styles from './ResetPassword.module.css';
 
+/**
+ * ResetPassword Page - Secure password update portal
+ */
 const ResetPassword = () => {
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
+    
     const navigate = useNavigate();
     const { showToast } = useToast();
 
+    /**
+     * Session validation
+     */
     useEffect(() => {
-        // Check if we have a session (Supabase automatically handles the hash/token from email)
         const checkSession = async () => {
             const { data: { session } } = await supabase.auth.getSession();
             if (!session) {
-                // If no session, retry once to allow for hash processing
+                // Buffer for hash processing
                 setTimeout(async () => {
                     const { data: { session: retrySession } } = await supabase.auth.getSession();
                     if (!retrySession) {
-                        showToast('Invalid or expired reset link. Please request a new one.', 'error');
+                        showToast('Invalid or expired reset link.', 'error');
                         navigate('/auth');
                     }
                 }, 1000);
@@ -37,8 +44,12 @@ const ResetPassword = () => {
         checkSession();
     }, [navigate, showToast]);
 
+    /**
+     * Submission logic
+     */
     const handleReset = async (e) => {
         e.preventDefault();
+        
         if (password !== confirmPassword) {
             showToast('Passwords do not match!', 'error');
             return;
@@ -50,37 +61,23 @@ const ResetPassword = () => {
 
         setLoading(true);
         try {
-            const timeoutPromise = new Promise((_, reject) => 
-                setTimeout(() => reject(new Error('Connection timeout! Please try again.')), 12000)
-            );
-
-            const { error } = await Promise.race([
-                supabase.auth.updateUser({ password }),
-                timeoutPromise
-            ]);
-            
-            if (error) throw error;
-            
+            await authService.updatePassword(password);
             setSuccess(true);
             showToast('Password updated successfully!', 'success');
             setTimeout(() => navigate('/auth'), 3000);
         } catch (err) {
-            showToast(err.message, 'error');
+            showToast(err.message || 'Failed to update password', 'error');
         } finally {
             setLoading(false);
         }
     };
 
-    if (success) {
-        return <ResetPasswordSuccess />;
-    }
+    if (success) return <ResetPasswordSuccess />;
 
     return (
-        <div className="page-wrapper auth-page-wrapper">
-            <div className="glass-card auth-glass-card">
-                
+        <div className={styles.authWrapper}>
+            <div className={styles.authCard}>
                 <ResetPasswordHero />
-
                 <ResetPasswordForm 
                     password={password}
                     setPassword={setPassword}
@@ -89,7 +86,6 @@ const ResetPassword = () => {
                     loading={loading}
                     onSubmit={handleReset}
                 />
-
             </div>
         </div>
     );

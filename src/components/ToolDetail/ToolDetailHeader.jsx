@@ -2,6 +2,7 @@ import React from 'react';
 import { ArrowLeft, ExternalLink, Heart, CheckCircle2 } from 'lucide-react';
 import Breadcrumbs from '../Breadcrumbs';
 import { getIcon } from '../../utils/iconMap';
+import styles from './ToolDetailHeader.module.css';
 
 const ToolDetailHeader = ({ 
     tool, 
@@ -10,19 +11,19 @@ const ToolDetailHeader = ({
     toggleFavorite 
 }) => {
     return (
-        <header className="tool-detail-header">
+        <header className={styles.toolDetailHeader}>
             <div className="main-section">
                 <Breadcrumbs items={[
                     { label: 'Directory', link: '/tools' },
                     { label: tool.categories?.name, link: `/category/${tool.categories?.slug}` },
                     { label: tool.name }
                 ]} />
-                <button onClick={() => navigate(-1)} className="btn-text back-button">
+                <button onClick={() => navigate(-1)} className={`btn-text ${styles.backButton}`}>
                     <ArrowLeft size={18} /> Back to Search
                 </button>
                 
-                <div className="tool-header-flex">
-                    <div className="tool-logo-large glass-card premium-logo-container">
+                <div className={styles.toolHeaderFlex}>
+                    <div className={`${styles.toolLogoLarge} glass-card ${styles.premiumLogoContainer}`}>
                         {tool.image_url ? (
                             <img 
                                 src={tool.image_url} 
@@ -36,25 +37,32 @@ const ToolDetailHeader = ({
                             getIcon(tool.icon_name || 'Zap', 60)
                         )}
                     </div>
-                    <div className="tool-header-info">
+                    <div className={styles.toolHeaderInfo}>
                         <div className="badge">{tool.categories?.name}</div>
-                        <h1 className="hero-title tool-main-title">
+                        <h1 className={`hero-title ${styles.toolMainTitle}`}>
                             {tool.name}
-                            {tool.is_verified && <CheckCircle2 size={32} color="#00d2ff" fill="rgba(0,210,255,0.1)" title="Verified Tool" />}
+                            {tool.is_verified && (
+                                <CheckCircle2 
+                                    size={32} 
+                                    color="#00d2ff" 
+                                    fill="rgba(0,210,255,0.1)" 
+                                    title="Verified Tool" 
+                                />
+                            )}
                         </h1>
-                        <p className="tool-short-desc">{tool.short_description}</p>
+                        <p className={styles.toolShortDesc}>{tool.short_description}</p>
                     </div>
-                    <div className="tool-header-actions">
+                    <div className={styles.toolHeaderActions}>
                         <a 
                             href={tool.url} 
                             target="_blank" 
                             rel="noopener noreferrer" 
-                            className="btn-primary visit-btn-large" 
+                            className={`btn-primary ${styles.visitBtnLarge}`} 
                         >
                             Visit Website <ExternalLink size={18} />
                         </a>
                         <button 
-                            className={`icon-btn favorite-btn-large ${isFavorited ? 'is-active' : ''}`} 
+                            className={`icon-btn ${styles.favoriteBtnLarge} ${isFavorited ? styles.isActive : ''}`} 
                             onClick={toggleFavorite}
                             title={isFavorited ? "Remove from favorites" : "Add to favorites"}
                         >

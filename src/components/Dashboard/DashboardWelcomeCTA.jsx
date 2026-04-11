@@ -1,24 +1,22 @@
 import React from 'react';
+import { Rocket, PlusCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { PlusCircle } from 'lucide-react';
+import styles from './DashboardWelcomeCTA.module.css';
 
 const DashboardWelcomeCTA = () => {
     return (
-        <div className="welcome-banner">
-            <div className="glass-card" style={{ 
-                padding: '2rem', 
-                background: 'linear-gradient(135deg, rgba(0, 210, 255, 0.05) 0%, rgba(58, 123, 213, 0.05) 100%)', 
-                border: '1px solid rgba(0, 210, 255, 0.1)',
-                borderRadius: '24px'
-            }}>
-                <h3 style={{ fontSize: '1.2rem', fontWeight: '800', marginBottom: '1rem' }}>Want to Publish?</h3>
-                <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', lineHeight: '1.7', marginBottom: '2rem' }}>
-                    Showcase your AI or SaaS tool to thousands of monthly visitors and grow your user base clinically.
-                </p>
-                <Link to="/submit" className="btn-primary" style={{ width: '100%', display: 'flex', justifyContent: 'center', gap: '8px', textDecoration: 'none', padding: '12px 20px', fontWeight: '700' }}>
-                    <PlusCircle size={18} /> Submit Your Tool
-                </Link>
+        <div className={`glass-card ${styles.welcomeCard}`}>
+            <div className={styles.iconWrapper}>
+                <Rocket size={36} />
             </div>
+            <h2 className={styles.title}>Ready to <span className="gradient-text">Launch</span>?</h2>
+            <p className={styles.description}>
+                Join our community of creators. Submit your tool today to get featured and reach thousands of makers worldwide.
+            </p>
+            <Link to="/submit" className="btn-primary" style={{ width: '100%', padding: '15px' }}>
+                <PlusCircle size={20} style={{ marginRight: '10px' }} />
+                Submit Your First Tool
+            </Link>
         </div>
     );
 };

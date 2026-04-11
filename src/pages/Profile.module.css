@@ -1,0 +1,86 @@
+/* Profile.module.css */
+
+.profilePage {
+  min-height: 100vh;
+  padding-bottom: 5rem;
+}
+
+.profileContainer {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 5%;
+}
+
+.profileGridSlim {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 2rem;
+  margin-top: 2rem;
+  align-items: flex-start;
+}
+
+.mainContent {
+  min-width: 0; /* Prevent grid breakout */
+}
+
+.profileMainHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 2rem;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 1rem;
+}
+
+.profileSidebarAside {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Empty State Styling */
+.emptyStateCard {
+  text-align: center;
+  padding: 5rem 2rem;
+  background: rgba(255, 255, 255, 0.01) !important;
+  border: 1px dashed var(--border) !important;
+  border-radius: 32px !important;
+}
+
+.emptyStateIcon {
+  color: var(--text-muted);
+  margin-bottom: 1.5rem;
+  opacity: 0.5;
+}
+
+.emptyStateTitle {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: white;
+  margin-bottom: 0.5rem;
+}
+
+.emptyStateText {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+@media (max-width: 1024px) {
+  .profileGridSlim {
+    grid-template-columns: 1fr;
+  }
+  
+  .profileMainHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .profileContainer {
+    padding: 0 1rem;
+  }
+}

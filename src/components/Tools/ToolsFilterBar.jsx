@@ -1,5 +1,6 @@
 import React from 'react';
 import CustomSelect from '../CustomSelect';
+import styles from './ToolsFilterBar.module.css';
 
 const ToolsFilterBar = ({ 
     categories, 
@@ -11,21 +12,21 @@ const ToolsFilterBar = ({
     setSortBy 
 }) => {
     return (
-        <div className="filter-bar-layout">
-            <div className="category-scroll-container">
-                <div className="category-tabs">
+        <div className={styles.filterBarLayout}>
+            <div className={styles.categoryScrollContainer}>
+                <div className={styles.categoryTabs}>
                     {['All', ...categories.map(c => c.name)].map(cat => (
                         <button
                             key={cat}
                             onClick={() => setSelectedCategory(cat)}
-                            className={`tab-btn ${selectedCategory === cat ? 'active' : ''}`}
+                            className={`${styles.tabBtn} ${selectedCategory === cat ? styles.active : ''}`}
                         >
                             {cat === 'All' ? 'All Tools' : cat}
                         </button>
                     ))}
                 </div>
             </div>
-            <div className="sort-filters">
+            <div className={styles.sortFilters}>
                 <CustomSelect
                     options={[
                         { label: 'All Pricing', value: 'All' },

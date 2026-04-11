@@ -1,0 +1,46 @@
+.sideStack {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  width: 100%;
+}
+
+.card {
+    width: 100%;
+    /* Optional: Limit card stretching on very wide columns */
+    max-width: 450px; 
+    margin: 0 auto;
+}
+
+.iconBox {
+  width: 44px;
+  height: 44px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.2rem;
+  border: 1px solid var(--border);
+}
+
+.joinCard {
+  background: var(--gradient) !important;
+  border: none !important;
+  color: white !important;
+  text-align: center;
+}
+
+.joinBtn {
+    width: fit-content !important;
+    min-width: 200px;
+    margin: 0 auto;
+    background: white !important;
+    color: black !important;
+}
+
+@media (max-width: 992px) {
+    .card {
+        max-width: 100%;
+    }
+}
