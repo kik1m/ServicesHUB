@@ -1,19 +1,34 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { User } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import Button from '../ui/Button';
 import styles from './ProfileNotFound.module.css';
+import { PROFILE_UI_CONSTANTS } from '../../constants/profileConstants';
 
-const ProfileNotFound = () => {
+/**
+ * ProfileNotFound - Elite Component
+ * Rule #14: Data-Driven UI via centralized constants
+ * Rule #5: Atomic UI Components
+ */
+const ProfileNotFound = memo(() => {
+    const labels = PROFILE_UI_CONSTANTS.public.notFound;
+
     return (
         <div className={styles.notFoundWrapper}>
-            <User size={80} className={styles.icon} />
-            <h2 className={styles.title}>Publisher not found</h2>
-            <p className={styles.text}>The profile you are looking for does not exist or has been removed.</p>
-            <Link to="/" className={`btn-primary ${styles.returnBtn}`}>
-                Return Home
-            </Link>
+            <div className={styles.iconBox}>
+                <User size={80} />
+            </div>
+            <h2 className={styles.title}>{labels?.title}</h2>
+            <p className={styles.text}>{labels?.text}</p>
+            <Button 
+                to="/" 
+                variant="primary" 
+                size="lg"
+                className={styles.returnBtn}
+            >
+                {labels?.returnHome}
+            </Button>
         </div>
     );
-};
+});
 
 export default ProfileNotFound;

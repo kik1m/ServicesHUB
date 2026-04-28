@@ -1,12 +1,32 @@
 .helpCTA {
+  padding: 4rem;
+  border-radius: 40px;
   text-align: center;
-  padding: 4rem !important;
-  margin-top: 4rem;
-  border-radius: 32px !important;
+  margin-top: 5rem;
+  background: linear-gradient(135deg, rgba(var(--primary-rgb), 0.1) 0%, rgba(0, 0, 0, 0.2) 100%);
+  border: 1px solid rgba(var(--primary-rgb), 0.2);
+}
+
+.title {
+  font-size: 2.25rem;
+  font-weight: 900;
+  margin-bottom: 1.5rem;
+}
+
+.description {
+  font-size: 1.1rem;
+  line-height: 1.7;
+  color: var(--text-muted);
+  max-width: 650px;
+  margin: 0 auto 2.5rem;
 }
 
 @media (max-width: 768px) {
   .helpCTA {
-    padding: 3rem 1.5rem !important;
+    padding: 3rem 1.5rem;
+  }
+  
+  .title {
+    font-size: 1.75rem;
   }
 }

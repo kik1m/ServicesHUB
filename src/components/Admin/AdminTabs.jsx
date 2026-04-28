@@ -1,34 +1,70 @@
-import React from 'react';
-import { Clock, Users, FileText, Star, PlusCircle, Package, Mail } from 'lucide-react';
+
+import React, { memo } from 'react';
+import { ADMIN_UI_CONSTANTS } from '../../constants/adminConstants';
+import { Clock, Users, FileText, Star, PlusCircle, FolderTree, Tags, Mail, LayoutGrid } from 'lucide-react';
+import Skeleton from '../ui/Skeleton';
+import Safeguard from '../ui/Safeguard';
 import styles from './AdminTabs.module.css';
 
-const AdminTabs = ({ activeTab, setActiveTab, pendingCount, blogCount, userCount, newsCount }) => {
-    const tabs = [
-        { id: 'pending', label: 'Approvals', icon: Clock, count: pendingCount },
-        { id: 'featured', label: 'Featured', icon: Star },
-        { id: 'blogs', label: 'Blogs', icon: FileText, count: blogCount },
-        { id: 'add-tool', label: 'Quick Add', icon: PlusCircle },
-        { id: 'categories', label: 'Tools Cat', icon: Package },
-        { id: 'blog-categories', label: 'Blog Cat', icon: Package },
-        { id: 'users', label: 'Users', icon: Users, count: userCount },
-        { id: 'newsletter', label: 'Newsletter', icon: Mail, count: newsCount },
-    ];
+/**
+ * AdminTabs - Elite Tab Navigator (Full 9-Tab Version)
+ * Rule #18: Memoized
+ */
+const AdminTabs = memo(({ activeTab, setActiveTab, pendingCount, blogCount, userCount, newsCount, isLoading, error, onRetry }) => {
+    const labels = ADMIN_UI_CONSTANTS.tabs;
+
+    // Mapping icons to tab IDs - Rule #14
+    const iconMap = {
+        pending: Clock,
+        'manage-tools': LayoutGrid,
+        featured: Star,
+        blog: FileText,
+        'add-tool': PlusCircle,
+        categories: FolderTree,
+        'blog-categories': Tags,
+        users: Users,
+        newsletter: Mail
+    };
+
+    // Mapping counts to tab IDs
+    const countMap = {
+        pending: pendingCount,
+        blog: blogCount,
+        users: userCount,
+        newsletter: newsCount
+    };
 
     return (
-        <div className={styles.tabsWrapper}>
-            {tabs.map(tab => (
-                <button
-                    key={tab.id}
-                    onClick={() => setActiveTab(tab.id)}
-                    className={`${styles.tabBtn} ${activeTab === tab.id ? styles.active : ''}`}
-                >
-                    <tab.icon size={18} />
-                    {tab.label}
-                    {tab.count > 0 && <span className={styles.badge}>{tab.count}</span>}
-                </button>
-            ))}
-        </div>
+        <Safeguard error={error} onRetry={onRetry}>
+            <div className={styles.tabsWrapper}>
+                {isLoading ? (
+                    Array.from({ length: 9 }).map((_, i) => (
+                        <div key={i} className={styles.tabBtnSkeleton}>
+                            <Skeleton className={styles.skeletonTab} />
+                        </div>
+                    ))
+                ) : (
+                    labels?.map(tab => {
+                        const Icon = iconMap[tab.id];
+                        const count = countMap[tab.id];
+                        
+                        return (
+                            <button
+                                key={tab.id}
+                                type="button"
+                                onClick={() => setActiveTab(tab.id)}
+                                className={`${styles.tabBtn} ${activeTab === tab.id ? styles.active : ''}`}
+                            >
+                                {Icon && <Icon size={16} />}
+                                <span className={styles.tabLabel}>{tab?.label}</span>
+                                {count > 0 && <span className={styles.badge}>{count}</span>}
+                            </button>
+                        );
+                    })
+                )}
+            </div>
+        </Safeguard>
     );
-};
+});
 
 export default AdminTabs;

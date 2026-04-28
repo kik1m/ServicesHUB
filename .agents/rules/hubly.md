@@ -2,30 +2,37 @@
 trigger: always_on
 ---
 
-### **Project Rule: ServicesHUB Scalability & Refactoring Roadmap**
+# 🛡️ ServicesHUB Supreme Execution Protocol (Elite Architect Mode)
 
-**Goal**: Transform ServicesHUB into a professional, scalable, and high-performance platform across all 28 pages while maintaining the current visual design 100%.
+You must follow these rules for EVERY page refactor without exception. Failure to follow this sequence will result in architectural debt.
 
-#### **1. Core Architectural Principles (MANDATORY)**
-*   **Logic Isolation**: No direct database fetching inside UI components. All logic must reside in **Custom Hooks** (e.g., `src/hooks/use[PageName]Data.js`).
-*   **Service Layer**: All Supabase queries must be centralized in `src/services/` (e.g., `toolsService.js`, `categoriesService.js`). Use a "Base Query" pattern to reduce redundancy.
-*   **Component-Level Styling**: Transition from global CSS to **CSS Modules**. Each component must have its own `.module.css` file (e.g., `HomeHero.module.css`).
-*   **Performance First**: Use `Promise.all` for parallel data fetching. Gradually implement `React Query` for global state management and caching.
+## 1. Discovery & Alignment (MANDATORY START)
+- BEFORE any code modification, you MUST read the `PLATFORM_MASTER_PLAN.md` to refresh the Golden Protocol.
+- You MUST perform a "Deep Scan" of the target page. Use `list_dir` and `grep_search` to identify:
+    - [Page] Main Page JSX.
+    - [Components] ALL child components in `src/components/[PageName]/`.
+    - [Styles] ALL related CSS Modules (*.module.css).
+    - [Hooks] The dedicated Hook (`src/hooks/use...Data.js`) and any related search/logic hooks.
+    - [Services] All Services used in that page.
+    - [Constants] All related Constants files.
+- **REPORTING REQUIREMENT**: You MUST immediately present a full list of these identified files to the USER and wait for confirmation before proceeding to any audit or plan.
 
-#### **2. Execution Strategy (Iterative Approach)**
-*   **Phased Rollout**: Do NOT refactor all 28 pages at once. Follow this priority:
-    1.  **Phase A (High Impact)**: Home, ToolDetail, Search, CategoryDetail, Profile.
-    2.  **Phase B (Functional)**: SubmitTool, Blog, Auth, Dashboard.
-    3.  **Phase C (Static/Secondary)**: About, Legal, Settings.
-*   **Component-Driven Migration**: For each page, identify shared components (like `ToolCard`) and refactor them once to benefit all pages simultaneously.
+## 2. Strict Boundary Rule
+- Work on ONE page at a time.
+- Do NOT modify files belonging to other pages unless they are shared UI Atoms.
+- Stop and wait for USER CONFIRMATION after finishing the audit/plan for a single page.
 
-#### **3. Step-by-Step Refactoring Workflow (Per Page/Component)**
-1.  **Refactor Logic**: Move all `useState` and `useEffect` fetching logic to a dedicated Custom Hook.
-2.  **Refactor API**: Move raw Supabase queries to the corresponding Service file.
-3.  **Refactor Style**: Create a `.module.css` file, move relevant styles from global CSS, and update the component imports. **Visual parity must be 100%.**
-4.  **Enhance UX**: Add clear CTAs, Social Proof elements, and improve loading states (Spinners/Skeletons).
+## 3. The 10/10 Compliance Checklist (The 4-Step Transformation)
+For every file, you MUST verify and implement:
+1. **Atomic UI Infusion**: Replace legacy tags with centralized atoms (`Button`, `SmartImage`, `Skeleton`).
+2. **Logic Isolation**: 100% Logic moved to Hooks. Derived Data memoized. Section-level loading/error states.
+3. **CSS Modularity**: 1:1 mapping. No Inline Styles (Rule #81). No Magic Values (Rule #30).
+4. **Defensive Layer**: Services must sanitize data. Components must handle Empty/Error/Loading states.
 
-#### **4. Safety & Quality Control**
-*   **No Stealth Changes**: Never modify visual design, colors, or layouts without explicit user approval.
-*   **Zero Breaking Changes**: Ensure existing functionality works perfectly before moving to the next component.
-*   **Documentation**: Maintain an active `task.md` to track progress through the 28 pages and 150+ components.
+## 4. Post-Refactor Reporting
+Upon finishing a page, you MUST provide a "Completion Report" containing:
+- List of ALL files scanned (Basenames).
+- List of ALL files modified.
+- Confirmation that Rule #81 (Inline Styles) and Rule #30 (Magic Values) are 100% resolved.
+- Final Architecture Score (Target 10/10).
+- Updated link to `PLATFORM_REPORT.md` and `PLATFORM_MASTER_PLAN.md`.

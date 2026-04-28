@@ -1,40 +1,87 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight } from 'lucide-react';
-import { getIcon } from '../../utils/iconMap';
-import SkeletonLoader from '../SkeletonLoader';
+import { ArrowRight, LayoutGrid } from 'lucide-react';
+import { getIcon } from '../../utils/iconMap.jsx';
+import Button from '../ui/Button';
+import Skeleton from '../ui/Skeleton';
+import SectionHeader from '../ui/SectionHeader';
+import Safeguard from '../ui/Safeguard';
+import EmptyState from '../ui/EmptyState';
+import { SECTION_LIMITS, SKELETON_COUNTS } from '../../constants/homeConstants';
 import styles from './HomeCategories.module.css';
 
-const HomeCategories = ({ categories, loading }) => {
-    return (
-        <section className="main-section categories-preview">
-            <div className="section-header-row">
-                <div className="text-left">
-                    <h2 className="section-title">Top Categories</h2>
-                    <p className="section-desc">Find tools by your specific niche and needs.</p>
-                </div>
-                <Link to="/categories" className={styles.viewAllLink}>View All Categories <ArrowRight size={18} /></Link>
-            </div>
+/**
+ * HomeCategories - Elite Niche Discovery
+ * Rule #29: Pure View with Safeguard protection
+ */
+const HomeCategories = ({ categories = [], isLoading, error }) => {
+    // Rule #35: Derived Data Stability + Rule #32: Defensive Rendering
+    const visibleCategories = useMemo(() => {
+        const safeCategories = categories?.filter(Boolean) ?? [];
+        return safeCategories.slice(0, SECTION_LIMITS.CATEGORIES);
+    }, [categories]);
 
-            <div className={styles.categoriesGridSmall}>
-                {loading ? (
-                    [1, 2, 3, 4, 5, 6, 7, 8].map(i => (
-                        <SkeletonLoader key={i} type="category" />
-                    ))
+    return (
+        <Safeguard error={error}>
+            <section className={styles.categoriesSection}>
+                <SectionHeader 
+                    title="Top" 
+                    subtitle="Categories" 
+                    description="Find tools by your specific niche and needs."
+                >
+                    {!isLoading && visibleCategories.length > 0 && (
+                        <Button 
+                            as={Link} 
+                            to="/categories" 
+                            variant="text" 
+                            className={styles.viewAllLink}
+                            icon={ArrowRight}
+                            iconPosition="right"
+                        >
+                            View All Categories
+                        </Button>
+                    )}
+                </SectionHeader>
+
+                {!isLoading && visibleCategories.length === 0 ? (
+                    <EmptyState 
+                        title="No categories yet" 
+                        message="We're organizing tools into categories. Check back shortly!" 
+                    />
                 ) : (
-                    (categories || []).map((cat, i) => (
-                        <Link to={`/category/${cat?.slug}`} key={i} className={`glass-card ${styles.categoryItemSmall}`}>
-                            <div className={styles.catIconWrapper}>{getIcon(cat.icon_name)}</div>
-                            <div className={styles.catInfo}>
-                                <h3>{cat.name}</h3>
-                                <p>Discover</p>
-                            </div>
-                            <ArrowRight className={styles.catArrow} size={16} />
-                        </Link>
-                    ))
+                    <div className={styles.categoriesGridSmall}>
+                        {isLoading ? (
+                            SKELETON_COUNTS.CATEGORIES_ITEMS.map((i) => (
+                                <div key={`skeleton-cat-${i}`} className={styles.categoryItemSmall}>
+                                    <Skeleton className={styles.skeletonIcon} />
+                                    <div className={styles.catInfo}>
+                                        <Skeleton className={styles.skeletonTitle} />
+                                        <Skeleton className={styles.skeletonSubtitle} />
+                                    </div>
+                                    <Skeleton className={styles.skeletonArrow} />
+                                </div>
+                            ))
+                        ) : (
+                            visibleCategories.map((cat) => {
+                                if (!cat?.slug) return null;
+                                const Icon = getIcon(cat.icon_name) || <LayoutGrid size={20} />;
+
+                                return (
+                                    <Link to={`/category/${cat.slug}`} key={cat.id || cat.slug} className={styles.categoryItemSmall}>
+                                        <div className={styles.catIconWrapper}>{Icon}</div>
+                                        <div className={styles.catInfo}>
+                                            <h3>{cat.name}</h3>
+                                            <p>Discover</p>
+                                        </div>
+                                        <ArrowRight className={styles.catArrow} size={16} />
+                                    </Link>
+                                );
+                            })
+                        )}
+                    </div>
                 )}
-            </div>
-        </section>
+            </section>
+        </Safeguard>
     );
 };
 

@@ -1,9 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { blogService } from '../services/blogService';
+import { BLOG_CONSTANTS } from '../constants/blogConstants';
+import { useSEO } from './useSEO';
 
 /**
  * Custom hook for managing the blog post detail page logic
+ * Rule #1: Logic Isolation
  */
 export const useBlogPostData = () => {
     const { id } = useParams();
@@ -11,6 +14,14 @@ export const useBlogPostData = () => {
     const [relatedPosts, setRelatedPosts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+
+    // Rule #30: Unified SEO management
+    useSEO({
+        title: post ? `${post.title}${BLOG_CONSTANTS.SEO.POST_TITLE_SUFFIX}` : BLOG_CONSTANTS.SEO.LIST_TITLE,
+        description: post?.excerpt,
+        image: post?.image_url,
+        type: BLOG_CONSTANTS.SEO.OG_TYPE
+    });
 
     useEffect(() => {
         let mounted = true;
@@ -23,33 +34,6 @@ export const useBlogPostData = () => {
                 if (postError) throw postError;
                 if (mounted) setPost(postData);
 
-                // Enhanced SEO
-                if (postData && mounted) {
-                    const title = `${postData.title} | HUBly Magazine`;
-                    const description = postData.excerpt || postData.title;
-                    const imageUrl = postData.image_url || 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=1200&auto=format&fit=crop&q=60';
-                    const url = window.location.href;
-
-                    document.title = title;
-
-                    const updateMeta = (name, content, attr = 'name') => {
-                        let element = document.querySelector(`meta[${attr}="${name}"]`);
-                        if (!element) {
-                            element = document.createElement('meta');
-                            element.setAttribute(attr, name);
-                            document.head.appendChild(element);
-                        }
-                        element.setAttribute('content', content);
-                    };
-
-                    updateMeta('description', description);
-                    updateMeta('og:title', title, 'property');
-                    updateMeta('og:description', description, 'property');
-                    updateMeta('og:image', imageUrl, 'property');
-                    updateMeta('og:url', url, 'property');
-                    updateMeta('og:type', 'article', 'property');
-                }
-
                 // Fetch Related
                 if (postData && mounted) {
                     const { data: related } = await blogService.getRelatedPosts(postData.category, postData.id);
@@ -57,7 +41,7 @@ export const useBlogPostData = () => {
                 }
             } catch (err) {
                 console.error('Fetch post error:', err);
-                if (mounted) setError(err.message || 'Article not found');
+                if (mounted) setError(err.message || BLOG_CONSTANTS.POST.ERROR_NOT_FOUND);
             } finally {
                 if (mounted) setLoading(false);
             }

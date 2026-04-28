@@ -1,0 +1,192 @@
+/* ToolDetailMasterCard.module.css - Version 2.2 FINAL PURE IDENTITY */
+
+.premiumCardContainer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 35px 45px;
+    background: rgba(15, 17, 22, 0.6); /* Deep Elite Glass */
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 28px;
+    backdrop-filter: blur(20px);
+    margin-bottom: 40px;
+    box-shadow: 
+        0 20px 50px rgba(0, 0, 0, 0.3),
+        inset 0 0 20px rgba(255, 255, 255, 0.02);
+    position: relative;
+    z-index: 10;
+}
+
+.identitySection {
+    display: flex;
+    align-items: center;
+    gap: 2.2rem;
+}
+
+.pureImageContainer {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+}
+
+/* THE FIX: TARGETING ALL POSSIBLE WRAPPERS TO ENSURE PURE ICON */
+.pureAvatarAnchor, 
+.pureAvatarAnchor div, 
+.pureAvatarAnchor span {
+    width: 96px;
+    height: 96px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+.toolIconImg {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important; 
+    border-radius: 22px !important;
+    border: none !important;
+    background: transparent !important;
+    /* Using drop-shadow to only highlight the rounded icon shape */
+    filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.6)) !important;
+}
+
+.identityDetails {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.topRow {
+    display: block; /* Change to block/inline-block to allow natural text wrapping with badges */
+    margin-bottom: 4px;
+}
+
+.titleText {
+    display: inline; /* Allow badges to follow text naturally */
+    font-size: 2.1rem; /* Reduced from 2.5rem for better elite fit */
+    font-weight: 950;
+    color: white;
+    margin: 0;
+    letter-spacing: -1px;
+    line-height: 1.2;
+    vertical-align: middle;
+}
+
+.verifiedCheck {
+    display: inline-block;
+    vertical-align: middle;
+    margin-left: 12px;
+    color: #3b82f6; /* Unified Premium Blue */
+    filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.4));
+}
+
+.featuredBadgeMini {
+    display: inline-flex;
+    vertical-align: middle;
+    margin-left: 12px;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 12px;
+    background: linear-gradient(135deg, #FFD700 0%, #FFAA00 100%);
+    color: #000;
+    font-size: 0.6rem;
+    font-weight: 900;
+    border-radius: 100px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    box-shadow: 0 4px 15px rgba(255, 170, 0, 0.3);
+}
+
+.tagline {
+    font-size: 1.15rem;
+    color: var(--text-muted);
+    margin: 0;
+    opacity: 0.8;
+}
+
+.actionSection {
+    display: flex;
+    align-items: center;
+}
+
+.buttonStack {
+    display: flex;
+    gap: 1.2rem;
+    align-items: center;
+}
+
+.primaryVisitBtn {
+    padding: 16px 45px !important;
+    border-radius: 18px !important;
+    font-weight: 900 !important;
+    font-size: 1.1rem !important;
+    background: linear-gradient(135deg, #00d2ff 0%, #3a7bd5 100%) !important;
+    box-shadow: 0 10px 30px rgba(0, 210, 255, 0.3) !important;
+}
+
+.iconicFavBtn {
+    height: 58px;
+    width: 58px;
+    padding: 0;
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.03);
+    color: var(--text-muted);
+}
+
+.heartActive {
+    color: #ff4757;
+    fill: #ff4757;
+}
+
+@media (max-width: 1024px) {
+    .premiumCardContainer {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 30px;
+    }
+}
+
+/* Skeletons */
+.masterCardSkeleton {
+    display: flex;
+    align-items: center;
+    gap: 2.2rem;
+    padding: 35px 45px;
+    background: rgba(15, 17, 22, 0.4);
+    border: 1px solid var(--border);
+    border-radius: 28px;
+    margin-bottom: 40px;
+}
+
+.skeletonAvatar {
+    width: 96px;
+    height: 96px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 22px;
+}
+
+.skeletonContent {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.skeletonLine {
+    height: 14px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+}
+
+.width40 { width: 40%; }
+.width70 { width: 70%; }

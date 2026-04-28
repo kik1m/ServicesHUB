@@ -1,81 +1,50 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
-import { LayoutDashboard, UserCircle, Settings, LogOut, Shield, Loader2, Heart, Award } from 'lucide-react';
-import { supabase } from '../lib/supabaseClient';
+import { LogOut, Shield, Award } from 'lucide-react';
+import DropdownCard from './ui/DropdownCard';
+import { USER_MENU_LINKS } from '../constants/navbarConstants';
 
-const AccountMenu = ({ onClose, handleLogout, user }) => {
-    const [profile, setProfile] = useState(null);
-    const [loading, setLoading] = useState(true);
+// Import Modular Styles
+import styles from './AccountMenu.module.css';
 
-    useEffect(() => {
-        const getProfile = async () => {
-            if (user) {
-                const { data } = await supabase
-                    .from('profiles')
-                    .select('*')
-                    .eq('id', user.id)
-                    .single();
-                setProfile({ ...data, email: user.email });
-            }
-            setLoading(false);
-        };
-        getProfile();
-    }, [user]);
-
+const AccountMenu = ({ onClose, handleLogout, user, className = '' }) => {
     return (
-        <div className="account-dropdown glass-card shadow-lg" style={{
-            position: 'absolute', top: '80px', right: '0px', width: '240px',
-            zIndex: 10001, padding: '0.75rem', animation: 'slideUp 0.3s ease',
-            background: 'rgba(15, 15, 18, 0.98)', backdropFilter: 'blur(40px)',
-            border: '1px solid var(--border)'
-        }}>
-            <div style={{ padding: '10px 15px', borderBottom: '1px solid var(--border)', marginBottom: '8px' }}>
-                {loading ? (
-                    <Loader2 className="animate-spin" size={16} />
-                ) : (
-                    <>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <p style={{ fontSize: '0.85rem', fontWeight: '800', margin: 0 }}>{profile?.full_name || 'User'}</p>
-                            {profile?.is_premium && <Award size={14} color="#FFD700" title="Premium Member" />}
-                        </div>
-                        <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis' }}>{profile?.email}</p>
-                    </>
-                )}
+        <DropdownCard className={`${styles.accountDropdown} ${className}`}>
+            <div className={styles.userInfo}>
+                <div className={styles.userNameRow}>
+                    <p className={styles.userName}>{user?.full_name || user?.email?.split('@')[0] || 'User'}</p>
+                    {user?.is_premium && <Award size={14} color="#FFD700" title="Premium Member" />}
+                </div>
+                <p className={styles.userEmail}>{user?.email}</p>
             </div>
 
-            <Link to="/dashboard" onClick={onClose} className="account-menu-item">
-                <LayoutDashboard size={18} /> Dashboard
-            </Link>
+            {USER_MENU_LINKS.map(link => {
+                const Icon = link.icon;
+                return (
+                    <Link key={link.path} to={link.path} onClick={onClose} className={styles.menuItem}>
+                        <Icon size={18} /> {link.label}
+                    </Link>
+                );
+            })}
 
-            <Link to="/profile" onClick={onClose} className="account-menu-item">
-                <Heart size={18} /> My Favorites
-            </Link>
-
-            <Link to="/profile" onClick={onClose} className="account-menu-item">
-                <UserCircle size={18} /> My Profile
-            </Link>
-
-            {profile?.role === 'admin' && (
-                <Link to="/admin" onClick={onClose} className="account-menu-item">
+            {user?.role === 'admin' && (
+                <Link to="/admin" onClick={onClose} className={styles.menuItem}>
                     <Shield size={18} /> Admin Center
                 </Link>
             )}
 
-            <Link to="/settings" onClick={onClose} className="account-menu-item">
-                <Settings size={18} /> Settings
-            </Link>
-
-            <div style={{ borderTop: '1px solid var(--border)', marginTop: '8px', paddingTop: '8px' }}>
+            <div className={styles.separator}>
                 <button 
                     onClick={() => { onClose(); handleLogout(); }}
-                    className="account-menu-item logout-btn" 
-                    style={{ background: 'transparent', border: 'none', color: '#ff5050', width: '100%', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px' }}
+                    className={`${styles.menuItem} ${styles.logoutBtn}`}
                 >
                     <LogOut size={18} /> Logout
                 </button>
             </div>
-        </div>
+        </DropdownCard>
     );
 };
 
 export default AccountMenu;
+
+

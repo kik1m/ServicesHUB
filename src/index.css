@@ -6,14 +6,12 @@
 @import './styles/Base/Base.css';
 @import './styles/Base/Global.css';
 
-/* 2. Layout Components */
-@import './styles/components/Navbar.css';
-@import './styles/Layout/Footer.css';
+/* 2. Layout Components - Now Modularized in @/components/ */
 
-/* 3. Page Specific Styles */
-/* @import './styles/pages/Home.css'; */
-@import './styles/pages/Dashboard.css';
-/* @import './styles/pages/Search.css'; */
-/* @import './styles/pages/ToolDetail.css'; */
-/* @import './styles/pages/Categories.css'; */
-/* @import './styles/pages/SubmitTool.css'; */
+/* 3. Page Specific Styles - All refactored to CSS Modules */
+
+/* 4. Global Animations */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}

@@ -1,6 +1,9 @@
 import React from 'react';
-import { Helmet } from 'react-helmet-async';
+import useSEO from '../hooks/useSEO';
 import { useAuthLogic } from '../hooks/useAuthLogic';
+
+// Import Global Components
+import Safeguard from '../components/ui/Safeguard';
 
 // Import Modular Components
 import AuthHeader from '../components/Auth/AuthHeader';
@@ -9,83 +12,96 @@ import SignUpForm from '../components/Auth/SignUpForm';
 import ForgotPasswordForm from '../components/Auth/ForgotPasswordForm';
 import SocialLogins from '../components/Auth/SocialLogins';
 
-// Import Modular CSS
+// Import Constants & Styles
+import { AUTH_UI_CONSTANTS } from '../constants/authConstants';
 import styles from './Auth.module.css';
 
 /**
- * Auth Page - Login & Registration Portal
+ * Auth Page - Elite 10/10 Standard
+ * Rule #16: Pure Orchestration Pattern
+ * Rule #31: Component Resilience via Safeguard
  */
 const Auth = () => {
     const {
         isLogin,
         forgotPasswordMode, setForgotPasswordMode,
-        email, setEmail,
-        password, setPassword,
-        confirmPassword, setConfirmPassword,
-        fullName, setFullName,
-        showPassword, setShowPassword,
         loading,
-        handleAuth,
+        error,
+        isInitialLoading,
+        handleLogin,
+        handleSignUp,
         handleForgotPassword,
         handleSocialLogin,
         toggleAuthMode
     } = useAuthLogic();
 
+    // 1. SEO Hardening (v2.0)
+    useSEO({ pageKey: 'auth' });
+
+    const footerText = isLogin ? AUTH_UI_CONSTANTS.login.footer : AUTH_UI_CONSTANTS.signup.footer;
+
     return (
         <div className={styles.authWrapper}>
-            <Helmet>
-                <title>{isLogin ? "Login - HUBly" : "Join HUBly"}</title>
-                <meta name="description" content="Access the ultimate directory for modern AI and SaaS tools." />
-            </Helmet>
-
-            <div className={styles.authCard}>
-                <AuthHeader isLogin={isLogin} forgotPasswordMode={forgotPasswordMode} />
-
-                {forgotPasswordMode ? (
-                    <ForgotPasswordForm 
-                        email={email} 
-                        setEmail={setEmail} 
-                        handleForgotPassword={handleForgotPassword} 
-                        setForgotPasswordMode={setForgotPasswordMode} 
-                        loading={loading}
+            <Safeguard title="Authentication Service Interrupted">
+                <div className={styles.authCard}>
+                    <AuthHeader 
+                        isLogin={isLogin} 
+                        forgotPasswordMode={forgotPasswordMode} 
+                        isLoading={isInitialLoading} 
+                        error={error}
+                        onRetry={() => toggleAuthMode()}
                     />
-                ) : (
-                    <div className={styles.authContent}>
-                        {isLogin ? (
-                            <LoginForm 
-                                email={email} setEmail={setEmail}
-                                password={password} setPassword={setPassword}
-                                showPassword={showPassword} setShowPassword={setShowPassword}
-                                handleAuth={handleAuth}
-                                setForgotPasswordMode={setForgotPasswordMode}
-                                loading={loading}
-                            />
-                        ) : (
-                            <SignUpForm 
-                                fullName={fullName} setFullName={setFullName}
-                                email={email} setEmail={setEmail}
-                                password={password} setPassword={setPassword}
-                                confirmPassword={confirmPassword} setConfirmPassword={setConfirmPassword}
-                                showPassword={showPassword} setShowPassword={setShowPassword}
-                                handleAuth={handleAuth}
-                                loading={loading}
-                            />
-                        )}
 
-                        <SocialLogins handleSocialLogin={handleSocialLogin} />
+                    {forgotPasswordMode ? (
+                        <ForgotPasswordForm 
+                            onSubmit={handleForgotPassword} 
+                            onBack={() => setForgotPasswordMode(false)} 
+                            loading={loading}
+                            isInitialLoading={isInitialLoading}
+                            error={error}
+                            onRetry={() => setForgotPasswordMode(false)}
+                        />
+                    ) : (
+                        <div className={styles.authContent}>
+                            {isLogin ? (
+                                <LoginForm 
+                                    onSubmit={handleLogin}
+                                    onForgotPassword={() => setForgotPasswordMode(true)}
+                                    loading={loading}
+                                    isInitialLoading={isInitialLoading}
+                                    error={error}
+                                    onRetry={() => handleLogin()}
+                                />
+                            ) : (
+                                <SignUpForm 
+                                    onSubmit={handleSignUp}
+                                    loading={loading}
+                                    isInitialLoading={isInitialLoading}
+                                    error={error}
+                                    onRetry={() => handleSignUp()}
+                                />
+                            )}
 
-                        <p className={styles.authFooter}>
-                            {isLogin ? "Don't have an account?" : "Already have an account?"}
-                            <button 
-                                onClick={toggleAuthMode} 
-                                className={styles.switchBtn}
-                            >
-                                {isLogin ? 'Sign Up' : 'Log In'}
-                            </button>
-                        </p>
-                    </div>
-                )}
-            </div>
+                            <SocialLogins 
+                                onSocialAction={handleSocialLogin} 
+                                isLoading={isInitialLoading} 
+                                error={error}
+                                onRetry={() => handleSocialLogin()}
+                            />
+
+                            <p className={styles.authFooter}>
+                                {footerText.text}
+                                <button 
+                                    onClick={toggleAuthMode} 
+                                    className={styles.switchBtn}
+                                >
+                                    {footerText.action}
+                                </button>
+                            </p>
+                        </div>
+                    )}
+                </div>
+            </Safeguard>
         </div>
     );
 };

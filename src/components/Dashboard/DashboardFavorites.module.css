@@ -5,9 +5,122 @@
 }
 
 .emptyState {
-  padding: 3rem;
+  padding: 3.5rem 2rem;
   text-align: center;
   color: var(--text-muted);
-  border: 1px dashed var(--border);
-  border-radius: 24px;
+  border: 1px dashed rgba(255, 255, 255, 0.1);
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.01);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.emptyState h4 {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: white;
+    margin: 0;
+}
+
+.emptyState p {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin: 0 0 1rem 0;
+    max-width: 320px;
+    opacity: 0.8;
+}
+
+.titleRow {
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.emptyIconBox {
+    color: var(--primary);
+    opacity: 0.2;
+    margin-bottom: 0.5rem;
+}
+
+.centeredBtn {
+    margin-top: 0.5rem;
+    min-width: 180px;
+}
+
+.titleRow h2 {
+    font-size: 1.4rem;
+    font-weight: 900;
+    margin: 0;
+}
+
+.favCard {
+  padding: 1.2rem;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border);
+  transition: 0.3s;
+}
+
+.favCard:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: var(--primary);
+  transform: translateX(5px);
+}
+
+.toolThumb {
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+
+.toolContent {
+  flex-grow: 1;
+}
+
+.toolHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.toolName {
+  margin: 0;
+  font-weight: 700;
+  color: white;
+}
+
+.categoryTag {
+  font-size: 0.7rem;
+  padding: 2px 8px;
+  border-radius: 100px;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-muted);
+}
+
+.toolDesc {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.btnAction {
+  padding: 8px 12px;
+  min-width: unset;
 }

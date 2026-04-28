@@ -1,0 +1,166 @@
+/* PromotionCard.module.css - Extra Slim & Green Accents */
+.card {
+  padding: 1.5rem 1.2rem; /* Even slimmer padding */
+  display: flex;
+  flex-direction: column;
+  transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+  border-radius: 20px; /* Tighter radius */
+  position: relative;
+  overflow: hidden;
+  height: 100%;
+  
+  /* Standard Featured Look for ALL */
+  border: 1px solid rgba(0, 210, 255, 0.2);
+  background: linear-gradient(135deg, rgba(0, 210, 255, 0.04) 0%, rgba(0, 136, 204, 0.01) 100%);
+  box-shadow: 0 0 15px rgba(0, 136, 204, 0.04);
+}
+
+.card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--primary), transparent);
+  animation: scanning 4s linear infinite;
+  z-index: 10;
+}
+
+@keyframes scanning {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 30px rgba(0, 136, 204, 0.15);
+  background: linear-gradient(135deg, rgba(0, 210, 255, 0.06) 0%, rgba(0, 136, 204, 0.03) 100%);
+}
+
+.popularBadge {
+    position: absolute;
+    top: 0.8rem;
+    right: 1rem;
+    background: var(--primary);
+    color: white;
+    font-size: 0.55rem;
+    font-weight: 900;
+    padding: 2px 8px;
+    border-radius: 100px;
+    letter-spacing: 0.5px;
+    z-index: 15;
+}
+
+.header {
+    margin-bottom: 1.2rem;
+}
+
+.name {
+    font-size: 1.1rem; /* Smaller name */
+    font-weight: 900;
+    color: white;
+    margin-bottom: 0.5rem;
+}
+
+.priceContainer {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+}
+
+.currency {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--primary);
+}
+
+.amount {
+    font-size: 2rem; /* Slimmer price */
+    font-weight: 950;
+    color: white;
+    line-height: 1;
+}
+
+.period {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+}
+
+.description {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    opacity: 0.6;
+    margin-top: 0.2rem;
+}
+
+.divider {
+    height: 1px;
+    background: linear-gradient(90deg, rgba(0, 210, 255, 0.1), transparent);
+    margin: 0 0 1.2rem 0;
+}
+
+.benefitsSection {
+    flex-grow: 1;
+    margin-bottom: 1.5rem;
+}
+
+.benefitsTitle {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--primary);
+    margin-bottom: 1rem;
+    font-weight: 900;
+}
+
+.featuresList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+}
+
+.featureItem {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+/* 🌿 Green Checkmarks for Trust (as requested) */
+.iconWrapper {
+    color: #00e676; 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ctaBtn {
+    width: 100%;
+    height: 44px !important; /* Slimmer button */
+    border-radius: 12px !important;
+    font-size: 0.9rem !important;
+    font-weight: 800 !important;
+}
+
+/* Button Color Differentiation */
+.btn_featured {
+    background: var(--primary) !important;
+    box-shadow: 0 5px 15px rgba(0, 136, 204, 0.2);
+}
+
+.btn_enterprise {
+    background: linear-gradient(135deg, #bf5af2 0%, #3a7bd5 100%) !important;
+    box-shadow: 0 5px 15px rgba(191, 90, 242, 0.2);
+}
+
+@media (max-width: 768px) {
+    .card {
+        padding: 1.2rem;
+    }
+}

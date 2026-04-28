@@ -4,6 +4,13 @@ import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabaseClient';
 import { useToast } from '../context/ToastContext';
 
+// Import UI Atoms
+import Button from './ui/Button';
+import Input from './ui/Input';
+
+// Import Modular Styles
+import styles from './Footer.module.css';
+
 const Footer = () => {
     const [email, setEmail] = useState('');
     const [submitting, setSubmitting] = useState(false);
@@ -29,31 +36,32 @@ const Footer = () => {
     };
 
     return (
-        <footer className="footer">
-            <div className="footer-container">
-                <div className="footer-grid">
+        <footer className={styles.footer}>
+            <div className={styles.footerContainer}>
+                <div className={styles.footerGrid}>
                     {/* Brand Section */}
-                    <div className="footer-brand">
-                        <div className="brand-logo" style={{ display: 'flex', alignItems: 'center', gap: '12px', fontWeight: '900', fontSize: '1.5rem', marginBottom: '1.5rem' }}>
-                            <img src="/logo.png" alt="HUBly" style={{ height: '32px' }} />
-                            <div className="logo-text" style={{ letterSpacing: '0.5px' }}>
-                                <span className="logo-white">HUB</span><span className="logo-gradient">ly</span>
+                    <div className={styles.footerBrand}>
+                        <div className={styles.brandLogo}>
+                            <img src="/logo.png" alt="HUBly" className={styles.logoImg} />
+                            <div className={styles.logoText}>
+                                <span className={styles.logoWhite}>HUB</span>
+                                <span className={styles.logoGradient}>ly</span>
                             </div>
                         </div>
                         <p>
                             The most trusted directory for finding and submitting the world&apos;s most innovative AI and SaaS tools. Join thousands of creators today.
                         </p>
-                        <div className="footer-socials">
-                            <a href="#" className="icon-btn"><Twitter size={18} /></a>
-                            <a href="#" className="icon-btn"><Github size={18} /></a>
-                            <a href="#" className="icon-btn"><Linkedin size={18} /></a>
+                        <div className={styles.footerSocials}>
+                            <a href="#"><Twitter size={18} /></a>
+                            <a href="#"><Github size={18} /></a>
+                            <a href="#"><Linkedin size={18} /></a>
                         </div>
                     </div>
 
                     {/* Links Sections */}
-                    <div className="footer-column">
+                    <div className={styles.footerColumn}>
                         <h4>Explore</h4>
-                        <ul className="footer-links">
+                        <ul className={styles.footerLinks}>
                             <li><Link to="/tools" onClick={() => window.scrollTo(0, 0)}>All Tools</Link></li>
                             <li><Link to="/blog" onClick={() => window.scrollTo(0, 0)}>Articles</Link></li>
                             <li><Link to="/categories" onClick={() => window.scrollTo(0, 0)}>Categories</Link></li>
@@ -61,9 +69,9 @@ const Footer = () => {
                         </ul>
                     </div>
 
-                    <div className="footer-column">
+                    <div className={styles.footerColumn}>
                         <h4>Platform</h4>
-                        <ul className="footer-links">
+                        <ul className={styles.footerLinks}>
                             <li><Link to="/submit">Submit Tool</Link></li>
                             <li><Link to="/about">About Us & FAQ</Link></li>
                             <li><Link to="/contact">Contact</Link></li>
@@ -71,32 +79,39 @@ const Footer = () => {
                         </ul>
                     </div>
 
-                    <div className="footer-column" style={{ flex: 1, minWidth: '250px' }}>
+                    <div className={styles.footerColumn}>
                         <h4>Never miss an update</h4>
-                        <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: '1rem', lineHeight: '1.5' }}>
+                        <p className={styles.newsletterDesc}>
                             Join 10,000+ creators. Get the latest AI tools and exclusive deals to your inbox.
                         </p>
-                        <form onSubmit={handleSubscribe} style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                            <input
-                                type="email"
-                                placeholder="name@company.com"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                required
-                                style={{ flex: 1, minWidth: '150px', padding: '12px 15px', borderRadius: '12px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border)', color: 'white' }}
-                            />
-                            <button type="submit" disabled={submitting} className="btn-primary" style={{ padding: '0 20px', whiteSpace: 'nowrap' }}>
-                                {submitting ? '...' : 'Subscribe'}
-                            </button>
+                        <form onSubmit={handleSubscribe} className={styles.subscribeForm}>
+                            <div className={styles.inputWrapper}>
+                                <Input 
+                                    type="email"
+                                    placeholder="name@company.com"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    required
+                                    className={styles.inputNoMargin}
+                                />
+                            </div>
+                            <Button 
+                                type="submit" 
+                                isLoading={submitting}
+                                variant="primary"
+                                className={styles.subscribeBtn}
+                            >
+                                Subscribe
+                            </Button>
                         </form>
                     </div>
                 </div>
 
                 {/* Bottom Bar */}
-                <div className="footer-bottom">
+                <div className={styles.footerBottom}>
                     <p>© 2026 HUBly. Built with excellence for the AI community.</p>
-                    <div className="status-group">
-                        <span>Service Status: <span style={{ color: '#00ffaa', fontWeight: 'bold' }}>Online</span></span>
+                    <div className={styles.statusGroup}>
+                        <span>Service Status: <span className={styles.statusOnline}>Online</span></span>
                     </div>
                 </div>
             </div>
@@ -105,3 +120,5 @@ const Footer = () => {
 };
 
 export default Footer;
+
+

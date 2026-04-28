@@ -1,69 +1,56 @@
 import React from 'react';
-import { FileText, Clock, Scale, Shield } from 'lucide-react';
-import SkeletonLoader from '../components/SkeletonLoader';
+import { FileText, Gavel, Scale, FileCheck } from 'lucide-react';
 import useSEO from '../hooks/useSEO';
 import { useLegalData } from '../hooks/useLegalData';
 
+// Import Global UI Components
+import PageHero from '../components/ui/PageHero';
+import Safeguard from '../components/ui/Safeguard';
+
 // Import Shared Legal Components
-import LegalHero from '../components/Legal/LegalHero';
 import LegalSection from '../components/Legal/LegalSection';
 
-// Import Modular CSS
+// Import Constants & Styles
+import { LEGAL_UI_CONSTANTS } from '../constants/legalConstants';
 import styles from './Terms.module.css';
 
+/**
+ * Terms of Service Page - Elite 10/10 Standard
+ * Rule #16: Pure Orchestration Pattern
+ * Rule #31: Component Resilience via Safeguard
+ */
 const Terms = () => {
     const { loading } = useLegalData();
 
-    useSEO({
-        title: "Terms of Service | HUBly Usage",
-        description: "Review the terms and conditions for using ServicesHUB. Understand your rights and responsibilities as a user.",
-    });
+    // 1. SEO Hardening (v2.0)
+    useSEO({ pageKey: 'terms' });
 
-    if (loading) {
-        return (
-            <div className={`page-wrapper ${styles.termsPage}`}>
-                <LegalHero loading={true} isCompact={true} />
-                <section className={styles.mainSection}>
-                    <SkeletonLoader height="400px" borderRadius="16px" />
-                </section>
-            </div>
-        );
-    }
+    const icons = [FileText, Gavel, Scale, FileCheck];
 
     return (
-        <div className={`page-wrapper ${styles.termsPage}`}>
-            <LegalHero 
-                loading={false}
-                isCompact={true}
-                badge="LEGAL DOCUMENTS"
-                title="Terms of"
-                accent="Service"
-                subtitle="Last updated: March 26, 2026"
+        <div className={styles.termsView}>
+            <PageHero
+                title={LEGAL_UI_CONSTANTS.terms.hero.title}
+                highlight={LEGAL_UI_CONSTANTS.terms.hero.highlight}
+                subtitle={LEGAL_UI_CONSTANTS.terms.hero.subtitle}
+                breadcrumbs={LEGAL_UI_CONSTANTS.terms.hero.breadcrumbs}
+                icon={<FileText size={24} />}
+                isLoading={loading}
             />
 
             <section className={styles.mainSection}>
-                <div className={`glass-card ${styles.legalContent}`}>
-                    <LegalSection icon={Scale} number="1" title="Acceptance of Terms">
-                        By accessing or using HUBly, you agree to be bound by these Terms of Service.
-                        If you do not agree with any part of these terms, you may not access our services.
-                    </LegalSection>
-
-                    <LegalSection icon={FileText} number="2" title="User Submissions">
-                        When you submit a tool to our directory, you represent that you have the right to
-                        share all information provided and that it does not infringe on any third-party rights.
-                        We reserve the right to remove any listing at our sole discretion.
-                    </LegalSection>
-
-                    <LegalSection icon={Shield} number="3" title="Accuracy of Information">
-                        While we strive for accuracy, HUBly provides tool listings &quot;as is&quot;.
-                        We are not responsible for the performance, reliability, or security of
-                        third-party tools listed in our directory.
-                    </LegalSection>
-
-                    <LegalSection icon={Clock} number="4" title="Modifications">
-                        We reserve the right to modify these terms at any time. Significant
-                        changes will be notified on this page.
-                    </LegalSection>
+                <div className={styles.legalContent}>
+                    {(loading ? LEGAL_UI_CONSTANTS.SKELETON_COUNTS.sections : LEGAL_UI_CONSTANTS.terms.sections).map((section, index) => (
+                        <LegalSection
+                            key={loading ? index : section.id}
+                            isLoading={loading}
+                            icon={icons[index] || FileText}
+                            number={loading ? (index + 1).toString() : section.id.toString()}
+                            title={loading ? "" : section.title}
+                        >
+                            {section.content}
+                        </LegalSection>
+                    ))}
                 </div>
             </section>
         </div>

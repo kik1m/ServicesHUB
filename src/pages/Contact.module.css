@@ -1,13 +1,14 @@
-.contactGrid {
-  display: grid;
-  grid-template-columns: 1fr 2fr;
-  gap: 2rem;
-  margin-top: 1rem;
+.mainSection {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem 5% 5rem;
 }
 
-.mainSection {
-  max-width: 1200px;
-  margin: 0 auto;
+.contactGrid {
+  display: grid;
+  grid-template-columns: 350px 1fr;
+  gap: 3rem;
+  align-items: start;
 }
 
 @media (max-width: 992px) {

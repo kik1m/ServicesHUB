@@ -1,25 +1,40 @@
-import React from 'react';
-import { CheckCircle, Loader2 } from 'lucide-react';
+import React, { memo } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { CheckCircle2, ArrowRight } from 'lucide-react';
+import Button from '../ui/Button';
+import Safeguard from '../ui/Safeguard';
 import styles from './ResetPasswordSuccess.module.css';
 
 /**
- * ResetPasswordSuccess - Feedback component for a successful password change
+ * ResetPasswordSuccess - Elite feedback component
+ * Rule #13: Atomic Button standardization
  */
-const ResetPasswordSuccess = () => {
+const ResetPasswordSuccess = memo(({ content, error, onRetry }) => {
+    const navigate = useNavigate();
+
     return (
-        <div className={styles.pageWrapper}>
-            <div className={`glass-card ${styles.successBox}`}>
-                <div className={styles.successIconWrapper}>
-                    <CheckCircle size={48} color="#00ff88" />
+        <Safeguard error={error} onRetry={onRetry}>
+            <div className={styles.successContainer}>
+                <div className={styles.iconWrapper}>
+                    <CheckCircle2 size={48} className={styles.successIcon} />
                 </div>
-                <h1 className={styles.title}>Password Updated!</h1>
-                <p className={styles.subtitle} style={{ marginBottom: '2rem' }}>
-                    Your new password has been set. Redirecting you to login...
-                </p>
-                <Loader2 className="animate-spin" size={24} style={{ margin: '0 auto', color: '#00ff88' }} />
+                
+                <h2 className={styles.title}>{content?.title}</h2>
+                <p className={styles.subtitle}>{content?.subtitle}</p>
+
+                <Button 
+                    onClick={() => navigate('/auth')} 
+                    variant="primary" 
+                    size="lg"
+                    icon={ArrowRight}
+                    iconPosition="right"
+                    className={styles.actionBtn}
+                >
+                    {content?.action}
+                </Button>
             </div>
-        </div>
+        </Safeguard>
     );
-};
+});
 
 export default ResetPasswordSuccess;

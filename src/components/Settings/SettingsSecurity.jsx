@@ -1,77 +1,97 @@
-import React from 'react';
-import { ShieldCheck, Eye, EyeOff } from 'lucide-react';
+import React, { memo } from 'react';
+import { ShieldCheck, Eye, EyeOff, Lock, Save } from 'lucide-react';
+import Input from '../ui/Input';
+import Button from '../ui/Button';
+import Skeleton from '../ui/Skeleton';
 import styles from './SettingsSecurity.module.css';
 
-const SettingsSecurity = ({ 
+/**
+ * SettingsSecurity - Elite Hardened Card
+ * Rule #18: Memoized for performance
+ */
+const SettingsSecurity = memo(({ 
     passwords, 
     setPasswords, 
     handlePasswordUpdate, 
     showNewPassword, 
-    setShowNewPassword, 
+    setShowNewPassword,
     showConfirmPassword, 
-    setShowConfirmPassword, 
-    saving 
+    setShowConfirmPassword,
+    saving,
+    isLoading,
+    content
 }) => {
+    // Standard Skeleton Loading - Rule #11
+    if (isLoading) {
+        return (
+            <div className={styles.fadeIn}>
+                <div className={styles.settingsCard}>
+                    <Skeleton className={styles.skeletonTitle} />
+                    <Skeleton className={styles.skeletonSubtitle} />
+                    
+                    <div className={styles.securityForm}>
+                        <Skeleton className={styles.skeletonInput} />
+                        <Skeleton className={styles.skeletonInput} />
+                    </div>
+                </div>
+                <div className={styles.settingsActions}>
+                    <Skeleton className={styles.skeletonButton} />
+                </div>
+            </div>
+        );
+    }
+
     return (
         <form onSubmit={handlePasswordUpdate} className={styles.fadeIn}>
             <div className={styles.settingsCard}>
-                <h3 className={styles.settingsSectionTitle}>Safety & Privacy</h3>
-                <div className={styles.settingsContent}>
-                    <div className={styles.settingsInputGroup}>
-                        <label className={styles.settingsLabel}>New Password</label>
-                        <div className={styles.settingsInputWrapper}>
-                            <input 
-                                type={showNewPassword ? "text" : "password"} 
-                                className={styles.settingsInput}
-                                value={passwords.new}
-                                onChange={(e) => setPasswords({...passwords, new: e.target.value})}
-                                placeholder="Minimum 6 characters"
-                            />
-                            <button 
-                                type="button" 
-                                onClick={() => setShowNewPassword(!showNewPassword)}
-                                className={styles.visibilityToggle}
-                            >
-                                {showNewPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                            </button>
-                        </div>
+                <div className={styles.securityHeader}>
+                    <ShieldCheck size={32} className={styles.securityIcon} />
+                    <div>
+                        <h3 className={styles.settingsSectionTitle}>{content.title}</h3>
+                        <p className={styles.settingsSectionSubtitle}>{content.subtitle}</p>
                     </div>
-                    <div className={styles.settingsInputGroup}>
-                        <label className={styles.settingsLabel}>Confirm New Password</label>
-                        <div className={styles.settingsInputWrapper}>
-                            <input 
-                                type={showConfirmPassword ? "text" : "password"} 
-                                className={styles.settingsInput}
-                                value={passwords.confirm}
-                                onChange={(e) => setPasswords({...passwords, confirm: e.target.value})}
-                                placeholder="Re-type new password"
-                            />
-                            <button 
-                                type="button" 
-                                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                className={styles.visibilityToggle}
-                            >
-                                {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                            </button>
-                        </div>
-                    </div>
+                </div>
+                
+                <div className={styles.securityForm}>
+                    {/* Unified Atomic Inputs with proper icon positioning */}
+                    <Input 
+                        label={content.newPassword}
+                        type={showNewPassword ? "text" : "password"}
+                        value={passwords.new}
+                        onChange={(e) => setPasswords({...passwords, new: e.target.value})}
+                        placeholder="••••••••"
+                        className={styles.settingsInputGroup}
+                        icon={Lock}
+                        rightIcon={showNewPassword ? EyeOff : Eye}
+                        onRightIconClick={() => setShowNewPassword(!showNewPassword)}
+                    />
                     
-                    <div className={styles.securityInfoBox}>
-                        <ShieldCheck size={20} color="var(--primary)" style={{ flexShrink: 0 }} />
-                        <p>
-                            Use a strong password. We recommend a mix of letters, numbers, and symbols to keep your account safe.
-                        </p>
-                    </div>
+                    <Input 
+                        label={content.confirmPassword}
+                        type={showConfirmPassword ? "text" : "password"}
+                        value={passwords.confirm}
+                        onChange={(e) => setPasswords({...passwords, confirm: e.target.value})}
+                        placeholder="••••••••"
+                        className={styles.settingsInputGroup}
+                        icon={Lock}
+                        rightIcon={showConfirmPassword ? EyeOff : Eye}
+                        onRightIconClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    />
                 </div>
+            </div>
 
-                <div className={styles.settingsActions}>
-                    <button type="submit" disabled={saving} className="btn-primary">
-                        {saving ? 'Updating...' : 'Update Password'}
-                    </button>
-                </div>
+            <div className={styles.settingsActions}>
+                <Button 
+                    type="submit" 
+                    isLoading={saving} 
+                    className={styles.btnSettingsSave}
+                    icon={Save}
+                >
+                    {content.saveBtn}
+                </Button>
             </div>
         </form>
     );
-};
+});
 
 export default SettingsSecurity;

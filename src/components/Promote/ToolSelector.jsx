@@ -1,54 +1,63 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { Layout, Zap } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import SkeletonLoader from '../SkeletonLoader';
-import CustomSelect from '../CustomSelect';
+import Skeleton from '../ui/Skeleton';
+import Select from '../ui/Select';
 import styles from './ToolSelector.module.css';
 
-const ToolSelector = ({ toolName, loadingTools, userTools, selectedToolId, setSelectedToolId }) => {
+/**
+ * ToolSelector - Elite Selection Component
+ * Rule #14: Constant-driven content
+ */
+const ToolSelector = ({ toolName, loadingTools, userTools, selectedToolId, setSelectedToolId, isLoading, content }) => {
     return (
-        <section className={styles.promoteStepCard}>
-            <div className={styles.sectionHeaderCompact}>
-                <div className={styles.badgeStep}>STEP 1</div>
-                <h3>Pick Your Tool</h3>
+        <div className={styles.selectorWrapper}>
+            <div className={styles.sectionHeader}>
+                <div className={styles.stepBadge}>STEP 1</div>
+                <h3 className={styles.sectionTitle}>{content.title}</h3>
             </div>
             
-            <div className={styles.glassCard}>
-                <div className={styles.flexContainer}>
-                    <div className={styles.infoBox}>
+            {(isLoading || (loadingTools && !userTools.length)) ? (
+                <div className={styles.skeletonCard}>
+                    <div className={styles.skeletonInfo}>
+                        <Skeleton width="60%" height="16px" />
+                    </div>
+                    <div className={styles.skeletonAction}>
+                        <Skeleton width="100%" height="44px" borderRadius="12px" />
+                    </div>
+                </div>
+            ) : (
+                <div className={styles.glassCard}>
+                    <div className={styles.infoArea}>
                         <p className={styles.description}>
-                            {toolName ? "Selected tool for this promotion campaign." : "Choose the approved tool you want to promote."}
+                            {toolName ? `${content.placeholder}: ${toolName}` : content.placeholder}
                         </p>
                     </div>
 
-                    <div className={styles.selectorBox}>
+                    <div className={styles.inputArea}>
                         {toolName ? (
-                            <div className={styles.selectedToolBadge}>
-                                <Zap size={16} className="text-primary" /> {toolName}
+                            <div className={styles.activeBadge}>
+                                <Zap size={16} /> <span>{toolName}</span>
                             </div>
+                        ) : userTools.length > 0 ? (
+                            <Select
+                                options={userTools}
+                                value={selectedToolId}
+                                onChange={setSelectedToolId}
+                                placeholder={content.placeholder}
+                                icon={Layout}
+                                className={styles.toolSelect}
+                            />
                         ) : (
-                            loadingTools ? (
-                                <SkeletonLoader height="42px" width="100%" borderRadius="10px" />
-                            ) : userTools.length > 0 ? (
-                                <CustomSelect
-                                    options={userTools}
-                                    value={selectedToolId}
-                                    onChange={(val) => setSelectedToolId(val)}
-                                    placeholder="Select a tool..."
-                                    icon={Layout}
-                                    style={{ marginBottom: '0' }}
-                                />
-                            ) : (
-                                <Link to="/submit" className={styles.submitLink}>
-                                    No approved tools yet. Click to submit &rarr;
-                                </Link>
-                            )
+                            <Link to="/submit" className={styles.emptyLink}>
+                                {content.submitNew} &rarr;
+                            </Link>
                         )}
                     </div>
                 </div>
-            </div>
-        </section>
+            )}
+        </div>
     );
 };
 
-export default ToolSelector;
+export default memo(ToolSelector);

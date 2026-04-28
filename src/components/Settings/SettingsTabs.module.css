@@ -3,7 +3,29 @@
 .settingsSidebar {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 12px;
+}
+
+.tabSkeleton {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 20px;
+    border-radius: 16px;
+    background: var(--bg-card-solid);
+    border: 1px solid var(--border);
+}
+
+.skeletonIcon {
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+}
+
+.skeletonLabel {
+    width: 120px;
+    height: 18px;
+    border-radius: 100px;
 }
 
 .settingsTabBtn {
@@ -19,33 +41,48 @@
     background: rgba(255, 255, 255, 0.02);
     color: var(--text-muted);
     font-weight: 700;
-    font-size: 0.9rem;
+    font-size: 0.95rem;
 }
 
 .settingsTabBtn:hover:not(.active) {
     background: rgba(255, 255, 255, 0.05);
     color: var(--text-main);
-    transform: translateX(4px);
+    transform: translateX(6px);
+    border-color: rgba(255, 255, 255, 0.05);
 }
 
 .settingsTabBtn.active {
     background: var(--gradient);
     color: white;
-    box-shadow: 0 10px 20px rgba(0, 136, 204, 0.2);
+    box-shadow: 0 10px 25px rgba(0, 136, 204, 0.25);
+    transform: scale(1.02);
 }
 
 .settingsTabBtnContent {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 14px;
+}
+
+.tabIcon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.3s ease;
+}
+
+.active .tabIcon {
+    transform: scale(1.1);
 }
 
 .chevron {
-    transition: transform 0.3s;
+    transition: all 0.3s ease;
+    opacity: 0.5;
 }
 
-.settingsTabBtn:not(.active) .chevron {
-    opacity: 0;
+.active .chevron {
+    opacity: 1;
+    transform: translateX(4px);
 }
 
 @media (max-width: 1024px) {
@@ -54,6 +91,7 @@
         overflow-x: auto;
         padding-bottom: 10px;
         scrollbar-width: none;
+        gap: 10px;
     }
 
     .settingsSidebar::-webkit-scrollbar {
@@ -63,6 +101,10 @@
     .settingsTabBtn {
         white-space: nowrap;
         padding: 10px 18px;
+    }
+
+    .settingsTabBtn:hover:not(.active) {
+        transform: none;
     }
 
     .chevron {

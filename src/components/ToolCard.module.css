@@ -1,30 +1,38 @@
 /* ToolCard.module.css */
 
 .toolCard {
-  padding: 1.2rem !important;
+  padding: 1.2rem;
   display: flex;
   flex-direction: column;
-  transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1) !important;
-  border-radius: 32px !important;
-  background: rgba(255, 255, 255, 0.01) !important;
-  border: 1px solid rgba(255, 255, 255, 0.03) !important;
+  transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+  border-radius: 32px;
+  background: rgba(255, 255, 255, 0.01);
+  border: 1px solid rgba(255, 255, 255, 0.03);
   position: relative;
   overflow: hidden;
   text-decoration: none;
-  min-height: 200px;
+  height: 240px;
+  width: 100%;
+  max-width: 380px;
+  /* Refined Elite Width */
+  cursor: pointer;
 }
 
 .toolCard:hover {
   transform: translateY(-8px);
   box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
-  background: rgba(255, 255, 255, 0.02) !important;
-  border-color: rgba(255, 255, 255, 0.1) !important;
+  background: rgba(255, 255, 255, 0.02);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.cardTitleRowSkeleton {
+  margin-bottom: 12px;
 }
 
 /* Promoted (Featured) Variant */
 .featuredGlowCard {
-  border: 1px solid rgba(0, 210, 255, 0.2) !important;
-  background: linear-gradient(135deg, rgba(0, 210, 255, 0.03) 0%, rgba(0, 136, 204, 0.01) 100%) !important;
+  border: 1px solid rgba(0, 210, 255, 0.2);
+  background: linear-gradient(135deg, rgba(0, 210, 255, 0.03) 0%, rgba(0, 136, 204, 0.01) 100%);
   box-shadow: 0 0 20px rgba(0, 136, 204, 0.05);
 }
 
@@ -40,24 +48,27 @@
 }
 
 @keyframes scanning {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
+  0% {
+    transform: translateX(-100%);
+  }
+
+  100% {
+    transform: translateX(100%);
+  }
 }
 
 .featuredGlowCard:hover {
-  border-color: var(--primary) !important;
   box-shadow: 0 0 30px rgba(0, 136, 204, 0.2);
 }
 
 .featuredGlowCard .cardLogoBox {
-  background: rgba(0, 210, 255, 0.05) !important;
-  border-color: rgba(0, 210, 255, 0.2) !important;
+  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(255, 255, 255, 0.06);
 }
 
 /* Standard Variant */
 .standardToolCard:hover {
-  border-color: rgba(255, 255, 255, 0.1) !important;
-  background: rgba(255, 255, 255, 0.03) !important;
+  background: rgba(255, 255, 255, 0.03);
 }
 
 .cardLogoBox {
@@ -83,7 +94,6 @@
 
 .toolCard:hover .cardLogoBox {
   transform: scale(1.1);
-  border-color: var(--primary);
 }
 
 .cardContent {
@@ -99,12 +109,48 @@
   margin-bottom: 0.6rem;
 }
 
+.nameContainer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.verifiedIcon {
+  color: #3b82f6; /* Unified Premium Blue */
+  filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.4));
+  flex-shrink: 0;
+}
+
+.cardMetaGroup {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.pillPrice {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-muted);
+  font-size: 0.7rem;
+  font-weight: 800;
+  padding: 3px 10px;
+  border-radius: 100px;
+  border: 1px solid var(--border);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
 .cardTitleRow h3 {
   font-size: 1.1rem;
   font-weight: 800;
   color: white;
   margin: 0;
   letter-spacing: -0.2px;
+  /* Rule #32: Prevent long names from breaking the card layout */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .toolCard p {
@@ -138,6 +184,11 @@
   font-weight: 700;
 }
 
+.ratingIcon {
+  color: #ffaa00;
+  fill: #ffaa00;
+}
+
 .cardLink {
   color: var(--primary);
   font-weight: 700;
@@ -151,4 +202,39 @@
 .toolCard:hover .cardLink {
   gap: 8px;
   text-shadow: 0 0 10px var(--primary-glow);
+}
+
+/* Skeleton Styles */
+.skeletonLogo {
+  width: 100%;
+  height: 100%;
+  border-radius: 12px;
+}
+
+.skeletonTitle {
+  width: 60%;
+  height: 22px;
+}
+
+.skeletonPill {
+  width: 40px;
+  height: 20px;
+  border-radius: 100px;
+}
+
+.skeletonLineShort {
+  width: 100%;
+  height: 14px;
+  margin-bottom: 8px;
+  margin-top: 12px;
+}
+
+.skeletonLineFull {
+  width: 80%;
+  height: 14px;
+}
+
+.skeletonFooterItem {
+  width: 50px;
+  height: 14px;
 }

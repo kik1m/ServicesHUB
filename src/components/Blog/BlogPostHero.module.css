@@ -1,0 +1,238 @@
+/* BlogPostHero.module.css - Isolated Elite Architecture */
+
+.isolatedHeroSection {
+    position: relative;
+    padding: 40px 5% 30px;
+    background: transparent;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    width: 100%;
+}
+
+.titleAuraWrapper {
+    position: relative;
+    width: 100%;
+    max-width: 850px; /* Aligned with reading width */
+    min-height: 220px; /* Minimal Height */
+    padding: 2rem 2.5rem;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden; 
+    margin-top: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+    background: rgba(13, 14, 18, 0.75);
+    backdrop-filter: blur(15px);
+}
+
+.auraBlur {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--aura-img) center/cover no-repeat;
+    filter: blur(5px); /* Very light blur */
+    opacity: 0.6; /* Higher visibility */
+    z-index: 1;
+    pointer-events: none;
+}
+
+/* Enhanced darker overlay for high-clarity background */
+.auraBlur::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+        to bottom,
+        rgba(7, 7, 9, 0.2) 0%,
+        rgba(7, 7, 9, 0.6) 100%
+    );
+}
+
+.auraContent {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+    width: 100%;
+}
+
+.isolatedHeroSection::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at 50% 50%, rgba(0, 136, 204, 0.15) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 2;
+}
+
+.heroContainer {
+    max-width: 1100px;
+    width: 100%;
+    z-index: 2;
+}
+
+.heroLayoutWrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 1.5rem;
+    animation: fadeInDown 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.backLink {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    margin-bottom: 0.5rem;
+}
+
+.backLink:hover {
+    color: #00d2ff;
+    transform: translateX(-5px);
+}
+
+.categoryBadge {
+    padding: 6px 18px;
+    background: rgba(0, 210, 255, 0.1);
+    border: 1px solid rgba(0, 210, 255, 0.2);
+    border-radius: 100px;
+    color: #00d2ff;
+    font-size: 0.85rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.eliteHeadingText {
+    font-size: 1.8rem; /* Professional and compact */
+    font-weight: 900;
+    color: white;
+    line-height: 1.2;
+    margin: 0.6rem 0;
+    max-width: 700px;
+    text-align: center;
+    background: linear-gradient(to bottom, #ffffff 0%, #bbbbbb 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.metaHero {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 1.2rem;
+    margin-top: 0.5rem;
+}
+
+.authorBox {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.avatarGlow {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(0, 210, 255, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(0, 210, 255, 0.3);
+    box-shadow: 0 0 15px rgba(0, 210, 255, 0.2);
+}
+
+.authorIcon {
+    color: #00d2ff;
+}
+
+.authorName {
+    font-size: 0.95rem;
+    color: white;
+}
+
+.metaDivider {
+    width: 4px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+}
+
+.metaItem {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+.metaIcon {
+    opacity: 0.7;
+}
+
+/* Skeleton Standards - Rule #81 */
+.skeletonBadge {
+    width: 120px;
+    height: 28px;
+    border-radius: 100px;
+}
+
+.skeletonTitle {
+    width: 80%;
+    height: 45px;
+    border-radius: 8px;
+}
+
+.skeletonMetaItem {
+    width: 100px;
+    height: 15px;
+    border-radius: 4px;
+}
+
+.metaHeroSkeleton {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    margin-top: 1rem;
+}
+
+.breadcrumbWrapper {
+    margin-bottom: 2rem;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+@keyframes fadeInDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 768px) {
+    .eliteHeadingText { font-size: 2rem; }
+    .metaHero { flex-direction: column; gap: 0.8rem; }
+    .metaDivider { display: none; }
+}

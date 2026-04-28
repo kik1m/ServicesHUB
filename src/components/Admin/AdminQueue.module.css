@@ -1,162 +1,276 @@
+/* AdminQueue.module.css */
+
+.wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
 .sectionHeader {
-    display: flex; 
-    justify-content: space-between; 
-    align-items: center; 
-    margin-bottom: 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+}
+
+.headerInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
 }
 
 .title {
-    font-size: 1.25rem; 
-    font-weight: 700;
+    font-size: 1.6rem;
+    font-weight: 900;
     margin: 0;
     color: white;
 }
 
 .badge {
-    font-size: 0.75rem; 
-    color: var(--secondary); 
-    font-weight: 800;
-    letter-spacing: 1px;
-    background: rgba(var(--secondary-rgb), 0.1);
-    padding: 2px 10px;
+    display: inline-flex;
+    padding: 4px 12px;
+    background: rgba(0, 136, 204, 0.1);
+    color: var(--primary);
     border-radius: 100px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.5px;
     width: fit-content;
 }
 
 .searchWrapper {
-    position: relative;
-}
-
-.searchInput {
-    width: 250px; 
-    padding: 10px 14px; 
-    background: rgba(255, 255, 255, 0.03); 
-    border: 1px solid var(--border); 
-    color: white;
-    border-radius: 12px;
-    font-size: 0.85rem;
-    transition: all 0.3s;
-}
-
-.searchInput:focus {
-    border-color: var(--primary);
-    background: rgba(255, 255, 255, 0.05);
-    outline: none;
+    max-width: 300px;
+    width: 100%;
 }
 
 .listContainer {
-    display: flex; 
-    flex-direction: column; 
-    gap: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
 }
 
 .itemRow {
-    padding: 1.2rem; 
-    background: rgba(255, 255, 255, 0.02); 
-    border-radius: 16px;
-    border: 1px solid var(--border); 
-    display: flex; 
-    justify-content: space-between; 
-    align-items: center;
-    transition: all 0.2s ease;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 1rem 1.5rem;
+    transition: all 0.3s ease;
 }
 
 .itemRow:hover {
     background: rgba(255, 255, 255, 0.04);
     border-color: rgba(255, 255, 255, 0.1);
+    transform: translateX(5px);
 }
 
 .itemContent {
-    display: flex; 
-    gap: 15px; 
+    display: flex;
     align-items: center;
-    width: 100%;
+    gap: 1.5rem;
 }
 
 .itemThumb {
-    width: 48px; 
-    height: 48px; 
-    background: rgba(255, 255, 255, 0.05); 
-    border-radius: 12px; 
-    display: flex; 
-    align-items: center; 
-    justify-content: center; 
-    overflow: hidden; 
-    border: 1px solid var(--border);
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    background: var(--gradient);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 900;
+    color: white;
+    font-size: 1.2rem;
+    overflow: hidden;
     flex-shrink: 0;
 }
 
 .itemThumb img {
-    width: 100%; 
-    height: 100%; 
+    width: 100%;
+    height: 100%;
     object-fit: cover;
 }
 
 .itemInfo {
-    flex-grow: 1;
+    flex: 1;
 }
 
 .itemInfo h4 {
-    font-size: 0.95rem; 
-    font-weight: 700;
-    margin: 0;
-    color: white;
+    font-size: 1.05rem;
+    font-weight: 800;
+    margin: 0 0 4px 0;
 }
 
 .itemInfo p {
-    font-size: 0.75rem; 
+    font-size: 0.85rem;
     color: var(--text-muted);
-    margin: 4px 0 0;
+    margin: 0;
 }
 
 .actions {
-    display: flex; 
-    gap: 10px;
+    display: flex;
     align-items: center;
+    gap: 10px;
 }
 
-.searchResultsSection {
-    margin-bottom: 2rem; 
-    padding-bottom: 2rem; 
-    border-bottom: 1px solid var(--border);
-    animation: fadeIn 0.4s ease-out;
-}
-
-.searchHeader {
-    font-size: 0.8rem; 
-    color: var(--primary); 
-    margin-bottom: 1rem; 
-    text-transform: uppercase; 
-    letter-spacing: 1.5px;
-    font-weight: 800;
+.actionBtn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 1px solid transparent;
 }
 
 .featuredActive {
-    background: #FFD700 !important;
-    color: #000 !important;
-    border-color: #FFD700 !important;
-    box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+    background: rgba(255, 215, 0, 0.1);
+    color: #FFD700;
+    border-color: rgba(255, 215, 0, 0.3);
 }
 
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
+.featureTrigger {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-muted);
+    border-color: var(--border);
+}
+
+.featureTrigger:hover {
+    background: rgba(255, 215, 0, 0.1);
+    color: #FFD700;
+    border-color: #FFD700;
+}
+
+.reviewBtn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.newMode {
+    background: #00ff88;
+    color: #000;
+    border: none;
+}
+
+.updateMode {
+    background: rgba(56, 189, 248, 0.1);
+    color: #38bdf8;
+    border: 1px solid #38bdf8;
+}
+
+.rejectBtn {
+    padding: 10px;
+    border-radius: 12px;
+    background: rgba(255, 80, 80, 0.1);
+    color: var(--danger);
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.rejectBtn:hover {
+    background: var(--danger);
+    color: white;
+}
+
+.searchResultsSection {
+    background: rgba(0, 136, 204, 0.03);
+    border: 1px solid rgba(0, 136, 204, 0.1);
+    padding: 1.5rem;
+    border-radius: 20px;
+    margin-bottom: 1rem;
+}
+
+.searchHeader {
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--primary);
+    margin: 0 0 1rem 0;
+}
+
+.emptyState {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: var(--text-muted);
+}
+
+/* Skeleton Styles */
+.itemRowSkeleton {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 1rem 1.5rem;
+    border: 1px solid var(--border);
+    border-radius: 18px;
+}
+
+.skeletonText {
+    flex: 1;
+}
+
+.mb8px {
+    margin-bottom: 8px;
+}
+
+/* Rule #81: Skeleton Sanitization */
+.skeletonSectionTitle {
+    width: 220px;
+    height: 32px;
+}
+
+.skeletonThumb {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+}
+
+.skeletonRowTitle {
+    width: 200px;
+    height: 18px;
+    margin-bottom: 8px;
+}
+
+.skeletonRowMeta {
+    width: 140px;
+    height: 14px;
+}
+
+.skeletonActionBtn {
+    width: 120px;
+    height: 40px;
+    border-radius: 12px;
+}
+
+@media (max-width: 1024px) {
+    .sectionHeader {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .searchWrapper {
+        max-width: 100%;
+    }
 }
 
 @media (max-width: 768px) {
-    .itemRow {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 1.5rem;
-    }
-    
-    .sectionHeader {
+    .itemContent {
         flex-direction: column;
         align-items: flex-start;
         gap: 1rem;
     }
     
-    .searchInput {
+    .actions {
         width: 100%;
+        justify-content: flex-end;
     }
 }

@@ -3,20 +3,20 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { premiumService } from '../services/premiumService';
+import { PREMIUM_UI_CONSTANTS } from '../constants/premiumConstants';
 
 /**
- * Custom hook to manage logic and state for the Premium upgrade page.
+ * usePremiumData - Elite Logic Layer
+ * Rule #1: Logic Isolation
+ * Rule #14: Constants SSOT
  */
 export const usePremiumData = () => {
     const { user } = useAuth();
     const { showToast } = useToast();
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
+    const { messages } = PREMIUM_UI_CONSTANTS;
 
-    /**
-     * Handles the upgrade button click.
-     * Redirects to auth if not logged in, otherwise initiates checkout.
-     */
     const handleUpgrade = async () => {
         if (!user) {
             navigate('/auth');
@@ -28,13 +28,17 @@ export const usePremiumData = () => {
             const data = await premiumService.createPremiumCheckout(user.id);
 
             if (data?.url) {
-                window.location.href = data.url;
+                showToast(messages.successRedirect, 'success');
+                // Rule #41: Smooth transition to external gateway
+                setTimeout(() => {
+                    window.location.href = data.url;
+                }, 800);
             } else {
-                throw new Error('No checkout URL returned from server.');
+                throw new Error('No checkout URL');
             }
         } catch (err) {
-            console.error('Upgrade orchestration error:', err);
-            showToast('Failed to initiate checkout. Please try again.', 'error');
+            console.error('Premium checkout error:', err);
+            showToast(messages.error, 'error');
         } finally {
             setLoading(false);
         }

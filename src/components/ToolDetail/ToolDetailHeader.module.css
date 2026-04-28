@@ -1,127 +1,144 @@
-/* ToolDetailHeader.module.css */
+/* ToolDetailHeader.module.css - Isolated Elite Architecture (Slim Version) */
 
-.toolDetailHeader {
-  padding-top: 30px;
-  padding-bottom: 60px;
-  border-bottom: 1px solid var(--border);
+.isolatedHeroSection {
+    position: relative;
+    padding: 40px 5% 30px; /* Slimmer vertical padding */
+    background: transparent;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    width: 100%;
 }
 
-.backButton {
-  margin-top: 10px;
-  margin-bottom: 1.2rem !important;
-  font-size: 0.9rem !important;
-  opacity: 0.8;
-  display: flex;
-  align-items: center;
-  gap: 8px;
+/* Custom Blue Soul Glow for Tool Detail Only */
+.isolatedHeroSection::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at 50% -20%, rgba(0, 136, 204, 0.15) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 1;
 }
 
-.toolHeaderFlex {
-  display: flex;
-  gap: 3rem;
-  align-items: center;
-  flex-wrap: wrap;
+.heroContainer {
+    max-width: 1400px;
+    width: 100%;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
 }
 
-.premiumLogoContainer {
-  width: 100px !important;
-  height: 100px !important;
-  flex-shrink: 0 !important;
-  border-radius: 20px !important;
-  border: 1px solid var(--border) !important;
-  background: rgba(255, 255, 255, 0.02) !important;
-  padding: 0 !important;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.4);
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.breadcrumbLayer {
+    width: 100%;
+    margin-bottom: 0.2rem;
 }
 
-.premiumLogoContainer img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+.heroLayoutWrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.2rem;
+    width: 100%;
+    animation: fadeInDown 0.8s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.toolHeaderInfo {
-  flex: 1;
-  min-width: 300px;
+.heroCategoryBadge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 16px;
+    background: rgba(0, 210, 255, 0.1);
+    border: 1px solid rgba(0, 210, 255, 0.2);
+    border-radius: 100px;
+    backdrop-filter: blur(8px);
 }
 
-.toolMainTitle {
-  font-size: 2.8rem !important;
-  font-weight: 900 !important;
-  margin: 0.5rem 0 !important;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  color: white;
-  letter-spacing: -1px;
+.badgeIconWrapper {
+    display: flex;
+    align-items: center;
+    color: #00d2ff;
 }
 
-.toolShortDesc {
-  font-size: 1.05rem !important;
-  color: var(--text-muted);
-  max-width: 650px;
-  line-height: 1.5;
+.badgeText {
+    color: #00d2ff;
+    font-size: 0.8rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
 }
 
-.toolHeaderActions {
-  display: flex !important;
-  gap: 0.8rem !important;
-  align-items: center;
+.mainTitleGroup {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.8rem;
 }
 
-.visitBtnLarge {
-  padding: 14px 28px !important;
-  border-radius: 12px !important;
-  font-weight: 800 !important;
-  font-size: 1rem !important;
-  display: flex !important;
-  align-items: center !important;
-  gap: 8px;
+.eliteHeadingText {
+    font-size: 2.3rem; /* Reduced from 2.8rem for better long-name support */
+    font-weight: 900;
+    color: white; /* Prefix is White */
+    letter-spacing: -1px;
+    line-height: 1.2;
+    text-align: center;
 }
 
-.favoriteBtnLarge {
-  height: 52px !important;
-  width: 52px !important;
-  border-radius: 12px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  border: 1px solid var(--border);
-  transition: 0.3s;
+.toolNameHighlight {
+    background: linear-gradient(135deg, #00d2ff 0%, #3a7bd5 100%); /* Tool Name is Blue Gradient */
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 0 10px rgba(0, 210, 255, 0.2));
 }
 
-.favoriteBtnLarge:hover {
-  background: rgba(255, 255, 255, 0.05);
-  border-color: var(--primary);
+.heroSubTagline {
+    font-size: 1.15rem;
+    color: #ffffff;
+    opacity: 0.8;
+    max-width: 850px;
+    margin: 0;
+    font-weight: 500;
+    text-align: center;
+    line-height: 1.4;
 }
 
-.favoriteBtnLarge.isActive {
-  background: rgba(255, 71, 87, 0.1);
-  border-color: rgba(255, 71, 87, 0.3);
-  color: #ff4757;
+.sidebarMatchedRating {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.2rem;
+    font-weight: 800;
+}
+
+.starIconSidebar {
+    color: #FFB800;
+    filter: drop-shadow(0 0 8px rgba(255, 184, 0, 0.4));
+}
+
+.ratingValueTextGold {
+    color: #FFB800;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.reviewCountTextGold {
+    color: #FFB800;
+    opacity: 0.8;
+    font-size: 1rem;
+}
+
+@keyframes fadeInDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 @media (max-width: 768px) {
-  .toolHeaderFlex {
-    flex-direction: column;
-    text-align: center;
-  }
-  
-  .toolMainTitle {
-    justify-content: center;
-    font-size: 2.2rem !important;
-  }
-  
-  .toolHeaderActions {
-    width: 100%;
-    flex-direction: column;
-  }
-  
-  .visitBtnLarge, .favoriteBtnLarge {
-    width: 100% !important;
-  }
+    .eliteHeadingText { font-size: 2.2rem; }
+    .heroSubTagline { font-size: 1rem; padding: 0 10px; }
 }

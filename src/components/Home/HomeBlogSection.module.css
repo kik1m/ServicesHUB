@@ -3,8 +3,12 @@
 .latestBlogSection {
   background: rgba(255, 255, 255, 0.01);
   border-radius: 40px;
-  padding: 6rem 2rem;
+  padding: 80px 5%;
+  max-width: 1400px;
+  width: 100%;
+  margin: 0 auto;
 }
+
 
 .blogPostsGrid {
   display: grid;
@@ -16,10 +20,18 @@
   text-decoration: none;
   color: inherit;
   transition: 0.3s;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
 }
 
 .blogCard:hover {
   transform: translateY(-10px);
+  background: var(--bg-card-hover);
+  border-color: var(--primary);
 }
 
 .blogCardImage {
@@ -81,4 +93,31 @@
   .latestBlogSection {
     padding: 3rem 1.5rem;
   }
+}
+
+.primaryText {
+  color: var(--primary);
+}
+
+.skeletonImage {
+  width: 100%;
+  height: 200px;
+  border-radius: 16px;
+  margin-bottom: 1.5rem;
+}
+
+.skeletonMetaItem {
+  width: 70px;
+  height: 12px;
+}
+
+.skeletonTitleLine1 {
+  width: 90%;
+  height: 22px;
+  margin-bottom: 8px;
+}
+
+.skeletonTitleLine2 {
+  width: 60%;
+  height: 22px;
 }

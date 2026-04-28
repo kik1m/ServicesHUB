@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useToast } from '../context/ToastContext';
-import { authService } from '../services/authService';
-import { supabase } from '../lib/supabaseClient';
+import React, { memo } from 'react';
+import useSEO from '../hooks/useSEO';
+import { useResetPasswordData } from '../hooks/useResetPasswordData';
+import { AUTH_UI_CONSTANTS } from '../constants/authConstants';
 
 // Import Modular Components
 import ResetPasswordHero from '../components/Auth/ResetPasswordHero';
@@ -13,82 +12,64 @@ import ResetPasswordSuccess from '../components/Auth/ResetPasswordSuccess';
 import styles from './ResetPassword.module.css';
 
 /**
- * ResetPassword Page - Secure password update portal
+ * ResetPassword Page - Elite 10/10 Portal
+ * Rule #16: Pure Orchestration
  */
 const ResetPassword = () => {
-    const [password, setPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('');
-    const [loading, setLoading] = useState(false);
-    const [success, setSuccess] = useState(false);
-    
-    const navigate = useNavigate();
-    const { showToast } = useToast();
+    const {
+        password, setPassword,
+        confirmPassword, setConfirmPassword,
+        loading, initialLoading, success, error,
+        handleReset
+    } = useResetPasswordData();
 
-    /**
-     * Session validation
-     */
-    useEffect(() => {
-        const checkSession = async () => {
-            const { data: { session } } = await supabase.auth.getSession();
-            if (!session) {
-                // Buffer for hash processing
-                setTimeout(async () => {
-                    const { data: { session: retrySession } } = await supabase.auth.getSession();
-                    if (!retrySession) {
-                        showToast('Invalid or expired reset link.', 'error');
-                        navigate('/auth');
-                    }
-                }, 1000);
-            }
-        };
-        checkSession();
-    }, [navigate, showToast]);
+    const content = AUTH_UI_CONSTANTS.resetPassword;
 
-    /**
-     * Submission logic
-     */
-    const handleReset = async (e) => {
-        e.preventDefault();
-        
-        if (password !== confirmPassword) {
-            showToast('Passwords do not match!', 'error');
-            return;
-        }
-        if (password.length < 6) {
-            showToast('Password must be at least 6 characters.', 'error');
-            return;
-        }
+    // 1. SEO Hardening (v2.0)
+    useSEO({ pageKey: 'auth' });
 
-        setLoading(true);
-        try {
-            await authService.updatePassword(password);
-            setSuccess(true);
-            showToast('Password updated successfully!', 'success');
-            setTimeout(() => navigate('/auth'), 3000);
-        } catch (err) {
-            showToast(err.message || 'Failed to update password', 'error');
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    if (success) return <ResetPasswordSuccess />;
+    if (success) {
+        return (
+            <div className={styles.authWrapper}>
+                <div className={styles.authCard}>
+                    <ResetPasswordSuccess 
+                        content={content?.success} 
+                        isLoading={initialLoading} 
+                        error={error}
+                        onRetry={() => window.location.reload()}
+                    />
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className={styles.authWrapper}>
-            <div className={styles.authCard}>
-                <ResetPasswordHero />
-                <ResetPasswordForm 
-                    password={password}
-                    setPassword={setPassword}
-                    confirmPassword={confirmPassword}
-                    setConfirmPassword={setConfirmPassword}
-                    loading={loading}
-                    onSubmit={handleReset}
-                />
-            </div>
+            <Safeguard error={error} onRetry={handleReset} title={content?.header?.title}>
+                <div className={styles.authCard}>
+                    <ResetPasswordHero 
+                        content={content?.header}
+                        isLoading={initialLoading} 
+                        error={error}
+                        onRetry={handleReset}
+                    />
+                    
+                    <ResetPasswordForm 
+                        password={password}
+                        setPassword={setPassword}
+                        confirmPassword={confirmPassword}
+                        setConfirmPassword={setConfirmPassword}
+                        loading={loading}
+                        onSubmit={handleReset}
+                        isLoading={initialLoading}
+                        content={content?.form}
+                        error={error}
+                        onRetry={handleReset}
+                    />
+                </div>
+            </Safeguard>
         </div>
     );
 };
 
-export default ResetPassword;
+export default memo(ResetPassword);

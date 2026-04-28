@@ -1,11 +1,15 @@
-import React, { useState } from 'react';
-import { Helmet } from 'react-helmet-async';
-import { Loader2, Plus, Settings, ShieldCheck, Zap, Activity } from 'lucide-react';
-
-// Hooks & Context
+import React, { useState, useMemo, useCallback } from 'react';
+import { ShieldCheck } from 'lucide-react';
+import useSEO from '../hooks/useSEO';
 import { useAdminData } from '../hooks/useAdminData';
+import { getChangedFields } from '../utils/adminUtils';
+import { ADMIN_UI_CONSTANTS } from '../constants/adminConstants';
 
-// Components
+// Import Global UI Components - Rule #19: Atomic Unified Components
+import PageHero from '../components/ui/PageHero';
+import Safeguard from '../components/ui/Safeguard';
+
+// Import Modular Admin Components
 import AdminStats from '../components/Admin/AdminStats';
 import AdminGrowthChart from '../components/Admin/AdminGrowthChart';
 import AdminTabs from '../components/Admin/AdminTabs';
@@ -15,218 +19,226 @@ import AdminSettingsManager from '../components/Admin/AdminSettingsManager';
 import AdminUserManager from '../components/Admin/AdminUserManager';
 import AdminSidebar from '../components/Admin/AdminSidebar';
 import AdminReviewModal from '../components/Admin/AdminReviewModal';
+import AdminToolManager from '../components/Admin/AdminToolManager';
 
 // Styles
 import styles from './AdminDashboard.module.css';
 
+/**
+ * AdminDashboard - Elite 10/10 Orchestrator (Full Scope)
+ */
 const AdminDashboard = () => {
     const {
-        loading, isAdmin, error, stats, activeTab, setActiveTab,
-        pendingTools, featuredTools, blogPosts, blogCategories, toolCategories,
-        allUsers, subscribers, adminSearchQuery, adminSearchResults,
+        loading, isAdmin, error, actionError, setActionError, stats, activeTab,
+        pendingTools, featuredTools, allTools, allToolsTotal, allToolsPage, setAllToolsPage,
+        blogPosts, blogCategories, toolCategories,
+        allUsers, subscribers, adminSearchQuery, adminSearchResults, isSearchingTools,
         submitting, uploading,
-        handleApprove, handleReject, handleAdminSearch, handleToggleFeatured,
-        handleCreateBlog, handleDeleteBlog, handleCategoryAction, handleAddToolDirect,
-        uploadFile
+        setActiveTab, handleApprove, handleReject, handleAdminSearch, handleToggleFeatured,
+        handleCreateBlogPost, handleDeleteBlog, handleCategoryAction,
+        handleAdminFileChange, handleDirectAddTool, handleUpdateToolDirect,
+        addAdminFeature, removeAdminFeature, handleAdminFeatureChange,
+        adminImagePreview, adminUseManualUrl, setAdminUseManualUrl,
+        newPost, setNewPost, newCategory, setNewCategory, newTool, setNewTool,
+        selectedReview, showReviewModal, editMode,
+        handleOpenReview, handleOpenEdit, handleCloseReview,
+        init // For retry
     } = useAdminData();
 
-    // Local UI States for forms & Modals
-    const [selectedReview, setSelectedReview] = useState(null);
-    const [showReviewModal, setShowReviewModal] = useState(false);
-    
-    const [newPost, setNewPost] = useState({ title: '', category: '', excerpt: '', content: '' });
-    const [newCategory, setNewCategory] = useState({ name: '', slug: '', icon_name: '' });
-    const [newTool, setNewTool] = useState({
-        name: '', url: '', category_id: '', short_description: '',
-        description: '', image_url: '', pricing_type: 'Free', features: [''], pricing_details: ''
-    });
-    const [adminImagePreview, setAdminImagePreview] = useState(null);
-    const [adminUseManualUrl, setAdminUseManualUrl] = useState(false);
+    // 1. SEO Hardening (v2.0)
+    useSEO({ pageKey: 'admin' });
 
-    /**
-     * Modal Handlers
-     */
-    const handleOpenReview = (tool) => {
-        setSelectedReview(tool);
-        setShowReviewModal(true);
-    };
+    const TAB_RESOURCES = useMemo(() => ({
+        pending: (
+            <AdminQueue 
+                activeTab={activeTab}
+                pendingTools={pendingTools}
+                handleOpenReview={handleOpenReview}
+                handleReject={handleReject}
+                isLoading={loading}
+                error={error}
+                onRetry={init}
+            />
+        ),
+        'manage-tools': (
+            <AdminToolManager 
+                allTools={allTools}
+                totalTools={allToolsTotal}
+                currentPage={allToolsPage}
+                setPage={setAllToolsPage}
+                handleAdminSearch={handleAdminSearch}
+                adminSearchQuery={adminSearchQuery}
+                adminSearchResults={adminSearchResults}
+                isSearching={isSearchingTools}
+                handleOpenEdit={handleOpenEdit} 
+                handleDelete={handleReject}
+                isLoading={loading}
+                error={error}
+                onRetry={init}
+            />
+        ),
+        featured: (
+            <AdminQueue 
+                activeTab={activeTab}
+                featuredTools={featuredTools}
+                handleToggleFeatured={handleToggleFeatured}
+                adminSearchQuery={adminSearchQuery}
+                adminSearchResults={adminSearchResults}
+                handleAdminSearch={handleAdminSearch}
+                isLoading={loading}
+                error={error}
+                onRetry={init}
+            />
+        ),
+        blog: (
+            <AdminBlogManager 
+                activeTab={activeTab}
+                blogPosts={blogPosts}
+                newPost={newPost}
+                setNewPost={setNewPost}
+                handleCreateBlogPost={handleCreateBlogPost}
+                handleDeleteBlog={handleDeleteBlog}
+                blogCategories={blogCategories}
+                submitting={submitting}
+                isLoading={loading}
+                error={error}
+                onRetry={init}
+            />
+        ),
+        'add-tool': (
+            <AdminSettingsManager 
+                activeTab={activeTab}
+                newTool={newTool} 
+                setNewTool={setNewTool} 
+                handleDirectAddTool={handleDirectAddTool}
+                adminImagePreview={adminImagePreview} 
+                adminUseManualUrl={adminUseManualUrl} 
+                setAdminUseManualUrl={setAdminUseManualUrl}
+                handleAdminFileChange={handleAdminFileChange} 
+                addAdminFeature={addAdminFeature}
+                removeAdminFeature={removeAdminFeature} 
+                handleAdminFeatureChange={handleAdminFeatureChange}
+                submitting={submitting} 
+                uploading={uploading}
+                isLoading={loading}
+                categories={toolCategories}
+                error={error}
+                onRetry={init}
+            />
+        ),
+        categories: (
+            <AdminSettingsManager 
+                activeTab={activeTab}
+                newCategory={newCategory} 
+                setNewCategory={setNewCategory}
+                handleCreateCategory={(e) => handleCategoryAction('create', 'tool', newCategory)} 
+                handleDeleteCategory={(id) => handleCategoryAction('delete', 'tool', id)}
+                categories={toolCategories}
+                submitting={submitting}
+                isLoading={loading}
+                error={error}
+                onRetry={init}
+            />
+        ),
+        'blog-categories': (
+            <AdminSettingsManager 
+                activeTab={activeTab}
+                newCategory={newCategory} 
+                setNewCategory={setNewCategory}
+                handleCreateBlogCategory={(e) => handleCategoryAction('create', 'blog', { label: newCategory.name, slug: newCategory.slug })}
+                handleDeleteBlogCategory={(id) => handleCategoryAction('delete', 'blog', id)}
+                blogCategories={blogCategories}
+                submitting={submitting}
+                isLoading={loading}
+                error={error}
+                onRetry={init}
+            />
+        ),
+        users: (
+            <AdminUserManager 
+                activeTab={activeTab}
+                allUsers={allUsers}
+                isLoading={loading}
+                error={error}
+                onRetry={init}
+            />
+        ),
+        newsletter: (
+            <AdminUserManager 
+                activeTab={activeTab}
+                subscribers={subscribers}
+                isLoading={loading}
+                error={error}
+                onRetry={init}
+            />
+        )
+    }), [
+        activeTab, pendingTools, featuredTools, allTools, allToolsTotal, allToolsPage, setAllToolsPage,
+        blogPosts, newPost, blogCategories, 
+        newTool, adminImagePreview, adminUseManualUrl, submitting, uploading, toolCategories, 
+        newCategory, allUsers, subscribers, adminSearchQuery, adminSearchResults, isSearchingTools,
+        handleOpenReview, handleOpenEdit, handleCloseReview, handleApprove, handleReject, 
+        handleToggleFeatured, handleAdminSearch, handleUpdateToolDirect,
+        setNewPost, handleCreateBlogPost, handleDeleteBlog, setNewTool, 
+        setAdminUseManualUrl, handleAdminFileChange, addAdminFeature, removeAdminFeature, 
+        handleAdminFeatureChange, handleDirectAddTool, setNewCategory, handleCategoryAction, 
+        loading, error, init
+    ]);
 
-    const handleCloseReview = () => {
-        setShowReviewModal(false);
-        setSelectedReview(null);
-    };
+    const activeTabView = TAB_RESOURCES[activeTab] || null;
 
-    /**
-     * Local Form Wrappers (Pipes into the hook)
-     */
-    const handleCreateBlogPost = async (e) => {
-        e.preventDefault();
-        const success = await handleCreateBlog(newPost);
-        if (success) setNewPost({ title: '', category: '', excerpt: '', content: '' });
-    };
-
-    const handleCreateCategory = (e) => {
-        e.preventDefault();
-        handleCategoryAction('create', 'tool', newCategory);
-        setNewCategory({ name: '', slug: '', icon_name: '' });
-    };
-
-    const handleCreateBlogCategory = (e) => {
-        e.preventDefault();
-        handleCategoryAction('create', 'blog', { label: newCategory.name, slug: newCategory.slug });
-        setNewCategory({ name: '', slug: '', icon_name: '' });
-    };
-
-    const handleAdminFileChange = async (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onloadend = () => setAdminImagePreview(reader.result);
-        reader.readAsDataURL(file);
-        
-        const url = await uploadFile(file);
-        if (url) setNewTool(prev => ({ ...prev, image_url: url }));
-    };
-
-    const handleDirectAddTool = async (e) => {
-        e.preventDefault();
-        const success = await handleAddToolDirect(newTool);
-        if (success) {
-            setNewTool({
-                name: '', url: '', category_id: '', short_description: '',
-                description: '', image_url: '', pricing_type: 'Free', features: [''], pricing_details: ''
-            });
-            setAdminImagePreview(null);
-        }
-    };
-
-    // Feature Field Array Helpers
-    const addAdminFeature = () => setNewTool(prev => ({ ...prev, features: [...prev.features, ''] }));
-    const removeAdminFeature = (idx) => setNewTool(prev => ({ ...prev, features: prev.features.filter((_, i) => i !== idx) }));
-    const handleAdminFeatureChange = (idx, val) => {
-        const updated = [...newTool.features];
-        updated[idx] = val;
-        setNewTool(prev => ({ ...prev, features: updated }));
-    };
-
-    /**
-     * Diff Helper for Modal
-     */
-    const getChangedFields = (oldVal, newVal) => {
-        if (!oldVal || !newVal) return [];
-        const mapping = {
-            name: 'Name', url: 'Website URL', short_description: 'Tagline',
-            description: 'Description', image_url: 'Visual Identity',
-            pricing_type: 'Model', features: 'Capabilities', pricing_details: 'Pricing Notes'
-        };
-        
-        return Object.keys(newVal)
-            .filter(key => mapping[key] && JSON.stringify(oldVal[key]) !== JSON.stringify(newVal[key]))
-            .map(key => ({
-                key, label: mapping[key], oldValue: oldVal[key], newValue: newVal[key],
-                isImage: key === 'image_url', isArray: Array.isArray(newVal[key])
-            }));
-    };
-
-    if (loading) {
-        return (
-            <div className={styles.adminPage}>
-                <div className={styles.wrapper}>
-                    <div className={styles.loadingWrapper}>
-                        <Loader2 className="animate-spin" size={48} color="var(--primary)" />
-                        <p style={{ marginTop: '20px', letterSpacing: '1px' }}>Validating Admin Credentials...</p>
-                    </div>
-                </div>
-            </div>
-        );
-    }
-
-    if (!isAdmin) return null;
+    if (!isAdmin && !loading) return null;
 
     return (
         <div className={styles.adminPage} id="admin-dashboard-view">
-            <Helmet>
-                <title>Control Center | ServicesHUB Mod</title>
-                <meta name="robots" content="noindex, nofollow" />
-            </Helmet>
+            <PageHero 
+                title={ADMIN_UI_CONSTANTS.header.title}
+                highlight={ADMIN_UI_CONSTANTS.header.titleHighlight}
+                subtitle={ADMIN_UI_CONSTANTS.header.subtitle}
+                breadcrumbs={ADMIN_UI_CONSTANTS.header.breadcrumbs}
+                icon={<ShieldCheck size={24} />}
+            />
 
-            <main className={styles.wrapper}>
-                <header className={styles.headerSection}>
-                    <h1>Admin Control Center</h1>
-                    <p>Orchestrate your ecosystem, curate high-fidelity tools, and manage platform growth.</p>
-                </header>
+            <div className={styles.adminWrapper}>
+                <Safeguard error={error} onRetry={init} fullPage title={ADMIN_UI_CONSTANTS.header?.title}>
+                    <div className={styles.adminMainContent}>
+                        <AdminStats stats={stats} isLoading={loading} error={actionError} onRetry={() => setActionError(null)} />
+                        <AdminGrowthChart isLoading={loading} error={actionError} onRetry={() => setActionError(null)} />
 
-                <AdminStats stats={stats} />
-                <AdminGrowthChart />
-
-                <AdminTabs 
-                    activeTab={activeTab} 
-                    setActiveTab={setActiveTab}
-                    pendingCount={pendingTools.length}
-                    blogCount={blogPosts.length}
-                    userCount={allUsers.length}
-                    newsCount={subscribers.length}
-                />
-
-                <div className={`${styles.contentGrid} ${activeTab === 'pending' || activeTab === 'featured' ? styles.withSidebar : ''}`}>
-                    <section className={`${styles.mainCard} glass-card`}>
-                        <AdminQueue 
-                            activeTab={activeTab}
-                            pendingTools={pendingTools}
-                            featuredTools={featuredTools}
-                            handleOpenReview={handleOpenReview}
-                            handleReject={handleReject}
-                            handleToggleFeatured={handleToggleFeatured}
-                            adminSearchQuery={adminSearchQuery}
-                            adminSearchResults={adminSearchResults}
-                            handleAdminSearch={handleAdminSearch}
+                        <AdminTabs 
+                            activeTab={activeTab} 
+                            setActiveTab={setActiveTab}
+                            pendingCount={pendingTools?.length || 0}
+                            blogCount={blogPosts?.length || 0}
+                            userCount={allUsers?.length || 0}
+                            newsCount={subscribers?.length || 0}
+                            isLoading={loading}
+                            error={actionError}
+                            onRetry={() => setActionError(null)}
                         />
 
-                        <AdminBlogManager 
-                            activeTab={activeTab}
-                            blogPosts={blogPosts}
-                            newPost={newPost}
-                            setNewPost={setNewPost}
-                            handleCreateBlogPost={handleCreateBlogPost}
-                            handleDeleteBlog={handleDeleteBlog}
-                            blogCategories={blogCategories}
-                            submitting={submitting}
-                            uploading={uploading}
-                        />
+                        <div className={`${styles.contentGrid} ${(activeTab === 'pending' || activeTab === 'featured') ? styles.withSidebar : ''}`}>
+                            <section className={styles.activeSection}>
+                                {activeTabView}
+                            </section>
 
-                        <AdminSettingsManager 
-                            activeTab={activeTab}
-                            newTool={newTool} setNewTool={setNewTool} handleDirectAddTool={handleDirectAddTool}
-                            adminImagePreview={adminImagePreview} adminUseManualUrl={adminUseManualUrl} setAdminUseManualUrl={setAdminUseManualUrl}
-                            handleAdminFileChange={handleAdminFileChange} addAdminFeature={addAdminFeature}
-                            removeAdminFeature={removeAdminFeature} handleAdminFeatureChange={handleAdminFeatureChange}
-                            newCategory={newCategory} setNewCategory={setNewCategory}
-                            handleCreateCategory={handleCreateCategory} handleDeleteCategory={(id) => handleCategoryAction('delete', 'tool', id)}
-                            categories={toolCategories}
-                            handleCreateBlogCategory={handleCreateBlogCategory}
-                            handleDeleteBlogCategory={(id) => handleCategoryAction('delete', 'blog', id)}
-                            blogCategories={blogCategories}
-                            submitting={submitting} uploading={uploading}
-                        />
-
-                        <AdminUserManager 
-                            activeTab={activeTab}
-                            allUsers={allUsers}
-                            subscribers={subscribers}
-                        />
-                    </section>
-
-                    <AdminSidebar activeTab={activeTab} />
-                </div>
-            </main>
+                            <AdminSidebar activeTab={activeTab} isLoading={loading} error={actionError} onRetry={() => setActionError(null)} />
+                        </div>
+                    </div>
+                </Safeguard>
+            </div>
 
             <AdminReviewModal 
                 showReviewModal={showReviewModal}
                 selectedReview={selectedReview}
+                editMode={editMode}
                 handleCloseReview={handleCloseReview}
                 handleApprove={handleApprove}
                 handleReject={handleReject}
+                handleUpdateToolDirect={handleUpdateToolDirect}
                 getChangedFields={getChangedFields}
+                isLoading={submitting}
+                categories={toolCategories}
             />
         </div>
     );

@@ -1,0 +1,86 @@
+/* ErrorState.module.css */
+
+.errorWrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    animation: fadeIn 0.5s ease-out;
+}
+
+.fullPage {
+    min-height: 80vh;
+    padding: 4rem 5%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.fullPage .errorContent {
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 4rem 3rem;
+    border-radius: 40px;
+    box-shadow: 0 40px 100px rgba(0, 0, 0, 0.4);
+}
+
+.section {
+    padding: 3rem;
+    background: rgba(255, 80, 80, 0.03);
+    border: 1px solid rgba(255, 80, 80, 0.1);
+    border-radius: 24px;
+    margin: 1rem 0;
+}
+
+.errorContent {
+    max-width: 500px;
+    width: 100%;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.errorIcon {
+    color: var(--danger);
+    background: rgba(255, 80, 80, 0.1);
+    padding: 1.5rem;
+    border-radius: 24px;
+    margin-bottom: 2rem;
+    box-shadow: 0 10px 30px rgba(255, 80, 80, 0.1);
+}
+
+.errorTitle {
+    font-size: 1.5rem;
+    font-weight: 800;
+    margin-bottom: 12px;
+    color: white;
+}
+
+.errorMessage {
+    color: var(--text-muted);
+    font-size: 1rem;
+    line-height: 1.6;
+    margin-bottom: 2.5rem;
+}
+
+.retryBtn {
+    min-width: 180px;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 768px) {
+    .fullPage {
+        min-height: 50vh;
+    }
+    
+    .errorTitle {
+        font-size: 1.3rem;
+    }
+}

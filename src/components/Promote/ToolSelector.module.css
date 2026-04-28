@@ -1,98 +1,118 @@
 /* ToolSelector.module.css */
-
-.promoteStepCard {
-    margin-bottom: 2.5rem;
+.selectorWrapper {
+    width: 100%;
 }
 
-.sectionHeaderCompact {
+.sectionHeader {
     display: flex;
-    flex-direction: column;
     align-items: center;
-    gap: 12px;
-    margin-bottom: 2rem;
-    text-align: center;
+    gap: 15px;
+    margin-bottom: 1.5rem;
 }
 
-.badgeStep {
-    background: var(--primary);
-    color: white;
+.stepBadge {
     padding: 4px 12px;
+    background: rgba(0, 136, 204, 0.1);
+    color: var(--primary);
     border-radius: 8px;
-    font-size: 0.7rem;
+    font-size: 0.75rem;
     font-weight: 900;
-    letter-spacing: 1px;
 }
 
-.sectionHeaderCompact h3 {
+.sectionTitle {
+    font-size: 1.4rem;
     font-weight: 900;
-    margin: 0;
-    font-size: 1.6rem;
-    letter-spacing: -0.5px;
     color: white;
+    margin: 0;
 }
 
 .glassCard {
-    padding: 1.5rem 2rem;
-    border-radius: 25px;
-    border: 1px solid rgba(255, 255, 255, 0.05);
     background: rgba(255, 255, 255, 0.02);
-    backdrop-filter: blur(10px);
-    max-width: 650px; /* Thinner bar */
-    margin: 0 auto; /* Center it */
-}
-
-.flexContainer {
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 20px;
+    padding: 1rem 1.5rem;
     display: flex;
-    flex-direction: column; /* Center everything in the bar */
     align-items: center;
-    justify-content: center;
-    gap: 1.2rem;
-    text-align: center;
+    justify-content: space-between;
+    gap: 1.5rem;
 }
 
-.infoBox {
-    width: 100%;
+.infoArea {
+    flex-grow: 1;
 }
 
 .description {
-    font-size: 0.9rem;
     color: var(--text-muted);
+    font-size: 1rem;
     margin: 0;
+    opacity: 0.8;
 }
 
-.selectorBox {
-    width: 100%;
-    display: flex;
-    justify-content: center;
+.inputArea {
+    width: 320px;
 }
 
-.selectedToolBadge {
-    padding: 10px 18px;
-    background: rgba(var(--primary-rgb), 0.08);
-    border-radius: 10px;
-    border: 1px solid rgba(var(--primary-rgb), 0.2);
+.activeBadge {
     display: flex;
     align-items: center;
     gap: 10px;
-    color: white;
+    padding: 12px 20px;
+    background: rgba(0, 210, 255, 0.1);
+    border: 1px solid rgba(0, 210, 255, 0.2);
+    color: var(--primary);
+    border-radius: 14px;
     font-weight: 700;
-    font-size: 0.9rem;
 }
 
-.submitLink {
+.emptyLink {
     color: var(--primary);
-    font-size: 0.85rem;
-    font-weight: 700;
     text-decoration: none;
+    font-weight: 700;
     transition: 0.3s;
 }
 
-.submitLink:hover {
-    filter: brightness(1.2);
+.emptyLink:hover {
+    text-shadow: 0 0 10px var(--primary-glow);
 }
 
 @media (max-width: 768px) {
     .glassCard {
-        padding: 1.2rem;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 1.5rem;
+        padding: 1.5rem;
+    }
+    
+    .inputArea {
+        width: 100%;
+    }
+}
+
+/* --- SKELETON LAYOUTS (Rule #81) --- */
+.skeletonCard {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 20px;
+    padding: 1.5rem 2rem;
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+}
+
+.skeletonInfo {
+    flex: 1;
+}
+
+.skeletonAction {
+    width: 280px;
+}
+
+@media (max-width: 768px) {
+    .skeletonCard {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .skeletonAction {
+        width: 100%;
     }
 }

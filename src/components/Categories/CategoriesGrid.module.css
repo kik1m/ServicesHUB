@@ -1,101 +1,44 @@
-/* CategoriesGrid.module.css */
+.gridSection {
+  margin-bottom: 4rem;
+}
 
-.categoriesGridLarge {
+.searchWrapper {
+  max-width: 600px;
+  margin: 0 auto 4rem;
+}
+
+.gridContainer {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 1.5rem;
 }
 
-.categoryCardPremium {
+.noResults {
+  grid-column: 1 / -1;
   text-align: center;
-  display: flex !important;
-  flex-direction: column !important;
-  align-items: center !important;
-  padding: 2.2rem 1.8rem !important;
-  text-decoration: none;
-  transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1) !important;
-  position: relative;
-  overflow: hidden;
-  border-radius: 28px !important;
-  background: rgba(255, 255, 255, 0.01) !important;
-  border: 1px solid rgba(255, 255, 255, 0.04) !important;
-}
-
-.categoryCardPremium:hover {
-  transform: translateY(-8px);
-  background: rgba(255, 255, 255, 0.03) !important;
-  border-color: var(--primary) !important;
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
-}
-
-.catCountBadge {
-  position: absolute;
-  top: 15px;
-  right: 15px;
-  font-size: 0.7rem;
-  font-weight: 800;
-  background: rgba(0, 136, 204, 0.1);
-  padding: 4px 12px;
-  border-radius: 100px;
-  border: 1px solid rgba(0, 136, 204, 0.1);
+  padding: 4rem;
   color: var(--text-muted);
-  transition: 0.3s;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 20px;
+  border: 1px dashed rgba(255, 255, 255, 0.1);
 }
 
-.categoryCardPremium:hover .catCountBadge {
-  background: var(--primary) !important;
-  color: white !important;
-  border-color: var(--primary) !important;
-}
-
-.catIconGlow {
-  background: rgba(0, 136, 204, 0.04) !important;
-  width: 58px;
-  height: 58px;
-  border-radius: 18px !important;
-  color: var(--primary) !important;
-  margin-bottom: 1.5rem !important;
-  border: 1px solid rgba(0, 136, 204, 0.1) !important;
-  transition: all 0.3s ease !important;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.categoryCardPremium:hover .catIconGlow {
-  transform: scale(1.1);
-  background: rgba(0, 136, 204, 0.2) !important;
-  box-shadow: 0 0 30px rgba(0, 136, 204, 0.2);
-  color: white !important;
-}
-
-.categoryCardPremium h3 {
-  font-size: 1.25rem;
-  font-weight: 800;
-  margin-bottom: 0.5rem;
-  color: white;
-  letter-spacing: -0.3px;
-}
-
-.categoryCardPremium p {
+.noResults {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 4rem;
   color: var(--text-muted);
-  font-size: 0.85rem;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  opacity: 0.7;
-  transition: 0.3s;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 20px;
+  border: 1px dashed rgba(255, 255, 255, 0.1);
 }
 
-.categoryCardPremium:hover p {
-  color: var(--primary);
-  opacity: 1;
-}
-
-@media (max-width: 640px) {
-  .categoriesGridLarge {
+@media (max-width: 768px) {
+  .gridContainer {
     grid-template-columns: 1fr;
-    gap: 1.2rem;
+  }
+  
+  .searchWrapper {
+    margin-bottom: 2.5rem;
   }
 }

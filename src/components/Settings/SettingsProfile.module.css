@@ -10,27 +10,26 @@
 }
 
 .settingsCard {
-    padding: 2.5rem;
-    margin-bottom: 2rem;
-    background: var(--bg-card);
-    backdrop-filter: blur(20px);
+    padding: 3rem; /* Increased from 2rem */
+    background: var(--bg-card-solid);
     border: 1px solid var(--border);
     border-radius: 24px;
+    margin-bottom: 2.5rem;
 }
 
 .settingsSectionTitle {
-    font-size: 1.4rem;
+    font-size: 1.5rem; /* Slightly larger */
     font-weight: 800;
-    margin-bottom: 2.5rem;
+    margin-bottom: 3rem; /* Increased */
     color: white;
 }
 
 .settingsAvatarSection {
     display: flex;
     align-items: center;
-    gap: 2.5rem;
-    margin-bottom: 3rem;
-    padding-bottom: 2.5rem;
+    gap: 3rem;
+    margin-bottom: 3.5rem;
+    padding-bottom: 3rem;
     border-bottom: 1px solid var(--border);
 }
 
@@ -39,19 +38,19 @@
 }
 
 .settingsAvatarDisplay {
-    width: 110px;
-    height: 110px;
-    border-radius: 24px;
+    width: 120px; /* Slightly larger */
+    height: 120px;
+    border-radius: 28px;
     background: var(--gradient);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 2.8rem;
+    font-size: 3rem;
     font-weight: 900;
     color: white;
     overflow: hidden;
     border: 2px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
 }
 
 .settingsAvatarDisplay img {
@@ -62,14 +61,14 @@
 
 .settingsAvatarUploadBtn {
     position: absolute;
-    bottom: -8px;
-    right: -8px;
+    bottom: -6px;
+    right: -6px;
     background: var(--primary);
-    padding: 10px;
-    border-radius: 12px;
+    padding: 12px;
+    border-radius: 14px;
     cursor: pointer;
     box-shadow: 0 8px 15px rgba(0, 210, 255, 0.3);
-    border: 2px solid var(--bg-dark);
+    border: 3px solid var(--bg-card-solid); /* Matches solid bg */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -82,101 +81,126 @@
 }
 
 .settingsAvatarInfo h4 {
-    font-size: 1.1rem;
-    font-weight: 700;
-    margin-bottom: 4px;
+    font-size: 1.2rem;
+    font-weight: 800;
+    margin-bottom: 6px;
 }
 
 .settingsAvatarInfo p {
-    font-size: 0.85rem;
+    font-size: 0.9rem;
     color: var(--text-muted);
-    margin-bottom: 12px;
+    margin-bottom: 15px;
 }
 
 .settingsAvatarChangeLink {
     color: var(--secondary);
-    font-size: 0.85rem;
+    font-size: 0.9rem;
     font-weight: 800;
     cursor: pointer;
     background: none;
     border: none;
+    padding: 0;
+}
+
+.mb3rem {
+    margin-bottom: 3rem;
 }
 
 .settingsFormGrid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 1.5rem;
-    margin-bottom: 1.5rem;
+    gap: 2.5rem; /* Increased from 1.5rem */
+    margin-bottom: 2.5rem;
 }
 
 .settingsInputGroup {
     display: flex;
     flex-direction: column;
-    gap: 8px;
-}
-
-.settingsLabel {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 0.85rem;
-    font-weight: 800;
-    margin-bottom: 2px;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.settingsInput {
-    width: 100%;
-    background: rgba(255, 255, 255, 0.02);
-    border: 1.5px solid var(--border);
-    padding: 14px 18px;
-    border-radius: 14px;
-    color: white;
-    font-size: 0.95rem;
-    outline: none;
-    transition: all 0.3s ease;
-}
-
-.settingsInput:focus {
-    border-color: var(--primary);
-    background: rgba(255, 255, 255, 0.05);
-    box-shadow: 0 0 20px rgba(0, 136, 204, 0.2);
-}
-
-.settingsTextarea {
-    min-height: 120px;
-    resize: none;
 }
 
 .settingsPresenceGrid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 1.5rem;
+    gap: 2.5rem; /* Increased */
 }
 
 .settingsActions {
+    margin-top: 3.5rem;
     display: flex;
     justify-content: flex-end;
-    gap: 15px;
 }
 
 .btnSettingsSave {
-    padding: 12px 35px;
+    padding: 14px 45px;
     border-radius: 14px;
-    font-size: 1rem;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
+    font-size: 1.05rem;
+    font-weight: 800;
+}
+
+/* Skeleton Loading Styles - Rule #81: No Inline Dimensions */
+.skeletonTitle {
+    width: 200px;
+    height: 24px;
+    margin-bottom: 2rem;
+}
+
+.skeletonAvatar {
+    width: 90px;
+    height: 90px;
+    border-radius: 100px;
+}
+
+.skeletonAvatarLabel {
+    width: 120px;
+    height: 18px;
+    margin-bottom: 8px;
+}
+
+.skeletonAvatarDesc {
+    width: 180px;
+    height: 14px;
+}
+
+.skeletonAvatarAction {
+    width: 100px;
+    height: 14px;
+    margin-top: 12px;
+}
+
+.skeletonInput {
+    height: 82px;
+    border-radius: 14px;
+}
+
+.skeletonTextArea {
+    height: 140px;
+    border-radius: 14px;
+    margin-top: 20px;
+}
+
+.skeletonSectionTitle {
+    width: 150px;
+    height: 24px;
+    margin-top: 3rem;
+    margin-bottom: 1.5rem;
+}
+
+.skeletonButton {
+    width: 180px;
+    height: 48px;
+    border-radius: 12px;
+}
+
+@media (max-width: 1024px) {
+    .settingsFormGrid,
+    .settingsPresenceGrid {
+        gap: 1.5rem;
+    }
 }
 
 @media (max-width: 768px) {
     .settingsCard {
-        padding: 1.5rem;
-        border-radius: 20px;
+        padding: 2rem 1.5rem;
     }
 
     .settingsFormGrid,

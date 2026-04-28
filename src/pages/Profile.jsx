@@ -1,89 +1,125 @@
-import React from 'react';
-import SkeletonLoader from '../components/SkeletonLoader';
+import React, { useMemo } from 'react';
 import Breadcrumbs from '../components/Breadcrumbs';
 import useSEO from '../hooks/useSEO';
-import { MessageSquare } from 'lucide-react';
 import { useProfileData } from '../hooks/useProfileData';
+import { getCurrentUrl } from '../utils/getCurrentUrl';
 
-// Import Modular Components
+// Import Global Components
 import ProfileHero from '../components/Profile/ProfileHero';
 import ProfileStats from '../components/Profile/ProfileStats';
 import ProfileTabs from '../components/Profile/ProfileTabs';
 import ProfileCollections from '../components/Profile/ProfileCollections';
 import ProfileAboutSidebar from '../components/Profile/ProfileAboutSidebar';
 import ProfileMembershipSidebar from '../components/Profile/ProfileMembershipSidebar';
+import ProfileReviewsEmpty from '../components/Profile/ProfileReviewsEmpty';
+import Safeguard from '../components/ui/Safeguard';
 
 // Import Modular CSS
 import styles from './Profile.module.css';
+import { PROFILE_UI_CONSTANTS } from '../constants/profileConstants';
 
+/**
+ * Profile Page Orchestrator (Elite v2.1 Standard)
+ * Rule #16: Stable Coordinator Pattern
+ * Rule #31: Component Resilience via Safeguard
+ */
 const Profile = () => {
     const {
         profile,
         user,
         loading,
-        favorites,
+        favoritesData,
         activeTab,
         setActiveTab,
-        loadingFavorites,
         handleSignOut,
-        totalFavorites
+        totalFavorites,
+        refetch
     } = useProfileData();
 
-    useSEO({
-        title: profile?.full_name ? `${profile.full_name}'s Profile` : 'Member Profile',
-        description: `View the profile and favorite tools of ${profile?.full_name || 'a member'} on HUBly.`,
-        url: typeof window !== 'undefined' ? window.location.href : ''
-    });
+    // 1. SEO Hardening (v2.0)
+    useSEO({ pageKey: 'profile' });
 
-    if (loading) {
-        return (
-            <div className={styles.profilePage}>
-                <div className={styles.profileContainer}>
-                    <SkeletonLoader height="200px" borderRadius="24px" style={{ marginBottom: '2rem' }} />
-                    <div className={styles.profileGridSlim}>
-                        <SkeletonLoader height="400px" borderRadius="24px" />
-                        <SkeletonLoader height="400px" borderRadius="24px" />
-                    </div>
-                </div>
-            </div>
-        );
-    }
+    const isReviewsTab = activeTab === 'reviews';
+
+    const TAB_RESOURCES = useMemo(() => ({
+        favorites: (
+            <ProfileCollections 
+                isLoading={favoritesData?.isLoading} 
+                favorites={favoritesData?.items?.filter(Boolean) ?? []} 
+                error={favoritesData?.error}
+                onRetry={refetch}
+                content={PROFILE_UI_CONSTANTS.dashboard.collections}
+            />
+        ),
+        reviews: (
+            <ProfileReviewsEmpty 
+                isActive={isReviewsTab} 
+                content={PROFILE_UI_CONSTANTS.dashboard.reviews}
+            />
+        )
+    }), [
+        favoritesData?.isLoading, 
+        favoritesData?.items, 
+        favoritesData?.error, 
+        isReviewsTab,
+        refetch
+    ]);
+
+    const activeTabView = TAB_RESOURCES[activeTab] || null;
 
     return (
         <div className={styles.profilePage}>
             <div className={styles.profileContainer}>
-                <Breadcrumbs items={[{ label: 'Home', path: '/' }, { label: 'Profile' }]} />
+                <Breadcrumbs 
+                    items={[{ label: 'Home', path: '/' }, { label: 'Profile' }]} 
+                    isLoading={loading && !profile}
+                />
 
-                <ProfileHero profile={profile} user={user} handleSignOut={handleSignOut} />
+                <ProfileHero 
+                    profile={profile} 
+                    user={user} 
+                    onSignOut={handleSignOut} 
+                    isLoading={loading}
+                    error={favoritesData?.error}
+                    onRetry={refetch}
+                    content={PROFILE_UI_CONSTANTS.dashboard.hero}
+                />
 
                 <div className={styles.profileGridSlim}>
-                    {/* Main Content Area */}
                     <main className={styles.mainContent}>
                         <div className={styles.profileMainHeader}>
                             <ProfileTabs 
-                                activeTab={activeTab} setActiveTab={setActiveTab} 
+                                activeTab={activeTab} 
+                                onTabChange={setActiveTab} 
                                 favoritesCount={totalFavorites} 
+                                isLoading={loading}
+                                content={PROFILE_UI_CONSTANTS.dashboard.tabs}
                             />
-                            <ProfileStats favoritesCount={totalFavorites} />
+                            <ProfileStats 
+                                favoritesCount={totalFavorites} 
+                                reviewsCount={profile?.reviews_count || 0}
+                                isLoading={loading}
+                                error={favoritesData?.error}
+                                content={PROFILE_UI_CONSTANTS.dashboard.stats}
+                            />
                         </div>
 
-                        {activeTab === 'favorites' && (
-                            <ProfileCollections loadingFavorites={loadingFavorites} favorites={favorites} />
-                        )}
-
-                        {activeTab === 'reviews' && (
-                            <div className={`glass-card ${styles.emptyStateCard} fade-in`}>
-                                <MessageSquare size={64} className={styles.emptyStateIcon} />
-                                <h4 className={styles.emptyStateTitle}>No reviews yet</h4>
-                                <p className={styles.emptyStateText}>Your feedback helps the community discover the best tools.</p>
-                            </div>
-                        )}
+                        <div className={styles.tabRenderArea}>
+                            {activeTabView}
+                        </div>
                     </main>
 
-                    {/* Sidebar Area */}
-                    <aside className={`${styles.profileSidebarAside} fade-in`}>
-                        <ProfileAboutSidebar profile={profile} />
-                        <ProfileMembershipSidebar profile={profile} />
+                    <aside className={styles.profileSidebarAside}>
+                        <ProfileAboutSidebar 
+                            profile={profile} 
+                            isLoading={loading}
+                            content={PROFILE_UI_CONSTANTS.about}
+                        />
+                        <ProfileMembershipSidebar 
+                            profile={profile} 
+                            isLoading={loading}
+                            content={PROFILE_UI_CONSTANTS.dashboard.membership}
+                        />
                     </aside>
                 </div>
             </div>

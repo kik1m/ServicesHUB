@@ -1,17 +1,38 @@
-/* Promote.module.css */
-
-.promoteViewContainer {
+/* Promote.module.css - Unified Elite Standard */
+.viewWrapper {
   min-height: 100vh;
-  padding: 40px 5% 80px;
+  background: transparent;
 }
 
-.promoteContent {
-  max-width: 900px;
-  margin: 0 auto;
+.container {
+  max-width: 1200px;
+  margin: 0 auto; /* Removed Negative Margin to fix overlap */
+  padding: 2rem 5% 100px;
+  position: relative;
+  z-index: 2;
+}
+
+.mainContent {
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+}
+
+.selectionArea {
+    width: 100%;
+}
+
+.plansArea {
+    width: 100%;
 }
 
 @media (max-width: 768px) {
-    .promoteViewContainer {
-        padding: 20px 5% 40px;
-    }
+  .container {
+    margin-top: -2rem;
+    padding-bottom: 60px;
+  }
+  
+  .mainContent {
+      gap: 2rem;
+  }
 }

@@ -1,21 +1,20 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import { contactService } from '../services/contactService';
 import { useToast } from '../context/ToastContext';
+import { CONTACT_UI_CONSTANTS } from '../constants/contactConstants';
 
 /**
- * Hook for managing the contact form state and submission logic
+ * useContactData - Elite Logic Layer
+ * Rule #1: Full Logic Isolation
+ * Rule #14: Constants SSOT
  */
 export const useContactData = () => {
     const { showToast } = useToast();
-    const [loading, setLoading] = useState(true);
+    const { form } = CONTACT_UI_CONSTANTS;
+    
+    // Instant render for static-base pages
     const [submitting, setSubmitting] = useState(false);
-    const [subject, setSubject] = useState('General Inquiry');
-
-    // Simulate initial loading as in the original page
-    useEffect(() => {
-        const timer = setTimeout(() => setLoading(false), 500);
-        return () => clearTimeout(timer);
-    }, []);
+    const [subject, setSubject] = useState(form.fields.subject.options[0].value);
 
     const handleFormSubmit = useCallback(async (e) => {
         e.preventDefault();
@@ -28,22 +27,22 @@ export const useContactData = () => {
             const { success, error } = await contactService.submitMessage({ ...data, subject });
             
             if (success) {
-                showToast('Message sent! We will get back to you soon.', 'success');
+                showToast(form.messages.success, 'success');
                 e.target.reset();
-                setSubject('General Inquiry');
+                setSubject(form.fields.subject.options[0].value);
             } else {
                 throw error;
             }
         } catch (err) {
-            showToast('Failed to send message. Please try again.', 'error');
+            showToast(form.messages.error, 'error');
             console.error('Contact submission error:', err);
         } finally {
             setSubmitting(false);
         }
-    }, [subject, showToast]);
+    }, [subject, showToast, form]);
 
     return {
-        loading,
+        loading: false, // Instant render
         submitting,
         subject,
         setSubject,

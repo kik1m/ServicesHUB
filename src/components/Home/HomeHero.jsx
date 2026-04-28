@@ -1,75 +1,121 @@
-import React from 'react';
-import { Search, Link } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import React, { useCallback } from 'react';
+import SearchBar from '../ui/SearchBar';
+import Skeleton from '../ui/Skeleton';
+import Button from '../ui/Button';
+import Safeguard from '../ui/Safeguard';
+import { HERO_CONSTANTS, SKELETON_COUNTS } from '../../constants/homeConstants';
 import styles from './HomeHero.module.css';
 
-const UsersGroup = ({ statsCount }) => (
-    <div className="users-group" style={{ display: 'flex', alignItems: 'center', marginLeft: '0.5rem' }}>
-        {[
-            'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&auto=format&fit=crop&q=60',
-            'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&auto=format&fit=crop&q=60',
-            'https://images.unsplash.com/photo-1599566150163-29194dcaad36?w=100&auto=format&fit=crop&q=60',
-            'https://images.unsplash.com/photo-1527980972134-d536b5951d6a?w=100&auto=format&fit=crop&q=60'
-        ].map((url, i) => (
-            <div key={i} className="user-avatar-mini" style={{
-                width: '32px', height: '32px', borderRadius: '50%', border: '2px solid var(--bg-dark)',
-                background: `url(${url}) center/cover no-repeat`, marginLeft: i === 0 ? '0' : '-12px', overflow: 'hidden',
-                boxShadow: '0 4px 10px rgba(0,0,0,0.3)'
-            }}></div>
-        ))}
+const UsersGroup = ({ isLoading }) => (
+    <div className={styles.userTrustBox}>
+        <div className={styles.avatarGroup}>
+            {isLoading ? (
+                SKELETON_COUNTS.HERO_AVATARS.map((i) => (
+                    <div key={`skeleton-avatar-${i}`} className={styles.avatarMini}>
+                        <Skeleton width="100%" height="100%" borderRadius="50%" />
+                    </div>
+                ))
+            ) : (
+                HERO_CONSTANTS.TRUST_AVATARS.filter(Boolean).map((img, i) => (
+                    <div key={`avatar-${i}`} className={styles.avatarMini}>
+                        <img src={img} alt={`User ${i + 1}`} className={styles.avatarImg} />
+                    </div>
+                ))
+            )}
+        </div>
     </div>
 );
 
-const HomeHero = ({ searchQuery, setSearchQuery, navigate, statsCount }) => {
+/**
+ * HomeHero - Elite Entry Point
+ * Rule #29: Pure View with Safeguard protection
+ */
+const HomeHero = ({ searchQuery, setSearchQuery, navigate, statsCount, isLoading, error, content, popularCategories = [] }) => {
+    const handleSearch = useCallback(() => {
+        if (searchQuery.trim()) {
+            navigate(`/search?q=${searchQuery}`);
+        }
+    }, [searchQuery, navigate]);
+
+    const handleTagClick = useCallback((catName) => {
+        navigate(`/search?category=${encodeURIComponent(catName)}`);
+    }, [navigate]);
+
+    const usersCount = statsCount?.users ?? HERO_CONSTANTS.DEFAULT_USERS_COUNT;
+
     return (
         <header className={styles.heroSectionSlim}>
-            <div className={styles.heroContent}>
-                <div className="badge">Expertly Curated Tool Directory</div>
-                <h1 className={styles.heroTitleSlim}>
-                    Get the Best Professional Tools for <span className="gradient-text">Your Projects</span>
-                </h1>
-                <p className={styles.heroSubtitleSlim}>
-                    HUBly is your transparent window to the world&apos;s most innovative and reliable technical solutions. We save your valuable time by handpicking high-value, high-credibility tools that empower you to master new skills and scale your projects.
-                </p>
+            <Safeguard error={error}>
+                <div className={styles.heroContent}>
+                    <div className={styles.badge}>{content.badge}</div>
+                    <h1 className={styles.heroTitleSlim}>
+                        {content.title} <span className={styles.gradientText}>{content.highlight}</span>
+                    </h1>
+                    <p className={styles.heroSubtitleSlim}>
+                        {content.subtitle}
+                    </p>
 
-                <div className={`${styles.heroSearchWrapperLarge} glass-card`}>
-                    <Search size={22} color="var(--primary)" />
-                    <input
-                        type="text"
-                        placeholder="Search for tools, categories, or keywords..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        onKeyDown={(e) => e.key === 'Enter' && navigate(`/search?q=${searchQuery}`)}
-                    />
-                    <button onClick={() => navigate(`/search?q=${searchQuery}`)} className="btn-primary">Search</button>
-                </div>
+                    <div className={styles.heroSearchContainer}>
+                        {isLoading ? (
+                            <div className={styles.skeletonSearch}>
+                                <Skeleton className={styles.skeletonSearchInner} />
+                            </div>
+                        ) : (
+                            <SearchBar 
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                onSearch={handleSearch}
+                                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                                placeholder={content.searchPlaceholder}
+                                className={styles.heroSearchOverride}
+                            />
+                        )}
+                    </div>
 
-                <div className={styles.popularTags}>
-                    <span>Popular:</span>
-                    {['ChatGPT', 'SEO Tools', 'Logo Maker', 'Translation', 'Video AI'].map(tag => (
-                        <button key={tag} onClick={() => navigate(`/search?q=${tag}`)} className={styles.tagLink}>
-                            {tag}
-                        </button>
-                    ))}
-                </div>
+                    <div className={styles.popularTags}>
+                        <span>{content.popularLabel}</span>
+                        {isLoading ? (
+                            <div className={styles.skeletonTags}>
+                                {SKELETON_COUNTS.HERO_TAGS.map(i => <Skeleton key={`skeleton-tag-${i}`} className={styles.skeletonTagInner} />)}
+                            </div>
+                        ) : (
+                            popularCategories.slice(0, 5).map(cat => (
+                                <Button 
+                                    key={cat.id} 
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => handleTagClick(cat.name)} 
+                                    className={styles.tagLink}
+                                >
+                                    {cat.name}
+                                </Button>
+                            ))
+                        )}
+                    </div>
 
-                <div className="hero-cta" style={{ marginTop: '2.5rem' }}>
-                    <div className={styles.userTrust}>
-                        <UsersGroup statsCount={statsCount} /> 
-                        <span>A community of <strong>{(statsCount.users || 1200).toLocaleString()}</strong> makers worldwide</span>
+                    <div className={styles.heroCtaWrapper}>
+                        <div className={styles.userTrust}>
+                            <UsersGroup isLoading={isLoading} /> 
+                            {isLoading ? (
+                                <div className={styles.skeletonTrust}>
+                                    <Skeleton className={styles.skeletonTrustInner} />
+                                </div>
+                            ) : (
+                                <span>{content.trustPrefix} <strong className={styles.strongText}>{usersCount.toLocaleString()}</strong> {content.trustSuffix}</span>
+                            )}
+                        </div>
+                    </div>
+
+                    <div className={styles.trustLogos}>
+                        <p>{content.logosPrefix}</p>
+                        <div className={styles.logoRow}>
+                            {content.logos.map(logo => (
+                                <span key={logo} className={styles.logoItem}>{logo}</span>
+                            ))}
+                        </div>
                     </div>
                 </div>
-
-                <div className={styles.trustLogos}>
-                    <p>Trusted by creators from</p>
-                    <div className={styles.logoRow}>
-                        <span className={styles.logoItem}>Product Hunt</span>
-                        <span className={styles.logoItem}>Hacker News</span>
-                        <span className={styles.logoItem}>Indie Hackers</span>
-                        <span className={styles.logoItem}>Dev.to</span>
-                    </div>
-                </div>
-            </div>
+            </Safeguard>
         </header>
     );
 };

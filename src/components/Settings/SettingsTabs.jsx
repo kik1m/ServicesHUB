@@ -1,25 +1,41 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { ChevronRight } from 'lucide-react';
+import Skeleton from '../ui/Skeleton';
 import styles from './SettingsTabs.module.css';
 
-const SettingsTabs = ({ tabs, activeTab, setActiveTab }) => {
+/**
+ * SettingsTabs - Elite Sidebar Component
+ * Rule #18: Memoized for performance
+ */
+const SettingsTabs = memo(({ tabs, activeTab, setActiveTab, isLoading }) => {
     return (
         <aside className={styles.settingsSidebar}>
-            {tabs.map(tab => (
-                <button 
-                    key={tab.id}
-                    onClick={() => setActiveTab(tab.id)}
-                    className={`${styles.settingsTabBtn} ${activeTab === tab.id ? styles.active : ''}`}
-                >
-                    <div className={styles.settingsTabBtnContent}>
-                        {tab.icon}
-                        {tab.label}
+            {isLoading ? (
+                // Unified Skeleton Pattern - Rule #11
+                Array.from({ length: 4 }).map((_, i) => (
+                    <div key={i} className={styles.tabSkeleton}>
+                        <Skeleton className={styles.skeletonIcon} />
+                        <Skeleton className={styles.skeletonLabel} />
                     </div>
-                    <ChevronRight size={16} className={styles.chevron} />
-                </button>
-            ))}
+                ))
+            ) : (
+                tabs.map(tab => (
+                    <button 
+                        key={tab.id}
+                        type="button"
+                        onClick={() => setActiveTab(tab.id)}
+                        className={`${styles.settingsTabBtn} ${activeTab === tab.id ? styles.active : ''}`}
+                    >
+                        <div className={styles.settingsTabBtnContent}>
+                            <span className={styles.tabIcon}>{tab.icon}</span>
+                            <span className={styles.tabLabel}>{tab.label}</span>
+                        </div>
+                        <ChevronRight size={16} className={styles.chevron} />
+                    </button>
+                ))
+            )}
         </aside>
     );
-};
+});
 
 export default SettingsTabs;

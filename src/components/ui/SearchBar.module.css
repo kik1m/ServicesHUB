@@ -1,0 +1,114 @@
+.searchBarContainer {
+    display: flex;
+    align-items: center;
+    background: rgba(15, 17, 26, 0.7);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 100px;
+    padding: 0 6px 0 24px;
+    width: 100%;
+    max-width: 700px;
+    margin: 0 auto;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    height: 52px; /* Slim Elite Height */
+}
+
+.searchBarContainer:focus-within {
+    border-color: var(--primary);
+    background: rgba(15, 17, 26, 0.9);
+    box-shadow: 0 0 25px rgba(var(--primary-rgb), 0.2);
+    transform: translateY(-2px);
+}
+
+.searchIcon {
+    margin-right: 15px;
+    color: var(--primary);
+    flex-shrink: 0;
+    transition: 0.3s;
+    display: flex;
+    align-items: center;
+}
+
+.searchInputWrapper {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    height: 100%;
+}
+
+.searchInputGroup {
+    margin-bottom: 0 !important; /* Purge atom margin */
+    height: 100%;
+    display: flex;
+    align-items: center;
+}
+
+.searchInputWrapperOverride {
+    padding: 0 !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    height: 100% !important;
+    min-height: unset !important;
+    display: flex !important;
+    align-items: center !important;
+    flex: 1;
+}
+
+.searchInputField {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    outline: none !important;
+    padding: 0 !important; /* ELITE: Zero padding for perfect centering */
+    width: 100%;
+    color: white !important;
+    font-size: 1.05rem !important;
+    font-weight: 500 !important;
+    height: 100% !important;
+    line-height: normal !important;
+    display: flex !important;
+    align-items: center !important;
+}
+
+.searchInputField::placeholder {
+    color: rgba(255, 255, 255, 0.35);
+}
+
+.searchButton {
+    padding: 0 28px;
+    height: 40px; /* Slim Button */
+    border-radius: 100px;
+    font-size: 0.9rem;
+    font-weight: 800;
+    margin-left: 10px;
+    background: var(--gradient);
+    color: white;
+    border: none;
+    box-shadow: 0 4px 15px rgba(var(--primary-rgb), 0.2);
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.searchButton:hover {
+    transform: scale(1.02);
+    box-shadow: 0 6px 20px rgba(var(--primary-rgb), 0.4);
+}
+
+@media (max-width: 640px) {
+    .searchBarContainer {
+        height: 48px;
+        padding: 0 4px 0 15px;
+    }
+    
+    .searchButton {
+        padding: 0 18px;
+        height: 36px;
+        font-size: 0.85rem;
+    }
+}

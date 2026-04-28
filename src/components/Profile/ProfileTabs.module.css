@@ -6,23 +6,19 @@
 }
 
 .tabBtn {
-  background: none;
-  border: none;
-  color: var(--text-muted);
-  font-size: 1rem;
-  font-weight: 700;
-  padding: 0.5rem 0;
-  cursor: pointer;
-  position: relative;
+  color: var(--text-muted) !important;
+  font-size: 1rem !important;
+  font-weight: 700 !important;
+  padding: 0.5rem 0 !important;
   transition: 0.3s;
 }
 
 .tabBtn:hover {
-  color: white;
+  color: white !important;
 }
 
 .tabBtn.active {
-  color: var(--primary);
+  color: var(--primary) !important;
 }
 
 .tabBtn.active::after {
@@ -44,4 +40,12 @@
   .tabBtn {
     font-size: 0.9rem;
   }
+}
+
+/* Skeleton Loading Styles - Rule #81: No Inline Dimensions */
+.skeletonTabCount {
+  display: inline-block;
+  vertical-align: middle;
+  width: 20px;
+  height: 14px;
 }

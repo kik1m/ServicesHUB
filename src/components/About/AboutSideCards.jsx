@@ -1,41 +1,67 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { Rocket, Sparkles, Plus } from 'lucide-react';
+import Skeleton from '../ui/Skeleton';
+import Button from '../ui/Button';
+import Safeguard from '../ui/Safeguard';
 import styles from './AboutSideCards.module.css';
+import { ABOUT_UI_CONSTANTS } from '../../constants/aboutConstants';
 
-const AboutSideCards = () => {
+/**
+ * AboutSideCards - Elite Component
+ * Rule #14: Data-Driven UI
+ * Rule #112: Zero inline styles
+ */
+const AboutSideCards = ({ isLoading, error, onRetry }) => {
+    const data = ABOUT_UI_CONSTANTS.sideCards;
+
     return (
-        <div className={styles.sideStack}>
-            <div className={`${styles.card} glass-card`} style={{ padding: '2.5rem' }}>
-                <div className={styles.iconBox}>
-                    <Rocket size={20} color="var(--primary)" />
-                </div>
-                <h3 style={{ fontSize: '1.2rem', fontWeight: '800', marginBottom: '1rem' }}>Our Vision</h3>
-                <p className="text-muted-small" style={{ lineHeight: '1.7' }}>
-                    To become the global standard for software discovery, where every project finds its perfect technical companion.
-                </p>
-            </div>
+        <Safeguard error={error} onRetry={onRetry}>
+            <div className={styles.sideStack}>
+                {isLoading ? (
+                    [1, 2].map(i => (
+                        <div key={i} className={`${styles.card} glass-card`}>
+                            <Skeleton className={styles.skeletonIcon} />
+                            <Skeleton className={styles.skeletonTitle} />
+                            <Skeleton className={styles.skeletonLine} />
+                            <Skeleton className={styles.skeletonLineSmall} />
+                        </div>
+                    ))
+                ) : (
+                    <>
+                        <div className={`${styles.card} glass-card`}>
+                            <div className={styles.iconBox}>
+                                <Rocket size={20} />
+                            </div>
+                            <h3 className={styles.cardTitle}>{data?.vision?.title}</h3>
+                            <p className={styles.cardDesc}>{data?.vision?.description}</p>
+                        </div>
 
-            <div className={`${styles.card} glass-card`} style={{ padding: '2.5rem' }}>
-                <div className={styles.iconBox}>
-                    <Sparkles size={20} color="var(--primary)" />
-                </div>
-                <h3 style={{ fontSize: '1.2rem', fontWeight: '800', marginBottom: '1rem' }}>Constant Growth</h3>
-                <p className="text-muted-small" style={{ lineHeight: '1.7' }}>
-                    We are constantly iterating, adding new features, and refining our database to serve you better every day.
-                </p>
-            </div>
+                        <div className={`${styles.card} glass-card`}>
+                            <div className={styles.iconBox}>
+                                <Sparkles size={20} />
+                            </div>
+                            <h3 className={styles.cardTitle}>{data?.growth?.title}</h3>
+                            <p className={styles.cardDesc}>{data?.growth?.description}</p>
+                        </div>
 
-            <div className={`${styles.card} ${styles.joinCard} glass-card`} style={{ padding: '2.5rem' }}>
-                <h3 style={{ marginBottom: '1rem', fontWeight: '800' }}>Join the Journey</h3>
-                <p style={{ marginBottom: '1.5rem', fontSize: '0.9rem', opacity: '0.9' }}>
-                    Have a tool to share? Be part of our growing ecosystem.
-                </p>
-                <button className={`btn-secondary ${styles.joinBtn}`}>
-                    Submit a Tool <Plus size={18} />
-                </button>
+                        <div className={`${styles.card} ${styles.joinCard} glass-card`}>
+                            <h3 className={styles.joinTitle}>{data?.join?.title}</h3>
+                            <p className={styles.joinDesc}>{data?.join?.description}</p>
+                            <Button 
+                                variant="primary" 
+                                className={styles.joinBtn} 
+                                icon={Plus} 
+                                iconPosition="right"
+                                to="/submit-tool"
+                            >
+                                {data?.join?.button}
+                            </Button>
+                        </div>
+                    </>
+                )}
             </div>
-        </div>
+        </Safeguard>
     );
 };
 
-export default AboutSideCards;
+export default memo(AboutSideCards);

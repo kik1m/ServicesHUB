@@ -1,61 +1,106 @@
-import React from 'react';
-import { Search } from 'lucide-react';
-import ToolCard from '../ToolCard';
-import ToolCardSkeleton from '../Tools/ToolCardSkeleton';
+import React, { useMemo, useCallback } from 'react';
+import Safeguard from '../ui/Safeguard';
+
+// Import Atomic Sub-parts (Rule #20 Split)
+import CategoryToolsSearch from './CategoryToolsSearch';
+import CategoryToolsHeader from './CategoryToolsHeader';
+import CategoryToolsGrid from './CategoryToolsGrid';
+import CategoryToolsPagination from './CategoryToolsPagination';
+
+import { CATEGORY_STRINGS } from '../../constants/categoryConstants';
 import styles from './CategoryDetailTools.module.css';
 
-const CategoryDetailTools = ({ 
-    tools, 
-    filteredTools, 
-    searchQuery, 
-    setSearchQuery, 
-    loading, 
-    loadingMore, 
-    hasMore, 
-    setPage, 
-    totalResults,
-    categoryName 
-}) => {
+/**
+ * CategoryDetailTools Component - Elite Gold Standard
+ * Rule #16: Section Responsibility (Orchestration only)
+ * Rule #29: Pure View with Safeguard protection
+ */
+const CategoryDetailTools = (props) => {
+    const { 
+        toolsData,
+        toolsHandlers,
+        isLoading,
+        error
+    } = props;
+
+    const {
+        tools = [],
+        searchQuery = '',
+        totalResults = 0,
+        categoryName = 'Category',
+        hasMore = false,
+        loadingMore = false
+    } = toolsData || {};
+
+    const {
+        setSearchQuery,
+        setSort,
+        setPrice,
+        sortBy,
+        setPage,
+        refetchTools
+    } = toolsHandlers || {};
+
+    const safeTools = useMemo(() => tools?.filter(Boolean) ?? [], [tools]);
+    const toolsCount = safeTools.length;
+
+    const handleSearchChange = useCallback((e) => {
+        setSearchQuery?.(e.target.value);
+    }, [setSearchQuery]);
+    
+    const handleRetry = useCallback(() => {
+        refetchTools?.();
+    }, [refetchTools]);
+    
+    const handleLoadMore = useCallback(() => {
+        setPage?.(prev => prev + 1);
+    }, [setPage]);
+
     return (
         <section className={styles.mainSection}>
-            <div className={styles.heroSearchWrapperLarge}>
-                <Search size={20} color="var(--primary)" />
-                <input
-                    type="text"
-                    placeholder={`Search ${categoryName} tools...`}
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                />
-            </div>
+            {/* 1. Search Block */}
+            <CategoryToolsSearch 
+                categoryName={categoryName}
+                searchQuery={searchQuery}
+                onSearchChange={handleSearchChange}
+                priceFilter={toolsData?.selectedPrice}
+                onPriceChange={setPrice}
+                sortBy={sortBy}
+                onSortChange={setSort}
+                isLoading={isLoading}
+                error={error}
+                onRetry={handleRetry}
+            />
 
-            <div className={styles.sectionHeaderRow}>
-                <h2 className={styles.sectionTitle}>Explore <span className="gradient-text">Top Tools</span></h2>
-                <div className={styles.filterCount}>Showing {tools.length} of {totalResults} world-class solutions</div>
-            </div>
+            {/* 2. Results Header */}
+            <CategoryToolsHeader 
+                isLoading={isLoading}
+                searchQuery={searchQuery}
+                toolsCount={toolsCount}
+                totalResults={totalResults}
+                error={error}
+                onRetry={handleRetry}
+            />
 
-            <div className={styles.categoryToolsGrid}>
-                {loading ? (
-                    [1, 2, 3, 4, 5, 6].map(i => (
-                        <ToolCardSkeleton key={i} />
-                    ))
-                ) : (
-                    filteredTools.map(tool => (
-                        <ToolCard key={tool.id} tool={tool} />
-                    ))
-                )}
-            </div>
+            {/* 3. Main Content Grid */}
+            <CategoryToolsGrid 
+                isLoading={isLoading}
+                tools={safeTools}
+                categoryName={categoryName}
+                error={error}
+                onRetry={handleRetry}
+            />
 
-            {hasMore && tools.length > 0 && !loading && (
-                <div className={styles.paginationRow}>
-                    <button
-                        onClick={() => setPage(prev => prev + 1)}
-                        className={`btn-primary ${styles.loadMoreBtn}`}
-                        disabled={loadingMore}
-                    >
-                        {loadingMore ? 'Loading Tools...' : 'Load More Tools'}
-                    </button>
-                </div>
-            )}
+            {/* 4. Pagination / Load More */}
+            <CategoryToolsPagination 
+                hasMore={hasMore}
+                toolsCount={toolsCount}
+                isLoading={isLoading}
+                loadingMore={loadingMore}
+                onLoadMore={handleLoadMore}
+                error={error}
+                onRetry={handleRetry}
+            />
         </section>
     );
 };

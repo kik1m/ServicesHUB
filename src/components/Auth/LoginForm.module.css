@@ -43,28 +43,6 @@
     box-shadow: 0 0 15px rgba(0, 255, 170, 0.1);
 }
 
-.passwordWrapper {
-    position: relative;
-}
-
-.visibilityToggle {
-    position: absolute;
-    right: 15px;
-    top: 50%;
-    transform: translateY(-50%);
-    background: none;
-    border: none;
-    color: var(--text-muted);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    transition: 0.2s;
-}
-
-.visibilityToggle:hover {
-    color: var(--primary);
-}
-
 .submitBtn {
     padding: 15px;
     width: 100%;
@@ -88,4 +66,23 @@
 
 .textLink:hover {
     text-shadow: 0 0 10px rgba(0, 210, 255, 0.4);
+}
+
+/* Skeleton Loading Styles - Rule #81: No Inline Dimensions */
+.formSkeleton {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+}
+
+.skeletonInput {
+    width: 100%;
+    height: 76px;
+    border-radius: 14px;
+}
+
+.skeletonBtn {
+    width: 100%;
+    height: 54px;
+    border-radius: 12px;
 }

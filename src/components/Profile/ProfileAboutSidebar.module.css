@@ -1,8 +1,18 @@
-/* ProfileAboutSidebar.module.css */
+/* ProfileAboutSidebar.module.css - Simplified Supreme */
 
 .sidebarCard {
-  padding: 2rem;
+  padding: 1.8rem; /* Compact padding */
   border-radius: 28px !important;
+  background: rgba(15, 15, 20, 0.6);
+  backdrop-filter: blur(25px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+  animation: cardEntrance 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes cardEntrance {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .sidebarTitle {
@@ -13,69 +23,39 @@
   font-weight: 900;
   margin-bottom: 1.5rem;
   color: white;
-  letter-spacing: -0.5px;
+}
+
+.sidebarTitle svg {
+  color: var(--primary);
+  filter: drop-shadow(0 0 8px var(--primary-glow));
 }
 
 .bioText {
   font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.5;
+  margin-bottom: 1.8rem;
+  font-weight: 600;
+  padding-left: 12px;
+  border-left: 2px solid var(--primary);
+}
+
+.bioTextEmpty {
+  font-size: 0.85rem;
   color: var(--text-muted);
-  line-height: 1.6;
-  margin-bottom: 2rem;
+  font-style: italic;
+  margin-bottom: 1.5rem;
 }
 
 .sidebarSubtitle {
-  font-size: 0.75rem;
-  font-weight: 800;
-  color: var(--text-muted);
+  font-size: 0.65rem;
+  font-weight: 900;
+  color: var(--primary);
   text-transform: uppercase;
   letter-spacing: 1.5px;
   margin-bottom: 1.2rem;
-  opacity: 0.6;
-}
-
-.identityList {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin-bottom: 2rem;
-}
-
-.identityItem {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  font-size: 0.9rem;
-  font-weight: 700;
-  color: white;
-  text-decoration: none;
-  transition: 0.3s;
-}
-
-.identityItem.socialLinkHover:hover {
-  color: var(--primary);
-}
-
-.iconBox {
-  width: 34px;
-  height: 34px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: 0.3s;
-}
-
-.identityItem:hover .iconBox {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: var(--primary);
-  color: var(--primary) !important;
-}
-
-.externalIcon {
-  opacity: 0.5;
-  margin-left: auto;
+  display: block;
+  opacity: 0.8;
 }
 
 .socialLinksGrid {
@@ -94,19 +74,30 @@
   border: 1px solid rgba(255, 255, 255, 0.05);
   border-radius: 12px;
   color: var(--text-muted);
-  transition: 0.3s;
+  transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .socialBoxSlim:hover {
   background: var(--primary);
   color: white;
   transform: translateY(-3px);
+  box-shadow: 0 8px 15px rgba(var(--primary-rgb), 0.3);
   border-color: var(--primary);
 }
 
 .noSocials {
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   color: var(--text-muted);
   font-style: italic;
-  margin: 0;
+  padding: 8px;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 10px;
+  width: 100%;
+}
+
+.skeletonBio {
+  width: 100%;
+  height: 60px;
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
 }

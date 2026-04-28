@@ -1,43 +1,89 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight } from 'lucide-react';
-import SkeletonLoader from '../SkeletonLoader';
-import { getIcon } from '../../utils/iconMap';
+import { ArrowRight, Zap } from 'lucide-react';
+import Skeleton from '../ui/Skeleton';
+import Button from '../ui/Button';
+import SectionHeader from '../ui/SectionHeader';
+import SmartImage from '../ui/SmartImage';
+import Safeguard from '../ui/Safeguard';
+import EmptyState from '../ui/EmptyState';
+import { SECTION_LIMITS, SKELETON_COUNTS } from '../../constants/homeConstants';
 import styles from './HomeLatestArrivals.module.css';
 
-const HomeLatestArrivals = ({ latestTools, loading }) => {
-    return (
-        <section className="main-section latest-arrivals">
-            <div className="section-header-row">
-                <div className="text-left">
-                    <h2 className="section-title">New <span className="gradient-text">Arrivals</span></h2>
-                    <p className="section-desc">The freshest AI solutions added to our directory this week.</p>
-                </div>
-                <Link to="/tools" className={styles.viewAllLink}>Browse All <ArrowRight size={18} /></Link>
-            </div>
+/**
+ * HomeLatestArrivals - Elite Mini Discovery
+ * Rule #29: Pure View with Safeguard protection
+ */
+const HomeLatestArrivals = ({ latestTools = [], isLoading, error }) => {
+    // Rule #35: Derived Data Stability + Rule #32: Defensive Rendering
+    const visibleTools = useMemo(() => {
+        const safeTools = latestTools?.filter(Boolean) ?? [];
+        return safeTools.slice(0, SECTION_LIMITS.LATEST);
+    }, [latestTools]);
 
-            <div className={styles.latestToolsGridMini}>
-                {loading ? (
-                    [1, 2, 3, 4, 5, 6].map(i => <SkeletonLoader key={i} type="trending" />)
+    return (
+        <Safeguard error={error}>
+            <section className={styles.latestSection}>
+                <SectionHeader 
+                    title="New" 
+                    subtitle="Arrivals" 
+                    description="The freshest AI solutions added to our directory this week."
+                >
+                    {!isLoading && visibleTools.length > 0 && (
+                        <Button 
+                            as={Link} 
+                            to="/tools" 
+                            variant="text" 
+                            className={styles.viewAllLink}
+                            icon={ArrowRight}
+                            iconPosition="right"
+                        >
+                            Browse All
+                        </Button>
+                    )}
+                </SectionHeader>
+
+                {!isLoading && visibleTools.length === 0 ? (
+                    <EmptyState 
+                        title="No new arrivals" 
+                        message="We're currently scouting for the next big AI tools. Stay tuned!" 
+                    />
                 ) : (
-                    (latestTools || []).map((tool) => (
-                        <Link to={`/tool/${tool?.slug}`} key={tool?.id} className={`glass-card ${styles.latestToolMini}`}>
-                            <div className={styles.latestToolIconBox}>
-                                {tool.image_url ? (
-                                    <img src={tool.image_url} alt={tool.name} />
-                                ) : (
-                                    getIcon(tool.icon_name || 'Zap')
-                                )}
-                            </div>
-                            <div className={styles.latestToolInfoMini}>
-                                <h4>{tool.name}</h4>
-                                <p>{tool.categories?.name}</p>
-                            </div>
-                        </Link>
-                    ))
+                    <div className={styles.latestToolsGridMini}>
+                        {isLoading ? (
+                            SKELETON_COUNTS.LATEST_ITEMS.map((i) => (
+                                <div key={`skeleton-latest-${i}`} className={styles.latestToolMini}>
+                                    <Skeleton className={styles.skeletonIcon} />
+                                    <div className={styles.latestToolInfoMini}>
+                                        <Skeleton className={styles.skeletonTitle} />
+                                        <Skeleton className={styles.skeletonSubtitle} />
+                                    </div>
+                                </div>
+                            ))
+                        ) : (
+                            visibleTools.map((tool) => {
+                                if (!tool?.slug) return null;
+                                return (
+                                    <Link to={`/tool/${tool.slug}`} key={tool.id || tool.slug} className={styles.latestToolMini}>
+                                        <div className={styles.latestToolIconBox}>
+                                            <SmartImage 
+                                                src={tool.image_url} 
+                                                alt={tool.name} 
+                                                fallbackIcon={Zap}
+                                            />
+                                        </div>
+                                        <div className={styles.latestToolInfoMini}>
+                                            <h4>{tool.name}</h4>
+                                            <p>{tool.categories?.name}</p>
+                                        </div>
+                                    </Link>
+                                );
+                            })
+                        )}
+                    </div>
                 )}
-            </div>
-        </section>
+            </section>
+        </Safeguard>
     );
 };
 

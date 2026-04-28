@@ -1,271 +1,141 @@
-import React, { useState, useEffect } from 'react';
-import { Sparkles, ChevronLeft, ChevronRight, Eye, ExternalLink, CheckCircle2 } from 'lucide-react';
+import React, { memo } from 'react';
+import { ChevronLeft, ChevronRight, Zap, ExternalLink, CheckCircle2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { supabase } from '../lib/supabaseClient';
+import styles from './SmartBanner.module.css';
 
-const SmartBanner = () => {
-    const [tools, setTools] = useState([]);
-    const [currentIndex, setCurrentIndex] = useState(0);
-    const [loading, setLoading] = useState(true);
+// Import UI Atoms - Rule #5
+import Button from './ui/Button';
+import SmartImage from './ui/SmartImage';
+import Skeleton from './ui/Skeleton';
+import Safeguard from './ui/Safeguard';
 
-    useEffect(() => {
-        const fetchTools = async () => {
-            try {
-                const now = new Date().toISOString();
-                const { data: featuredData } = await supabase
-                    .from('tools')
-                    .select('id, name, short_description, image_url, url, slug, is_verified')
-                    .eq('is_featured', true)
-                    .gt('featured_until', now)
-                    .limit(5);
-                
-                if (featuredData && featuredData.length > 0) {
-                    setTools(featuredData);
-                } else {
-                    // 2. Fallback: Fetch latest approved tools
-                    const { data: latestData } = await supabase
-                        .from('tools')
-                        .select('id, name, short_description, image_url, url, slug, is_verified')
-                        .eq('is_approved', true)
-                        .order('created_at', { ascending: false })
-                        .limit(5);
-                    
-                    setTools(latestData || []);
-                }
-            } catch (error) {
-                console.error('Banner Fetch Error:', error);
-            } finally {
-                setLoading(false);
-            }
-        };
+/**
+ * SmartBanner - Elite Advertising Engine (v3.3)
+ * Feature: Unified Verification UI & Enhanced Skeletons
+ */
+const SmartBanner = memo((props) => {
+    const {
+        tools = [],
+        currentIndex = 0,
+        isLoading,
+        error,
+        next,
+        prev,
+        onExternalClick,
+        onRetry
+    } = props;
 
-        fetchTools();
-    }, []);
+    const currentTool = tools?.[currentIndex] || null;
 
-    useEffect(() => {
-        if (tools.length <= 1) return;
-        
-        const interval = setInterval(() => {
-            setCurrentIndex((prev) => (prev + 1) % tools.length);
-        }, 8000);
-
-        return () => clearInterval(interval);
-    }, [tools]);
-
-    if (loading || tools.length === 0) return null;
-
-    const currentTool = tools[currentIndex];
+    if (error) return <Safeguard error={error} onRetry={onRetry} />;
 
     return (
-        <div className="smart-banner-new">
-            <div className="banner-inner">
-                {/* Visual Section - Large Icon Look */}
-                <div className="banner-visual">
-                    <img src={currentTool.image_url || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1964&auto=format&fit=crop'} alt={currentTool.name} className="banner-img" />
+        <div className={`${styles.smartBannerNew} fade-in`} id="smart-banner-node">
+            <div className={styles.bannerInner}>
+                {/* 1. Visual Section */}
+                <div className={styles.bannerVisual}>
+                    <div className={styles.imageFixedBox}>
+                        {isLoading ? (
+                            <Skeleton className={styles.skeletonImage} />
+                        ) : (
+                            <SmartImage
+                                src={currentTool?.image_url}
+                                alt={currentTool?.name}
+                                className={styles.bannerImg}
+                                fallbackText={currentTool?.name?.charAt(0)}
+                            />
+                        )}
+                    </div>
                 </div>
 
-                {/* Content Section */}
-                <div className="banner-details">
-                    <div className="banner-top-meta">
-                        <span className="featured-badge">
-                            <Sparkles size={14} /> NEW & FEATURED
+                {/* 2. Content Section */}
+                <div className={styles.bannerDetails}>
+                    <div className={styles.bannerTopMeta}>
+                        {isLoading ? (
+                            <Skeleton className={styles.skeletonBadge} />
+                        ) : (
+                            <div className={styles.featuredBadge}>
+                                <Zap size={14} fill="currentColor" />
+                                <span>FEATURED</span>
+                            </div>
+                        )}
+                    </div>
+
+                    <div className={styles.bannerTextContent}>
+                        {isLoading ? (
+                            <>
+                                <Skeleton className={styles.skeletonTextTitle} />
+                                <Skeleton className={styles.skeletonTextP1} />
+                            </>
+                        ) : (
+                            <>
+                                <div className={styles.titleRow}>
+                                    <h2>{currentTool?.name}</h2>
+                                    {currentTool?.is_verified && (
+                                        <CheckCircle2 size={20} className={styles.verifiedIcon} />
+                                    )}
+                                </div>
+                                <p>{currentTool?.short_description}</p>
+                            </>
+                        )}
+                    </div>
+
+                    <div className={styles.bannerNavMinimal}>
+                        <button className={styles.navBtnMin} onClick={prev} disabled={isLoading || tools.length <= 1}>
+                            <ChevronLeft size={20} />
+                        </button>
+                        <span className={styles.countLabel}>
+                            {isLoading ? (
+                                <Skeleton width="40px" height="12px" />
+                            ) : (
+                                `${currentIndex + 1} / ${tools.length}`
+                            )}
                         </span>
-                        <div className="banner-nav-minimal">
-                             <button onClick={() => setCurrentIndex((prev) => (prev - 1 + tools.length) % tools.length)} className="nav-btn-min">
-                                <ChevronLeft size={16} />
-                            </button>
-                            <span className="count-label">{currentIndex + 1} / {tools.length}</span>
-                             <button onClick={() => setCurrentIndex((prev) => (prev + 1) % tools.length)} className="nav-btn-min">
-                                <ChevronRight size={16} />
-                            </button>
-                        </div>
+                        <button className={styles.navBtnMin} onClick={next} disabled={isLoading || tools.length <= 1}>
+                            <ChevronRight size={20} />
+                        </button>
                     </div>
+                </div>
 
-                    <div className="banner-text-content">
-                        <h2 style={{ display: 'flex', alignItems: 'center', gap: '12px', margin: 0 }}>
-                            {currentTool.name}
-                            {currentTool.is_verified && <CheckCircle2 size={24} color="#00d2ff" fill="rgba(0,210,255,0.1)" />}
-                        </h2>
-                        <p>{currentTool.short_description}</p>
-                    </div>
-
-                    <div className="banner-cta-group">
-                        <Link to={`/tool/${currentTool.slug || currentTool.id}`} className="banner-cta detail">
-                            <Eye size={18} /> View Details
-                        </Link>
-                        <a href={currentTool.url} target="_blank" rel="noopener noreferrer" className="banner-cta visit">
-                            Visit Website <ExternalLink size={18} />
-                        </a>
+                {/* 3. Actions Section */}
+                <div className={styles.bannerActionsRight}>
+                    <div className={styles.bannerCtaGroup}>
+                        {isLoading ? (
+                            <>
+                                <Skeleton className={styles.skeletonCta} />
+                                <Skeleton className={styles.skeletonCta} />
+                            </>
+                        ) : (
+                            <>
+                                <Button
+                                    as={Link}
+                                    to={currentTool ? `/tool/${currentTool.slug}` : '#'}
+                                    variant="ghost"
+                                    className={styles.bannerCtaOverride}
+                                    disabled={isLoading || !currentTool}
+                                >
+                                    Details
+                                </Button>
+                                <Button
+                                    as="a"
+                                    href={currentTool?.url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    variant="primary"
+                                    icon={ExternalLink}
+                                    className={styles.bannerCtaOverride}
+                                    onClick={() => currentTool && onExternalClick?.(currentTool.id)}
+                                    disabled={isLoading || !currentTool}
+                                >
+                                    Visit
+                                </Button>
+                            </>
+                        )}
                     </div>
                 </div>
             </div>
-
-            <style dangerouslySetInnerHTML={{ __html: `
-                .smart-banner-new {
-                    width: 100%;
-                    background: rgba(7, 7, 9, 0.4);
-                    border-bottom: 1px solid var(--border);
-                    backdrop-filter: blur(20px);
-                    position: relative;
-                    z-index: 900;
-                    overflow: hidden;
-                }
-                .banner-inner {
-                    max-width: 1400px;
-                    margin: 0 auto;
-                    display: grid;
-                    grid-template-columns: 320px 1fr;
-                    min-height: 220px;
-                    padding: 20px 0;
-                }
-                .banner-visual {
-                    position: relative;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    padding: 20px;
-                }
-                .banner-img {
-                    width: 150px;
-                    height: 150px;
-                    object-fit: cover;
-                    border-radius: 32px;
-                    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
-                    border: 1px solid rgba(255, 255, 255, 0.1);
-                    transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-                }
-                .smart-banner-new:hover .banner-img {
-                    transform: scale(1.08) rotate(3deg);
-                }
-                .banner-details {
-                    padding: 20px 40px;
-                    display: flex;
-                    flex-direction: column;
-                    justify-content: center;
-                    gap: 1.2rem;
-                }
-                .banner-top-meta {
-                    display: flex;
-                    align-items: center;
-                    justify-content: space-between;
-                }
-                .featured-badge {
-                    background: rgba(var(--primary-rgb), 0.15);
-                    border: 1px solid rgba(var(--primary-rgb), 0.3);
-                    color: var(--primary);
-                    padding: 5px 15px;
-                    border-radius: 100px;
-                    font-size: 0.72rem;
-                    font-weight: 800;
-                    display: flex;
-                    align-items: center;
-                    gap: 8px;
-                    letter-spacing: 1px;
-                }
-                .banner-nav-minimal {
-                    display: flex;
-                    align-items: center;
-                    gap: 12px;
-                    background: rgba(255,255,255,0.05);
-                    padding: 4px 12px;
-                    border-radius: 100px;
-                }
-                .nav-btn-min {
-                    background: transparent;
-                    border: none;
-                    color: white;
-                    cursor: pointer;
-                    opacity: 0.6;
-                    transition: 0.3s;
-                    display: flex;
-                    align-items: center;
-                }
-                .nav-btn-min:hover { opacity: 1; color: var(--primary); }
-                .count-label { font-size: 0.75rem; font-weight: 700; opacity: 0.5; font-family: monospace; }
-                
-                .banner-text-content h2 {
-                    font-size: 2.2rem;
-                    font-weight: 900;
-                    margin-bottom: 0.4rem;
-                    background: linear-gradient(to right, #fff, rgba(255,255,255,0.8));
-                    -webkit-background-clip: text;
-                    background-clip: text;
-                    -webkit-text-fill-color: transparent;
-                }
-                .banner-text-content p {
-                    font-size: 1.02rem;
-                    color: var(--text-muted);
-                    max-width: 800px;
-                    line-height: 1.5;
-                    display: -webkit-box;
-                    -webkit-line-clamp: 2;
-                    -webkit-box-orient: vertical;
-                    overflow: hidden;
-                }
-
-                .banner-cta-group {
-                    display: flex;
-                    gap: 15px;
-                }
-                .banner-cta {
-                    padding: 10px 24px;
-                    border-radius: 14px;
-                    font-size: 0.9rem;
-                    font-weight: 800;
-                    text-decoration: none;
-                    display: flex;
-                    align-items: center;
-                    gap: 10px;
-                    transition: all 0.3s;
-                }
-                .banner-cta.visit {
-                    background: var(--gradient);
-                    color: white;
-                }
-                .banner-cta.detail {
-                    background: rgba(255,255,255,0.05);
-                    color: white;
-                    border: 1px solid var(--border);
-                }
-                .banner-cta:hover { transform: translateY(-3px); filter: brightness(1.1); }
-
-                @media (max-width: 1024px) {
-                    .banner-inner { 
-                        grid-template-columns: 1fr; 
-                        padding: 40px 20px;
-                        text-align: center;
-                    }
-                    .banner-visual {
-                        padding-bottom: 0;
-                    }
-                    .banner-img {
-                        width: 120px;
-                        height: 120px;
-                        border-radius: 28px;
-                    }
-                    .banner-details { 
-                        align-items: center;
-                        padding: 20px 0;
-                    }
-                    .banner-text-content p {
-                        margin: 0 auto;
-                    }
-                    .banner-top-meta {
-                        width: 100%;
-                        margin-bottom: 10px;
-                    }
-                }
-
-                @media (max-width: 480px) {
-                    .banner-inner { min-height: auto; }
-                    .banner-text-content h2 { font-size: 1.7rem; }
-                    .banner-cta-group { flex-direction: column; width: 100%; gap: 12px; }
-                    .banner-cta { justify-content: center; width: 100%; }
-                    .banner-img { width: 100px; height: 100px; }
-                }
-            ` }} />
         </div>
     );
-};
+});
 
 export default SmartBanner;

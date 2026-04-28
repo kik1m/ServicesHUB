@@ -1,8 +1,11 @@
 /* HomeHowItWorks.module.css */
 
 .howItWorks {
-  background: radial-gradient(circle at center, rgba(0, 136, 204, 0.03) 0%, transparent 70%);
-  padding: 3rem 5% !important; 
+  background: radial-gradient(circle at center, rgba(var(--primary-rgb), 0.03) 0%, transparent 70%);
+  padding: 80px 5%;
+  max-width: 1400px;
+  width: 100%;
+  margin: 0 auto;
 }
 
 .stepsGrid {
@@ -38,7 +41,7 @@
 .stepIcon {
   width: 54px;
   height: 54px;
-  background: rgba(0, 136, 204, 0.08);
+  background: rgba(var(--primary-rgb), 0.08);
   border-radius: 16px;
   display: flex;
   align-items: center;

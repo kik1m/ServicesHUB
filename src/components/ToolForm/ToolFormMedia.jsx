@@ -1,37 +1,67 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { ImageIcon, Info, Upload, Loader2, Type, AlignLeft } from 'lucide-react';
+import Button from '../ui/Button';
+import Input from '../ui/Input';
+import Skeleton from '../ui/Skeleton';
 import styles from './ToolFormMedia.module.css';
 
-const ToolFormMedia = ({ 
+/**
+ * ToolFormMedia - Elite Content Section
+ * Rule #29: Isolated failure handling for uploads
+ * Rule #14: Centralized Constants Pattern
+ */
+const ToolFormMedia = memo(({ 
     formData, 
     setFormData, 
     imagePreview, 
     setImagePreview, 
-    uploading, 
+    isUploading, 
     useManualUrl, 
     setUseManualUrl, 
     handleFileChange, 
-    fieldErrors 
+    fieldErrors,
+    isFetchingInitialData,
+    content
 }) => {
+    const { media } = content.sections;
+
+    if (isFetchingInitialData) {
+        return (
+            <div className={styles.sectionCard}>
+                <div className={styles.sectionTitleRow}>
+                    <Skeleton width="52px" height="52px" borderRadius="16px" />
+                    <Skeleton width="220px" height="32px" borderRadius="12px" />
+                </div>
+                
+                <div className={styles.uploadWrapperSlim}>
+                    <Skeleton height="40px" borderRadius="10px" />
+                    <Skeleton height="80px" borderRadius="16px" />
+                    <Skeleton height="240px" borderRadius="20px" />
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className={styles.sectionCard}>
             <div className={styles.sectionTitleRow}>
                 <div className={styles.titleIconBg}>
-                    <ImageIcon size={22} className="text-primary" />
+                    <ImageIcon size={26} />
                 </div>
-                <h3>Media & Content</h3>
+                <h3>{media.title}</h3>
             </div>
 
             <div className={styles.uploadWrapperSlim}>
                 <div className={styles.uploadHeaderRow}>
-                    <label className={styles.slimHeaderLabel}>THUMBNAIL IMAGE</label>
-                    <button type="button" onClick={() => setUseManualUrl(!useManualUrl)} className={styles.premiumToggleBtn}>
-                        {useManualUrl ? (
-                            <><Upload size={14} /> Use Upload</>
-                        ) : (
-                            <><ImageIcon size={14} /> Manual URL</>
-                        )}
-                    </button>
+                    <label className={styles.slimHeaderLabel}>{media.upload.label}</label>
+                    <Button 
+                        variant="ghost" 
+                        onClick={() => setUseManualUrl(!useManualUrl)} 
+                        icon={useManualUrl ? Upload : ImageIcon}
+                        iconSize={16}
+                    >
+                        {useManualUrl ? content.labels.switchUpload : content.labels.useManual}
+                    </Button>
                 </div>
 
                 <div className={styles.premiumInfoBanner}>
@@ -39,73 +69,72 @@ const ToolFormMedia = ({
                         <Info size={22} />
                     </div>
                     <div className={styles.bannerContent}>
-                        <h4>Image Requirements</h4>
-                        <p>Recommended dimensions: <strong>1200 x 630 pixels</strong>. Best formats: <strong>WebP</strong> or <strong>PNG</strong>.</p>
+                        <h4>{media.upload.guidelines.title}</h4>
+                        <p>{media.upload.guidelines.text}</p>
                     </div>
                 </div>
 
                 {useManualUrl ? (
-                    <div className={styles.inputGroupSlim}>
-                        <input 
-                            type="url" 
-                            className={styles.slimInputField} 
-                            placeholder="https://paste-your-image-url-here.com/image.png" 
-                            value={formData.image_url || ''}
-                            onChange={(e) => { 
-                                setFormData({...formData, image_url: e.target.value}); 
-                                if (setImagePreview) setImagePreview(e.target.value); 
-                            }}
-                        />
-                    </div>
+                    <Input 
+                        label={content.labels.imageUrl}
+                        type="url" 
+                        placeholder={content.labels.imageUrlPlaceholder} 
+                        value={formData.image_url || ''}
+                        onChange={(e) => { 
+                            setFormData({...formData, image_url: e.target.value}); 
+                            if (setImagePreview) setImagePreview(e.target.value); 
+                        }}
+                        error={fieldErrors.image_url}
+                    />
                 ) : (
                     <div className={styles.slimDropzone}>
-                        {imagePreview && !uploading ? (
+                        {imagePreview && !isUploading ? (
                             <div className={styles.imagePreviewBox}>
                                 <img src={imagePreview} alt="Preview" />
                                 <label className={styles.changeImgOverlay}>
-                                    <Upload size={18} /> Change Image
-                                    <input type="file" accept="image/*" onChange={handleFileChange} style={{ display: 'none' }} />
+                                    <Upload size={22} /> {content.labels.changeImage}
+                                    <input type="file" accept="image/*" onChange={handleFileChange} className={styles.hiddenInput} />
                                 </label>
                             </div>
                         ) : (
                             <label className={styles.dropzoneLabel}>
-                                {uploading ? <Loader2 className="animate-spin" size={32} /> : <Upload size={40} className="text-primary" style={{ opacity: 0.6 }} />}
+                                {isUploading ? (
+                                    <Loader2 className="animate-spin" size={40} color="var(--primary)" />
+                                ) : (
+                                    <Upload size={48} color="var(--primary)" className={styles.dropzoneIcon} />
+                                )}
                                 <span className={styles.dropzoneText}>
-                                    {uploading ? 'Processing Image...' : 'Click to select tool image'}
+                                    {isUploading ? media.upload.uploading : media.upload.dropzone}
                                 </span>
-                                <input type="file" accept="image/*" onChange={handleFileChange} style={{ display: 'none' }} disabled={uploading} />
+                                <input type="file" accept="image/*" onChange={handleFileChange} className={styles.hiddenInput} disabled={isUploading} />
                             </label>
                         )}
                     </div>
                 )}
+                {fieldErrors.image_url && !useManualUrl && <p className="text-error text-xs font-bold mt-1">{fieldErrors.image_url}</p>}
             </div>
 
-            <div className={styles.inputGrid2}>
-                <div className={styles.inputGroupSlim}>
-                    <label><Type size={14} /> Short Pitch (Catchy)</label>
-                    <input 
-                        type="text" 
-                        className={styles.slimInputField} 
-                        value={formData.short_description || ''} 
-                        onChange={(e) => setFormData({...formData, short_description: e.target.value})} 
-                        placeholder="One sentence describing the tool..."
-                    />
-                    {fieldErrors.short_description && <span className={styles.errorText}>{fieldErrors.short_description}</span>}
-                </div>
-            </div>
+            <Input 
+                label={media.fields.pitch.label}
+                icon={Type}
+                value={formData.short_description || ''} 
+                onChange={(e) => setFormData({...formData, short_description: e.target.value})} 
+                placeholder={media.fields.pitch.placeholder}
+                error={fieldErrors.short_description}
+            />
 
-            <div className={styles.inputGroupSlim}>
-                <label><AlignLeft size={14} /> Full Description</label>
-                <textarea 
-                    className={`${styles.slimInputField} ${styles.textareaField}`} 
-                    value={formData.description || ''} 
-                    onChange={(e) => setFormData({...formData, description: e.target.value})} 
-                    placeholder="Explain how it works and the value it provides..."
-                ></textarea>
-                {fieldErrors.description && <span className={styles.errorText}>{fieldErrors.description}</span>}
-            </div>
+            <Input 
+                label={media.fields.desc.label}
+                icon={AlignLeft}
+                multiline={true}
+                value={formData.description || ''} 
+                onChange={(e) => setFormData({...formData, description: e.target.value})} 
+                placeholder={media.fields.desc.placeholder}
+                error={fieldErrors.description}
+                className={styles.textareaField}
+            />
         </div>
     );
-};
+});
 
 export default ToolFormMedia;

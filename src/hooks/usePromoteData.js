@@ -4,44 +4,19 @@ import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { promotionService } from '../services/promotionService';
 
+import { PROMOTE_UI_CONSTANTS } from '../constants/promoteConstants';
+
 /**
- * Custom hook to manage state and logic for the Promote page.
+ * usePromoteData - Elite Logic Layer
+ * Rule #1: Logic Isolation
+ * Rule #14: Data SSOT
  */
 export const usePromoteData = () => {
+    const { PLANS } = PROMOTE_UI_CONSTANTS;
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
     const { user, loading: authLoading } = useAuth();
     const { showToast } = useToast();
-
-    // Configuration Data (Moved from component for cleaner code)
-    const PLANS = [
-        {
-            id: 'featured',
-            name: "Featured",
-            price: "$49",
-            amount: 49,
-            period: "/mo",
-            desc: "Dominant homepage presence for 30 days.",
-            features: ["Homepage Hero slot (30 days)", "Priority Category Ranking", "Newsletter Spotlight", "Social Media Shoutout", "Verified Tool Badge"],
-            recommended: true,
-            theme: "#00d2ff",
-            glow: "rgba(0, 210, 255, 0.3)",
-            cta: "Get Featured"
-        },
-        {
-            id: 'enterprise',
-            name: "Market Authority",
-            price: "$149",
-            amount: 149,
-            period: "/mo",
-            desc: "Ultimate visibility & SEO power.",
-            features: ["Permanent Featured Status", "Do-Follow Backlink (SEO)", "Dedicated Review Article", "Side-wide Banner Ads", "Priority Review Sync"],
-            recommended: false,
-            theme: "#bf5af2",
-            glow: "rgba(191, 90, 242, 0.3)",
-            cta: "Go Enterprise"
-        }
-    ];
 
     const toolId = searchParams.get('toolId');
     const [toolName, setToolName] = useState('');

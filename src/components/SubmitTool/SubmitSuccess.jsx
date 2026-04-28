@@ -1,21 +1,41 @@
 import React from 'react';
-import { CheckCircle2 } from 'lucide-react';
+import { CheckCircle2, LayoutDashboard, PlusCircle } from 'lucide-react';
+import Button from '../ui/Button';
 import styles from './SubmitSuccess.module.css';
 
-const SubmitSuccess = ({ toolName, onNavigateDashboard, onReset }) => {
+/**
+ * SubmitSuccess - Elite Success State
+ * Rule #14: Centralized Constants Pattern
+ */
+const SubmitSuccess = ({ toolName, onNavigateDashboard, onReset, content }) => {
+    const successContent = content.success;
+
     return (
         <div className={styles.successWrapper}>
             <div className={styles.successCard}>
                 <div className={styles.iconBg}>
-                    <CheckCircle2 size={60} />
+                    <CheckCircle2 size={54} />
                 </div>
-                <h2>Success!</h2>
-                <p>
-                    Your tool <strong>{toolName}</strong> has been submitted. Our team will review and publish it within 24-48 hours.
+                <h2 className={styles.successTitle}>{successContent.title}</h2>
+                <p className={styles.successDesc}>
+                    Your tool <strong>{toolName}</strong> has been received. {successContent.desc}
                 </p>
                 <div className={styles.actionsRow}>
-                    <button onClick={onNavigateDashboard} className={`btn-primary ${styles.dashboardBtn}`}>Dashboard</button>
-                    <button onClick={onReset} className={styles.resetBtn}>Add Another</button>
+                    <Button 
+                        onClick={onNavigateDashboard} 
+                        className={styles.dashboardBtn}
+                        icon={LayoutDashboard}
+                    >
+                        {successContent.actions.dashboard}
+                    </Button>
+                    <Button 
+                        variant="ghost"
+                        onClick={onReset} 
+                        className={styles.resetBtn}
+                        icon={PlusCircle}
+                    >
+                        {successContent.actions.another}
+                    </Button>
                 </div>
             </div>
         </div>
@@ -23,3 +43,7 @@ const SubmitSuccess = ({ toolName, onNavigateDashboard, onReset }) => {
 };
 
 export default SubmitSuccess;
+
+
+
+

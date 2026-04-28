@@ -1,0 +1,148 @@
+.videoGuideSection {
+    padding: 80px 5%;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.sectionHeaderCentered {
+    text-align: center;
+    margin-bottom: 4rem;
+}
+
+.badge {
+  display: inline-block;
+  background: rgba(var(--primary-rgb), 0.15);
+  padding: 6px 16px;
+  border-radius: 100px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--primary);
+  margin-bottom: 1.5rem;
+  letter-spacing: 1px;
+}
+
+.title {
+  font-size: 2.5rem;
+  font-weight: 800;
+  margin-bottom: 1rem;
+}
+
+.gradientText {
+  background: var(--gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.description {
+  color: var(--text-muted);
+  font-size: 1.1rem;
+}
+
+.guideTabs {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.guideTab {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border);
+    padding: 12px 24px;
+    border-radius: 100px;
+    color: var(--text-muted);
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: 0.3s;
+}
+
+.guideTab:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.guideTabActive {
+    background: var(--gradient);
+    color: white;
+    border-color: transparent;
+    box-shadow: 0 10px 20px rgba(0, 136, 204, 0.3);
+}
+
+.guideContainer {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr;
+    gap: 4rem;
+    padding: 3rem;
+    align-items: center;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 32px;
+}
+
+.guideInfo h3 {
+    font-size: 2rem;
+    font-weight: 900;
+    margin-bottom: 1rem;
+    color: white;
+}
+
+.guideInfo p {
+    color: var(--text-muted);
+    font-size: 1.1rem;
+    margin-bottom: 2rem;
+}
+
+.guideFeatures {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 0;
+}
+
+.guideFeatures li {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.8);
+}
+
+.featureIcon {
+    color: var(--primary);
+}
+
+.guideVideoWrapper {
+    border-radius: 20px;
+    overflow: hidden;
+    aspect-ratio: 16/9;
+    border: 1px solid var(--border);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+}
+
+.guideVideoWrapper iframe {
+    width: 100%;
+    height: 100%;
+}
+
+@media (max-width: 1024px) {
+    .guideContainer { 
+        grid-template-columns: 1fr; 
+        gap: 3rem; 
+    }
+}
+
+@media (max-width: 640px) {
+    .guideTabs {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .guideTab {
+        justify-content: center;
+    }
+}

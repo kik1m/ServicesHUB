@@ -1,11 +1,5 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { AlertCircle } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
-import { useToast } from '../context/ToastContext';
-import useSEO from '../hooks/useSEO';
 import { useDashboardData } from '../hooks/useDashboardData';
-import SkeletonLoader from '../components/SkeletonLoader';
 
 // Import Modular Components
 import DashboardHeader from '../components/Dashboard/DashboardHeader';
@@ -14,96 +8,95 @@ import DashboardViewsChart from '../components/Dashboard/DashboardViewsChart';
 import DashboardToolsTable from '../components/Dashboard/DashboardToolsTable';
 import DashboardFavorites from '../components/Dashboard/DashboardFavorites';
 import DashboardWelcomeCTA from '../components/Dashboard/DashboardWelcomeCTA';
+import Safeguard from '../components/ui/Safeguard';
+import useSEO from '../hooks/useSEO';
 
 // Import Modular Styles
 import styles from './Dashboard.module.css';
 
+import { DASHBOARD_CONSTANTS } from '../constants/dashboardConstants';
+
+/**
+ * Dashboard Page - Elite 10/10 Orchestrator
+ * Rule #16: Stable Coordinator Pattern
+ * Rule #31: Component Resilience via Safeguard
+ */
 const Dashboard = () => {
-    const navigate = useNavigate();
-    const { showToast } = useToast();
-    const { user, loading: authLoading } = useAuth();
-    
     const {
         userTools,
         favorites,
+        chartData,
+        isCreator,
+        isPremium,
+        stats,
         isLoading,
-        error,
-        handleDeleteTool
-    } = useDashboardData(user, authLoading);
+        toolsLoading,
+        favoritesLoading,
+        toolsError,
+        favoritesError,
+        handleDeleteTool,
+        refreshData,
+        user
+    } = useDashboardData();
 
-    useSEO({
-        title: userTools.length > 0 ? 'Creator Dashboard | HUBly' : 'My Dashboard | HUBly',
-        description: 'Manage your submissions, track views, and explore your favorite tools all in one place.',
-        url: typeof window !== 'undefined' ? window.location.href : 'https://hubly.com/dashboard'
-    });
-
-    if (isLoading) {
-        return (
-            <div className={`container ${styles.dashboardPage}`}>
-                <div style={{ marginBottom: '3rem' }}>
-                    <SkeletonLoader type="title" width="300px" style={{ marginBottom: '1rem' }} />
-                    <SkeletonLoader type="text" width="60%" />
-                </div>
-                
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1.5rem', marginBottom: '3rem' }}>
-                    <SkeletonLoader type="stat" />
-                    <SkeletonLoader type="stat" />
-                    <SkeletonLoader type="stat" />
-                </div>
-
-                <div style={{ display: 'grid', gridTemplateColumns: '2.2fr 1fr', gap: '3rem' }}>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                        <SkeletonLoader height="150px" borderRadius="24px" />
-                        <SkeletonLoader height="400px" borderRadius="24px" />
-                    </div>
-                    <SkeletonLoader height="500px" borderRadius="24px" />
-                </div>
-            </div>
-        );
-    }
-
-    const isCreator = userTools.length > 0;
+    // 1. SEO Hardening (v2.0)
+    useSEO({ pageKey: 'dashboard' });
 
     return (
-        <div className={`container ${styles.dashboardPage}`}>
-            
+        <div className={styles.dashboardPage}>
             <DashboardHeader 
                 isCreator={isCreator} 
-                user={user} 
-                showToast={showToast} 
+                user={user}
+                isLoading={isLoading}
+                content={DASHBOARD_CONSTANTS?.header}
+                error={null} // Header usually doesn't fail based on tools
             />
-
-            {error && (
-                <div className={styles.alertBox}>
-                    <AlertCircle size={18} /> {error}
-                </div>
-            )}
 
             <DashboardStats 
                 isCreator={isCreator} 
-                userTools={userTools} 
-                favorites={favorites} 
-                user={user}
+                isPremium={isPremium}
+                stats={stats}
+                isLoading={toolsLoading || favoritesLoading}
+                content={DASHBOARD_CONSTANTS?.stats}
+                error={toolsError || favoritesError}
+                onRetry={refreshData}
             />
 
-            {isCreator ? (
+            {(toolsLoading || isCreator) ? (
                 <div className={styles.creatorGrid}>
-                    <DashboardViewsChart userTools={userTools} />
+                    <DashboardViewsChart 
+                        chartData={chartData} 
+                        isLoading={toolsLoading}
+                        error={toolsError}
+                        onRetry={refreshData}
+                        content={DASHBOARD_CONSTANTS?.chart}
+                    />
                     
-                    <div style={{ marginBottom: '1.5rem', marginTop: '3rem' }}>
-                        <h2 style={{ fontSize: '1.4rem', fontWeight: '900' }}>Active Listings</h2>
+                    <div className={styles.sectionHeader}>
+                        <h2 className={styles.sectionTitle}>
+                            {DASHBOARD_CONSTANTS?.toolsTable?.title}
+                        </h2>
                     </div>
                     
                     <DashboardToolsTable 
                         userTools={userTools} 
-                        navigate={navigate} 
-                        handleDeleteTool={(id, name) => handleDeleteTool(id, name, showToast)} 
+                        handleDeleteTool={(id, name) => handleDeleteTool(id, name, DASHBOARD_CONSTANTS?.toolsTable?.confirmDelete)} 
+                        isLoading={toolsLoading}
+                        error={toolsError}
+                        onRetry={refreshData}
+                        content={DASHBOARD_CONSTANTS?.toolsTable}
                     />
                 </div>
             ) : (
                 <div className={styles.discoveryGrid}>
-                    <DashboardFavorites favorites={favorites} />
-                    <DashboardWelcomeCTA />
+                    <DashboardFavorites 
+                        favorites={favorites} 
+                        isLoading={favoritesLoading}
+                        error={favoritesError}
+                        onRetry={refreshData}
+                        content={DASHBOARD_CONSTANTS?.favorites}
+                    />
+                    <DashboardWelcomeCTA content={DASHBOARD_CONSTANTS?.welcome} />
                 </div>
             )}
         </div>

@@ -1,0 +1,178 @@
+/* PageHero.module.css - Elite Transparent & Centered Version */
+
+.heroSection {
+    position: relative;
+    padding: 30px 5% 25px;
+    background: transparent !important; /* Force Transparency Globally */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    min-height: 180px;
+}
+
+.heroSection::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at 50% -20%, rgba(0, 136, 204, 0.15) 0%, transparent 70%);
+    pointer-events: none;
+}
+
+.heroContent {
+    max-width: 1200px;
+    width: 100%;
+    z-index: 2;
+    animation: fadeInDown 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Center Content Wrapper */
+}
+
+.heroRow {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+}
+
+.breadcrumbWrapper {
+    margin-bottom: 0.5rem;
+    width: 100%;
+    display: flex;
+    justify-content: center; /* Center Breadcrumbs globally */
+}
+
+.heroHeader {
+    display: flex;
+    flex-direction: column; /* Stack vertically for centering */
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    width: 100%;
+}
+
+.heroRow .heroHeader {
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.heroIcon {
+    background: var(--gradient);
+    padding: 10px;
+    border-radius: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 25px rgba(0, 210, 255, 0.3);
+}
+
+.heroBadge {
+    margin-bottom: 0.8rem;
+    width: 100%;
+    display: flex;
+    justify-content: center; /* Center Badges */
+}
+
+.titleStack {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Center Title Stack */
+    text-align: center;
+    width: 100%;
+}
+
+.title {
+    font-size: 2.8rem;
+    font-weight: 900;
+    margin: 0;
+    line-height: 1.1;
+    background: linear-gradient(135deg, #ffffff 0%, #a5a5a5 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    width: 100%;
+}
+
+.subtitle {
+    font-size: 1.1rem;
+    color: var(--text-muted);
+    max-width: 700px;
+    margin: 0.5rem auto 0;
+    line-height: 1.6;
+    text-align: center; /* Center Subtitle text */
+}
+
+.heroActions {
+    margin-top: 1.5rem;
+    display: flex;
+    justify-content: center; /* Center Action buttons */
+    width: 100%;
+}
+
+/* Alignment Utilities for Exceptions */
+.heroRow .titleStack {
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
+}
+
+.heroRow .subtitle {
+    margin: 0;
+    text-align: left;
+}
+
+.heroRow .heroActions {
+    justify-content: flex-start;
+}
+
+.alignLeft {
+    justify-content: flex-start !important;
+    align-items: flex-start !important;
+    text-align: left !important;
+}
+
+@keyframes fadeInDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 768px) {
+    .title { font-size: 2rem; }
+    .heroRow { flex-direction: column; text-align: center; }
+    .heroRow .titleStack { align-items: center; }
+    .heroRow .subtitle { text-align: center; }
+}
+
+/* Skeleton Standards - Rule #81 */
+.skeletonBreadcrumb {
+    width: 120px;
+    height: 16px;
+    border-radius: 4px;
+}
+
+.titleWithIconSkeleton {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    width: 100%;
+    justify-content: center;
+}
+
+.skeletonIcon {
+    width: 60px;
+    height: 60px;
+    border-radius: 12px;
+}
+
+.skeletonTitle {
+    width: 40%;
+    height: 48px;
+    border-radius: 8px;
+}

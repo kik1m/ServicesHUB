@@ -43,3 +43,40 @@
     font-weight: 600;
     letter-spacing: 0.5px;
 }
+
+.xAxis span {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--text-muted);
+}
+
+.chartPath {
+    filter: drop-shadow(0 0 8px var(--primary));
+}
+
+/* Rule #81: Skeleton Sanitization */
+.skeletonTitle {
+    width: 180px;
+    height: 24px;
+}
+
+.skeletonChartBody {
+    padding: 20px 0;
+}
+
+.skeletonSvg {
+    width: 100%;
+    height: 150px;
+    border-radius: 12px;
+}
+
+.skeletonAxis {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+}
+
+.skeletonMonth {
+    width: 30px;
+    height: 12px;
+}

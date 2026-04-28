@@ -1,5 +1,6 @@
 import React from 'react';
-import SkeletonLoader from '../components/SkeletonLoader';
+import useSEO from '../hooks/useSEO';
+import Skeleton from '../components/ui/Skeleton';
 import { useSuccessData } from '../hooks/useSuccessData';
 
 // Import Modular Components
@@ -10,31 +11,29 @@ import SuccessActions from '../components/Success/SuccessActions';
 // Import Modular CSS
 import styles from './Success.module.css';
 
+/**
+ * Success Page - Transaction Confirmation
+ * Rule #34/41: Unified SEO Hardening
+ */
 const Success = () => {
     const { loading, type, toolName } = useSuccessData();
 
-    if (loading) {
-        return (
-            <div className={`page-wrapper ${styles.successViewWrapper}`}>
-                <div className={`glass-card ${styles.successGlassCard}`}>
-                    <SkeletonLoader height="300px" borderRadius="16px" />
-                </div>
-            </div>
-        );
-    }
+    // 1. SEO Hardening (v2.0)
+    useSEO({ pageKey: 'success' });
 
     return (
-        <div className={`page-wrapper ${styles.successViewWrapper}`}>
+        <div className={`page-wrapper ${styles.successViewWrapper} fade-in`}>
             <div className={`glass-card ${styles.successGlassCard}`}>
                 
-                <SuccessHero type={type} />
+                <SuccessHero type={type} isLoading={loading} />
                 
                 <SuccessMessage 
                     type={type} 
                     toolName={toolName} 
+                    isLoading={loading}
                 />
 
-                <SuccessActions />
+                <SuccessActions isLoading={loading} />
                 
             </div>
         </div>

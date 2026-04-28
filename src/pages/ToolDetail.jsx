@@ -1,87 +1,163 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import useSEO from '../hooks/useSEO';
 import { useToolDetailData } from '../hooks/useToolDetailData';
-import ReviewsSection from '../components/ReviewsSection';
-import ReportToolModal from '../components/ReportToolModal';
+import { getCurrentUrl } from '../utils/getCurrentUrl';
+
+// Import Global Components
+import Safeguard from '../components/ui/Safeguard';
+import EmptyState from '../components/ui/EmptyState';
 
 // Import Modular Components
-import ToolDetailSkeleton from '../components/ToolDetail/ToolDetailSkeleton';
-import ToolDetailHeader from '../components/ToolDetail/ToolDetailHeader';
+import ToolDetailHero from '../components/ToolDetail/ToolDetailHero';
+import ToolDetailMasterCard from '../components/ToolDetail/ToolDetailMasterCard';
 import ToolDetailInfo from '../components/ToolDetail/ToolDetailInfo';
 import ToolDetailSidebar from '../components/ToolDetail/ToolDetailSidebar';
 import ToolDetailRelated from '../components/ToolDetail/ToolDetailRelated';
+import ReviewsSection from '../components/ReviewsSection';
+import ReportToolModal from '../components/ReportToolModal';
 
-// Import Modular CSS
+// Import Constants & Styles
+import { TOOL_DETAIL_UI_CONSTANTS } from '../constants/toolDetailConstants';
 import styles from './ToolDetail.module.css';
 
+/**
+ * ToolDetail Page (Elite 10/10)
+ * Rule #1: Logic Isolation (useToolDetailData)
+ * Rule #31: Component Resilience via Safeguard
+ */
 const ToolDetail = () => {
+    const navigate = useNavigate();
+    
     const {
         tool,
         publisher,
         relatedTools,
         loading,
+        error,
         isFavorited,
         isReportModalOpen,
-        setIsReportModalOpen,
         toggleFavorite,
         handleShare,
-        navigate
+        handleExternalClick,
+        openReportModal,
+        closeReportModal,
+        user,
+        refresh
     } = useToolDetailData();
 
+    // SEO Hardening
     useSEO({
-        title: tool?.name ? `${tool.name} - Tool Details` : 'Tool Details',
-        description: tool?.description,
+        title: tool?.name ? `${tool.name} ${TOOL_DETAIL_UI_CONSTANTS.seo.titleSuffix}` : 'Tool Details',
+        description: tool?.short_description || tool?.description,
         image: tool?.image_url,
-        url: typeof window !== 'undefined' ? window.location.href : ''
+        url: getCurrentUrl(),
+        schema: tool ? {
+            "@context": "https://schema.org/",
+            "@type": "Product",
+            "name": tool.name,
+            "image": tool.image_url,
+            "description": tool.short_description || tool.description,
+            "brand": { "@type": "Brand", "name": tool.category || "Technology" }
+        } : null
     });
 
-    if (loading) return <ToolDetailSkeleton />;
+    const breadcrumbItems = useMemo(() => [
+        { label: TOOL_DETAIL_UI_CONSTANTS.breadcrumbs.home, path: '/' },
+        { label: TOOL_DETAIL_UI_CONSTANTS.breadcrumbs.tools, path: '/tools' },
+        { label: tool?.name || 'Tool' }
+    ], [tool?.name]);
 
-    if (!tool) {
-        return (
-            <div className="page-wrapper" style={{ textAlign: 'center', padding: '150px 5%' }}>
-                <h2 className="hero-title">Tool <span className="gradient-text">Not Found</span></h2>
-                <Link to="/tools" className="btn-primary" style={{ marginTop: '2rem' }}>Back to Directory</Link>
-            </div>
-        );
-    }
+    const handleAuthAction = async (action) => {
+        if (!user) {
+            navigate('/auth');
+            return;
+        }
+        await action();
+    };
+
+    const isNotFound = !loading && !tool && !error;
 
     return (
-        <div className={`page-wrapper ${styles.toolDetailPage}`}>
-            <ToolDetailHeader 
-                tool={tool} 
-                navigate={navigate} 
-                isFavorited={isFavorited} 
-                toggleFavorite={toggleFavorite} 
-            />
+        <div className={styles.toolDetailPage}>
+            <Safeguard error={error} onRetry={refresh} fullPage title="Tool Unavailable">
+                {isNotFound ? (
+                    <div className={styles.errorWrapper}>
+                        <EmptyState 
+                            title={TOOL_DETAIL_UI_CONSTANTS.error.notFound}
+                            message={TOOL_DETAIL_UI_CONSTANTS.error.notFoundDesc}
+                        />
+                    </div>
+                ) : (
+                    <>
+                        <ToolDetailHero 
+                            tool={tool}
+                            breadcrumbs={breadcrumbItems}
+                            isLoading={loading && !tool}
+                            content={TOOL_DETAIL_UI_CONSTANTS}
+                        />
 
-            <section className={`main-section ${styles.toolDetailMain}`}>
-                <div className={styles.toolGridLayout}>
-                    <ToolDetailInfo tool={tool} />
+                        <section className={styles.toolDetailMain}>
+                            <ToolDetailMasterCard 
+                                tool={tool}
+                                isFavorited={isFavorited}
+                                toggleFavorite={() => handleAuthAction(toggleFavorite)}
+                                onExternalClick={handleExternalClick}
+                                isLoading={loading && !tool}
+                                content={TOOL_DETAIL_UI_CONSTANTS}
+                            />
 
-                    <ToolDetailSidebar 
-                        tool={tool} 
-                        publisher={publisher} 
-                        isFavorited={isFavorited} 
-                        toggleFavorite={toggleFavorite} 
-                        handleShare={handleShare} 
-                        setIsReportModalOpen={setIsReportModalOpen} 
-                    />
-                </div>
+                            <div className={styles.toolGridLayout}>
+                                <div className={styles.infoCol}>
+                                    <ToolDetailInfo 
+                                        tool={tool} 
+                                        isLoading={loading && !tool}
+                                        content={TOOL_DETAIL_UI_CONSTANTS}
+                                    />
+                                </div>
 
-                <ToolDetailRelated relatedTools={relatedTools} />
-                
-                {tool && tool.id && <ReviewsSection toolId={tool.id} />}
-            </section>
-            
-            {isReportModalOpen && (
-                <ReportToolModal 
-                    toolId={tool.id} 
-                    toolName={tool.name} 
-                    onClose={() => setIsReportModalOpen(false)} 
-                />
-            )}
+                                <aside className={styles.sidebarCol}>
+                                    <ToolDetailSidebar 
+                                        tool={tool} 
+                                        publisher={publisher} 
+                                        isFavorited={isFavorited} 
+                                        toggleFavorite={() => handleAuthAction(toggleFavorite)} 
+                                        handleShare={handleShare} 
+                                        setIsReportModalOpen={openReportModal} 
+                                        isLoading={loading && !publisher}
+                                        content={TOOL_DETAIL_UI_CONSTANTS}
+                                    />
+                                </aside>
+                            </div>
+
+                            <ToolDetailRelated 
+                                relatedTools={relatedTools} 
+                                isLoading={loading && relatedTools.length === 0}
+                                content={TOOL_DETAIL_UI_CONSTANTS}
+                            />
+                            
+                            {tool?.id && (
+                                <div className={styles.reviewsSectionWrapper}>
+                                    <ReviewsSection 
+                                        toolId={tool.id} 
+                                        content={TOOL_DETAIL_UI_CONSTANTS.reviews}
+                                        onReviewSuccess={refresh}
+                                    />
+                                </div>
+                            )}
+                        </section>
+                        
+                        {isReportModalOpen && tool && (
+                            <ReportToolModal 
+                                toolId={tool.id} 
+                                toolName={tool.name} 
+                                user={user}
+                                onClose={closeReportModal} 
+                            />
+                        )}
+                    </>
+                )}
+            </Safeguard>
         </div>
     );
 };

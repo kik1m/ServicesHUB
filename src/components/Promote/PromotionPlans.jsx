@@ -1,63 +1,56 @@
-import React from 'react';
-import { CheckCircle2, ArrowRight, Loader2 } from 'lucide-react';
+import React, { memo } from 'react';
+import Skeleton from '../ui/Skeleton';
+import PromotionCard from './PromotionCard';
 import styles from './PromotionPlans.module.css';
 
-const PromotionPlans = ({ plans, handlePromote, loadingPlan, selectedToolId }) => {
+/**
+ * PromotionPlans - Elite Orchestrator
+ * Rule #16: Component Orchestration
+ */
+const PromotionPlans = ({ plans, handlePromote, loadingPlan, selectedToolId, isLoading, content }) => {
     return (
-        <section className={styles.promoteStepCard}>
-            <div className={styles.sectionHeaderCompact}>
-                <div className={styles.badgeStep}>STEP 2</div>
-                <h3>Choose Promotion Level</h3>
+        <div className={styles.plansContainer}>
+            <div className={styles.sectionHeader}>
+                <div className={styles.stepBadge}>STEP 2</div>
+                <h3 className={styles.sectionTitle}>{content.title}</h3>
             </div>
 
-            <div className={styles.promotePlansGrid}>
+            {(isLoading || !plans.length) ? (
+                <div className={styles.plansGrid}>
+                    {[1, 2, 3].map(i => (
+                        <div key={i} className={styles.skeletonCard}>
+                            <div className={styles.skeletonHeader}>
+                                <Skeleton width="120px" height="24px" />
+                                <Skeleton width="180px" height="48px" style={{ marginTop: '15px' }} />
+                                <Skeleton width="100%" height="16px" style={{ marginTop: '10px' }} />
+                            </div>
+                            <div className={styles.skeletonDivider} />
+                            <div className={styles.skeletonBody}>
+                                <Skeleton width="100px" height="14px" />
+                                {[1, 2, 3, 4].map(j => (
+                                    <Skeleton key={j} width="90%" height="16px" style={{ marginTop: '12px' }} />
+                                ))}
+                            </div>
+                            <Skeleton width="100%" height="48px" borderRadius="12px" style={{ marginTop: 'auto' }} />
+                        </div>
+                    ))}
+                </div>
+            ) : (
+                <div className={styles.plansGrid}>
                 {plans.map((plan) => (
-                    <div key={plan.id} className={styles.promotePlanCard}>
-                        <div className={styles.planGlowOverlay} style={{
-                            background: `radial-gradient(circle at 50% 10%, ${plan.glow} 0%, transparent 60%)`
-                        }}></div>
-
-                        {plan.recommended && (
-                            <div className={styles.recommendedBadge} style={{ background: plan.theme }}>MOST POPULAR</div>
-                        )}
-
-                        <div className={styles.planTitleBox}>
-                            <h4>{plan.name}</h4>
-                            <p>{plan.desc}</p>
-                        </div>
-
-                        <div className={styles.planPriceTag}>
-                            <span className={styles.amount}>{plan.price}</span>
-                            <span className={styles.period}>{plan.period}</span>
-                        </div>
-
-                        <ul className={styles.planFeaturesList}>
-                            {plan.features.map((f, i) => (
-                                <li key={i}>
-                                    <CheckCircle2 size={18} style={{ color: plan.theme }} />
-                                    <span>{f}</span>
-                                </li>
-                            ))}
-                        </ul>
-
-                        <button
-                            onClick={() => handlePromote(plan)}
-                            disabled={loadingPlan === plan.name || !selectedToolId}
-                            className={styles.planCtaBtn}
-                            style={{
-                                background: plan.theme,
-                                boxShadow: selectedToolId ? `0 10px 30px ${plan.glow}` : 'none',
-                                opacity: selectedToolId ? 1 : 0.4,
-                                cursor: selectedToolId ? 'pointer' : 'not-allowed'
-                            }}
-                        >
-                            {loadingPlan === plan.name ? <Loader2 className="animate-spin" /> : <>{plan.cta} <ArrowRight size={20} /></>}
-                        </button>
-                    </div>
+                    <PromotionCard 
+                        key={plan.id}
+                        plan={plan}
+                        onSelect={handlePromote}
+                        isLoading={loadingPlan === plan.name}
+                        disabled={!selectedToolId}
+                        content={content}
+                    />
                 ))}
             </div>
-        </section>
+            )}
+        </div>
     );
 };
 
-export default PromotionPlans;
+export default memo(PromotionPlans);

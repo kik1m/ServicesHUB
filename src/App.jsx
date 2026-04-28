@@ -34,7 +34,6 @@ const Settings = lazy(() => import('./pages/Settings'));
 const Search = lazy(() => import('./pages/Search'));
 const Compare = lazy(() => import('./pages/Compare'));
 const ResetPassword = lazy(() => import('./pages/ResetPassword'));
-
 const PublicProfile = lazy(() => import('./pages/PublicProfile'));
 
 const PageLoader = () => (
@@ -43,43 +42,193 @@ const PageLoader = () => (
   </div>
 );
 
+const AuthSkeleton = () => (
+    <div style={{ minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
+        <div style={{ 
+            width: '100%', 
+            maxWidth: '450px', 
+            padding: '2.5rem', 
+            background: 'var(--card-bg)', 
+            borderRadius: '24px',
+            border: '1px solid var(--border)',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '20px'
+        }}>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '15px', marginBottom: '1rem' }}>
+                <div style={{ width: '60px', height: '60px', borderRadius: '15px', background: 'var(--skeleton-bg)', animation: 'pulse 1.5s infinite ease-in-out' }} />
+                <div style={{ width: '150px', height: '24px', borderRadius: '100px', background: 'var(--skeleton-bg)', animation: 'pulse 1.5s infinite ease-in-out' }} />
+            </div>
+            <div style={{ height: '76px', borderRadius: '14px', background: 'var(--skeleton-bg)', animation: 'pulse 1.5s infinite ease-in-out' }} />
+            <div style={{ height: '76px', borderRadius: '14px', background: 'var(--skeleton-bg)', animation: 'pulse 1.5s infinite ease-in-out' }} />
+            <div style={{ height: '54px', borderRadius: '12px', background: 'var(--skeleton-bg)', animation: 'pulse 1.5s infinite ease-in-out', marginTop: '10px' }} />
+        </div>
+    </div>
+);
+
 function App() {
   return (
-    <Router future={{ v7_relativeSplatPath: true }}>
+    <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <div className="app-container">
         <ScrollToTop />
         <Navbar />
         <main className="content">
           <Suspense fallback={<PageLoader />}>
             <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/tools" element={<Tools />} />
-              <Route path="/categories" element={<Categories />} />
-              <Route path="/about" element={<About />} />
-              <Route path="/profile" element={<Profile />} />
-              <Route path="/u/:id" element={<PublicProfile />} />
-              <Route path="/auth" element={<Auth />} />
-              <Route path="/tool/:id" element={<ToolDetail />} />
-              <Route path="/category/:id" element={<CategoryDetail />} />
-              <Route path="/submit" element={<SubmitTool />} />
-              <Route path="/contact" element={<Contact />} />
-              <Route path="/terms" element={<Terms />} />
-              <Route path="/privacy" element={<Privacy />} />
-              <Route path="/blog" element={<Blog />} />
-              <Route path="/blog/:id" element={<BlogPost />} />
-              <Route path="/faq" element={<FAQ />} />
-              <Route path="/premium" element={<Premium />} />
-              <Route path="/promote" element={<Promote />} />
-              <Route path="/compare" element={<Compare />} />
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/notifications" element={<Notifications />} />
-              <Route path="/edit-tool/:id" element={<EditTool />} />
-              <Route path="/admin" element={<AdminDashboard />} />
-              <Route path="/settings" element={<Settings />} />
-              <Route path="/search" element={<Search />} />
-              <Route path="/reset-password" element={<ResetPassword />} />
-              <Route path="/success" element={<Success />} />
-              <Route path="*" element={<NotFound />} />
+              {/* Core Exploration Routes (Silent Load) */}
+              <Route path="/" element={
+                <Suspense fallback={null}>
+                    <Home />
+                </Suspense>
+              } />
+              <Route path="/search" element={
+                <Suspense fallback={null}>
+                    <Search />
+                </Suspense>
+              } />
+              <Route path="/categories" element={
+                <Suspense fallback={null}>
+                    <Categories />
+                </Suspense>
+              } />
+              <Route path="/category/:id" element={
+                <Suspense fallback={null}>
+                    <CategoryDetail />
+                </Suspense>
+              } />
+              <Route path="/tool/:id" element={
+                <Suspense fallback={null}>
+                    <ToolDetail />
+                </Suspense>
+              } />
+              
+              {/* Profile Routes (Silent Load) */}
+              <Route path="/profile" element={
+                <Suspense fallback={null}>
+                    <Profile />
+                </Suspense>
+              } />
+              <Route path="/profile/:id" element={
+                <Suspense fallback={null}>
+                    <PublicProfile />
+                </Suspense>
+              } />
+              <Route path="/u/:id" element={
+                <Suspense fallback={null}>
+                    <PublicProfile />
+                </Suspense>
+              } />
+
+              {/* Auth Routes (Custom Skeletons) */}
+              <Route path="/auth" element={
+                <Suspense fallback={<AuthSkeleton />}>
+                    <Auth />
+                </Suspense>
+              } />
+              <Route path="/reset-password" element={
+                <Suspense fallback={<AuthSkeleton />}>
+                    <ResetPassword />
+                </Suspense>
+              } />
+
+              {/* Functional Routes */}
+              <Route path="/dashboard" element={
+                <Suspense fallback={null}>
+                    <Dashboard />
+                </Suspense>
+              } />
+              <Route path="/settings" element={
+                <Suspense fallback={null}>
+                    <Settings />
+                </Suspense>
+              } />
+              <Route path="/submit" element={
+                <Suspense fallback={null}>
+                    <SubmitTool />
+                </Suspense>
+              } />
+              <Route path="/edit-tool/:id" element={
+                <Suspense fallback={null}>
+                    <EditTool />
+                </Suspense>
+              } />
+
+              {/* Secondary/Static Routes */}
+              <Route path="/tools" element={
+                <Suspense fallback={null}>
+                    <Tools />
+                </Suspense>
+              } />
+              <Route path="/about" element={
+                <Suspense fallback={null}>
+                    <About />
+                </Suspense>
+              } />
+              <Route path="/contact" element={
+                <Suspense fallback={null}>
+                    <Contact />
+                </Suspense>
+              } />
+              <Route path="/blog" element={
+                <Suspense fallback={null}>
+                    <Blog />
+                </Suspense>
+              } />
+              <Route path="/blog/:id" element={
+                <Suspense fallback={null}>
+                    <BlogPost />
+                </Suspense>
+              } />
+              <Route path="/faq" element={
+                <Suspense fallback={null}>
+                    <FAQ />
+                </Suspense>
+              } />
+              <Route path="/terms" element={
+                <Suspense fallback={null}>
+                    <Terms />
+                </Suspense>
+              } />
+              <Route path="/privacy" element={
+                <Suspense fallback={null}>
+                    <Privacy />
+                </Suspense>
+              } />
+              <Route path="/premium" element={
+                <Suspense fallback={null}>
+                    <Premium />
+                </Suspense>
+              } />
+              <Route path="/promote" element={
+                <Suspense fallback={null}>
+                    <Promote />
+                </Suspense>
+              } />
+              <Route path="/compare" element={
+                <Suspense fallback={null}>
+                    <Compare />
+                </Suspense>
+              } />
+              <Route path="/notifications" element={
+                <Suspense fallback={null}>
+                    <Notifications />
+                </Suspense>
+              } />
+              <Route path="/admin" element={
+                <Suspense fallback={null}>
+                    <AdminDashboard />
+                </Suspense>
+              } />
+              <Route path="/success" element={
+                <Suspense fallback={null}>
+                    <Success />
+                </Suspense>
+              } />
+              <Route path="*" element={
+                <Suspense fallback={null}>
+                    <NotFound />
+                </Suspense>
+              } />
             </Routes>
           </Suspense>
         </main>

@@ -1,4 +1,5 @@
-.card {
+.card,
+.skeletonCard {
     padding: 1rem 1.5rem;
     display: flex;
     gap: 20px;
@@ -106,4 +107,46 @@
     .title {
         font-size: 1rem;
     }
+}
+
+/* Skeleton Standards - Rule #81 */
+.skeletonCard {
+    opacity: 0.6;
+}
+
+.skeletonIcon {
+    width: 44px; /* Matches 40px + padding */
+    height: 44px;
+    border-radius: 12px;
+}
+
+.skeletonTitle {
+    width: 180px;
+    height: 20px;
+    border-radius: 4px;
+}
+
+.skeletonTime {
+    width: 60px;
+    height: 14px;
+    border-radius: 3px;
+}
+
+.skeletonBody {
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.skeletonLine {
+    width: 100%;
+    height: 14px;
+    border-radius: 3px;
+}
+
+.skeletonLineShort {
+    width: 80%;
+    height: 14px;
+    border-radius: 3px;
 }

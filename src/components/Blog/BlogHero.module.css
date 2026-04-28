@@ -1,0 +1,58 @@
+/* BlogHero.module.css - Specialized styles for Blog Listing Header */
+
+.eliteBadge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 8px 16px;
+    border-radius: 100px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(10px);
+}
+
+.badgeIcon {
+    color: #00d2ff;
+}
+
+.glassSearch {
+    background: rgba(255, 255, 255, 0.05) !important;
+    backdrop-filter: blur(20px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 20px !important;
+    height: 60px !important; /* Premium Height */
+    transition: all 0.4s ease !important;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+}
+
+.glassSearch:focus-within {
+    border-color: #00d2ff !important;
+    background: rgba(255, 255, 255, 0.08) !important;
+    box-shadow: 0 15px 40px rgba(0, 210, 255, 0.15);
+    transform: translateY(-2px);
+}
+
+.searchContainer {
+    width: 100%;
+    max-width: 650px;
+    margin: 1.5rem auto 0;
+    position: relative;
+    z-index: 10;
+}
+
+@media (max-width: 768px) {
+    .eliteBadge {
+        padding: 6px 12px;
+        font-size: 0.7rem;
+    }
+    
+    .searchContainer {
+        max-width: 90%;
+    }
+}

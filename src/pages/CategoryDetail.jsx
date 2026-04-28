@@ -1,93 +1,133 @@
-import React from 'react';
+import React, { useMemo, memo } from 'react';
 import { useParams } from 'react-router-dom';
-import useSEO from '../hooks/useSEO';
 import { useCategoryDetailData } from '../hooks/useCategoryDetailData';
+import { useSearchEngine } from '../hooks/useSearchEngine';
+import { useBannerData } from '../hooks/useBannerData';
+import { getIcon } from '../utils/iconMap.jsx';
+import { CATEGORY_STRINGS } from '../constants/categoryConstants';
 
-// Import Global Components
+// Import Global UI Components
+import useSEO from '../hooks/useSEO';
+import PageHero from '../components/ui/PageHero';
+import Safeguard from '../components/ui/Safeguard';
 import SmartBanner from '../components/SmartBanner';
 
 // Import Modular Components
-import CategoryDetailHeader from '../components/CategoryDetail/CategoryDetailHeader';
 import CategoryDetailTools from '../components/CategoryDetail/CategoryDetailTools';
-import CategoryDetailEmpty from '../components/CategoryDetail/CategoryDetailEmpty';
 
-// Import Modular CSS
+// Styles
 import styles from './CategoryDetail.module.css';
 
+/**
+ * CategoryDetail - Elite 10/10 Orchestrator
+ * Rule #16: Multi-Hook Orchestration (Metadata + Unified Engine)
+ * Rule #31: Component Resilience via Safeguard
+ */
 const CategoryDetail = () => {
     const { id: slug } = useParams();
-    const {
-        category,
-        tools,
-        filteredTools,
-        totalResults,
-        searchQuery,
-        setSearchQuery,
-        loading,
-        loadingMore,
-        hasMore,
-        setPage,
-        page
+    
+    // 1. Fetch Category Metadata
+    const { 
+        category, 
+        isCategoryLoading, 
+        categoryError, 
+        refetchCategory,
+        trackClick 
     } = useCategoryDetailData(slug);
 
-    useSEO({
-        title: category?.name ? `Best ${category.name} Tools` : 'Category Details',
-        description: `Explore the best curated ${category?.name || 'various'} tools on HUBly. Discover top-rated software for your needs.`,
-        url: typeof window !== 'undefined' ? window.location.href : ''
+    // 2. Hook into Unified Search Engine
+    const {
+        isLoading: isToolsLoading, 
+        loadingMore, 
+        error: toolsError, 
+        results: tools, 
+        hasMore, 
+        totalResults,
+        searchQuery,
+        setQuery,
+        selectedPrice,
+        setPrice,
+        sortBy,
+        setSort,
+        setPageNum,
+        refresh: refetchTools
+    } = useSearchEngine({ 
+        mode: 'category', 
+        fixedCategory: category?.name || 'All',
+        syncUrl: true,
+        itemsPerPage: 20
     });
 
-    if (loading && page === 0) {
-        return (
-            <div className={`page-wrapper ${styles.categoryDetailPage}`}>
-                <header className={`page-header hero-section-slim ${styles.loadingHero}`}>
-                    <div className="hero-content">
-                        {/* Skeleton handled in parent for smooth transition */}
-                        <div style={{ height: '400px' }}></div>
-                    </div>
-                </header>
-            </div>
-        );
-    }
+    const banner = useBannerData();
 
-    if (!category && !loading) {
-        return (
-            <div className="page-wrapper" style={{ textAlign: 'center', padding: '150px 5%' }}>
-                <h2 className="hero-title">Category <span className="gradient-text">Not Found</span></h2>
-            </div>
-        );
-    }
+    // 3. SEO Hardening
+    useSEO({
+        title: category?.name ? `${category.name} Tools` : 'Browse Categories',
+        description: category?.description || 'Explore the best tools in this category.',
+    });
+
+    const breadcrumbs = useMemo(() => [
+        CATEGORY_STRINGS.HEADER.BREADCRUMBS.ROOT,
+        { label: category?.name || 'Category' }
+    ], [category?.name]);
+
+    const IconComponent = useMemo(() => {
+        if (!category?.icon_name) return null;
+        return getIcon(category.icon_name, 32);
+    }, [category?.icon_name]);
+
+    const toolsData = {
+        tools,
+        searchQuery,
+        totalResults,
+        selectedPrice,
+        categoryName: category?.name,
+        hasMore,
+        loadingMore
+    };
+
+    const toolsHandlers = {
+        setSearchQuery: setQuery,
+        setSort,
+        setPrice,
+        sortBy,
+        setPage: setPageNum,
+        refetchTools
+    };
 
     return (
-        <div className={`page-wrapper ${styles.categoryDetailPage}`}>
-            <SmartBanner />
-            
-            {category && (
-                <CategoryDetailHeader 
-                    category={category} 
-                    totalResults={totalResults} 
-                />
-            )}
+        <div className={styles.categoryDetailPage}>
+            <SmartBanner 
+                tools={banner.tools}
+                isLoading={banner.loading}
+                error={banner.error}
+                onExternalClick={trackClick}
+            />
 
-            <main className={styles.categoryContent}>
-                {(tools.length > 0 || loading) ? (
+            <PageHero 
+                title={category?.name || 'Category'}
+                highlight={CATEGORY_STRINGS?.TOOLS?.SECTION_TITLE_ACCENT}
+                subtitle={category?.description}
+                breadcrumbs={breadcrumbs}
+                icon={IconComponent}
+                badge={!isCategoryLoading && totalResults > 0 ? `${totalResults} ${CATEGORY_STRINGS?.LIST?.CARD?.TOOLS}` : null}
+                isLoading={isCategoryLoading}
+                error={categoryError}
+                onRetry={refetchCategory}
+            />
+
+            <main className={styles.mainContent}>
+                <div className={styles.container}>
                     <CategoryDetailTools 
-                        tools={tools}
-                        filteredTools={filteredTools}
-                        searchQuery={searchQuery}
-                        setSearchQuery={setSearchQuery}
-                        loading={loading}
-                        loadingMore={loadingMore}
-                        hasMore={hasMore}
-                        setPage={setPage}
-                        totalResults={totalResults}
-                        categoryName={category?.name || 'Category'}
+                        toolsData={toolsData}
+                        toolsHandlers={toolsHandlers}
+                        isLoading={isToolsLoading}
+                        error={toolsError}
                     />
-                ) : (
-                    <CategoryDetailEmpty categoryName={category?.name || 'Category'} />
-                )}
+                </div>
             </main>
         </div>
     );
 };
 
-export default CategoryDetail;
+export default memo(CategoryDetail);

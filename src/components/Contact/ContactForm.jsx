@@ -1,77 +1,98 @@
-import React from 'react';
-import { Send, Loader2 } from 'lucide-react';
-import CustomSelect from '../CustomSelect';
+import React, { memo } from 'react';
+import { Send, User, Mail, MessageSquare, FileText } from 'lucide-react';
+import Select from '../ui/Select';
+import Input from '../ui/Input';
+import Button from '../ui/Button';
+import Skeleton from '../ui/Skeleton';
+import Safeguard from '../ui/Safeguard';
 import styles from './ContactForm.module.css';
+import { CONTACT_UI_CONSTANTS } from '../../constants/contactConstants';
 
-const ContactForm = ({ handleSubmit, submitting, subject, setSubject }) => {
-    return (
-        <div className={`${styles.formCard} glass-card`}>
-            <form onSubmit={handleSubmit}>
+/**
+ * ContactForm - Elite Component
+ * Rule #14: Data-Driven UI via centralized constants
+ * Rule #112: Zero inline styles
+ */
+const ContactForm = ({ handleSubmit, submitting, subject, setSubject, isLoading, error }) => {
+    const { form } = CONTACT_UI_CONSTANTS;
+
+    if (isLoading) {
+        return (
+            <div className={`${styles.formCard} glass-card`}>
                 <div className={styles.rowDual}>
-                    <div className={styles.formGroup}>
-                        <label>Full Name</label>
-                        <input 
-                            type="text" 
+                    <Skeleton height="82px" borderRadius="14px" />
+                    <Skeleton height="82px" borderRadius="14px" />
+                </div>
+                <div className={styles.skeletonField}>
+                    <Skeleton height="82px" borderRadius="14px" />
+                </div>
+                <div className={styles.skeletonField}>
+                    <Skeleton height="180px" borderRadius="14px" />
+                </div>
+                <div className={styles.skeletonAction}>
+                    <Skeleton width="180px" height="52px" borderRadius="14px" />
+                </div>
+            </div>
+        );
+    }
+
+    return (
+        <Safeguard error={error}>
+            <div className={`${styles.formCard} glass-card`}>
+                <form onSubmit={handleSubmit}>
+                    <div className={styles.rowDual}>
+                        <Input 
+                            label={<><User size={14} /> {form?.fields?.name?.label}</>}
                             name="fullName"
-                            placeholder="John Doe" 
-                            className={styles.input}
+                            placeholder={form?.fields?.name?.placeholder} 
                             required 
+                            className={styles.inputGroup}
                         />
-                    </div>
-                    <div className={styles.formGroup}>
-                        <label>Email Address</label>
-                        <input 
+                        <Input 
+                            label={<><Mail size={14} /> {form?.fields?.email?.label}</>}
                             type="email" 
                             name="email"
-                            placeholder="john@example.com" 
-                            className={styles.input}
+                            placeholder={form?.fields?.email?.placeholder} 
                             required 
+                            className={styles.inputGroup}
                         />
                     </div>
-                </div>
 
-                <div className={styles.formGroup}>
-                    <label>Subject</label>
-                    <CustomSelect
-                        options={[
-                            { value: 'General Inquiry', label: 'General Inquiry' },
-                            { value: 'Tool Submission Question', label: 'Tool Submission Question' },
-                            { value: 'Partnership/Advertising', label: 'Partnership/Advertising' },
-                            { value: 'Technical Bug Report', label: 'Technical Bug Report' }
-                        ]}
-                        value={subject}
-                        onChange={(val) => setSubject(val)}
-                        placeholder="Select subject"
-                    />
-                </div>
+                    <div className={styles.formGroup}>
+                        <label className={styles.label}>
+                            <FileText size={14} /> {form?.fields?.subject?.label}
+                        </label>
+                        <Select
+                            options={form?.fields?.subject?.options}
+                            value={subject}
+                            onChange={(val) => setSubject(val)}
+                            placeholder={form?.fields?.subject?.placeholder}
+                        />
+                    </div>
 
-                <div className={styles.formGroup}>
-                    <label>Message</label>
-                    <textarea 
+                    <Input 
+                        label={<><MessageSquare size={14} /> {form?.fields?.message?.label}</>}
                         name="message"
+                        multiline={true}
                         rows="6" 
-                        placeholder="How can we help you today?" 
-                        className={styles.textarea}
+                        placeholder={form?.fields?.message?.placeholder} 
                         required 
-                    ></textarea>
-                </div>
+                        className={styles.inputGroup}
+                    />
 
-                <button 
-                    type="submit"
-                    className={`${styles.submitBtn} btn-primary`} 
-                    disabled={submitting}
-                >
-                    {submitting ? (
-                        <Loader2 className="animate-spin" size={20} />
-                    ) : (
-                        <div className={styles.submitBtnContent}>
-                            Send Message <Send size={20} />
-                        </div>
-                    )}
-                </button>
-            </form>
-        </div>
+                    <Button 
+                        type="submit"
+                        className={styles.submitBtn} 
+                        isLoading={submitting}
+                        icon={Send}
+                        iconPosition="right"
+                    >
+                        {form?.submit}
+                    </Button>
+                </form>
+            </div>
+        </Safeguard>
     );
 };
 
-export default ContactForm;
+export default memo(ContactForm);

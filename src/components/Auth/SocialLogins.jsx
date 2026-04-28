@@ -1,29 +1,55 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { Github, Chrome } from 'lucide-react';
+import Button from '../ui/Button';
+import Skeleton from '../ui/Skeleton';
+import Safeguard from '../ui/Safeguard';
 import styles from './SocialLogins.module.css';
+import { AUTH_UI_CONSTANTS } from '../../constants/authConstants';
 
 /**
- * SocialLogins - Handles OAuth providers (Google, Github)
+ * SocialLogins - Elite Component
+ * Rule #14: Data-Driven UI via constants
+ * Rule #2: Memoized
  */
-const SocialLogins = ({ handleSocialLogin }) => {
+const SocialLogins = memo(({ onSocialAction, isLoading, error, onRetry }) => {
+    const { social } = AUTH_UI_CONSTANTS;
+
+    if (isLoading) {
+        return (
+            <div className={styles.socialGrid}>
+                <Skeleton className={styles.skeletonSocial} />
+                <Skeleton className={styles.skeletonSocial} />
+            </div>
+        );
+    }
+
     return (
-        <div className={styles.socialGrid}>
-            <button 
-                type="button" 
-                className={styles.socialBtn}
-                onClick={() => handleSocialLogin('google')}
-            >
-                <Chrome size={20} /> Google
-            </button>
-            <button 
-                type="button" 
-                className={styles.socialBtn}
-                onClick={() => handleSocialLogin('github')}
-            >
-                <Github size={20} /> Github
-            </button>
-        </div>
+        <Safeguard error={error} onRetry={onRetry} title={social?.divider}>
+            <div className={styles.divider}>
+                <span>{social?.divider}</span>
+            </div>
+            <div className={styles.socialGrid}>
+                <Button 
+                    variant="outline"
+                    className={styles.socialBtn}
+                    onClick={() => onSocialAction('google')}
+                    icon={Chrome}
+                    iconSize={20}
+                >
+                    {social?.google}
+                </Button>
+                <Button 
+                    variant="outline"
+                    className={styles.socialBtn}
+                    onClick={() => onSocialAction('github')}
+                    icon={Github}
+                    iconSize={20}
+                >
+                    {social?.github}
+                </Button>
+            </div>
+        </Safeguard>
     );
-};
+});
 
 export default SocialLogins;

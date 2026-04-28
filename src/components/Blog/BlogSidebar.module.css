@@ -1,9 +1,10 @@
 /* BlogSidebar.module.css */
 
 .sidebar {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 2rem;
+  width: 100%;
 }
 
 .widget {
@@ -113,8 +114,57 @@
   color: white;
 }
 
+/* Skeleton Standards - Rule #81 */
+.skeletonTitle { 
+  width: 120px; 
+  height: 20px; 
+  margin-bottom: 1.5rem; 
+}
+
+.skeletonText { 
+  width: 100%; 
+  height: 14px; 
+  margin-bottom: 8px; 
+}
+
+.skeletonInput { 
+  width: 100%; 
+  height: 40px; 
+  border-radius: 10px; 
+  margin-bottom: 0.8rem; 
+}
+
+.skeletonButton {
+  width: 100%;
+  height: 42px;
+  border-radius: 12px;
+}
+
+.skeletonRelatedItem {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 1.5rem;
+}
+
+.skeletonThumb {
+  width: 70px;
+  height: 70px;
+  border-radius: 12px;
+}
+
+.skeletonRelatedContent {
+  flex: 1;
+}
+
+.skeletonRelatedTitle {
+  width: 100%;
+  height: 14px;
+  margin-bottom: 6px;
+}
+
 @media (max-width: 1024px) {
   .sidebar {
+    grid-template-columns: 1fr;
     margin-top: 2rem;
   }
 }

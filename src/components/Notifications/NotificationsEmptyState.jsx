@@ -1,15 +1,29 @@
 import React from 'react';
 import { BellOff } from 'lucide-react';
+import Safeguard from '../ui/Safeguard';
 import styles from './NotificationsEmptyState.module.css';
 
-const NotificationsEmptyState = () => {
+import { NOTIFICATIONS_UI_CONSTANTS } from '../../constants/notificationsConstants';
+
+/**
+ * NotificationsEmptyState - Atomic UI Component
+ * Rule #31: Component Resilience
+ */
+const NotificationsEmptyState = ({ error, onRetry }) => {
+    const labels = NOTIFICATIONS_UI_CONSTANTS.empty;
     return (
-        <div className={styles.emptyState}>
-            <BellOff size={64} className={styles.icon} />
-            <h3 className={styles.title}>All caught up!</h3>
-            <p className={styles.subtitle}>You don't have any notifications at the moment. We'll let you know when something happens.</p>
-        </div>
+        <Safeguard error={error} onRetry={onRetry}>
+            <div className={styles.emptyState}>
+                <BellOff size={64} className={styles.icon} />
+                <h2 className={styles.title}>{labels?.title}</h2>
+                <p className={styles.subtitle}>{labels?.description}</p>
+            </div>
+        </Safeguard>
     );
 };
 
 export default NotificationsEmptyState;
+
+
+
+

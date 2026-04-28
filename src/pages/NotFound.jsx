@@ -1,5 +1,5 @@
 import React from 'react';
-import SkeletonLoader from '../components/SkeletonLoader';
+import Skeleton from '../components/ui/Skeleton';
 import useSEO from '../hooks/useSEO';
 import { useNotFoundData } from '../hooks/useNotFoundData';
 
@@ -10,31 +10,21 @@ import NotFoundActions from '../components/NotFound/NotFoundActions';
 // Import Modular CSS
 import styles from './NotFound.module.css';
 
+import { NOT_FOUND_UI_CONSTANTS } from '../constants/notFoundConstants';
+
 const NotFound = () => {
     const { loading } = useNotFoundData();
 
-    useSEO({
-        title: "404 - Page Not Found | HUBly",
-        description: "Oops! The page you're looking for doesn't exist. Head back to HUBly to discover the best AI and SaaS tools.",
-    });
-
-    if (loading) {
-        return (
-            <div className={`page-wrapper ${styles.notFoundWrapper}`}>
-                <div className={`glass-card ${styles.notFoundCard}`}>
-                    <SkeletonLoader height="400px" borderRadius="24px" />
-                </div>
-            </div>
-        );
-    }
+    // 1. SEO Hardening (v2.0)
+    useSEO({ pageKey: 'notfound' });
 
     return (
-        <div className={`page-wrapper ${styles.notFoundWrapper}`}>
+        <div className={`page-wrapper ${styles.notFoundWrapper} fade-in`}>
             <div className={`glass-card ${styles.notFoundCard}`}>
                 
-                <NotFoundHero />
+                <NotFoundHero isLoading={loading} />
 
-                <NotFoundActions />
+                <NotFoundActions isLoading={loading} />
                 
             </div>
         </div>
@@ -42,3 +32,6 @@ const NotFound = () => {
 };
 
 export default NotFound;
+
+
+

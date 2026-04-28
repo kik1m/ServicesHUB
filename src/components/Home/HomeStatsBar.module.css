@@ -2,6 +2,7 @@
 
 .statsBarWrapper {
   max-width: 1000px;
+  width: 100%;
   margin: 3rem auto 3rem;
   padding: 0 5%;
   position: relative;
@@ -12,13 +13,21 @@
   display: flex;
   justify-content: space-around;
   align-items: center;
-  padding: 2.5rem !important;
-  background: rgba(10, 10, 12, 0.8) !important;
-  backdrop-filter: blur(40px) !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5) !important;
-  border-radius: 24px; /* Added fallback for glass-card if needed */
+  padding: 2.5rem;
+  background: var(--bg-card);
+  backdrop-filter: blur(40px);
+  border: 1px solid var(--border);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+  border-radius: 24px;
+  transition: all 0.4s ease;
 }
+
+.statsBar:hover {
+  background: var(--bg-card-hover);
+  border-color: var(--primary);
+  transform: translateY(-5px);
+}
+
 
 .statItem {
   text-align: center;
@@ -45,11 +54,26 @@
   background: rgba(255, 255, 255, 0.1);
 }
 
+.skeletonValue {
+  width: 80px;
+  height: 28px;
+  margin-bottom: 8px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.skeletonLabel {
+  width: 120px;
+  height: 14px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
 @media (max-width: 768px) {
   .statsBar {
     flex-direction: column;
     gap: 2rem;
-    padding: 2rem !important;
+    padding: 2rem;
   }
   
   .statDivider {

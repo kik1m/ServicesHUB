@@ -1,100 +1,129 @@
-/* ProfileMembershipSidebar.module.css */
+/* ProfileMembershipSidebar.module.css - Compact Supreme */
 
 .sidebarCard {
-  padding: 2rem;
+  padding: 1.8rem; /* Reduced from 2.2rem */
   border-radius: 28px !important;
+  background: rgba(15, 15, 20, 0.6);
+  backdrop-filter: blur(25px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+  animation: cardEntrance 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.compactCard {
+  max-width: 340px;
+}
+
+@keyframes cardEntrance {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .sidebarTitle {
-  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.2rem;
   font-weight: 900;
   margin-bottom: 1.5rem;
   color: white;
-  letter-spacing: -0.5px;
+}
+
+.sidebarTitle svg {
+  color: #ffcc00;
+  filter: drop-shadow(0 0 10px rgba(255, 204, 0, 0.4));
 }
 
 .membershipCardContent {
   display: flex;
   align-items: center;
-  gap: 15px;
-  padding: 1.2rem;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid var(--border);
+  gap: 14px;
+  padding: 1.1rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 20px;
   margin-bottom: 1.5rem;
-  transition: 0.3s;
+  transition: 0.4s;
 }
 
 .membershipCardContent.premium {
-  background: linear-gradient(135deg, rgba(255, 215, 0, 0.05), rgba(255, 165, 0, 0.05));
-  border-color: rgba(255, 215, 0, 0.2);
+  background: linear-gradient(135deg, rgba(255, 204, 0, 0.05), rgba(255, 153, 0, 0.02));
+  border-color: rgba(255, 204, 0, 0.2);
 }
 
 .iconBox {
-  width: 48px;
-  height: 48px;
+  width: 44px;
+  height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 14px;
 }
 
-.membershipCardContent.premium .iconBox {
-  background: rgba(255, 215, 0, 0.1);
-  border-color: rgba(255, 215, 0, 0.2);
+.premium .iconBox {
+  background: rgba(255, 204, 0, 0.15);
+  color: #ffcc00;
 }
 
 .membershipInfo h5 {
   margin: 0;
-  font-size: 0.8rem;
+  font-size: 0.9rem;
   font-weight: 900;
   color: white;
-  letter-spacing: 1px;
 }
 
 .membershipInfo p {
-  margin: 4px 0 0;
+  margin: 2px 0 0;
   font-size: 0.75rem;
   color: var(--text-muted);
-  font-weight: 700;
-}
-
-.upgradeBtn {
-  width: 100%;
-  margin-bottom: 1.2rem;
-  padding: 14px !important;
-  font-size: 0.85rem !important;
-  font-weight: 900 !important;
-  display: block;
-  text-align: center;
 }
 
 .premiumStatusBadge {
-  background: linear-gradient(to right, #FFD700, #FFA500);
+  background: linear-gradient(90deg, #FFCC00, #FF9900);
   color: black;
   font-size: 0.7rem;
   font-weight: 900;
-  padding: 8px 16px;
-  border-radius: 100px;
+  padding: 10px;
+  border-radius: 14px;
   text-align: center;
-  margin-bottom: 1.5rem;
-  letter-spacing: 1px;
+  letter-spacing: 1.5px;
+  box-shadow: 0 8px 20px rgba(255, 204, 0, 0.2);
 }
 
-.sidebarFooter {
-  margin-top: 1rem;
-}
-
-.settingsBtn {
-  width: 100%;
-  padding: 14px !important;
-  border-radius: 16px !important;
-  font-size: 0.9rem !important;
-  font-weight: 800 !important;
+.centeredFooter {
   display: flex;
-  align-items: center;
   justify-content: center;
-  gap: 10px;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
 }
+
+.settingsBtnCentered {
+  opacity: 0.6;
+  transition: 0.3s;
+  font-weight: 800 !important;
+  font-size: 0.8rem !important;
+}
+
+.settingsBtnCentered:hover {
+  opacity: 1;
+  color: var(--primary) !important;
+}
+
+.actionArea {
+  margin-bottom: 1.2rem;
+}
+
+.upgradeBtn {
+  background: var(--primary) !important;
+  color: white !important;
+  font-weight: 900 !important;
+  border-radius: 14px !important;
+  height: 48px !important;
+}
+
+/* Skeletons */
+.skeletonPlanTitle { width: 80px; height: 16px; margin-bottom: 4px; }
+.skeletonPlanDesc { width: 100px; height: 12px; }

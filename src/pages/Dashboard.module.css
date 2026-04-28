@@ -1,23 +1,30 @@
 .dashboardPage {
   min-height: 100vh;
-  padding: 80px 5% 60px;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 5% 60px;
+  /* Zero top padding to let Hero reach the top */
 }
 
-.alertBox {
-  padding: 1rem;
+.errorWrapper {
   margin-bottom: 2rem;
-  border: 1px solid rgba(255, 71, 87, 0.2);
-  background: rgba(255, 71, 87, 0.05);
-  color: #ff4757;
-  display: flex;
-  gap: 1rem;
-  align-items: center;
-  font-size: 0.9rem;
-  border-radius: 16px;
+  animation: fadeIn 0.4s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .creatorGrid {
-  display: block; /* Overridden if needed */
+  display: block;
 }
 
 .discoveryGrid {
@@ -27,8 +34,56 @@
   align-items: flex-start;
 }
 
+/* Skeleton Loading Structures */
+.loadingContainer {
+  display: flex;
+  flex-direction: column;
+}
+
+.skeletonHeader {
+  margin-bottom: 3rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.skeletonStats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 3rem;
+}
+
+.skeletonGrid {
+  display: grid;
+  grid-template-columns: 2.2fr 1fr;
+  gap: 3rem;
+}
+
+.skeletonColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.sectionHeader {
+  margin-bottom: 1.5rem;
+  margin-top: 3rem;
+}
+
+.sectionTitle {
+  font-size: 1.4rem;
+  font-weight: 900;
+  color: white;
+}
+
 @media (max-width: 992px) {
-  .discoveryGrid {
+  .dashboardPage {
+    padding: 80px 1rem 40px;
+  }
+
+  .discoveryGrid,
+  .skeletonGrid {
     grid-template-columns: 1fr;
     gap: 2rem;
   }

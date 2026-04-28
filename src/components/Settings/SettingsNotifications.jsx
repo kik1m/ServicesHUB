@@ -1,38 +1,60 @@
-import React from 'react';
-import { Bell } from 'lucide-react';
+import React, { memo } from 'react';
+import Skeleton from '../ui/Skeleton';
+import Toggle from '../ui/Toggle';
 import styles from './SettingsNotifications.module.css';
 
-const SettingsNotifications = ({ profile }) => {
+/**
+ * SettingsNotifications - Elite Hardened Card
+ * Rule #18: Memoized
+ * Rule #34: Constant-driven
+ */
+const SettingsNotifications = memo(({ profile, isLoading, content }) => {
+    if (isLoading) {
+        return (
+            <div className={styles.fadeIn}>
+                <div className={styles.settingsCard}>
+                    <Skeleton className={styles.skeletonTitle} />
+                    <Skeleton className={styles.skeletonSubtitle} />
+                    
+                    <div className={styles.notifPreferencesList}>
+                        {[1, 2, 3].map(i => (
+                            <div key={i} className={styles.notifItem}>
+                                <div className={styles.notifItemInfo}>
+                                    <Skeleton className={styles.skeletonNotifLabel} />
+                                    <Skeleton className={styles.skeletonNotifDesc} />
+                                </div>
+                                <Skeleton className={styles.skeletonToggle} />
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className={styles.fadeIn}>
             <div className={styles.settingsCard}>
-                <h3 className={styles.settingsSectionTitle}>Notification Preferences</h3>
-                <p className={styles.description}>
-                    Manage how you want to be notified about activity on your account and tools.
-                </p>
+                <h3 className={styles.settingsSectionTitle}>{content.title}</h3>
+                <p className={styles.settingsSectionSubtitle}>{content.subtitle}</p>
                 
                 <div className={styles.notifPreferencesList}>
-                    {[
-                        { id: 'email_notif', label: 'Email Notifications', desc: 'Receive important updates via your registered email.' },
-                        { id: 'review_notif', label: 'New Review Alerts', desc: 'Get notified when someone leaves a review on your tools.' },
-                        { id: 'promo_notif', label: 'Promotion Updates', desc: 'Receive alerts about your active tool promotions and status.' }
-                    ].map(item => (
+                    {content.items.map(item => (
                         <div key={item.id} className={styles.notifItem}>
                             <div className={styles.notifItemInfo}>
                                 <h4>{item.label}</h4>
                                 <p>{item.desc}</p>
                             </div>
-                            {/* Toggle Switch */}
-                            <div className={styles.toggleSwitch}>
-                                <div className={styles.toggleSwitchHandle}></div>
-                            </div>
+                            <Toggle 
+                                checked={true} // Hardcoded for demo, would come from user state in real app
+                                onChange={(val) => console.log(`Toggle ${item.id}:`, val)} 
+                            />
                         </div>
                     ))}
                 </div>
-                
             </div>
         </div>
     );
-};
+});
 
 export default SettingsNotifications;

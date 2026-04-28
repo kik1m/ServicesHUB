@@ -1,54 +1,64 @@
 import React from 'react';
-import { Plus, Share2, Home, ChevronRight } from 'lucide-react';
+import { Plus, Share2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
+import { useToast } from '../../context/ToastContext';
+import Button from '../ui/Button';
+import PageHero from '../ui/PageHero';
+import Safeguard from '../ui/Safeguard';
 import styles from './DashboardHeader.module.css';
 
-const DashboardHeader = ({ isCreator, user, showToast }) => {
+const DashboardHeader = ({ isCreator, user, isLoading, error, content }) => {
+    const { showToast } = useToast();
+
     const handleShare = () => {
-        const url = `${window.location.origin}/u/${user?.id}`;
+        if (!user?.id) return;
+        const url = `${window.location.origin}/profile/${user.id}`;
         navigator.clipboard.writeText(url);
-        showToast('Profile link copied!', 'success');
+        showToast(content.actions.copied, 'success');
     };
 
-    return (
-        <header className={styles.headerPremium}>
-            <div className={styles.breadcrumbWrapper}>
-                <Link to="/" className={styles.breadcrumbItem}>
-                    <Home size={14} className={styles.breadcrumbIcon} />
-                    Home
-                </Link>
-                <ChevronRight size={14} className={styles.breadcrumbIcon} />
-                <span className={styles.breadcrumbItem} style={{ color: 'var(--primary)', fontWeight: '700' }}>
-                    Dashboard
-                </span>
-            </div>
-            
-            <div className={styles.headerMain}>
-                <div className={styles.headerInfo}>
-                    <span className={styles.badgePill}>MEMBER AREA</span>
-                    <h1 className={styles.title}>
-                        {isCreator ? 'Creator ' : 'My '}<span>Dashboard</span>
-                    </h1>
-                    <p className={styles.subtitle}>
-                        {isCreator 
-                            ? "Monitoring your tool clinical performance and listings" 
-                            : "Explore your saved favorites and manage your discovery journey."}
-                    </p>
-                </div>
+    const breadcrumbs = [
+        { label: 'Home', path: '/' },
+        { label: 'Dashboard' }
+    ];
 
+    return (
+        <Safeguard error={error}>
+            <PageHero
+                title={isCreator ? content?.creatorTitle : content?.userTitle}
+                highlight={content?.mainTitle}
+                subtitle={isCreator ? content?.creatorSubtitle : content?.userSubtitle}
+                breadcrumbs={breadcrumbs}
+                isLoading={isLoading}
+                className={styles.dashboardHero}
+            >
                 <div className={styles.headerActions}>
-                    <button onClick={handleShare} className={styles.btnShare}>
-                        <Share2 size={18} />
-                        Share Profile
-                    </button>
-                    <Link to="/submit" className={styles.btnSubmit}>
-                        <Plus size={20} />
-                        Submit Tool
-                    </Link>
+                    <Button 
+                        variant="secondary"
+                        onClick={handleShare} 
+                        icon={Share2}
+                        className={styles.btnAction}
+                    >
+                        {content?.actions?.share}
+                    </Button>
+                    <Button 
+                        as={Link}
+                        to="/submit" 
+                        icon={Plus}
+                        className={styles.btnAction}
+                    >
+                        {content?.actions?.submit}
+                    </Button>
                 </div>
-            </div>
-        </header>
+            </PageHero>
+        </Safeguard>
     );
 };
 
+
 export default DashboardHeader;
+
+
+
+

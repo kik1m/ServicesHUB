@@ -7,6 +7,13 @@
   margin-bottom: 2rem;
   padding-bottom: 1.5rem;
   border-bottom: 1px solid var(--border);
+  gap: 1.5rem;
+}
+
+.headerExtra {
+  flex: 1;
+  display: flex;
+  justify-content: center;
 }
 
 .resultCount {
@@ -35,13 +42,26 @@
 
 .resultsGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fill, minmax(310px, 380px));
+  gap: 2rem;
   min-height: 400px;
+  justify-content: start;
+  align-items: start;
+}
+
+.resultsGridLite {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(310px, 380px));
+  gap: 2rem;
+  justify-content: center;
+  align-items: start;
 }
 
 .searchResultsEmpty {
   grid-column: 1 / -1;
+  justify-self: stretch;
+  /* Stretch across all columns */
+  width: 100%;
   text-align: center;
   padding: 5rem 2rem;
   background: rgba(255, 255, 255, 0.02);
@@ -60,17 +80,11 @@
   margin: 0.5rem auto 0;
 }
 
-.resultsPaginationRow {
-  margin-top: 4rem;
-  display: flex;
-  justify-content: center;
-}
-
-.loadMoreBtn {
-  padding: 1.2rem 4rem !important;
-  font-weight: 800 !important;
-  font-size: 1rem !important;
-  border-radius: 16px !important;
+.observerTarget {
+  height: 2px;
+  width: 100%;
+  background: transparent;
+  pointer-events: none;
 }
 
 @media (max-width: 768px) {
@@ -79,16 +93,13 @@
     align-items: flex-start;
     gap: 1.5rem;
   }
-  
-  .sortContainer, .sortSelectBox {
+
+  .sortContainer,
+  .sortSelectBox {
     width: 100%;
   }
-  
+
   .resultsGrid {
     grid-template-columns: 1fr;
-  }
-  
-  .loadMoreBtn {
-    width: 100%;
   }
 }

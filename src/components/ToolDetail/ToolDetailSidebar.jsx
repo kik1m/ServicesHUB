@@ -1,6 +1,8 @@
 import React from 'react';
-import { Star, ShieldCheck, Share2, Heart, Flag, ArrowLeft, ChevronRight } from 'lucide-react';
+import { Star, ShieldCheck, Share2, Heart, Flag, ArrowRight, ChevronRight, CheckCircle2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import Button from '../ui/Button';
+import Skeleton from '../ui/Skeleton';
 import styles from './ToolDetailSidebar.module.css';
 
 const ToolDetailSidebar = ({ 
@@ -9,85 +11,148 @@ const ToolDetailSidebar = ({
     isFavorited, 
     toggleFavorite, 
     handleShare, 
-    setIsReportModalOpen 
+    setIsReportModalOpen,
+    isLoading,
+    content
 }) => {
+    // Rule #11 & #4: Component-Owned Skeletons
+    if (isLoading) {
+        return (
+            <aside className={styles.toolSidebar}>
+                <div className={styles.sidebarInner}>
+                    <Skeleton width="100px" height="24px" className={styles.mb1_5rem} />
+                    <div className={styles.infoListRows}>
+                        {[1, 2, 3, 4, 5].map(i => (
+                            <div key={`skeleton-row-${i}`} className={styles.skeletonRow}>
+                                <Skeleton width="80px" height="18px" borderRadius="4px" />
+                                <Skeleton width="120px" height="18px" borderRadius="4px" />
+                            </div>
+                        ))}
+                    </div>
+                    
+                    <div className={styles.skeletonActionsGroup}>
+                        <div className={styles.skeletonRowFlex}>
+                            <Skeleton width="50%" height="44px" borderRadius="10px" />
+                            <Skeleton width="50%" height="44px" borderRadius="10px" />
+                        </div>
+                        <Skeleton width="100%" height="32px" borderRadius="8px" />
+                    </div>
+
+                    <div className={styles.skeletonClaimCard}>
+                        <Skeleton width="40px" height="40px" borderRadius="10px" className={styles.mb1rem} />
+                        <Skeleton width="180px" height="24px" className={styles.mb0_5rem} borderRadius="6px" />
+                        <Skeleton width="100%" height="18px" className={styles.mb1rem} borderRadius="4px" />
+                        <Skeleton width="140px" height="24px" borderRadius="6px" />
+                    </div>
+                </div>
+            </aside>
+        );
+    }
+
+    // Rule #36: Component Resilience
+    if (!tool) return null;
+
     return (
         <aside className={styles.toolSidebar}>
-            <div className={`glass-card ${styles.sidebarSticky}`}>
-                <h4 className={styles.sidebarTitleSlim}>Tool Info</h4>
+            <div className={styles.sidebarInner}>
+                <h4 className={styles.sidebarTitleSlim}>{content.sidebar.title}</h4>
                 <div className={styles.infoListRows}>
                     <div className={styles.infoRowItem}>
-                        <span className={styles.infoLabel}>Pricing</span>
+                        <span className={styles.infoLabel}>{content.sidebar.pricing}</span>
                         <span className={styles.infoValue}>
-                            {tool.pricing_type} {tool.pricing_details ? `(${tool.pricing_details})` : ''}
+                            {tool.pricing_type || 'Free'} {tool.pricing_details ? `(${tool.pricing_details})` : ''}
                         </span>
                     </div>
-                    {publisher && (
+                    
+                    {publisher && publisher.id && (
                         <div className={styles.infoRowItem}>
-                            <span className={styles.infoLabel}>Publisher</span>
+                            <span className={styles.infoLabel}>{content.sidebar.publisher}</span>
                             <Link 
-                                to={`/u/${publisher.id}`} 
-                                className={styles.publisherLinkPremium}
+                                to={publisher.id === '8ded6b0a-6982-495c-8ba8-fda45ac7e082' ? '#' : `/u/${publisher.id}`} 
+                                className={`${styles.publisherLinkPremium} ${publisher.id === '8ded6b0a-6982-495c-8ba8-fda45ac7e082' ? styles.teamHubly : ''}`}
                             >
-                                {publisher.full_name} <ChevronRight size={14} />
+                                <span className={styles.publisherNameWrapper}>
+                                    {publisher.id === '8ded6b0a-6982-495c-8ba8-fda45ac7e082' ? 'Team Hubly' : (publisher.full_name || content.sidebar.anonymous)}
+                                    {publisher.id === '8ded6b0a-6982-495c-8ba8-fda45ac7e082' && (
+                                        <CheckCircle2 size={14} className={styles.teamVerifiedBadge} />
+                                    )}
+                                </span>
+                                <ChevronRight size={14} />
                             </Link>
                         </div>
                     )}
+
                     <div className={styles.infoRowItem}>
-                        <span className={styles.infoLabel}>Rating</span>
+                        <span className={styles.infoLabel}>{content.sidebar.rating}</span>
                         <span className={styles.ratingValue}>
-                            <Star size={16} fill="#ffc107" /> {tool.rating} ({tool.reviews_count})
+                            <Star size={16} fill={tool.reviews_count > 0 ? "#ffc107" : "transparent"} stroke="#ffc107" /> 
+                            {tool.reviews_count > 0 ? tool.rating?.toFixed(1) : '0.0'} ({tool.reviews_count || 0})
                         </span>
                     </div>
+
                     <div className={styles.infoRowItem}>
-                        <span className={styles.infoLabel}>Status</span>
+                        <span className={styles.infoLabel}>{content.sidebar.status}</span>
                         <span className={styles.statusValue}>
-                            {tool.is_featured ? 'Featured' : 'Popular'}
+                            {tool.is_featured ? content.badges.featured : content.badges.popular}
                         </span>
                     </div>
+
                     <div className={styles.infoRowItem}>
-                        <span className={styles.infoLabel}>Safety</span>
+                        <span className={styles.infoLabel}>{content.sidebar.safety}</span>
                         <span className={styles.safetyBadgeGreen}>
-                            <ShieldCheck size={16} /> {tool.is_verified ? 'Verified' : 'Safe to Use'}
+                            <ShieldCheck size={16} /> {tool.is_verified ? content.sidebar.verified : content.sidebar.safe}
                         </span>
                     </div>
                 </div>
                 
-                <hr style={{ border: 'none', height: '1px', background: 'var(--border)', margin: '2rem 0' }} />
+                <hr className={styles.divider} />
                 
                 <div className={styles.shareSection}>
-                    <p className={styles.shareSectionTitle}>Share this tool</p>
+                    <p className={styles.shareSectionTitle}>{content.sidebar.shareTitle}</p>
                     <div className={styles.shareGroupRow}>
-                        <button 
-                            className={`icon-btn ${styles.shareActionBtn}`} 
+                        <Button 
+                            variant="secondary" 
+                            className={styles.shareActionBtn}
                             onClick={handleShare}
+                            icon={Share2}
                         >
-                            <Share2 size={18} /> Share
-                        </button>
-                        <button 
-                            className={`icon-btn ${styles.shareActionBtn} ${isFavorited ? styles.isActive : ''}`} 
+                            {content.actions.share}
+                        </Button>
+                        <Button 
+                            variant="secondary" 
+                            className={`${styles.shareActionBtn} ${isFavorited ? styles.isActive : ''}`}
                             onClick={toggleFavorite}
+                            icon={Heart}
                         >
-                            <Heart size={18} fill={isFavorited ? '#ff4757' : 'none'} /> {isFavorited ? 'Saved' : 'Save'}
-                        </button>
+                            {isFavorited ? content.actions.saved : content.actions.favorite}
+                        </Button>
                     </div>
                     <div className={styles.reportToolBtnContainer}>
-                        <button 
+                        <Button 
+                            variant="text"
                             onClick={() => setIsReportModalOpen(true)}
                             className={styles.reportToolBtn}
+                            icon={Flag}
                         >
-                            <Flag size={12} /> Report this tool
-                        </button>
+                            {content.actions.report}
+                        </Button>
                     </div>
                 </div>
 
-                <div className={`glass-card ${styles.claimCardDashed}`}>
-                    <ShieldCheck size={28} color="var(--primary)" style={{ marginBottom: '1rem' }} />
-                    <h5 className={styles.claimTitle}>Is this your tool?</h5>
-                    <p className={styles.claimDesc}>Claim ownership to update details and respond to reviews.</p>
-                    <Link to="/contact?subject=Claim%20Tool" className={`btn-text ${styles.claimLink}`}>
-                        Claim Ownership <ArrowLeft size={12} style={{ transform: 'rotate(180deg)', display: 'inline-block' }} />
-                    </Link>
+                <div className={styles.claimCardDashed}>
+                    <ShieldCheck size={28} className={styles.claimIcon} />
+                    <h5 className={styles.claimTitle}>{content.sidebar.claim.title}</h5>
+                    <p className={styles.claimDesc}>{content.sidebar.claim.desc}</p>
+                    <Button 
+                        as={Link} 
+                        to="/contact?subject=Claim%20Tool" 
+                        variant="ghost" 
+                        className={styles.claimLink}
+                        icon={ArrowRight}
+                        iconPosition="right"
+                    >
+                        {content.sidebar.claim.action}
+                    </Button>
                 </div>
             </div>
         </aside>
@@ -95,3 +160,7 @@ const ToolDetailSidebar = ({
 };
 
 export default ToolDetailSidebar;
+
+
+
+

@@ -1,61 +1,85 @@
 /* ToolsGrid.module.css */
 
-.resultsGridContainer {
-  margin-top: 1rem;
+.gridWrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 3rem;
+    margin-top: 1rem;
 }
 
 .resultsGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 1.5rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+    gap: 1.5rem;
 }
 
-.toolsPaginationRow {
-  text-align: center;
-  margin-top: 5rem;
-  padding-bottom: 2rem;
+.observerTarget {
+    height: 40px;
+    width: 100%;
+    background: transparent;
+    pointer-events: none;
 }
 
-.btnLoadMore {
-  padding: 1.2rem 4rem !important;
-  min-width: 250px;
-  border-radius: 100px !important;
-  font-size: 1rem !important;
+.loadMoreLoading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    padding: 2rem 0;
+    color: var(--text-muted);
+    font-size: 0.95rem;
 }
 
-.errorMessageContainer {
-  grid-column: 1 / -1;
-  text-align: center;
-  padding: 6rem 2rem;
-  background: rgba(255, 80, 80, 0.02);
-  border: 1px dashed rgba(255, 80, 80, 0.2);
-  border-radius: 30px;
+.loadingSpinner {
+    width: 24px;
+    height: 24px;
+    border: 3px solid rgba(255, 255, 255, 0.05);
+    border-top: 3px solid var(--primary);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
 }
 
-.errorMessageContainer p {
-  color: #ff5050;
-  font-weight: 700;
-  margin-bottom: 1.5rem;
-  font-size: 1.1rem;
+@keyframes spin {
+    to { transform: rotate(360deg); }
 }
 
-.emptyStateContainer {
-  grid-column: 1 / -1;
-  text-align: center;
-  padding: 8rem 2rem;
-  color: var(--text-muted);
-  background: rgba(255, 255, 255, 0.01);
-  border: 1px dashed var(--border);
-  border-radius: 30px;
+.errorBox {
+    background: var(--bg-card-solid);
+    border-radius: 24px;
+    padding: 3rem;
+}
+
+.emptyState {
+    text-align: center;
+    padding: 5rem 2rem;
+    background: var(--bg-card-solid);
+    border: 1px dashed var(--border);
+    border-radius: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
 }
 
 .emptyIcon {
-  margin-bottom: 1.5rem;
-  opacity: 0.1;
-  margin: 0 auto;
+    color: var(--primary);
+    margin-bottom: 1rem;
+    opacity: 0.5;
 }
 
-.emptyStateContainer p {
-  font-size: 1.2rem;
-  font-weight: 600;
+.emptyState h3 {
+    font-size: 1.8rem;
+    font-weight: 900;
+    margin: 0;
+}
+
+.emptyState p {
+    color: var(--text-muted);
+    max-width: 400px;
+    margin: 0;
+    line-height: 1.6;
+}
+
+.resetBtn {
+    margin-top: 1rem;
 }

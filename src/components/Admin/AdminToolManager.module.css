@@ -1,0 +1,319 @@
+
+.managerWrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    min-height: 800px;
+    animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.header {
+    background: rgba(10, 15, 25, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 20px;
+    padding: 2rem;
+    backdrop-filter: blur(10px);
+}
+
+.headerContent {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 2rem;
+    gap: 2rem;
+}
+
+.titleArea .title {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: #fff;
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.02em;
+}
+
+.subtitle {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.95rem;
+}
+
+.statsArea {
+    display: flex;
+    gap: 1.5rem;
+}
+
+.statItem {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.statValue {
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: var(--primary);
+    line-height: 1;
+}
+
+.statLabel {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.3);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-top: 0.25rem;
+}
+
+.searchBar {
+    position: relative;
+    max-width: 500px;
+}
+
+.searchInput {
+    background: rgba(255, 255, 255, 0.03) !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Grid Layout */
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+}
+
+.toolCard {
+    background: rgba(20, 25, 35, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 18px;
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.toolCard:hover {
+    transform: translateY(-5px);
+    background: rgba(30, 35, 50, 0.6);
+    border-color: var(--primary-low);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.cardVisual {
+    position: relative;
+    height: 140px;
+    background: linear-gradient(135deg, rgba(255,255,255,0.02) 0%, rgba(255,255,255,0.05) 100%);
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.imageBox {
+    width: 70px;
+    height: 70px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 16px;
+    padding: 10px;
+    position: relative;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.imageBox img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.verifiedBadge {
+    position: absolute;
+    bottom: -5px;
+    right: -5px;
+    background: var(--primary);
+    color: #000;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #141923;
+}
+
+.cardActions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.editBtn, .deleteBtn {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.6);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.editBtn:hover {
+    background: var(--primary);
+    color: #000;
+    border-color: var(--primary);
+}
+
+.deleteBtn:hover {
+    background: #ff4444;
+    color: #fff;
+    border-color: #ff4444;
+}
+
+.cardInfo {
+    padding: 1.25rem;
+}
+
+.infoHead {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+}
+
+.toolName {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #fff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.linkIcon {
+    color: rgba(255, 255, 255, 0.3);
+    transition: color 0.2s;
+}
+
+.linkIcon:hover {
+    color: var(--primary);
+}
+
+.metaRow {
+    display: flex;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+}
+
+.catTag {
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    background: rgba(0, 255, 255, 0.05);
+    color: var(--primary);
+    border-radius: 6px;
+    text-transform: uppercase;
+}
+
+.priceTag {
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    background: rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.5);
+    border-radius: 6px;
+}
+
+.dateInfo {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.2);
+}
+
+/* Pagination */
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 2rem;
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.pageIndicator {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.pageIndicator span {
+    color: #fff;
+    font-weight: 700;
+}
+
+.emptyState {
+    grid-column: 1 / -1;
+    padding: 4rem;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.2);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+/* Skeletons */
+.skeletonHeader {
+    margin-bottom: 2rem;
+}
+
+.skeletonTitle {
+    height: 40px;
+    width: 300px;
+    margin-bottom: 1rem;
+}
+
+.skeletonSearch {
+    height: 45px;
+    width: 100%;
+    max-width: 500px;
+}
+
+.toolCardSkeleton {
+    height: 250px;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 18px;
+    padding: 1.5rem;
+}
+
+.skeletonImage {
+    height: 100px;
+    width: 100px;
+    margin-bottom: 1.5rem;
+    border-radius: 14px;
+}
+
+.skeletonLine {
+    height: 15px;
+    width: 80%;
+    margin-bottom: 0.75rem;
+}
+
+.skeletonLineShort {
+    height: 15px;
+    width: 50%;
+}
+
+@media (max-width: 768px) {
+    .headerContent {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .statsArea {
+        width: 100%;
+        justify-content: space-between;
+    }
+}

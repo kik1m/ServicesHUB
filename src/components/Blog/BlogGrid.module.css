@@ -26,6 +26,11 @@
   color: var(--text-muted);
 }
 
+.noPostsIcon {
+  margin-bottom: 1.5rem;
+  opacity: 0.2;
+}
+
 .noPostsFound h3 {
   font-size: 1.5rem;
   font-weight: 700;

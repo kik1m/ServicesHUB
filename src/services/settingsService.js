@@ -2,8 +2,30 @@ import { supabase } from '../lib/supabaseClient';
 
 /**
  * Service for handling user settings and account management
+ * Elite Standard Architecture
  */
 export const settingsService = {
+    /**
+     * Fetch user profile data
+     * @param {string} userId 
+     */
+    async getProfile(userId) {
+        if (!userId) return null;
+
+        const { data, error } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', userId)
+            .single();
+
+        if (error && error.code !== 'PGRST116') { // PGRST116 is "No rows found"
+            console.error('Error fetching profile:', error);
+            throw error;
+        }
+
+        return data;
+    },
+
     /**
      * Update user profile data
      * @param {string} userId 
@@ -12,34 +34,36 @@ export const settingsService = {
     async updateProfile(userId, profileData) {
         if (!userId) throw new Error('User ID is required');
 
-        return supabase
+        const { error } = await supabase
             .from('profiles')
             .upsert({
                 id: userId,
                 ...profileData,
                 updated_at: new Date().toISOString()
             });
+
+        if (error) throw error;
+        return true;
     },
 
     /**
-     * Update user password
-     * @param {string} newPassword 
+     * Upload user avatar to storage
      */
-    async updatePassword(newPassword) {
-        if (!newPassword || newPassword.length < 6) {
-            throw new Error('Password must be at least 6 characters long');
-        }
+    async uploadAvatar(userId, file) {
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${userId}-${Math.random()}.${fileExt}`;
+        const filePath = `avatars/${fileName}`;
 
-        return supabase.auth.updateUser({
-            password: newPassword
-        });
-    },
+        const { error: uploadError } = await supabase.storage
+            .from('avatars')
+            .upload(filePath, file);
 
-    /**
-     * Get security status (hypothetical future expansion)
-     */
-    async getSecurityStatus(userId) {
-        // Placeholder for future logic
-        return { mfa_enabled: false };
+        if (uploadError) throw uploadError;
+
+        const { data } = supabase.storage
+            .from('avatars')
+            .getPublicUrl(filePath);
+
+        return data.publicUrl;
     }
 };

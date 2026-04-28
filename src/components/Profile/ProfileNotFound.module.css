@@ -32,9 +32,8 @@
 }
 
 .returnBtn {
-  margin-top: 2.5rem;
-  padding: 1rem 2.5rem !important;
+  margin-top: 1.5rem !important;
+  padding: 12px 30px !important;
   font-weight: 800 !important;
-  display: inline-block;
-  text-decoration: none;
+  border-radius: 14px !important;
 }

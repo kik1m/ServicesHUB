@@ -1,0 +1,66 @@
+.accountDropdown {
+    /* Positioning handled centrally in Navbar.module.css */
+    width: 260px;
+    z-index: 10001;
+}
+
+.userInfo {
+    padding: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    margin-bottom: 0.5rem;
+}
+
+.userNameRow {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+}
+
+.userName {
+    font-weight: 700;
+    color: var(--text-main);
+    font-size: 0.95rem;
+}
+
+.userEmail {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.menuItem {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    border-radius: 12px;
+    transition: 0.2s ease;
+}
+
+.menuItem:hover {
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--primary);
+    transform: translateX(5px);
+}
+
+.separator {
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.logoutBtn {
+    width: 100%;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    color: #ff4444 !important;
+}
+
+.logoutBtn:hover {
+    background: rgba(255, 68, 68, 0.1) !important;
+}

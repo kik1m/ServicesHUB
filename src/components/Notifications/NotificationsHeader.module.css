@@ -16,26 +16,40 @@
     font-weight: 900;
     margin: 0;
 }
+.title span {
+    background: var(--gradient);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
 
 .clearBtn {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 20px;
-    background: rgba(255, 82, 82, 0.08);
-    border: 1px solid rgba(255, 82, 82, 0.2);
-    color: #FF5252;
-    border-radius: 12px;
-    cursor: pointer;
-    font-weight: 700;
-    font-size: 0.9rem;
-    transition: all 0.2s ease;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+    color: var(--text-muted) !important;
+    backdrop-filter: blur(5px);
 }
 
 .clearBtn:hover {
-    background: rgba(255, 82, 82, 0.15);
+    border-color: var(--danger) !important;
+    color: white !important;
+    background: rgba(255, 80, 80, 0.1) !important;
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(255, 82, 82, 0.1);
+}
+.heroSection {
+    padding-top: 100px !important;
+}
+
+/* Skeleton Standards - Rule #81 */
+.skeletonTitle {
+    width: 220px;
+    height: 38px;
+    border-radius: 8px;
+}
+
+.skeletonBtn {
+    width: 120px;
+    height: 42px;
+    border-radius: 12px;
 }
 
 @media (max-width: 768px) {

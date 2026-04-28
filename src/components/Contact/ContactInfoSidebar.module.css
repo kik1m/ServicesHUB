@@ -5,89 +5,146 @@
 }
 
 .infoCard {
-  padding: 3rem !important;
+  padding: 2.5rem;
+  border-radius: 32px;
+}
+
+.infoTitle {
+  font-size: 1.25rem;
+  font-weight: 800;
+  margin-bottom: 2.5rem;
+  color: #fff;
 }
 
 .infoItem {
   display: flex;
   gap: 1.5rem;
-  margin-bottom: 2rem;
+  align-items: center;
+  margin-bottom: 2.25rem;
+  position: relative;
+  width: 100%;
 }
 
-.infoItem:last-child {
-  margin-bottom: 0;
+/* --- SKELETON LAYOUTS (Rule #81) --- */
+.skeletonMainTitle {
+    width: 160px;
+    height: 24px;
+    margin-bottom: 2.5rem;
+}
+
+.skeletonIcon {
+    width: 52px;
+    height: 52px;
+    border-radius: 16px;
+}
+
+.skeletonTitle {
+    width: 80px;
+    height: 14px;
+    margin-bottom: 8px;
+}
+
+.skeletonValue {
+    width: 150px;
+    height: 18px;
+}
+
+.skeletonSocialTitle {
+    width: 120px;
+    height: 16px;
+    margin-bottom: 1.25rem;
+}
+
+.skeletonSocialIcon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+}
+
+@media (max-width: 992px) {
+    .sidebar {
+        width: 100%;
+    }
 }
 
 .iconWrapper {
-    min-width: 48px;
-    height: 48px;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--primary);
+  width: 56px;
+  height: 56px;
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary);
+  flex-shrink: 0;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  background: rgba(var(--primary-rgb), 0.1);
+}
+
+.infoContent {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0; /* Critical for flex overflow control */
+  flex: 1;
 }
 
 .infoContent h4 {
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   color: var(--text-muted);
-  margin-bottom: 4px;
+  font-weight: 600;
+  margin: 0 0 2px 0;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 .infoContent p {
-  font-weight: 600;
+  font-size: 1.05rem;
+  color: #fff;
+  font-weight: 800;
   margin: 0;
-}
-
-.infoTitle {
-    font-size: 1.5rem;
-    margin-bottom: 2rem !important;
-    font-weight: 800;
-    margin: 0;
+  line-height: 1.4;
+  word-break: break-all; /* Prevents long emails from escaping */
+  overflow-wrap: break-word;
 }
 
 .socialBox {
-    text-align: center;
-    padding: 2rem !important;
+  padding: 2rem 2.5rem;
+  border-radius: 28px;
 }
 
 .socialBoxTitle {
-    margin-bottom: 1.5rem;
-    font-size: 1rem;
-    margin-top: 0;
-    font-weight: 700;
+  font-size: 0.9rem;
+  font-weight: 700;
+  margin-bottom: 1.25rem;
+  color: var(--text-muted);
 }
 
 .socialLinks {
-    display: flex;
-    justify-content: center;
-    gap: 1.2rem;
+  display: flex;
+  gap: 1rem;
 }
 
 .socialIcon {
-    width: 44px;
-    height: 44px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--text-muted);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    cursor: pointer;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  transition: all 0.3s ease;
+  cursor: pointer;
 }
 
 .socialIcon:hover {
-    background: rgba(0, 210, 255, 0.1);
-    border-color: var(--secondary);
-    color: var(--secondary);
-    transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(0, 210, 255, 0.1);
+  background: rgba(var(--primary-rgb), 0.1);
+  border-color: var(--primary);
+  color: var(--primary);
+  transform: translateY(-3px);
 }
 
-@media (max-width: 768px) {
-  .sidebar {
-    order: 2;
-  }
-}
+/* Skeleton Support */
+.skeletonIcon { flex-shrink: 0; }
+.skeletonTitle { margin-bottom: 8px; }

@@ -1,49 +1,88 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
+import useSEO from '../hooks/useSEO';
 import { useBlogPostData } from '../hooks/useBlogPostData';
-import SkeletonLoader from '../components/SkeletonLoader';
 
-// Import Modular Components
-import BlogPostHeader from '../components/Blog/BlogPostHeader';
+// Import Global UI Components
+import Safeguard from '../components/ui/Safeguard';
+import BlogPostHero from '../components/Blog/BlogPostHero';
 import BlogPostContent from '../components/Blog/BlogPostContent';
 import BlogSidebar from '../components/Blog/BlogSidebar';
 
-// Import Modular CSS
+// Import Constants & Styles
+import { BLOG_CONSTANTS } from '../constants/blogConstants';
 import styles from './BlogPost.module.css';
 
+/**
+ * Blog Post Detail Page - Elite Orchestration Layer
+ * Rule #16: Stable Coordinator Pattern
+ * Rule #31: Component Resilience via Safeguard
+ */
 const BlogPost = () => {
-    const { post, relatedPosts, loading, error } = useBlogPostData();
+    const { post, relatedPosts, loading, error, refresh } = useBlogPostData();
+    const { POST, HERO, SEO } = BLOG_CONSTANTS;
 
-    if (loading) {
-        return (
-            <div className={styles.loadingWrapper}>
-                <div className={styles.skeletonHeader}>
-                    <SkeletonLoader type="text" width="100px" />
-                    <SkeletonLoader type="title" width="80%" />
-                    <SkeletonLoader type="text" width="200px" style={{ marginTop: '2rem' }} />
-                </div>
-                <div style={{ height: '500px' }}></div>
-            </div>
-        );
-    }
+    // Rule #34/41: SEO and Article Schema Implementation
+    useSEO({
+        title: post?.title ? `${post.title}${SEO.POST_TITLE_SUFFIX}` : 'Article Details',
+        description: post?.excerpt || post?.content?.substring(0, 160),
+        image: post?.featured_image,
+        schema: post ? {
+            "@context": "https://schema.org",
+            "@type": "Article",
+            "headline": post.title,
+            "image": post.featured_image,
+            "author": {
+                "@type": "Person",
+                "name": post.author_name || "HUBly Expert"
+            },
+            "datePublished": post.created_at,
+            "description": post.excerpt
+        } : null
+    });
 
-    if (error || !post) {
-        return (
-            <div className={styles.errorWrapper}>
-                <h2>{error || 'Article not found'}</h2>
-                <Link to="/blog" className={styles.backBtn}>Back to Blog Magazine</Link>
-            </div>
-        );
-    }
+    const breadcrumbItems = useMemo(() => [
+        ...HERO.BREADCRUMBS,
+        { label: post?.title || '...', path: `/blog/${post?.id}` }
+    ], [post, HERO.BREADCRUMBS]);
 
     return (
         <div className={styles.postPage}>
-            <BlogPostHeader post={post} />
+            {!post && !loading && !error ? (
+                <div className={styles.errorWrapper}>
+                    <h2>{POST.ERROR_NOT_FOUND}</h2>
+                    <Link to="/blog" className={styles.backBtn}>{POST.BACK_TO_MAGAZINE}</Link>
+                </div>
+            ) : (
+                <>
+                    <BlogPostHero 
+                        post={post} 
+                        isLoading={loading} 
+                        breadcrumbs={breadcrumbItems}
+                        error={error}
+                        onRetry={refresh}
+                    />
 
-            <section className={styles.mainContent}>
-                <BlogPostContent post={post} />
-                <BlogSidebar relatedPosts={relatedPosts} />
-            </section>
+                    <section className={styles.mainContent}>
+                        <div className="container">
+                            <div className={styles.layoutGrid}>
+                                <BlogPostContent 
+                                    post={post} 
+                                    isLoading={loading} 
+                                    error={error}
+                                    onRetry={refresh}
+                                />
+                                <BlogSidebar 
+                                    relatedPosts={relatedPosts} 
+                                    isLoading={loading} 
+                                    error={error}
+                                    onRetry={refresh}
+                                />
+                            </div>
+                        </div>
+                    </section>
+                </>
+            )}
         </div>
     );
 };

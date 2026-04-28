@@ -1,5 +1,12 @@
 /* HomeLatestArrivals.module.css */
 
+.latestSection {
+  padding: 80px 5%;
+  max-width: 1400px;
+  width: 100%;
+  margin: 0 auto;
+}
+
 .latestToolsGridMini {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -10,11 +17,13 @@
   text-decoration: none;
   color: inherit;
   padding: 1rem;
-  display: flex !important;
+  display: flex;
   gap: 1rem;
   align-items: center;
   transition: all 0.3s ease;
-  border-radius: 16px; /* Added explicit radius */
+  border-radius: 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
 }
 
 .latestToolMini:hover {
@@ -76,4 +85,21 @@
 .viewAllLink:hover {
   gap: 12px;
   text-shadow: 0 0 10px var(--primary-glow);
+}
+
+.skeletonIcon {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+}
+
+.skeletonTitle {
+  width: 100px;
+  height: 18px;
+  margin-bottom: 6px;
+}
+
+.skeletonSubtitle {
+  width: 60px;
+  height: 12px;
 }

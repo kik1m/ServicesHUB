@@ -1,41 +1,83 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, TrendingUp } from 'lucide-react';
-import SkeletonLoader from '../SkeletonLoader';
-import { getIcon } from '../../utils/iconMap';
+import { ArrowRight, TrendingUp, Zap } from 'lucide-react';
+import Skeleton from '../ui/Skeleton';
+import SectionHeader from '../ui/SectionHeader';
+import SmartImage from '../ui/SmartImage';
+import Safeguard from '../ui/Safeguard';
+import EmptyState from '../ui/EmptyState';
+import { SECTION_LIMITS, SKELETON_COUNTS } from '../../constants/homeConstants';
 import styles from './HomeTrending.module.css';
 
-const HomeTrending = ({ trendingTools, loading }) => {
+/**
+ * HomeTrending - Elite Data Section
+ * Rule #29: Pure View with Safeguard protection
+ * Rule #16: Orchestration via Parent
+ */
+const HomeTrending = ({ trendingTools = [], isLoading, error }) => {
+    // Rule #35: Derived Data Stability + Rule #32: Defensive Rendering
+    const visibleTools = useMemo(() => {
+        const safeTools = trendingTools?.filter(Boolean) ?? [];
+        return safeTools.slice(0, SECTION_LIMITS.TRENDING);
+    }, [trendingTools]);
+
     return (
-        <section className={`main-section ${styles.trendingSection}`}>
-            <div className="section-header-row">
-                <div className="text-left">
-                    <h2 className="section-title">Trending <span className="gradient-text">Now</span></h2>
-                    <p className="section-desc">Popular tools and AI solutions gaining traction today.</p>
-                </div>
-                <span className={styles.livePill}><span className={styles.dot}></span> LIVE DATA</span>
-            </div>
-            <div className={styles.trendingGrid}>
-                {loading ? (
-                    [1, 2, 3, 4, 5, 6].map(i => <SkeletonLoader key={i} type="trending" />)
+        <Safeguard error={error}>
+            <section className={styles.trendingSection}>
+                <SectionHeader 
+                    title="Trending" 
+                    subtitle="Now" 
+                    description="Popular tools and AI solutions gaining traction today."
+                >
+                    <span className={styles.livePill}><span className={styles.dot}></span> LIVE DATA</span>
+                </SectionHeader>
+
+                {/* Rule #31: Empty State Handling */}
+                {!isLoading && visibleTools.length === 0 ? (
+                    <EmptyState 
+                        title="No trending tools" 
+                        message="Check back soon for the most popular selections." 
+                    />
                 ) : (
-                    (trendingTools || []).map(tool => (
-                        <Link to={`/tool/${tool?.slug}`} key={tool?.id} className={`${styles.trendingItem} glass-card`}>
-                            <div className={styles.trendingToolIcon}>
-                                {tool.image_url ? <img src={tool.image_url} alt={tool.name} /> : getIcon(tool.icon_name || 'Zap')}
-                            </div>
-                            <div className={styles.trendingToolInfo}>
-                                <h4>{tool.name}</h4>
-                                <div className={styles.trendingStats}>
-                                    <TrendingUp size={12} /> {(tool.view_count || 0).toLocaleString()} views
+                    <div className={styles.trendingGrid}>
+                        {isLoading ? (
+                            SKELETON_COUNTS.TRENDING_ITEMS.map((i) => (
+                                <div key={`skeleton-trend-${i}`} className={styles.trendingItem}>
+                                    <Skeleton className={styles.skeletonIcon} />
+                                    <div className={styles.trendingToolInfo}>
+                                        <Skeleton className={styles.skeletonTitle} />
+                                        <Skeleton className={styles.skeletonSubtitle} />
+                                    </div>
+                                    <Skeleton className={styles.skeletonArrow} />
                                 </div>
-                            </div>
-                            <ArrowRight size={18} className={styles.trendingArrow} />
-                        </Link>
-                    ))
+                            ))
+                        ) : (
+                            visibleTools.map(tool => {
+                                if (!tool?.slug) return null;
+                                return (
+                                    <Link to={`/tool/${tool.slug}`} key={tool.id || tool.slug} className={styles.trendingItem}>
+                                        <div className={styles.trendingToolIcon}>
+                                            <SmartImage 
+                                                src={tool.image_url} 
+                                                alt={tool.name} 
+                                                fallbackIcon={Zap}
+                                            />
+                                        </div>
+                                        <div className={styles.trendingToolInfo}>
+                                            <h4>{tool.name}</h4>
+                                            <div className={styles.trendingStats}>
+                                                <TrendingUp size={12} /> {(tool.view_count || 0).toLocaleString()} views
+                                            </div>
+                                        </div>
+                                        <ArrowRight size={18} className={styles.trendingArrow} />
+                                    </Link>
+                                );
+                            })
+                        )}
+                    </div>
                 )}
-            </div>
-        </section>
+            </section>
+        </Safeguard>
     );
 };
 

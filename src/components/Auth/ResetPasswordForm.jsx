@@ -1,53 +1,86 @@
-import React from 'react';
-import { Lock, Loader2, ArrowRight } from 'lucide-react';
+import React, { memo, useState } from 'react';
+import { Lock, ArrowRight, Eye, EyeOff } from 'lucide-react';
+import Input from '../ui/Input';
+import Button from '../ui/Button';
+import Skeleton from '../ui/Skeleton';
+import Safeguard from '../ui/Safeguard';
 import styles from './ResetPasswordForm.module.css';
 
 /**
- * ResetPasswordForm - Form for setting a new password
+ * ResetPasswordForm - Elite Form component
+ * Rule #14: Pure UI driven by props
  */
-const ResetPasswordForm = ({ 
+const ResetPasswordForm = memo(({ 
     password, 
     setPassword, 
     confirmPassword, 
     setConfirmPassword, 
     loading, 
-    onSubmit 
+    onSubmit,
+    isLoading,
+    content,
+    error,
+    onRetry
 }) => {
+    const [showPassword, setShowPassword] = useState(false);
+
+    if (isLoading) {
+        return (
+            <div className={styles.formSkeleton}>
+                <Skeleton className={styles.skeletonInput} />
+                <Skeleton className={styles.skeletonInput} />
+                <Skeleton className={styles.skeletonBtn} />
+            </div>
+        );
+    }
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        onSubmit();
+    };
+
     return (
-        <form onSubmit={onSubmit} className={styles.form}>
-            <div className={styles.inputGroup}>
-                <label><Lock size={14} /> New Password</label>
-                <input 
-                    type="password" 
-                    placeholder="Min 6 characters" 
+        <Safeguard error={error} onRetry={onRetry} title={content?.submitBtn}>
+            <form onSubmit={handleSubmit} className={styles.form}>
+                <Input 
+                    id="reset-password"
+                    label={<><Lock size={14} /> {content?.newPasswordLabel}</>}
+                    type={showPassword ? "text" : "password"} 
+                    placeholder={content?.newPasswordPlaceholder} 
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className={styles.inputField}
                     required
+                    rightIcon={showPassword ? EyeOff : Eye}
+                    onRightIconClick={() => setShowPassword(!showPassword)}
                 />
-            </div>
 
-            <div className={styles.inputGroup}>
-                <label><Lock size={14} /> Confirm Password</label>
-                <input 
-                    type="password" 
-                    placeholder="Repeat password" 
+                <Input 
+                    id="reset-confirm"
+                    label={<><Lock size={14} /> {content?.confirmPasswordLabel}</>}
+                    type={showPassword ? "text" : "password"} 
+                    placeholder={content?.confirmPasswordPlaceholder} 
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    className={styles.inputField}
                     required
+                    rightIcon={showPassword ? EyeOff : Eye}
+                    onRightIconClick={() => setShowPassword(!showPassword)}
                 />
-            </div>
 
-            <button 
-                type="submit" 
-                className={`${styles.submitBtn} btn-primary`}
-                disabled={loading}
-            >
-                {loading ? <Loader2 className="animate-spin" size={20} /> : <>Update & Login <ArrowRight size={20} /></>}
-            </button>
-        </form>
+                <Button 
+                    type="submit" 
+                    className={styles.submitBtn}
+                    isLoading={loading}
+                    icon={ArrowRight}
+                    iconPosition="right"
+                    iconSize={20}
+                    variant="primary"
+                    size="lg"
+                >
+                    {loading ? content?.loadingBtn : content?.submitBtn}
+                </Button>
+            </form>
+        </Safeguard>
     );
-};
+});
 
 export default ResetPasswordForm;

@@ -62,6 +62,12 @@
   opacity: 0.5;
 }
 
+/* Skeleton Loading Styles - Rule #81: No Inline Dimensions */
+.skeletonStat {
+  width: 30px;
+  height: 24px;
+}
+
 @media (max-width: 480px) {
   .statsContainer {
     width: 100%;

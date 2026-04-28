@@ -1,0 +1,37 @@
+/* PageLayout.module.css */
+
+.layoutBase {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 5rem;
+}
+
+.container {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+/* Page Variants */
+.narrow .container {
+  max-width: 800px;
+}
+
+.full .container {
+  max-width: 100%;
+  padding: 0;
+}
+
+@media (max-width: 1024px) {
+  .container {
+    padding: 0 1.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 0 1rem;
+  }
+}

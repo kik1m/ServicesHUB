@@ -1,24 +1,39 @@
 import React from 'react';
 import { Rocket, PlusCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import Button from '../ui/Button';
 import styles from './DashboardWelcomeCTA.module.css';
 
-const DashboardWelcomeCTA = () => {
+const DashboardWelcomeCTA = ({ content }) => {
     return (
-        <div className={`glass-card ${styles.welcomeCard}`}>
+        <div className={`${styles.welcomeCard} fade-in`}>
             <div className={styles.iconWrapper}>
                 <Rocket size={36} />
             </div>
-            <h2 className={styles.title}>Ready to <span className="gradient-text">Launch</span>?</h2>
+            <h2 className={styles.title}>
+                <span className={styles.titleMain}>{content?.title}</span>
+                <span className={styles.gradientText}>{content?.highlight}</span>
+                <span className={styles.titleQuestion}>{content?.question}</span>
+            </h2>
             <p className={styles.description}>
-                Join our community of creators. Submit your tool today to get featured and reach thousands of makers worldwide.
+                {content?.desc}
             </p>
-            <Link to="/submit" className="btn-primary" style={{ width: '100%', padding: '15px' }}>
-                <PlusCircle size={20} style={{ marginRight: '10px' }} />
-                Submit Your First Tool
-            </Link>
+            <Button 
+                as={Link} 
+                to="/submit" 
+                icon={PlusCircle} 
+                iconSize={20}
+                className={styles.btnSubmit}
+                variant="primary"
+            >
+                {content?.action}
+            </Button>
         </div>
     );
 };
 
 export default DashboardWelcomeCTA;
+
+
+
+

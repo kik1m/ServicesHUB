@@ -1,73 +1,99 @@
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import { Search as SearchIcon } from 'lucide-react';
 import ToolCard from '../ToolCard';
-import ToolCardSkeleton from '../Tools/ToolCardSkeleton';
-import CustomSelect from '../CustomSelect';
+import Skeleton from '../ui/Skeleton';
+import Select from '../ui/Select';
+import EmptyState from '../ui/EmptyState';
+import Safeguard from '../ui/Safeguard';
+import { SORT_OPTIONS, SKELETON_COUNTS } from '../../constants/searchConstants';
 import styles from './SearchResults.module.css';
 
-const SearchResults = ({ 
-    results, 
-    isLoading, 
-    loadingMore, 
-    hasMore, 
-    setPage, 
-    sortBy, 
-    setSortBy 
-}) => {
+/**
+ * SearchResults Component - Elite Grid
+ * Rule #29: Pure View with Safeguard protection
+ * Rule #11: Infinite Scroll implementation
+ */
+const SearchResults = (props) => {
+    const { results, isLoading, loadingMore, hasMore, setPage, sortBy, setSortBy, error, refetch, onToolClick, className = '', content, headerExtra } = props;
+
+    const observerTarget = useRef(null);
+    const safeResults = results?.filter(Boolean) ?? [];
+    const isInitialLoad = isLoading && safeResults.length === 0;
+
+    useEffect(() => {
+        const target = observerTarget.current;
+        if (!target || !hasMore || isLoading || loadingMore) return;
+
+        const observer = new IntersectionObserver((entries) => {
+            if (entries[0].isIntersecting) {
+                setPage(prev => prev + 1);
+            }
+        }, { threshold: 0.1, rootMargin: '400px' });
+
+        observer.observe(target);
+        return () => { if (target) observer.unobserve(target); };
+    }, [hasMore, isLoading, loadingMore, setPage]);
+
     return (
-        <main>
-            <div className={styles.resultsHeaderRow}>
-                <p className={styles.resultCount}>
-                    Showing <span className={styles.resultCountHighlight}>{results.length}</span> tools
-                </p>
-                <div className={styles.sortContainer}>
-                    <div className={styles.sortSelectBox}>
-                        <CustomSelect
-                            options={[
-                                { id: 'Newest', name: 'Newest First' },
-                                { id: 'Popular', name: 'Most Popular' },
-                                { id: 'Rating', name: 'Highest Rated' }
-                            ]}
-                            value={sortBy}
-                            onChange={(val) => setSortBy(val)}
-                            placeholder="Sort By"
-                        />
+        <Safeguard error={error} onRetry={refetch}>
+            <main className={`${styles.resultsGridContainer} ${className}`}>
+                <div className={styles.resultsHeaderRow}>
+                    <div className={styles.resultsMeta}>
+                        {isInitialLoad ? (
+                            <Skeleton width="120px" height="18px" borderRadius="4px" />
+                        ) : (
+                            <p className={styles.resultCount}>
+                                Showing <span className={styles.resultCountHighlight}>{safeResults.length}</span> {content.found}
+                            </p>
+                        )}
+                    </div>
+
+                    {headerExtra && <div className={styles.headerExtra}>{headerExtra}</div>}
+
+                    <div className={styles.sortContainer}>
+                        <span className={styles.sortLabel}>{content.sortBy || "Sort by:"}</span>
+                        {isInitialLoad ? (
+                            <Skeleton width="180px" height="44px" borderRadius="12px" />
+                        ) : (
+                            <div className={styles.sortSelectBox}>
+                                <Select
+                                    value={sortBy}
+                                    onChange={(v) => setSortBy(v)}
+                                    options={SORT_OPTIONS}
+                                    variant="outline"
+                                />
+                            </div>
+                        )}
                     </div>
                 </div>
-            </div>
 
-            <div className={styles.resultsGridContainer}>
-                <div className={styles.resultsGrid}>
-                    {isLoading ? (
-                        [1, 2, 3, 4, 5, 6].map(i => (
-                            <ToolCardSkeleton key={i} />
+                <div className={props.mode === 'lite' ? styles.resultsGridLite : styles.resultsGrid}>
+                    {safeResults.length > 0 ? (
+                        safeResults.map(tool => (
+                            <ToolCard key={tool.id || tool.slug} tool={tool} onClickOverride={onToolClick} />
                         ))
-                    ) : results.length > 0 ? (
-                        results.map(tool => (
-                            <ToolCard key={tool.id} tool={tool} />
+                    ) : isInitialLoad ? (
+                        Array.from({ length: SKELETON_COUNTS.RESULTS_GRID }).map((_, i) => (
+                            <ToolCard key={`skeleton-search-grid-${i}`} isLoading={true} />
                         ))
                     ) : (
                         <div className={styles.searchResultsEmpty}>
-                            <SearchIcon size={48} className={styles.emptyIcon} color="var(--text-muted)" />
-                            <h3>No tools found</h3>
-                            <p className={styles.emptyText}>Try adjusting your filters or search query.</p>
+                            <EmptyState
+                                message={content.noResults.title}
+                                description={content.noResults.description}
+                                icon={SearchIcon}
+                            />
                         </div>
                     )}
+
+                    {loadingMore && Array.from({ length: SKELETON_COUNTS.RESULTS_MORE }).map((_, i) => (
+                        <ToolCard key={`skeleton-search-more-${i}`} isLoading={true} />
+                    ))}
                 </div>
 
-                {hasMore && results.length > 0 && !isLoading && (
-                    <div className={styles.resultsPaginationRow}>
-                        <button
-                            onClick={() => setPage(prev => prev + 1)}
-                            className={`btn-primary ${styles.loadMoreBtn}`}
-                            disabled={loadingMore}
-                        >
-                            {loadingMore ? 'Searching...' : 'Load More Results'}
-                        </button>
-                    </div>
-                )}
-            </div>
-        </main>
+                <div ref={observerTarget} className={styles.observerTarget} />
+            </main>
+        </Safeguard>
     );
 };
 

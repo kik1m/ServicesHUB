@@ -1,194 +1,217 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, User, LogIn, LayoutGrid, Zap, Menu, X, Sparkles, Info, Rss, RefreshCcw, ChevronDown, Bell, Settings, LogOut, Heart, Star, Home } from 'lucide-react';
-import { supabase } from '../lib/supabaseClient';
+import { Search, ChevronDown, Bell, User, Star } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useNavbar } from '../hooks/useNavbar';
+import { useNotifications } from '../hooks/useNotifications';
+import { NAV_LINKS, NAV_LABELS, MORE_GROUPS } from '../constants/navbarConstants';
+
+// Components
 import NotificationPanel from './NotificationPanel';
 import AccountMenu from './AccountMenu';
 import MobileMenu from './MobileMenu';
+import Skeleton from './ui/Skeleton';
+import Button from './ui/Button';
+import Logo from './Logo';
+import DropdownCard from './ui/DropdownCard';
 
+// Styles
+import styles from './Navbar.module.css';
+
+/**
+ * 🚀 Elite Unified Navigation
+ * Rule #1: Logic Isolation via useNavbar
+ * Rule #2: Zero Inline Styles (Rule #81)
+ * Rule #3: Centralized Constants (Rule #11)
+ */
 const Navbar = () => {
     const { user, loading: authLoading, signOut } = useAuth();
-    const [isMenuOpen, setIsMenuOpen] = useState(false);
-    const [isMoreOpen, setIsMoreOpen] = useState(false);
-    const [isNotifOpen, setIsNotifOpen] = useState(false);
-    const [isAccountOpen, setIsAccountOpen] = useState(false);
-    const [unreadCount, setUnreadCount] = useState(0);
     const navigate = useNavigate();
+    const { unreadCount } = useNotifications(user?.id);
+    
+    const {
+        isScrolled,
+        activeDropdown,
+        toggleDropdown,
+        isMobileMenuOpen,
+        setIsMobileMenuOpen,
+        closeAll
+    } = useNavbar();
 
-    useEffect(() => {
-        let subscription;
-        if (user?.id) {
-            fetchUnreadCount(user.id);
+    const navRef = useRef(null);
 
-            subscription = supabase
-                .channel(`public:notifications:${user.id}`)
-                .on('postgres_changes', {
-                    event: '*',
-                    schema: 'public',
-                    table: 'notifications',
-                    filter: `user_id=eq.${user.id}`
-                }, (_payload) => {
-                    fetchUnreadCount(user.id);
-                })
-                .subscribe();
-
-            // Custom Event Listener for instant sync
-            const handleSync = () => fetchUnreadCount(user.id);
-            window.addEventListener('notifications-updated', handleSync);
-
-            return () => {
-                if (subscription) supabase.removeChannel(subscription);
-                window.removeEventListener('notifications-updated', handleSync);
-            };
-        }
-    }, [user?.id]);
-
-    const fetchUnreadCount = async (userId) => {
-        try {
-            const { count } = await supabase
-                .from('notifications')
-                .select('*', { count: 'exact', head: true })
-                .eq('user_id', userId)
-                .eq('is_unread', true);
-
-            setUnreadCount(count || 0);
-        } catch (err) {
-            console.error('Fetch unread count error:', err);
-        }
-    };
-
-    const handleLogout = useCallback(async () => {
+    const handleLogout = async () => {
         await signOut();
         navigate('/');
-        setIsMenuOpen(false);
-        setIsAccountOpen(false);
-    }, [signOut, navigate]);
+        closeAll();
+    };
+
+    // Close on click outside
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (navRef.current && !navRef.current.contains(event.target)) {
+                closeAll();
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, [closeAll]);
 
     return (
-        <nav className="navbar">
-            <div className="nav-container">
-                <Link to="/" className="logo-section" onClick={() => setIsMenuOpen(false)}>
-                    <img src="/logo.png" alt="HUBly" style={{ height: '32px', width: 'auto' }} />
-                    <div className="logo-text">
-                        <span className="logo-white">HUB</span><span className="logo-gradient">ly</span>
-                    </div>
-                </Link>
+        <nav 
+            ref={navRef}
+            className={`${styles.navbar} ${isScrolled ? styles.navbarScrolled : ''}`}
+            style={{ '--nav-height': isScrolled ? '68px' : '80px' }}
+        >
+            <div className={styles.navContainer}>
+                <Logo size={32} onClick={closeAll} />
 
-                {/* Navbar Search - Centered */}
-                <div className="nav-search-container">
-                    <Link to="/search" className="nav-search-wrapper" style={{ textDecoration: 'none' }}>
-                        <Search className="search-icon" size={20} />
-                        <span style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>Search tools...</span>
+                {/* Search Bar - Center */}
+                <div className={styles.navSearchContainer}>
+                    <Link to="/search" className={styles.navSearchWrapper} onClick={closeAll}>
+                        <Search size={20} className={styles.searchIcon} />
+                        <span className={styles.navSearchText}>
+                            {NAV_LABELS.SEARCH_PLACEHOLDER}
+                        </span>
                     </Link>
                 </div>
 
-                {/* Mobile Menu Backdrop */}
-                {isMenuOpen && (
-                    <div
-                        className="mobile-backdrop"
-                        onClick={() => setIsMenuOpen(false)}
-                    ></div>
-                )}
+                {/* Primary Links */}
+                <div className={styles.navLinks}>
+                    {NAV_LINKS.map(link => {
+                        const Icon = link.icon;
+                        return (
+                            <Link key={link.path} to={link.path} onClick={closeAll}>
+                                <Icon size={18} /> {link.label}
+                            </Link>
+                        );
+                    })}
 
-                <div className="nav-links desktop-only">
-                    <Link to="/tools"><LayoutGrid size={18} /> Tools</Link>
-                    <Link to="/categories"><Zap size={18} /> Categories</Link>
-                    <Link to="/promote"><Sparkles size={18} /> Promote</Link>
-
-                    <div className="nav-more-container">
+                    {/* More Dropdown */}
+                    <div className={styles.navMoreContainer}>
                         <button
-                            className="nav-more-trigger"
-                            onClick={() => { setIsMoreOpen(!isMoreOpen); setIsNotifOpen(false); setIsAccountOpen(false); }}
+                            className={styles.navMoreTrigger}
+                            onClick={() => toggleDropdown('more')}
                         >
-                            More <ChevronDown size={14} className={isMoreOpen ? 'rotated' : ''} />
+                            {NAV_LABELS.MORE} 
+                            <ChevronDown 
+                                size={14} 
+                                className={activeDropdown === 'more' ? styles.rotate180 : ''} 
+                            />
                         </button>
-                        {isMoreOpen && (
-                            <div className="nav-more-dropdown glass-card">
-                                <Link to="/premium" onClick={() => setIsMoreOpen(false)}><Star size={16} /> Premium Access</Link>
-                                <Link to="/blog" onClick={() => setIsMoreOpen(false)}><Rss size={16} /> Blog Hub</Link>
-                                <Link to="/about" onClick={() => setIsMoreOpen(false)}><Info size={16} /> Who We Are</Link>
-                                <Link to="/compare" onClick={() => setIsMoreOpen(false)}><RefreshCcw size={16} /> Compare Tools</Link>
-                                <Link to="/faq" onClick={() => setIsMoreOpen(false)}><Info size={16} /> FAQ & Help</Link>
-                            </div>
+                        {activeDropdown === 'more' && (
+                            <DropdownCard className={styles.navMoreDropdown}>
+                                {MORE_GROUPS.map((group, gIdx) => (
+                                    <div key={gIdx} className={styles.navMoreGroup}>
+                                        <span className={styles.navMoreGroupTitle}>{group.title}</span>
+                                        {group.links.map(link => {
+                                            const Icon = link.icon;
+                                            return (
+                                                <Link key={link.path} to={link.path} onClick={closeAll}>
+                                                    <Icon size={16} /> {link.label}
+                                                </Link>
+                                            );
+                                        })}
+                                        {gIdx < MORE_GROUPS.length - 1 && <div className={styles.navMoreSeparator} />}
+                                    </div>
+                                ))}
+                            </DropdownCard>
                         )}
                     </div>
                 </div>
 
-                <div className="nav-actions">
+                {/* Actions */}
+                <div className={styles.navActions}>
                     {user && !user.is_premium && (
-                        <Link to="/premium" className="premium-nav-btn desktop-only" style={{
-                            padding: '10px 15px',
-                            borderRadius: '12px',
-                            background: 'linear-gradient(90deg, #FFD700, #FFA500)',
-                            color: 'black',
-                            fontWeight: '800',
-                            textDecoration: 'none',
-                            fontSize: '0.85rem',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '5px',
-                            marginRight: '10px',
-                            boxShadow: '0 0 15px rgba(255, 215, 0, 0.2)'
-                        }}>
-                            <Star size={14} fill="currentColor" /> Go Premium
-                        </Link>
+                        <div className="desktop-only">
+                            <Button 
+                                variant="primary" 
+                                size="sm" 
+                                onClick={() => navigate('/premium')}
+                                className={styles.premiumBtn}
+                                icon={Star}
+                            >
+                                {NAV_LABELS.PREMIUM_CTA}
+                            </Button>
+                        </div>
                     )}
-                    <Link to="/submit" className="btn-primary-slim">Submit Tool</Link>
-
+                    
+                    <Button 
+                        variant="primary" 
+                        size="sm" 
+                        onClick={() => navigate('/submit')}
+                    >
+                        {NAV_LABELS.SUBMIT}
+                    </Button>
 
                     {authLoading ? (
-                        <div style={{ width: 68, height: 38, background: 'rgba(255,255,255,0.05)', borderRadius: '12px' }} />
+                        <div className={styles.authSkeleton}>
+                            <Skeleton width="100%" height="100%" borderRadius="12px" />
+                        </div>
                     ) : !user ? (
-                        <Link to="/auth" className="nav-login-btn-slim">Login</Link>
+                        <Button 
+                            variant="outline" 
+                            size="sm" 
+                            onClick={() => navigate('/auth')}
+                        >
+                            {NAV_LABELS.LOGIN}
+                        </Button>
                     ) : (
-                        <>
-                            <div className="nav-notif-container" style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                        <div className={styles.userControls}>
+                            <div className={styles.notifWrapper}>
                                 <button
-                                    className="nav-icon-btn"
-                                    onClick={() => { setIsNotifOpen(!isNotifOpen); setIsMoreOpen(false); setIsAccountOpen(false); }}
+                                    className={styles.navIconBtn}
+                                    onClick={() => toggleDropdown('notifications')}
                                     title="Notifications"
                                 >
                                     <Bell size={20} />
-                                    {unreadCount > 0 && <span className="notif-badge">{unreadCount}</span>}
+                                    {unreadCount > 0 && (
+                                        <span className={styles.notifBadge}>{unreadCount}</span>
+                                    )}
                                 </button>
-                                {isNotifOpen && (
-                                    <NotificationPanel onClose={() => setIsNotifOpen(false)} />
+                                {activeDropdown === 'notifications' && (
+                                    <NotificationPanel 
+                                        onClose={closeAll} 
+                                        className={styles.notifDropdown}
+                                    />
                                 )}
                             </div>
 
-                            <div className="nav-profile-container" style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                            <div className={styles.accountWrapper}>
                                 <button
-                                    className="nav-profile-trigger"
-                                    onClick={() => { setIsAccountOpen(!isAccountOpen); setIsNotifOpen(false); setIsMoreOpen(false); }}
+                                    className={styles.navProfileTrigger}
+                                    onClick={() => toggleDropdown('account')}
                                     title="Account"
                                 >
                                     <User size={22} />
                                 </button>
-                                {isAccountOpen && (
-                                    <AccountMenu onClose={() => setIsAccountOpen(false)} handleLogout={handleLogout} user={user} />
+                                {activeDropdown === 'account' && (
+                                    <AccountMenu 
+                                        onClose={closeAll} 
+                                        handleLogout={handleLogout} 
+                                        user={user}
+                                        className={styles.accountDropdown}
+                                    />
                                 )}
                             </div>
-                        </>
+                        </div>
                     )}
 
-                    {!isMenuOpen && (
-                        <button
-                            className="menu-toggle-premium"
-                            onClick={() => setIsMenuOpen(true)}
-                            aria-label="Open Menu"
-                        >
-                            <div className="hamburger-box">
-                                <div className="hamburger-inner"></div>
-                            </div>
-                        </button>
-                    )}
+                    <button
+                        className={styles.menuTogglePremium}
+                        onClick={() => setIsMobileMenuOpen(true)}
+                        aria-label="Open Menu"
+                    >
+                        <div className={styles.hamburgerBox}>
+                            <div className={styles.hamburgerInner}></div>
+                        </div>
+                    </button>
                 </div>
             </div>
 
             <MobileMenu
-                isOpen={isMenuOpen}
-                onClose={() => setIsMenuOpen(false)}
+                isOpen={isMobileMenuOpen}
+                onClose={() => setIsMobileMenuOpen(false)}
                 user={user}
                 handleLogout={handleLogout}
             />

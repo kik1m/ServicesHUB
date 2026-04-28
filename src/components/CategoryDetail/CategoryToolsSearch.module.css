@@ -1,0 +1,58 @@
+.searchContainer {
+  margin-bottom: 4rem;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.centeredContent {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  width: 100%;
+  max-width: 850px;
+}
+
+.inputBox {
+  flex: 2;
+  max-width: 500px;
+}
+
+/* Remove default Input margin to allow perfect alignment */
+.resetMargin {
+  margin-bottom: 0 !important;
+  background: transparent !important; /* Fix for the "sharp background" issue */
+}
+
+.sortBox {
+  flex: 1;
+  min-width: 180px;
+  max-width: 200px;
+}
+
+.filterGroup {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex: 2;
+}
+
+@media (max-width: 992px) {
+  .centeredContent {
+    padding: 0 1rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .centeredContent {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+  
+  .inputBox, .sortBox {
+    max-width: 100%;
+    width: 100%;
+  }
+}

@@ -1,5 +1,12 @@
 /* HomeCategories.module.css */
 
+.categoriesSection {
+  padding: 80px 5%;
+  max-width: 1400px;
+  width: 100%;
+  margin: 0 auto;
+}
+
 .categoriesGridSmall {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -21,7 +28,7 @@
 }
 
 .categoryItemSmall {
-  display: flex !important;
+  display: flex;
   align-items: center;
   gap: 1.2rem;
   padding: 1.2rem 1.5rem;
@@ -29,8 +36,8 @@
   text-decoration: none;
   transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   position: relative;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
   overflow: hidden;
   min-height: 94px;
 }
@@ -42,7 +49,7 @@
 }
 
 .catIconWrapper {
-  background: rgba(0, 136, 204, 0.08);
+  background: rgba(var(--primary-rgb), 0.08);
   padding: 12px;
   border-radius: 14px;
   color: var(--primary);
@@ -100,4 +107,27 @@
 .viewAllLink:hover {
   gap: 12px;
   text-shadow: 0 0 10px var(--primary-glow);
+}
+
+.skeletonIcon {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+}
+
+.skeletonTitle {
+  width: 100px;
+  height: 18px;
+  margin-bottom: 4px;
+}
+
+.skeletonSubtitle {
+  width: 60px;
+  height: 12px;
+}
+
+.skeletonArrow {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
 }

@@ -1,87 +1,115 @@
-import React from 'react';
-import { Mail, Lock, Eye, EyeOff, User, Sparkles, Loader2 } from 'lucide-react';
+import React, { useState, memo } from 'react';
+import { Mail, Lock, Eye, EyeOff, User, Sparkles } from 'lucide-react';
+import Input from '../ui/Input';
+import Button from '../ui/Button';
+import Skeleton from '../ui/Skeleton';
+import Safeguard from '../ui/Safeguard';
 import styles from './SignUpForm.module.css';
+import { AUTH_UI_CONSTANTS } from '../../constants/authConstants';
+import { useToast } from '../../context/ToastContext';
 
 /**
- * SignUpForm - Scoped component for the registration step
+ * SignUpForm - Elite Autonomous Component
+ * Rule #14: Data-Driven UI via constants
+ * Rule #112: Zero inline styles
  */
-const SignUpForm = ({
-    fullName, setFullName,
-    email, setEmail,
-    password, setPassword,
-    confirmPassword, setConfirmPassword,
-    showPassword, setShowPassword,
-    handleAuth,
-    loading
-}) => {
+const SignUpForm = memo(({ onSubmit, loading, isInitialLoading, error, onRetry }) => {
+    const labels = AUTH_UI_CONSTANTS.signup.form;
+    const { showToast } = useToast();
+
+    // Internal state management
+    const [fullName, setFullName] = useState('');
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        
+        if (password !== confirmPassword) {
+            showToast(AUTH_UI_CONSTANTS.validation.passwordsMatch, 'error');
+            return;
+        }
+
+        onSubmit(email, password, fullName);
+    };
+
+    if (isInitialLoading) {
+        return (
+            <div className={styles.formSkeleton}>
+                <Skeleton className={styles.skeletonInput} />
+                <Skeleton className={styles.skeletonInput} />
+                <Skeleton className={styles.skeletonInput} />
+                <Skeleton className={styles.skeletonInput} />
+                <Skeleton className={styles.skeletonBtn} />
+            </div>
+        );
+    }
+
     return (
-        <form onSubmit={handleAuth} className={styles.form}>
-            <div className={styles.inputGroup}>
-                <label><User size={14} /> Full Name</label>
-                <input 
-                    type="text" 
-                    placeholder="Enter your name" 
+        <Safeguard error={error} onRetry={onRetry} title={labels?.submitBtn}>
+            <form onSubmit={handleSubmit} className={styles.form}>
+                <Input 
+                    id="signup-fullname"
+                    label={<><User size={14} /> {labels?.nameLabel}</>}
+                    placeholder={labels?.namePlaceholder} 
                     value={fullName} 
                     onChange={(e) => setFullName(e.target.value)}
-                    className={styles.inputField}
                     required
                 />
-            </div>
 
-            <div className={styles.inputGroup}>
-                <label><Mail size={14} /> Email Address</label>
-                <input 
+                <Input 
+                    id="signup-email"
+                    label={<><Mail size={14} /> {labels?.emailLabel}</>}
                     type="email" 
-                    placeholder="name@example.com" 
+                    placeholder={labels?.emailPlaceholder} 
                     value={email} 
                     onChange={(e) => setEmail(e.target.value)}
-                    className={styles.inputField}
                     required
                 />
-            </div>
 
-            <div className={styles.inputGroup}>
-                <label><Lock size={14} /> Create Password</label>
-                <div className={styles.passwordWrapper}>
-                    <input 
+                <div className={styles.inputGroup}>
+                    <label htmlFor="signup-password">
+                        <Lock size={14} /> {labels?.passwordLabel}
+                    </label>
+                    <Input 
+                        id="signup-password"
                         type={showPassword ? "text" : "password"} 
-                        placeholder="••••••••" 
+                        placeholder={labels?.passwordPlaceholder} 
                         value={password} 
                         onChange={(e) => setPassword(e.target.value)}
-                        className={styles.inputField}
                         required
+                        rightIcon={showPassword ? EyeOff : Eye}
+                        onRightIconClick={() => setShowPassword(!showPassword)}
+                        className={styles.fullWidthInput}
                     />
-                    <button 
-                        type="button" 
-                        className={styles.visibilityToggle}
-                        onClick={() => setShowPassword(!showPassword)}
-                    >
-                        {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                    </button>
                 </div>
-            </div>
 
-            <div className={styles.inputGroup}>
-                <label><Lock size={14} /> Confirm Password</label>
-                <input 
-                    type="password" 
-                    placeholder="••••••••" 
+                <Input 
+                    id="signup-confirm"
+                    label={<><Lock size={14} /> {labels?.confirmLabel}</>}
+                    type={showPassword ? "text" : "password"} 
+                    placeholder={labels?.confirmPlaceholder} 
                     value={confirmPassword} 
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    className={styles.inputField}
                     required
                 />
-            </div>
 
-            <button 
-                type="submit" 
-                className={`${styles.submitBtn} btn-primary`}
-                disabled={loading}
-            >
-                {loading ? <Loader2 className="animate-spin" size={20} /> : <><Sparkles size={20} /> Create Account</>}
-            </button>
-        </form>
+                <Button 
+                    type="submit" 
+                    className={styles.submitBtn}
+                    isLoading={loading}
+                    icon={Sparkles}
+                    iconSize={20}
+                    variant="primary"
+                    size="lg"
+                >
+                    {loading ? labels?.loadingBtn : labels?.submitBtn}
+                </Button>
+            </form>
+        </Safeguard>
     );
-};
+});
 
 export default SignUpForm;

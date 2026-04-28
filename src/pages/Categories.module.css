@@ -5,13 +5,29 @@
 }
 
 .mainSection {
-  padding: 0 5% 5rem;
+  padding: 4rem 0 8rem;
+  background: linear-gradient(180deg, rgba(10, 10, 15, 0.5) 0%, rgba(0, 0, 0, 0) 100%);
+}
+
+.container {
   max-width: 1400px;
   margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.errorWrapper {
+    padding: 10rem 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 @media (max-width: 768px) {
   .mainSection {
-    padding: 0 1rem 3rem;
+    padding: 2rem 0 5rem;
+  }
+  
+  .container {
+    padding: 0 1.25rem;
   }
 }

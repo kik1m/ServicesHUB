@@ -1,41 +1,55 @@
-import React from 'react';
-import { Zap } from 'lucide-react';
+import React, { useMemo } from 'react';
+import { Star } from 'lucide-react';
 import ToolCard from '../ToolCard';
-import ToolCardSkeleton from '../Tools/ToolCardSkeleton';
+import SectionHeader from '../ui/SectionHeader';
+import Safeguard from '../ui/Safeguard';
+import Skeleton from '../ui/Skeleton';
+import EmptyState from '../ui/EmptyState';
+import { SECTION_LIMITS, SKELETON_COUNTS } from '../../constants/homeConstants';
 import styles from './HomeFeatured.module.css';
 
-const HomeFeatured = ({ featuredTools, loading, error }) => {
-    return (
-        <section className={`main-section ${styles.featuredPreview}`}>
-            <div className="section-header-row">
-                <div className="text-left">
-                    <h2 className="section-title">Editor&apos;s <span className="gradient-text">Choice</span></h2>
-                    <p className="section-desc">Hand-picked premium tools for maximum productivity.</p>
-                </div>
-            </div>
+/**
+ * HomeFeatured - Elite Editor Picks
+ * Rule #29: Pure View with Safeguard protection
+ */
+const HomeFeatured = ({ tools = [], isLoading, error }) => {
+    // Rule #35: Derived Data Stability + Rule #32: Defensive Rendering
+    const visibleTools = useMemo(() => {
+        const safeTools = tools?.filter(Boolean) ?? [];
+        return safeTools.slice(0, SECTION_LIMITS.FEATURED);
+    }, [tools]);
 
-            <div className={styles.featuredToolsGrid}>
-                {loading ? (
-                    [1, 2, 3, 4, 5, 6].map(i => (
-                        <ToolCardSkeleton key={i} />
-                    ))
-                ) : error ? (
-                    <div className={styles.errorMessageContainer}>
-                        <p>{error}</p>
-                        <button onClick={() => window.location.reload()} className="btn-outline">Retry Now</button>
-                    </div>
-                ) : (featuredTools?.length || 0) > 0 ? (
-                    (featuredTools || []).map((tool, i) => (
-                        <ToolCard key={tool?.id || i} tool={tool} />
-                    ))
+    return (
+        <Safeguard error={error}>
+            <section className={styles.featuredSection}>
+                <SectionHeader 
+                    title="Editor's" 
+                    subtitle="Choice" 
+                    description="Hand-picked premium tools for maximum productivity."
+                />
+
+                {!isLoading && visibleTools.length === 0 ? (
+                    <EmptyState 
+                        title="No featured items" 
+                        message="Our editors are hand-picking the best tools for you. Come back soon." 
+                        icon={Star}
+                    />
                 ) : (
-                    <div className={`${styles.emptyState} glass-card`}>
-                        <Zap size={48} className={styles.emptyStateIcon} />
-                        <p style={{ color: 'var(--text-muted)' }}>No featured tools yet.</p>
+                    <div className={styles.featuredToolsGrid}>
+                        {isLoading ? (
+                            SKELETON_COUNTS.FEATURED_ITEMS.map((i) => (
+                                <ToolCard key={`skeleton-featured-${i}`} isLoading={true} />
+                            ))
+                        ) : (
+                            visibleTools.map((tool) => {
+                                if (!tool?.slug) return null;
+                                return <ToolCard key={tool.id || tool.slug} tool={tool} />;
+                            })
+                        )}
                     </div>
                 )}
-            </div>
-        </section>
+            </section>
+        </Safeguard>
     );
 };
 

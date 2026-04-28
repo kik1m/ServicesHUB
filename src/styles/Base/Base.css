@@ -7,6 +7,7 @@
   --secondary: #00d2ff;
   --bg-dark: #070709;
   --bg-card: rgba(255, 255, 255, 0.03);
+  --bg-card-solid: #0d0d10;
   --bg-card-hover: rgba(255, 255, 255, 0.08);
   --text-main: #ffffff;
   --text-muted: rgba(255, 255, 255, 0.6);
@@ -17,7 +18,17 @@
   --glass-bg: rgba(255, 255, 255, 0.03);
   --glass-border: 1px solid rgba(255, 255, 255, 0.08);
   --body-bg-image: linear-gradient(rgba(7, 7, 9, 0.9), rgba(7, 7, 9, 0.9)), url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop');
+
+  /* Semantic Colors */
+  --success: #00e676;
+  --success-rgb: 0, 230, 118;
+  --danger: #ff5050;
+  --danger-rgb: 255, 80, 80;
+  --warning: #ffb74d;
+  --warning-rgb: 255, 183, 77;
+  --accent-gold: #FFD700;
 }
+
 
 * {
   margin: 0;

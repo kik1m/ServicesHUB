@@ -1,49 +1,69 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { CreditCard, Sparkles } from 'lucide-react';
+import Skeleton from '../ui/Skeleton';
+import Button from '../ui/Button';
 import styles from './SettingsBilling.module.css';
 
-const SettingsBilling = ({ profile }) => {
-    const isPremium = profile.is_premium;
+/**
+ * SettingsBilling - Elite Hardened Card
+ * Rule #18: Memoized
+ */
+const SettingsBilling = memo(({ profile, isLoading, content }) => {
+    if (isLoading) {
+        return (
+            <div className={styles.fadeIn}>
+                <div className={styles.settingsCard}>
+                    <div className={styles.billingStatusContainer}>
+                        <Skeleton className={styles.skeletonIcon} />
+                        <div className={styles.billingTextContent}>
+                            <Skeleton className={styles.skeletonTitle} />
+                            <Skeleton className={styles.skeletonDescLine1} />
+                            <Skeleton className={styles.skeletonDescLine2} />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    const isPremium = profile?.is_premium;
 
     return (
         <div className={styles.fadeIn}>
-            <div className={`${styles.settingsCard} ${styles.billingStatusContainer}`}>
-                <div className={`${styles.billingIconBox} ${isPremium ? styles.premiumActive : ''}`}>
-                    {isPremium ? <Sparkles size={40} className={styles.glowIcon} /> : <CreditCard size={40} />}
-                </div>
+            <div className={styles.settingsCard}>
+                <div className={styles.billingStatusContainer}>
+                    <div className={`${styles.billingIconBox} ${isPremium ? styles.premiumActive : ''}`}>
+                        {isPremium ? <Sparkles size={40} className={styles.glowIcon} /> : <CreditCard size={40} />}
+                    </div>
 
-                <div className={styles.billingTextContent}>
-                    <h3>
-                        {isPremium ? 'Premium Subscription Active' : 'Subscription Plan'}
-                    </h3>
-                    
-                    <p className={styles.billingDescription}>
-                        {isPremium ? (
-                            <>
-                                You are currently on the <span className={styles.premiumTextGlow}>Premium</span> plan. 
-                                Enjoy full access to professional tools, featured listings, and priority support.
-                            </>
+                    <div className={styles.billingTextContent}>
+                        <h3>
+                            {isPremium ? content.premiumActiveTitle : content.title}
+                        </h3>
+                        
+                        <p className={styles.billingDescription}>
+                            {isPremium ? content.premiumActiveDesc : content.freeDesc}
+                        </p>
+
+                        {!isPremium ? (
+                            <Button 
+                                as="a"
+                                href="/premium" 
+                                className={styles.btnPremiumUpgrade}
+                                icon={Sparkles}
+                            >
+                                {content.upgradeBtn}
+                            </Button>
                         ) : (
-                            <>
-                                You are currently on the <span className={styles.freeTextHighlight}>Free</span> plan. 
-                                Upgrade to unlock premium features and increase your visibility.
-                            </>
+                            <div className={styles.premiumStatusBadge}>
+                                <Sparkles size={16} /> {content.verifiedBadge}
+                            </div>
                         )}
-                    </p>
-
-                    {!isPremium ? (
-                        <a href="/premium" className={styles.btnPremiumUpgrade}>
-                            <Sparkles size={18} /> Upgrade Account
-                        </a>
-                    ) : (
-                        <div className={styles.premiumStatusBadge}>
-                            <Sparkles size={16} /> Verified Premium Member
-                        </div>
-                    )}
+                    </div>
                 </div>
             </div>
         </div>
     );
-};
+});
 
 export default SettingsBilling;

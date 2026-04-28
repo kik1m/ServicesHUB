@@ -1,18 +1,26 @@
 import React from 'react';
-import { Bell, Loader2 } from 'lucide-react';
+import { Bell } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import SkeletonLoader from '../components/SkeletonLoader';
 import useSEO from '../hooks/useSEO';
 import { useNotificationsData } from '../hooks/useNotificationsData';
 
 // Import Modular Components
 import NotificationsHeader from '../components/Notifications/NotificationsHeader';
+import NotificationsListHeader from '../components/Notifications/NotificationsListHeader';
 import NotificationCard from '../components/Notifications/NotificationCard';
 import NotificationsEmptyState from '../components/Notifications/NotificationsEmptyState';
+import Safeguard from '../components/ui/Safeguard';
+import Button from '../components/ui/Button';
 
 // Import Modular CSS
 import styles from './Notifications.module.css';
+import { NOTIFICATIONS_UI_CONSTANTS } from '../constants/notificationsConstants';
 
+/**
+ * Notifications Page - Elite 10/10 Standard
+ * Rule #16: Pure Orchestration Pattern
+ * Rule #31: Component Resilience via Safeguard
+ */
 const Notifications = () => {
     const { 
         user, 
@@ -20,76 +28,78 @@ const Notifications = () => {
         loading, 
         error, 
         markAsRead, 
-        clearAll 
+        clearAll,
+        refresh
     } = useNotificationsData();
 
-    useSEO({
-        title: "Notifications | ServicesHUB Activity",
-        description: "Stay updated with your tool submissions, approval status, and account activity.",
-    });
+    const labels = NOTIFICATIONS_UI_CONSTANTS;
 
-    // Handle Unauthenticated State
+    // 1. SEO Hardening (v2.0)
+    useSEO({ pageKey: 'notifications' });
+
+    // Handle Unauthenticated State - Rule #14
     if (!user && !loading) {
+        const authLabels = labels.auth;
         return (
-            <div className={`page-wrapper ${styles.authRequired}`}>
-                <Bell size={64} className={styles.authIcon} />
-                <h2 className={styles.authTitle}>Please sign in to view notifications</h2>
-                <Link to="/auth" className={`btn-primary ${styles.authBtn}`}>Sign In</Link>
+            <div className={`page-wrapper ${styles.authRequired} fade-in`}>
+                <div className={styles.authContent}>
+                    <div className={styles.authIconCircle}>
+                        <Bell size={48} />
+                    </div>
+                    <h2 className={styles.authTitle}>{authLabels.title}</h2>
+                    <p className={styles.authDesc}>{authLabels.description}</p>
+                    <Link to="/auth">
+                        <Button variant="primary" size="large">{authLabels.button}</Button>
+                    </Link>
+                </div>
             </div>
         );
     }
 
     const handleClearAll = () => {
-        if (window.confirm('Are you sure you want to clear all notifications? This action cannot be undone.')) {
+        if (window.confirm(labels.actions.confirmClear)) {
             clearAll();
         }
     };
 
     return (
-        <div className={`page-wrapper ${styles.notificationsView}`}>
+        <div className={`page-wrapper ${styles.notificationsView} fade-in`}>
+            <NotificationsHeader 
+                isLoading={loading && notifications.length === 0}
+            />
+
             <div className={styles.container}>
-                
-                <NotificationsHeader 
-                    hasNotifications={notifications.length > 0}
-                    onClearAll={handleClearAll}
-                />
+                    {notifications.length > 0 && !loading && (
+                        <NotificationsListHeader 
+                            onClearAll={handleClearAll}
+                            labels={labels.actions}
+                            error={error}
+                            onRetry={refresh}
+                        />
+                    )}
 
-                <div className={styles.notificationsList}>
-                    {loading ? (
-                        [1, 2, 3, 4].map(i => (
-                            <div key={i} className={styles.skeletonCard} style={{ 
-                                padding: '1.5rem', 
-                                display: 'flex', 
-                                gap: '20px', 
-                                background: 'rgba(255,255,255,0.02)',
-                                borderRadius: '20px',
-                                border: '1px solid var(--border)'
-                            }}>
-                                <SkeletonLoader type="avatar" width="44px" height="44px" borderRadius="12px" />
-                                <div style={{ flex: 1 }}>
-                                    <SkeletonLoader type="title" width="40%" height="20px" style={{ marginBottom: '10px' }} />
-                                    <SkeletonLoader type="text" height="40px" />
-                                </div>
-                            </div>
-                        ))
-                    ) : notifications.length > 0 ? (
-                        notifications.map(notif => (
-                            <NotificationCard 
-                                key={notif.id}
-                                notif={notif}
-                                onMarkRead={() => markAsRead(notif.id)}
+                    <div className={styles.notificationsList}>
+                        {loading && notifications.length === 0 ? (
+                            [1, 2, 3, 4].map(i => (
+                                <NotificationCard key={i} isLoading={true} />
+                            ))
+                        ) : notifications.length > 0 ? (
+                            notifications.map(notif => (
+                                <NotificationCard 
+                                    key={notif.id}
+                                    notif={notif}
+                                    onMarkRead={() => markAsRead(notif.id)}
+                                    error={error}
+                                    onRetry={refresh}
+                                />
+                            ))
+                        ) : (
+                            <NotificationsEmptyState 
+                                error={error}
+                                onRetry={refresh}
                             />
-                        ))
-                    ) : (
-                        <NotificationsEmptyState />
-                    )}
-
-                    {error && (
-                        <div style={{ textAlign: 'center', color: '#ff4444', marginTop: '2rem' }}>
-                            {error}
-                        </div>
-                    )}
-                </div>
+                        )}
+                    </div>
             </div>
         </div>
     );

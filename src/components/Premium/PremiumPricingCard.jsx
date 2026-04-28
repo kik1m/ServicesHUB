@@ -1,81 +1,115 @@
-import React from 'react';
-import { Award, Rocket, Star, Zap, Globe, ArrowRight, Loader2, ShieldCheck } from 'lucide-react';
+import React, { memo } from 'react';
+import { Award, CheckCircle2, ShieldCheck, ArrowRight } from 'lucide-react';
+import Skeleton from '../ui/Skeleton';
+import Button from '../ui/Button';
+import Safeguard from '../ui/Safeguard';
+import { PREMIUM_UI_CONSTANTS } from '../../constants/premiumConstants';
 import styles from './PremiumPricingCard.module.css';
 
-const PremiumPricingCard = ({ user, loading, onUpgrade }) => {
-    const perks = [
-        { title: 'Unlimited Tool Submissions', desc: 'List your innovations without bounds.', icon: <Rocket size={16} /> },
-        { title: 'Golden Verification Badge', desc: 'Diamond status on profile and every tool.', icon: <Star size={16} /> },
-        { title: 'Priority Support & Review', desc: 'Jump to the front of the queue.', icon: <Zap size={16} /> },
-        { title: 'Performance Insights', desc: 'Advanced analytics in your dashboard.', icon: <Globe size={16} /> }
-    ];
+/**
+ * PremiumPricingCard - Elite Component (Promote Style)
+ * Rule #14: Data-Driven UI via constants
+ * Rule #112: Zero inline styles
+ * Rule #31: Component Resilience
+ */
+const PremiumPricingCard = memo(({ user, loading, onUpgrade, isLoading, error, onRetry }) => {
+    const { pricing } = PREMIUM_UI_CONSTANTS;
 
     return (
-        <section className={styles.premiumMainCardContainer}>
-            <div className={styles.goldMeshGlow}></div>
-
-            <div className={styles.premiumGlassPanel}>
-                {/* Features Column */}
-                <div className={styles.premiumFeaturesCol}>
-                    <div className={styles.featureHeader}>
-                        <div className={styles.awardIconBox}>
-                            <Award size={24} color="#FFD700" />
-                        </div>
-                        <div>
-                            <h2>Membership Perks</h2>
-                            <p>Scale with Diamond status.</p>
-                        </div>
-                    </div>
-
-                    <ul className={styles.perksList}>
-                        {perks.map((item, i) => (
-                            <li key={i} className={styles.premiumFeatureItem}>
-                                <div className={styles.featureIconBox}>
-                                    {item.icon}
+        <Safeguard error={error} onRetry={onRetry}>
+            {isLoading ? (
+                <section className={styles.container}>
+                    <div className={styles.glassPanel}>
+                        {/* Features Column Skeleton */}
+                        <div className={styles.featuresCol}>
+                            <div className={styles.featureHeader}>
+                                <Skeleton width="64px" height="64px" borderRadius="20px" />
+                                <div className={styles.skeletonInfo}>
+                                    <Skeleton width="180px" height="28px" className={styles.skeletonTitle} />
+                                    <Skeleton width="240px" height="16px" />
                                 </div>
-                                <div className={styles.featureContent}>
-                                    <strong>{item.title}</strong>
-                                    <span>{item.desc}</span>
-                                </div>
-                            </li>
-                        ))}
-                    </ul>
-                </div>
-
-                {/* Pricing Column */}
-                <div className={styles.premiumPricingCol}>
-                    <div className={styles.pricingTagBadge}>LIFETIME DEAL</div>
-                    
-                    <div className={styles.pricingAmountRow}>
-                        <span className={styles.currency}>$</span>
-                        <span className={styles.amount}>120</span>
-                        <span className={styles.period}>ONE-TIME</span>
-                    </div>
-
-                    <div style={{ width: '100%', marginBottom: '2rem' }}>
-                        {user?.is_premium ? (
-                            <div className={styles.premiumBadgeStatus}>
-                                ALREADY A PREMIUM MEMBER
                             </div>
-                        ) : (
-                            <button
-                                onClick={onUpgrade}
-                                disabled={loading}
-                                className={styles.btnPremiumCheckout}
-                            >
-                                {loading ? <Loader2 className="animate-spin" /> : <>Get Access Now <ArrowRight size={20} /></>}
-                            </button>
-                        )}
+                            <div className={styles.skeletonFeatures}>
+                                {[1, 2, 3, 4, 5].map(i => (
+                                    <div key={i} className={styles.skeletonFeature}>
+                                        <Skeleton width="28px" height="28px" borderRadius="9px" />
+                                        <Skeleton width="70%" height="20px" />
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                        {/* Pricing Column Skeleton */}
+                        <div className={styles.pricingCol}>
+                            <Skeleton width="140px" height="32px" borderRadius="100px" className={styles.skeletonPricingHeader} />
+                            <Skeleton width="220px" height="80px" className={styles.skeletonAmount} />
+                            <Skeleton width="100%" height="54px" borderRadius="14px" />
+                        </div>
                     </div>
+                </section>
+            ) : (
+                <section className={styles.container}>
+                    <div className={styles.meshGlow}></div>
+                    <div className={styles.glassPanel}>
+                        <div className={styles.featuresCol}>
+                            <div className={styles.featureHeader}>
+                                <div className={styles.iconBox}>
+                                    <Award size={28} />
+                                </div>
+                                <div>
+                                    <h2>{pricing?.planName}</h2>
+                                    <p>{PREMIUM_UI_CONSTANTS?.hero?.subtitle}</p>
+                                </div>
+                            </div>
 
-                    <div className={styles.secureFooter}>
-                        <ShieldCheck size={16} color="#00ffaa" />
-                        <span>Secure payments via <strong>Lemon Squeezy</strong></span>
+                            <ul className={styles.perksList}>
+                                {pricing?.features?.map((feature, i) => (
+                                    <li key={i} className={styles.featureItem}>
+                                        <div className={styles.checkIconBox}>
+                                            <CheckCircle2 size={18} strokeWidth={2.5} />
+                                        </div>
+                                        <span>{feature}</span>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+
+                        <div className={styles.pricingCol}>
+                            <div className={styles.badge}>LIFETIME ACCESS</div>
+                            
+                            <div className={styles.pricingAmount}>
+                                <span className={styles.currency}>$</span>
+                                <span className={styles.amount}>{pricing?.price}</span>
+                                <div className={styles.period}>{pricing?.period}</div>
+                            </div>
+
+                            {user?.is_premium ? (
+                                <div className={styles.statusBadge}>
+                                    ALREADY A PRIME MEMBER
+                                </div>
+                            ) : (
+                                <Button
+                                    onClick={onUpgrade}
+                                    isLoading={loading}
+                                    variant="primary"
+                                    size="lg"
+                                    className={styles.upgradeBtn}
+                                    icon={ArrowRight}
+                                    iconPosition="right"
+                                >
+                                    {loading ? pricing?.buttonLoading : pricing?.buttonText}
+                                </Button>
+                            )}
+
+                            <div className={styles.guarantee}>
+                                <ShieldCheck size={18} className={styles.guaranteeIcon} />
+                                <span>{pricing?.guarantee}</span>
+                            </div>
+                        </div>
                     </div>
-                </div>
-            </div>
-        </section>
+                </section>
+            )}
+        </Safeguard>
     );
-};
+});
 
 export default PremiumPricingCard;

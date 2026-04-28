@@ -1,54 +1,86 @@
-import React from 'react';
-import { Zap } from 'lucide-react';
+import React, { memo, useRef, useCallback } from 'react';
+import { SearchX } from 'lucide-react';
 import ToolCard from '../ToolCard';
-import ToolCardSkeleton from './ToolCardSkeleton';
+import Button from '../ui/Button';
+import Safeguard from '../ui/Safeguard';
 import styles from './ToolsGrid.module.css';
 
-const ToolsGrid = ({ 
+/**
+ * ToolsGrid - Elite Discovery Grid
+ * Rule #29: Pure Rendering with Safeguard Protection
+ * Rule #11: Infinite Scroll implementation
+ */
+const ToolsGrid = memo(({ 
     tools, 
-    loading, 
+    isLoading, 
     loadingMore, 
-    error, 
     hasMore, 
-    setPage 
+    setPage,
+    refresh,
+    emptyMessage
 }) => {
+    const observer = useRef();
+    
+    const lastElementRef = useCallback(node => {
+        if (isLoading || loadingMore) return;
+        if (observer.current) observer.current.disconnect();
+        
+        observer.current = new IntersectionObserver(entries => {
+            if (entries[0].isIntersecting && hasMore) {
+                setPage(prev => prev + 1);
+            }
+        });
+        
+        if (node) observer.current.observe(node);
+    }, [isLoading, loadingMore, hasMore, setPage]);
+
+    // 1. Initial Loading State (Skeleton)
+    if (isLoading && tools.length === 0) {
+        return (
+            <div className={styles.gridWrapper}>
+                <div className={styles.resultsGrid}>
+                    {Array.from({ length: 12 }).map((_, i) => (
+                        <ToolCard isLoading={true} key={`skeleton-grid-${i}`} />
+                    ))}
+                </div>
+            </div>
+        );
+    }
+
+    // 2. Empty State Handling
+    if (tools.length === 0 && !isLoading) {
+        return (
+            <div className={styles.emptyState}>
+                <SearchX size={48} strokeWidth={1.5} className={styles.emptyIcon} />
+                <h3>No Tools Found</h3>
+                <p>{emptyMessage}</p>
+                <Button onClick={refresh} variant="outline" className={styles.resetBtn}>
+                    Clear All Filters
+                </Button>
+            </div>
+        );
+    }
+
     return (
-        <div className={styles.resultsGridContainer}>
-            <div className={styles.resultsGrid}>
-                {loading ? (
-                    [1, 2, 3, 4, 5, 6, 7, 8].map(i => (
-                        <ToolCardSkeleton key={i} />
-                    ))
-                ) : error ? (
-                    <div className={styles.errorMessageContainer}>
-                        <p>{error}</p>
-                        <button onClick={() => window.location.reload()} className="btn-outline">Retry Now</button>
-                    </div>
-                ) : tools.length > 0 ? (
-                    tools.map(tool => (
-                        <ToolCard key={tool.id} tool={tool} />
-                    ))
-                ) : (
-                    <div className={styles.emptyStateContainer}>
-                        <Zap size={48} className={styles.emptyIcon} />
-                        <p>No tools found matching your criteria.</p>
+        <Safeguard>
+            <div className={styles.gridWrapper}>
+                <div className={styles.resultsGrid}>
+                    {tools.map(tool => (
+                        <ToolCard key={tool.id || tool.slug} tool={tool} />
+                    ))}
+                </div>
+
+                <div ref={lastElementRef} className={styles.observerTarget} />
+
+                {loadingMore && (
+                    <div className={styles.loadMoreLoading}>
+                        <div className={styles.loadingSpinner} />
+                        <span>Loading more tools...</span>
                     </div>
                 )}
             </div>
-
-            {hasMore && tools.length > 0 && !loading && (
-                <div className={styles.toolsPaginationRow}>
-                    <button
-                        onClick={() => setPage(prev => prev + 1)}
-                        className={`btn-primary ${styles.btnLoadMore}`}
-                        disabled={loadingMore}
-                    >
-                        {loadingMore ? 'Loading More...' : 'Load More Tools'}
-                    </button>
-                </div>
-            )}
-        </div>
+        </Safeguard>
     );
-};
+});
 
 export default ToolsGrid;

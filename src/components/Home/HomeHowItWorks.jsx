@@ -1,36 +1,53 @@
-import React from 'react';
-import { Search, CheckCircle2, Zap } from 'lucide-react';
+import React, { useMemo } from 'react';
+import { Search, CheckCircle2, Zap, HelpCircle } from 'lucide-react';
+import SectionHeader from '../ui/SectionHeader';
+import Safeguard from '../ui/Safeguard';
+import { HOW_IT_WORKS_STEPS } from '../../constants/homeConstants';
 import styles from './HomeHowItWorks.module.css';
 
-const HomeHowItWorks = () => {
+const iconMap = {
+    '01': Search,
+    '02': CheckCircle2,
+    '03': Zap
+};
+
+const HomeHowItWorks = ({ content, error }) => {
+    // Rule #35: Derived Data Stability + Rule #32: Defensive Rendering
+    const steps = useMemo(() => HOW_IT_WORKS_STEPS?.filter(Boolean) ?? [], []);
+
     return (
-        <section className={`main-section ${styles.howItWorks}`}>
-            <div className="section-header" style={{ textAlign: 'center', marginBottom: '4rem' }}>
-                <h2 className="section-title">How <span className="gradient-text">HUBly</span> Works</h2>
-                <p className="section-desc">Streamlining your tool search in three simple steps.</p>
-            </div>
-            <div className={styles.stepsGrid}>
-                <div className={styles.stepCard}>
-                    <div className={styles.stepNum}>01</div>
-                    <div className={styles.stepIcon}><Search size={32} /></div>
-                    <h3>Discover</h3>
-                    <p>Explore our hand-picked collection of AI and SaaS gems.</p>
+        <Safeguard error={error}>
+            <section className={styles.howItWorks}>
+                <SectionHeader 
+                    title={content.header.title} 
+                    subtitle={content.header.subtitle} 
+                    description={content.header.description}
+                    align="center"
+                />
+                
+                <div className={styles.stepsGrid}>
+                    {steps.map((step) => {
+                        // Rule #37: Icon Safety Rule
+                        const Icon = iconMap[step.num] || HelpCircle;
+                        return (
+                            <div key={step.id || step.num} className={styles.stepCard}>
+                                <div className={styles.stepNum}>{step.num}</div>
+                                <div className={styles.stepIcon}><Icon size={32} /></div>
+                                <h3>{step.title}</h3>
+                                <p>{step.desc}</p>
+                            </div>
+                        );
+                    })}
                 </div>
-                <div className={styles.stepCard}>
-                    <div className={styles.stepNum}>02</div>
-                    <div className={styles.stepIcon}><CheckCircle2 size={32} /></div>
-                    <h3>Compare</h3>
-                    <p>Review features, pricing, and community feedback.</p>
-                </div>
-                <div className={styles.stepCard}>
-                    <div className={styles.stepNum}>03</div>
-                    <div className={styles.stepIcon}><Zap size={32} /></div>
-                    <h3>Build</h3>
-                    <p>Deploy the best tech and scale your next big idea.</p>
-                </div>
-            </div>
-        </section>
+            </section>
+        </Safeguard>
     );
 };
 
+
 export default HomeHowItWorks;
+
+
+
+
+

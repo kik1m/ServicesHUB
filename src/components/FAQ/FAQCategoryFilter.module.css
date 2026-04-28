@@ -35,3 +35,10 @@
     margin-bottom: 2.5rem;
   }
 }
+
+/* --- SKELETON LAYOUTS (Rule #81) --- */
+.skeletonPill {
+    width: 80px;
+    height: 38px;
+    border-radius: 100px;
+}

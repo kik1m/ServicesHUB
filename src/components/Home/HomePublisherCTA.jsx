@@ -1,36 +1,50 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Zap, ArrowRight } from 'lucide-react';
+import Button from '../ui/Button';
+import Safeguard from '../ui/Safeguard';
 import styles from './HomePublisherCTA.module.css';
 
-const HomePublisherCTA = () => {
+const HomePublisherCTA = ({ content, error }) => {
     return (
-        <section className={`main-section ${styles.publisherCtaSection}`}>
-            <div className={styles.publisherCtaContent}>
-                <img src="/logo.png" alt="HUBly" className={styles.publisherCtaLogo} />
-                
-                <div className={`badge ${styles.publisherCtaBadge}`}>FOR TOOL OWNERS</div>
-                
-                <h2 className="section-title">
-                    Are you building something <span className="gradient-text">Great</span>?
-                </h2>
-                
-                <p className={styles.publisherCtaDesc}>
-                    Reach thousands of developers, entrepreneurs, and AI enthusiasts. 
-                    Submit your tool for free today and get the exposure your product deserves.
-                </p>
-                
-                <div className="cta-actions-row">
-                    <Link to="/auth" className="btn-primary">
-                        Get Started Free <Zap size={18} />
-                    </Link>
-                    <Link to="/promote" className="btn-outline">
-                        Explore Advertising <ArrowRight size={18} />
-                    </Link>
+        <Safeguard error={error}>
+            <section className={styles.publisherCtaSection}>
+                <div className={styles.publisherCtaContent}>
+                    <img src="/logo.png" alt="HUBly" className={styles.publisherCtaLogo} />
+                    
+                    <div className={styles.publisherCtaBadge}>FOR TOOL OWNERS</div>
+                    
+                    <h2 className={styles.title}>
+                        {content.title} <span className={styles.gradientText}>{content.highlight}</span>
+                    </h2>
+                    
+                    <p className={styles.publisherCtaDesc}>
+                        {content.desc}
+                    </p>
+                    
+                    <div className={styles.ctaActionsRow}>
+                        <Button as={Link} to="/auth" variant="primary" icon={Zap}>
+                            {content.button}
+                        </Button>
+                        <Button 
+                            as={Link} 
+                            to="/promote" 
+                            variant="outline" 
+                            className={styles.outlineBtnOverride}
+                            icon={ArrowRight} 
+                            iconPosition="right"
+                        >
+                            Explore Advertising
+                        </Button>
+                    </div>
                 </div>
-            </div>
-        </section>
+            </section>
+        </Safeguard>
     );
 };
 
 export default HomePublisherCTA;
+
+
+
+

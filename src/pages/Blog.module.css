@@ -2,16 +2,13 @@
 
 .blogPage {
   min-height: 100vh;
-  background-color: var(--bg-dark);
+  background: transparent !important;
+  /* Unified transparency */
 }
 
 .mainContent {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 5% 5rem;
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
+  width: 100%;
+  padding-bottom: 5rem;
 }
 
 /* Fix for lint error in BlogCard.module.css if needed, 

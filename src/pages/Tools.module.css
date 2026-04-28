@@ -1,10 +1,64 @@
 /* Tools.module.css */
 
 .toolsDirectoryPage {
-  min-height: 100vh;
-  background: var(--bg);
+    min-height: 100vh;
+    background: transparent;
+}
+
+.mainContainer {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 5% 5rem;
+}
+
+.contentLayout {
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+    margin-top: 2rem; /* Standard spacing, no overlap with hero subtitle */
+    position: relative;
+    z-index: 10;
+}
+
+/* Elite Search Bar Integration */
+.searchWrapper {
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.searchInner {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    width: 100%;
+}
+
+.toolsMainInput {
+    margin-bottom: 0 !important;
+}
+
+.resultsBadge {
+    background: rgba(0, 136, 204, 0.1);
+    color: var(--primary);
+    padding: 4px 12px;
+    border-radius: 100px;
+    font-size: 0.85rem;
+    font-weight: 800;
+    white-space: nowrap;
 }
 
 @media (max-width: 768px) {
-  /* Any page-level responsive adjustments */
+    .contentLayout {
+        margin-top: 20px;
+        gap: 1.5rem;
+    }
+    
+    .searchInner {
+        padding: 10px 18px;
+    }
+    
+    .resultsBadge {
+        display: none;
+    }
 }

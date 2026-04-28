@@ -1,17 +1,24 @@
-/* Premium.module.css */
-
-.premiumViewWrapper {
+/* Premium.module.css - Unified Elite Standard */
+.viewWrapper {
   min-height: 100vh;
-  padding: 80px 5% 80px;
+  background: transparent;
 }
 
-.premiumContent {
-  max-width: 1000px;
-  margin: 0 auto;
+.container {
+  max-width: 1200px;
+  margin: 0 auto; /* Removed Negative Margin completely to fix overlap */
+  padding: 2rem 5% 100px;
+  position: relative;
+  z-index: 2;
+}
+
+.pricingSection {
+    margin-bottom: 5rem;
 }
 
 @media (max-width: 768px) {
-    .premiumViewWrapper {
-        padding: 40px 5% 40px;
-    }
+  .container {
+    margin-top: -2rem;
+    padding-bottom: 60px;
+  }
 }

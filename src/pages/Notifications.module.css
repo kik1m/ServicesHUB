@@ -1,11 +1,11 @@
 .notificationsView {
-    padding: 120px 5% 60px;
+    padding: 0 5% 60px; /* Removed top padding to allow Hero to reach the top */
     min-height: 80vh;
 }
 
 .container {
     max-width: 800px;
-    margin: 0 auto;
+    margin: 3rem auto 0; /* Added top margin to prevent overlapping with Hero */
 }
 
 .notificationsList {

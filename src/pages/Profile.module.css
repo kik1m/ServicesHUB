@@ -8,7 +8,7 @@
 .profileContainer {
   max-width: 1400px;
   margin: 0 auto;
-  padding: 0 5%;
+  padding: 100px 5% 0;
 }
 
 .profileGridSlim {
@@ -36,21 +36,34 @@
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+  animation: fadeIn 0.6s ease-out;
+}
+
+.heroSkeleton {
+  margin-bottom: 2rem !important;
 }
 
 /* Empty State Styling */
 .emptyStateCard {
   text-align: center;
   padding: 5rem 2rem;
-  background: rgba(255, 255, 255, 0.01) !important;
-  border: 1px dashed var(--border) !important;
-  border-radius: 32px !important;
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--border);
+  border-radius: 32px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  animation: fadeIn 0.8s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .emptyStateIcon {
   color: var(--text-muted);
   margin-bottom: 1.5rem;
-  opacity: 0.5;
+  opacity: 0.3;
 }
 
 .emptyStateTitle {
@@ -83,4 +96,9 @@
   .profileContainer {
     padding: 0 1rem;
   }
+}
+
+.tabRenderArea {
+  margin-top: 2rem;
+  min-height: 400px;
 }

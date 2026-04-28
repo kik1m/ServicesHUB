@@ -1,17 +1,27 @@
 import React from 'react';
-import SkeletonLoader from '../components/SkeletonLoader';
+import { HelpCircle, Search } from 'lucide-react';
 import useSEO from '../hooks/useSEO';
 import { useFAQData } from '../hooks/useFAQData';
 
+// Import Global UI Components
+import PageHero from '../components/ui/PageHero';
+import Input from '../components/ui/Input';
+import Safeguard from '../components/ui/Safeguard';
+
 // Import Modular Components
-import FAQHero from '../components/FAQ/FAQHero';
 import FAQCategoryFilter from '../components/FAQ/FAQCategoryFilter';
 import FAQList from '../components/FAQ/FAQList';
 import FAQContactCTA from '../components/FAQ/FAQContactCTA';
 
-// Import Modular CSS
+// Import Constants & Styles
+import { FAQ_UI_CONSTANTS } from '../constants/faqConstants';
 import styles from './FAQ.module.css';
 
+/**
+ * FAQ Page - Elite 10/10 Standard
+ * Rule #16: Pure Orchestration Pattern
+ * Rule #31: Component Resilience via Safeguard
+ */
 const FAQ = () => {
     const { 
         loading, 
@@ -25,52 +35,49 @@ const FAQ = () => {
         scrollToCategory
     } = useFAQData();
 
-    useSEO({
-        title: "FAQs | HUBly Support",
-        description: "Find answers to common questions about HUBly, tool submissions, and platform safety. Our FAQ guide is here to help.",
-    });
-
-    if (loading) {
-        return (
-            <div className={`page-wrapper ${styles.faqPage}`}>
-                <header className="page-header hero-section" style={{ minHeight: '35vh', paddingBottom: '40px' }}>
-                    <div className="hero-content">
-                        <SkeletonLoader type="title" width="40%" style={{ margin: '0 auto' }} />
-                    </div>
-                </header>
-                <section className={styles.mainSection}>
-                    {[1, 2, 3, 4, 5].map(i => (
-                        <SkeletonLoader key={i} height="80px" borderRadius="16px" style={{ marginBottom: '1rem' }} />
-                    ))}
-                </section>
-            </div>
-        );
-    }
+    // 1. SEO Hardening (v2.0)
+    useSEO({ pageKey: 'faq' });
 
     return (
-        <div className={`page-wrapper ${styles.faqPage}`}>
-            
-            <FAQHero 
-                searchQuery={searchQuery} 
-                setSearchQuery={setSearchQuery} 
-            />
+        <div className={styles.faqPage}>
+            <PageHero 
+                title={FAQ_UI_CONSTANTS.hero.title}
+                highlight={FAQ_UI_CONSTANTS.hero.highlight}
+                subtitle={FAQ_UI_CONSTANTS.hero.subtitle}
+                breadcrumbs={FAQ_UI_CONSTANTS.hero.breadcrumbs}
+                icon={<HelpCircle size={24} />}
+                isLoading={loading}
+            >
+                <div className={styles.searchWrapper}>
+                    <Input 
+                        placeholder={FAQ_UI_CONSTANTS.hero.searchPlaceholder}
+                        icon={Search}
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        variant="pill"
+                        isLoading={loading}
+                    />
+                </div>
+            </PageHero>
 
             <section id="faq-top" className={styles.mainSection}>
-                
-                <FAQCategoryFilter 
-                    categories={categories}
-                    selectedCategory={selectedCategory}
-                    scrollToCategory={scrollToCategory}
-                />
+                <div className={styles.container}>
+                        <FAQCategoryFilter 
+                            categories={categories}
+                            selectedCategory={selectedCategory}
+                            scrollToCategory={scrollToCategory}
+                            isLoading={loading}
+                        />
 
-                <FAQList 
-                    faqs={filteredFaqs}
-                    activeIndex={activeIndex}
-                    toggleAccordion={toggleAccordion}
-                />
+                        <FAQList 
+                            faqs={filteredFaqs}
+                            activeIndex={activeIndex}
+                            toggleAccordion={toggleAccordion}
+                            isLoading={loading}
+                        />
 
-                <FAQContactCTA />
-
+                        <FAQContactCTA content={FAQ_UI_CONSTANTS.cta} />
+                </div>
             </section>
         </div>
     );

@@ -1,49 +1,97 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Share2 } from 'lucide-react';
+import Button from '../ui/Button';
+import Input from '../ui/Input';
+import Skeleton from '../ui/Skeleton';
+import SmartImage from '../ui/SmartImage';
+import { BLOG_CONSTANTS } from '../../constants/blogConstants';
 import styles from './BlogSidebar.module.css';
 
-const BlogSidebar = ({ relatedPosts }) => {
-    return (
-        <aside className={styles.sidebar}>
-            <div className={styles.widget}>
-                <h4>
-                    <Share2 size={18} color="var(--primary)" /> Newsletter
-                </h4>
-                <p>
-                    Get the latest AI tools and trends directly in your inbox.
-                </p>
-                <input 
-                    type="email" 
-                    placeholder="Email address" 
-                    className={styles.newsInput}
-                />
-                <button className={styles.subscribeBtn}>
-                    Subscribe
-                </button>
-            </div>
+import Safeguard from '../ui/Safeguard';
 
-            {relatedPosts && relatedPosts.length > 0 && (
+/**
+ * BlogSidebar - Sidebar with related articles and newsletter for the blog post page
+ * Rule #12: Pure UI Component
+ */
+const BlogSidebar = ({ relatedPosts, isLoading, error, onRetry }) => {
+    const { SIDEBAR, SKELETONS } = BLOG_CONSTANTS;
+
+    if (isLoading) {
+        return (
+            <aside className={styles.sidebar}>
                 <div className={styles.widget}>
-                    <h4>Related Articles</h4>
-                    <div className={styles.relatedList}>
-                        {relatedPosts.map(p => (
-                            <Link key={p.id} to={`/blog/${p.id}`} className={styles.relatedItem}>
-                                <div className={styles.thumbWrapper}>
-                                    <img 
-                                        src={p.image_url || 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=100&auto=format&fit=crop&q=60'} 
-                                        alt="" 
-                                        className={styles.thumbImg}
-                                    />
-                                </div>
-                                <h5>{p.title}</h5>
-                            </Link>
-                        ))}
-                    </div>
+                    <Skeleton className={styles.skeletonTitle} />
+                    <Skeleton className={styles.skeletonText} />
+                    <Skeleton className={styles.skeletonText} />
+                    <Skeleton className={styles.skeletonInput} />
+                    <Skeleton className={styles.skeletonButton} />
                 </div>
-            )}
-        </aside>
+                <div className={styles.widget}>
+                    <Skeleton className={styles.skeletonTitle} />
+                    {SKELETONS.RELATED_SIDEBAR.map(i => (
+                        <div key={i} className={styles.skeletonRelatedItem}>
+                            <Skeleton className={styles.skeletonThumb} />
+                            <div className={styles.skeletonRelatedContent}>
+                                <Skeleton className={styles.skeletonRelatedTitle} />
+                                <Skeleton className={styles.skeletonRelatedTitle} />
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </aside>
+        );
+    }
+
+    return (
+        <Safeguard error={error} onRetry={onRetry}>
+            <aside className={styles.sidebar}>
+                <div className={styles.widget}>
+                    <h4>
+                        <Share2 size={18} color="var(--primary)" /> {SIDEBAR?.NEWSLETTER?.TITLE}
+                    </h4>
+                    <p>
+                        {SIDEBAR?.NEWSLETTER?.SUBTITLE}
+                    </p>
+                    <Input 
+                        id="newsletter-email"
+                        type="email" 
+                        placeholder={SIDEBAR?.NEWSLETTER?.PLACEHOLDER} 
+                        className={styles.newsInput}
+                        variant="glass"
+                    />
+                    <Button variant="primary" className={styles.subscribeBtn}>
+                        {SIDEBAR?.NEWSLETTER?.BUTTON}
+                    </Button>
+                </div>
+
+                {relatedPosts && relatedPosts?.length > 0 && (
+                    <div className={styles.widget}>
+                        <h4>{SIDEBAR?.RELATED?.TITLE}</h4>
+                        <div className={styles.relatedList}>
+                            {relatedPosts?.map(p => (
+                                <Link key={p?.id} to={`/blog/${p?.id}`} className={styles.relatedItem}>
+                                    <div className={styles.thumbWrapper}>
+                                        <SmartImage 
+                                            src={p?.image_url} 
+                                            alt="" 
+                                            className={styles.thumbImg}
+                                            fallback={SIDEBAR?.RELATED?.IMAGE_FALLBACK}
+                                        />
+                                    </div>
+                                    <h5>{p?.title}</h5>
+                                </Link>
+                            ))}
+                        </div>
+                    </div>
+                )}
+            </aside>
+        </Safeguard>
     );
 };
 
-export default BlogSidebar;
+export default React.memo(BlogSidebar);
+
+
+
+

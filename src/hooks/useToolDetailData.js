@@ -1,18 +1,21 @@
-import { useState, useEffect, useCallback } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useParams } from 'react-router-dom';
 import { toolsService } from '../services/toolsService';
 import { profilesService } from '../services/profilesService';
 import { favoritesService } from '../services/favoritesService';
 import { useToast } from '../context/ToastContext';
 import { useAuth } from '../context/AuthContext';
 import { sendNotification } from '../utils/notifications';
+import { TOOL_DETAIL_CONSTANTS } from '../constants/toolDetailConstants';
+
+import { getCurrentUrl } from '../utils/getCurrentUrl';
 
 /**
- * Custom hook for managing tool detail data, favorites, and UI interactions
+ * Custom hook for managing tool detail data, favorites, and fetching logic
+ * Follows Rule #21 (Data Contract) and #27 (Hook Responsibility)
  */
 export const useToolDetailData = () => {
     const { id: slug } = useParams();
-    const navigate = useNavigate();
     const { user } = useAuth();
     const { showToast } = useToast();
 
@@ -22,21 +25,36 @@ export const useToolDetailData = () => {
     const [loading, setLoading] = useState(true);
     const [isFavorited, setIsFavorited] = useState(false);
     const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+    const [error, setError] = useState(null);
 
     const fetchData = useCallback(async () => {
+        if (!slug) return;
+        
         setLoading(true);
+        setError(null);
+        
         try {
-            // 1. Fetch Main Tool
+            // 1. Fetch Main Tool (Critical Path)
             const { data: toolData, error: toolError } = await toolsService.getToolBySlug(slug);
-            if (toolError) throw toolError;
+            
+            if (toolError) {
+                setError(toolError.message || 'Tool not found');
+                setTool(null);
+                setLoading(false);
+                return;
+            }
+
             if (!toolData) {
                 setTool(null);
                 setLoading(false);
                 return;
             }
-            setTool(toolData);
 
-            // 2. Parallel Fetching for secondary data
+            setTool(toolData);
+            setLoading(false); // Tool is ready, page can show structure
+
+            // 2. Parallel Fetching for secondary data (Rule #17: Progressive)
+            // These don't block the main tool display
             const promises = [
                 toolsService.getRelatedTools(toolData.category_id, toolData.id),
                 toolsService.incrementViewCount(toolData.id, toolData.view_count),
@@ -47,20 +65,20 @@ export const useToolDetailData = () => {
                 promises.push(favoritesService.isToolFavorited(user.id, toolData.id));
             }
 
-            const results = await Promise.all(promises);
+            const [relatedRes, _, profileRes, favRes] = await Promise.all(promises.map(p => p.catch(e => ({ error: e }))));
             
-            setRelatedTools(results[0].data || []);
-            // results[1] is increment view update (no state needed usually)
-            if (results[2]?.data) setPublisher(results[2].data);
-            if (user && results[3]?.data) setIsFavorited(true);
+            // Rule #32: Defensive Rendering
+            setRelatedTools(relatedRes?.data?.filter(Boolean) ?? []);
+            
+            if (profileRes?.data) setPublisher(profileRes.data);
+            if (user && favRes?.data) setIsFavorited(true);
 
-        } catch (error) {
-            console.error('Error fetching tool detail:', error);
-            showToast('Error loading tool: ' + (error.message || 'Unknown error'), 'error');
-        } finally {
+        } catch (err) {
+            console.error('Error fetching tool detail:', err);
+            setError(err.message || 'Unknown error occurred');
             setLoading(false);
         }
-    }, [slug, user, showToast]);
+    }, [slug, user]);
 
     useEffect(() => {
         window.scrollTo(0, 0);
@@ -69,19 +87,22 @@ export const useToolDetailData = () => {
 
     const toggleFavorite = async () => {
         if (!user) {
-            navigate('/auth');
-            return;
+            return { error: 'auth_required' };
         }
+
+        if (!tool?.id) return { error: 'invalid_tool' };
 
         try {
             if (isFavorited) {
-                const { error } = await favoritesService.removeFavorite(user.id, tool.id);
-                if (error) throw error;
+                const { error: revError } = await favoritesService.removeFavorite(user.id, tool.id);
+                if (revError) throw revError;
+                
                 setIsFavorited(false);
-                showToast('Removed from favorites', 'info');
+                showToast(TOOL_DETAIL_CONSTANTS.FAVORITE_REMOVED, 'info');
             } else {
-                const { error } = await favoritesService.addFavorite(user.id, tool.id);
-                if (error) throw error;
+                const { error: addError } = await favoritesService.addFavorite(user.id, tool.id);
+                if (addError) throw addError;
+                
                 setIsFavorited(true);
                 
                 await sendNotification(
@@ -89,42 +110,88 @@ export const useToolDetailData = () => {
                     'Added to Favorites', 
                     `You added ${tool.name} to your favorites list.`,
                     'info'
-                );
-                showToast('Success. Added to your favorites.', 'success');
+                ).catch(() => {});
+
+                showToast(TOOL_DETAIL_CONSTANTS.FAVORITE_ADDED, 'success');
             }
-        } catch (error) {
-            console.error('Error toggling favorite:', error);
+            return { success: true };
+        } catch (err) {
+            console.error('Error toggling favorite:', err);
             showToast('Failed to save favorite.', 'error');
+            return { error: err.message };
         }
     };
 
-    const handleShare = async () => {
+    const handleShare = useCallback(async () => {
+        if (!tool) return;
+
+        const currentUrl = getCurrentUrl();
+
         if (navigator.share) {
             try {
                 await navigator.share({
-                    title: tool?.name,
-                    text: tool?.short_description,
-                    url: window.location.href,
+                    title: tool.name,
+                    text: tool.short_description || tool.description,
+                    url: currentUrl,
                 });
             } catch (err) {
                 console.error('Share failed:', err);
             }
         } else {
-            navigator.clipboard.writeText(window.location.href);
-            showToast('Link copied to clipboard!', 'success');
+            try {
+                await navigator.clipboard.writeText(currentUrl);
+                showToast(TOOL_DETAIL_CONSTANTS.SHARE_SUCCESS, 'success');
+            } catch (err) {
+                console.error('Clipboard failed:', err);
+            }
         }
-    };
+    }, [tool, showToast]);
 
-    return {
+    const handleExternalClick = useCallback(async () => {
+        if (!tool?.id) return;
+        try {
+            await toolsService.incrementClickCount(tool.id, tool.click_count);
+        } catch (err) {
+            console.error('Failed to track click:', err);
+        }
+    }, [tool?.id, tool?.click_count]);
+
+    const openReportModal = useCallback(() => setIsReportModalOpen(true), []);
+    const closeReportModal = useCallback(() => setIsReportModalOpen(false), []);
+
+    // Rule #35: Derived Data Stability
+    const memoizedValue = useMemo(() => ({
         tool,
         publisher,
-        relatedTools,
+        relatedTools: relatedTools.filter(Boolean),
         loading,
+        error,
         isFavorited,
         isReportModalOpen,
-        setIsReportModalOpen,
         toggleFavorite,
         handleShare,
-        navigate
-    };
+        handleExternalClick,
+        openReportModal,
+        closeReportModal,
+        user,
+        refresh: fetchData
+    }), [
+        tool, 
+        publisher, 
+        relatedTools, 
+        loading, 
+        error, 
+        isFavorited, 
+        isReportModalOpen, 
+        toggleFavorite, 
+        handleShare, 
+        handleExternalClick, 
+        openReportModal, 
+        closeReportModal, 
+        user, 
+        fetchData
+    ]);
+
+    return memoizedValue;
 };
+

@@ -1,5 +1,4 @@
-/* ProfilePortfolio.module.css */
-
+/* ProfilePortfolio.module.css - Elite Standard */
 .portfolioSection {
   margin-top: 3rem;
   padding-top: 3rem;
@@ -30,16 +29,23 @@
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 2rem;
+  grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+  gap: 2.5rem; /* Standardized Elite Spacing */
 }
 
 .emptyPortfolioCard {
   text-align: center;
   padding: 5rem 2rem;
-  background: rgba(255, 255, 255, 0.01);
-  border: 1px dashed var(--border);
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--border);
   border-radius: 32px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  grid-column: 1 / -1;
 }
 
 .emptyIcon {
@@ -61,7 +67,7 @@
   color: var(--text-muted);
   font-size: 0.95rem;
   max-width: 400px;
-  margin: 0 auto;
+  margin: 0;
 }
 
 @media (max-width: 768px) {
@@ -70,11 +76,11 @@
     align-items: flex-start;
     gap: 1rem;
   }
-  
+
   .divider {
     width: 100%;
   }
-  
+
   .title {
     font-size: 1.6rem;
   }

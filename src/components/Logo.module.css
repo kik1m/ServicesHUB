@@ -1,0 +1,35 @@
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+    transition: transform 0.3s ease;
+}
+
+.logo:hover {
+    transform: scale(1.02);
+}
+
+.image {
+    width: auto;
+    filter: drop-shadow(0 0 10px rgba(0, 136, 204, 0.2));
+}
+
+.text {
+    display: flex;
+    align-items: center;
+    font-weight: 900;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+}
+
+.white {
+    color: #fff;
+}
+
+.gradient {
+    background: linear-gradient(135deg, #00aaff 0%, #7b61ff 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}

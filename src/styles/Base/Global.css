@@ -9,6 +9,13 @@
   margin: 0 auto;
 }
 
+.container {
+  max-width: 1240px;
+  margin: 0 auto;
+  width: 100%;
+  padding: 0 2rem;
+}
+
 .glass-card {
   background: var(--bg-card);
   border: 1px solid var(--border);
@@ -380,6 +387,11 @@ body {
   overflow-x: hidden;
 }
 
+.no-scroll {
+  overflow: hidden !important;
+  height: 100% !important;
+}
+
 @media (max-width: 768px) {
   .main-section {
     padding: 3rem 5% !important;
@@ -413,68 +425,6 @@ body {
   }
 }
 
-/* Tool Detail Page Mobile Fixes */
-@media (max-width: 992px) {
-  .tool-header-flex {
-    flex-direction: column;
-    text-align: center;
-    gap: 2rem !important;
-  }
-
-  .tool-header-info {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .tool-sidebar {
-    order: 2;
-  }
-
-  .tool-main-info {
-    order: 1;
-  }
-
-  .tool-header-actions {
-    width: 100%;
-    justify-content: center;
-  }
-}
-
-@media (max-width: 600px) {
-  .tool-header-actions {
-    flex-direction: column;
-  }
-
-  .tool-header-actions .btn-primary {
-    width: 100%;
-  }
-
-  .tool-header-actions .icon-btn {
-    width: 100% !important;
-    justify-content: center;
-  }
-}
-
-/* Categories Page Mobile Fixes */
-@media (max-width: 768px) {
-  .categories-grid-large {
-    grid-template-columns: repeat(2, 1fr) !important;
-    gap: 1rem !important;
-  }
-
-  .category-card-premium {
-    padding: 1.5rem !important;
-  }
-}
-
-@media (max-width: 480px) {
-  .categories-grid-large {
-    grid-template-columns: 1fr !important;
-  }
-}
-
-/* --- GLOBAL MOBILE RESPONSIVENESS OVERHAUL --- */
 @media (max-width: 1024px) {
   .menu-toggle-premium {
     display: flex !important;
@@ -511,68 +461,6 @@ body {
   .input-panel-grid {
     grid-template-columns: 1fr !important;
     gap: 1.2rem !important;
-  }
-
-
-/* Removed global slim-input-field to enforce page isolation */
-
-  /* Comparison Page */
-  .comparison-container {
-    flex-direction: column !important;
-    align-items: center !important;
-    gap: 1.5rem !important;
-    padding: 0 10px !important;
-  }
-
-  .vs-divider {
-    margin-top: 0 !important;
-    margin-bottom: 0 !important;
-    order: 2;
-  }
-
-  .compare-column:nth-child(1) {
-    order: 1;
-  }
-
-  .compare-column:nth-child(3) {
-    order: 3;
-  }
-
-  .feature-matrix {
-    padding: 1rem !important;
-    margin: 2rem 5px !important;
-  }
-
-  .feature-matrix>div>div {
-    grid-template-columns: 1fr 60px 60px !important;
-    padding: 0.6rem 0.8rem !important;
-    font-size: 0.85rem !important;
-  }
-
-  .editorial-grid-layout {
-    grid-template-columns: 1fr !important;
-    gap: 1.5rem !important;
-  }
-
-  .hero-section-slim .icon-btn-small {
-    right: 50% !important;
-    transform: translateX(50px) !important;
-  }
-
-  .hero-section-slim .hero-flex-container {
-    width: 100%;
-  }
-
-  .hero-section-slim .hero-actions-container {
-    width: 100%;
-    justify-content: center;
-  }
-
-  /* Submit/Edit Tool sections */
-  .upload-wrapper-slim .upload-header-container {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
   }
 }
 

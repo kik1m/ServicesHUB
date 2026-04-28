@@ -1,12 +1,28 @@
 import { supabase } from '../lib/supabaseClient';
 
 /**
+ * Private normalization helper to ensure data contract stability
+ * Rule #24.3: Data Sanitization
+ */
+const normalizePost = (post) => {
+  if (!post) return null;
+  return {
+    ...post,
+    title: post.title || 'Untitled Article',
+    excerpt: post.excerpt || 'No description available.',
+    category: post.category || 'General',
+    author_name: post.author_name || 'ServicesHUB Team',
+    image_url: post.image_url || 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=1200&auto=format&fit=crop&q=60',
+    created_at: post.created_at || new Date().toISOString()
+  };
+};
+
+/**
  * Service for handling all Blog related database interactions
  */
 export const blogService = {
   /**
    * Fetch blog posts with filtering and pagination
-   * @param {Object} filters - { searchQuery, selectedCategory, page, itemsPerPage }
    */
   async getPosts({ searchQuery, selectedCategory, page = 0, itemsPerPage = 6 }) {
     let query = supabase
@@ -24,32 +40,46 @@ export const blogService = {
     const from = page * itemsPerPage;
     const to = from + itemsPerPage - 1;
 
-    return query
+    const { data, error } = await query
       .order('created_at', { ascending: false })
       .range(from, to);
+
+    return { 
+      data: data ? data.map(normalizePost) : [], 
+      error 
+    };
   },
 
   /**
    * Fetch latest 3 posts for Home page preview
    */
   async getLatestPosts(limit = 3) {
-    return supabase
+    const { data, error } = await supabase
       .from('blog_posts')
       .select('id, title, image_url, category, created_at')
       .order('created_at', { ascending: false })
       .limit(limit);
+
+    return {
+      data: data ? data.map(normalizePost) : [],
+      error
+    };
   },
 
   /**
-   * Fetch a single blog post by its ID (or slug)
-   * @param {string} id - The post ID
+   * Fetch a single blog post by its ID
    */
   async getPostById(id) {
-    return supabase
+    const { data, error } = await supabase
       .from('blog_posts')
       .select('*')
       .eq('id', id)
       .single();
+
+    return {
+      data: normalizePost(data),
+      error
+    };
   },
 
   /**
@@ -63,16 +93,18 @@ export const blogService = {
 
   /**
    * Fetch related posts based on category
-   * @param {string} category - The category to match
-   * @param {string} excludeId - The current post ID to exclude
-   * @param {number} limit - Number of related posts to fetch
    */
   async getRelatedPosts(category, excludeId, limit = 2) {
-    return supabase
+    const { data, error } = await supabase
       .from('blog_posts')
       .select('id, title, image_url')
       .eq('category', category)
       .neq('id', excludeId)
       .limit(limit);
+
+    return {
+      data: data ? data.map(normalizePost) : [],
+      error
+    };
   }
 };

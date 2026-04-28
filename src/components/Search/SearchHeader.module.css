@@ -1,65 +1,40 @@
 /* SearchHeader.module.css */
 
-.searchHeaderPremium {
-  padding: 4rem 0 2rem;
-  text-align: center;
-}
-
-.searchHeaderPremium h1 {
-  font-size: 3.5rem;
-  font-weight: 900;
-  margin-bottom: 2rem;
-  letter-spacing: -2px;
+.inputSection {
+  width: 100%;
+  max-width: 560px;
+  margin: 0 auto;
 }
 
 .searchInputWrapper {
   position: relative;
-  max-width: 700px;
+}
+
+.skeletonInputWrapper {
+  position: relative;
+  width: 100%;
+  max-width: 560px;
   margin: 0 auto;
 }
 
-.searchIconPos {
-  position: absolute;
-  left: 24px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--primary);
-  opacity: 0.8;
-  z-index: 3;
-}
-
-.searchInputField {
-  width: 100%;
-  padding: 24px 30px 24px 70px;
-  background: linear-gradient(135deg, rgba(0, 210, 255, 0.04) 0%, rgba(0, 136, 204, 0.02) 100%) !important;
+.searchInputInner {
+  background: rgba(15, 17, 26, 0.8);
   backdrop-filter: blur(12px);
-  border: 1px solid rgba(0, 210, 255, 0.25) !important;
-  border-radius: 28px;
-  color: white;
-  font-size: 1.2rem;
-  transition: all 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 10px 24px;
+  border-radius: 100px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-  outline: none !important;
+  transition: all 0.3s ease;
 }
 
-.searchInputField::placeholder {
-  color: rgba(255, 255, 255, 0.35);
-}
-
-.searchInputField:focus {
-  background: rgba(0, 210, 255, 0.08) !important;
-  border-color: var(--primary) !important;
-  box-shadow: 0 0 30px rgba(0, 210, 255, 0.3), 0 10px 40px rgba(0, 0, 0, 0.5);
+.searchInputInner:focus-within {
+  border-color: var(--secondary);
+  box-shadow: 0 0 20px rgba(0, 255, 170, 0.15);
+  background: rgba(15, 17, 26, 0.95);
 }
 
 @media (max-width: 768px) {
-  .searchHeaderPremium h1 {
-    font-size: 2.2rem;
-  }
-  
-  .searchInputField {
-    padding: 18px 24px 18px 55px;
-    font-size: 1rem;
-    border-radius: 18px;
+  .inputSection {
+    padding: 0 1rem;
   }
 }

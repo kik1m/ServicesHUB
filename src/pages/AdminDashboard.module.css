@@ -1,68 +1,66 @@
+/* AdminDashboard.module.css */
+
 .adminPage {
-    padding: 120px 5% 60px;
     min-height: 100vh;
-    background: #000;
-}
-
-.wrapper {
-    max-width: 1200px;
-    margin: 0 auto;
-}
-
-.headerSection {
-    margin-bottom: 3rem;
-}
-
-.headerSection h1 {
-    font-size: 2.5rem; 
-    font-weight: 800; 
-    margin-bottom: 8px;
+    background-color: var(--bg-dark); /* Switched from black to pro-gray */
     color: white;
 }
 
-.headerSection p {
-    color: var(--text-muted);
+.adminWrapper {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem 5%;
+}
+
+.adminMainContent {
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+}
+
+/* Local Error State Styling */
+.localError {
+    margin-bottom: 1.5rem;
+    border-radius: 16px;
+    background: rgba(255, 80, 80, 0.05);
+    border: 1px solid rgba(255, 80, 80, 0.1);
 }
 
 .contentGrid {
-    display: grid; 
+    display: flex;
+    flex-direction: column;
     gap: 2.5rem;
 }
 
 .contentGrid.withSidebar {
-    grid-template-columns: 2fr 1fr;
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 3rem;
 }
 
-.mainCard {
-    padding: 2.5rem;
-    min-height: 500px;
-    border: 1px solid var(--border);
-    position: relative;
-    background: rgba(255, 255, 255, 0.01) !important;
+.activeSection {
+    min-height: 700px;
+    animation: fadeIn 0.5s ease-out;
 }
 
-.loadingWrapper {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 400px;
-    flex-direction: column;
-    gap: 15px;
-    color: var(--text-muted);
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
-@media (max-width: 991px) {
+/* Responsive Scaling */
+@media (max-width: 1200px) {
     .contentGrid.withSidebar {
         grid-template-columns: 1fr;
     }
 }
 
-@media (max-width: 576px) {
-    .adminPage {
-        padding: 100px 15px 40px;
+@media (max-width: 768px) {
+    .adminWrapper {
+        padding: 1.5rem 1rem;
     }
     
-    .headerSection h1 {
-        font-size: 1.8rem;
+    .adminMainContent {
+        gap: 2rem;
     }
 }

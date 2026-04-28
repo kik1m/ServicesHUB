@@ -1,40 +1,66 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { ChevronRight } from 'lucide-react';
-import { getIcon } from '../../utils/iconMap';
-import SkeletonLoader from '../SkeletonLoader';
+import React, { useMemo } from 'react';
+import { Search } from 'lucide-react';
+import Input from '../ui/Input';
+import { CATEGORY_STRINGS, SKELETON_COUNTS } from '../../constants/categoryConstants';
+import CategoryCard from './CategoryCard';
 import styles from './CategoriesGrid.module.css';
 
-const CategoriesGrid = ({ categories, counts, loading }) => {
-    if (loading) {
-        return (
-            <div className={styles.categoriesGridLarge}>
-                {[1, 2, 3, 4, 5, 6, 7, 8].map(i => (
-                    <div key={i} className={`glass-card ${styles.categoryCardPremium}`}>
-                        <SkeletonLoader type="avatar" width="54px" height="54px" borderRadius="16px" />
-                        <SkeletonLoader type="text" width="60%" />
-                        <SkeletonLoader type="text" width="30%" height="8px" />
-                    </div>
-                ))}
-            </div>
-        );
-    }
+import Safeguard from '../ui/Safeguard';
+
+/**
+ * CategoriesGrid - Elite Standard
+ * Rule #16: Section Responsibility (Search + Grid)
+ * Rule #11: Independent Loading States
+ */
+const CategoriesGrid = ({ categories, counts, loading, searchQuery, setSearchQuery, error, onRetry }) => {
+
+    // Rule #32: Defensive calculation
+    const safeCategories = useMemo(() => categories?.filter(Boolean) ?? [], [categories]);
+    const hasResults = safeCategories.length > 0;
 
     return (
-        <div className={styles.categoriesGridLarge}>
-            {categories.map((cat, i) => (
-                <Link to={`/category/${cat.slug}`} key={i} className={`glass-card ${styles.categoryCardPremium}`}>
-                    <div className={styles.catCountBadge}>
-                        <span>{counts[cat.id] || 0}</span> Tools
-                    </div>
-                    <div className={styles.catIconGlow}>
-                        {getIcon(cat.icon_name || 'LayoutGrid', 22)}
-                    </div>
-                    <h3>{cat.name}</h3>
-                    <p>Browse <ChevronRight size={10} /></p>
-                </Link>
-            ))}
-        </div>
+        <Safeguard error={error} onRetry={onRetry} title={CATEGORY_STRINGS?.LIST?.SEARCH?.PLACEHOLDER}>
+            <div className={styles.gridSection}>
+                {/* Rule #38: Integrated Search within section for better UX flow */}
+                <div className={styles.searchWrapper}>
+                    <Input
+                        placeholder={CATEGORY_STRINGS?.LIST?.SEARCH?.PLACEHOLDER}
+                        icon={Search}
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        variant="pill"
+                        className={styles.searchInput}
+                        disabled={loading && safeCategories?.length === 0}
+                    />
+                </div>
+
+                <div className={styles.gridContainer}>
+                    {loading && safeCategories?.length === 0 ? (
+                        // Rule #11: Thematic Skeleton Loading (Rule #30: Static Array)
+                        SKELETON_COUNTS?.CATEGORIES_GRID?.map((i) => (
+                            <CategoryCard key={`skeleton-cat-${i}`} isLoading={true} />
+                        ))
+                    ) : (
+                        <>
+                            {hasResults ? (
+                                safeCategories?.map((cat) => (
+                                    <CategoryCard
+                                        key={cat?.id || cat?.slug}
+                                        category={cat}
+                                        error={error}
+                                        onRetry={onRetry}
+                                    />
+                                ))
+                            ) : (
+                                <div className={styles.noResults}>
+                                    <p>{CATEGORY_STRINGS?.LIST?.SEARCH?.NO_RESULTS(searchQuery)}</p>
+                                </div>
+                            )}
+                        </>
+                    )}
+                </div>
+            </div>
+        </Safeguard>
     );
 };
 

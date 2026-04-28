@@ -1,74 +1,88 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowUpRight, Star, Zap, LayoutGrid, Cpu, Code, Palette, Globe, CheckCircle2 } from 'lucide-react';
+import { ArrowUpRight, Star, CheckCircle2, Zap } from 'lucide-react';
+import Skeleton from './ui/Skeleton';
+import SmartImage from './ui/SmartImage';
 import styles from './ToolCard.module.css';
 
-const iconMap = {
-    Zap: Zap,
-    LayoutGrid: LayoutGrid,
-    Cpu: Cpu,
-    Code: Code,
-    Palette: Palette,
-    Globe: Globe
-};
+const DEFAULT_RATING = "5.0";
 
-const ToolCard = ({ tool }) => {
-    const renderIcon = () => {
-        if (tool.image_url) {
-            return (
-                <img 
-                    src={tool.image_url} 
-                    alt={tool.name} 
-                    className={styles.cardLogoImage}
-                    onError={(e) => {
-                        e.target.style.display = 'none';
-                        e.target.parentElement.innerHTML = `<div style="color:var(--primary);display:flex;align-items:center;justify-content:center;height:100%"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-zap"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>`;
-                    }}
-                />
-            );
-        }
-        const IconComponent = iconMap[tool.icon_name] || Zap;
-        return <IconComponent size={24} color="var(--primary)" />;
-    };
+const ToolCard = ({ tool, isLoading = false, onClickOverride = null }) => {
+    if (isLoading) {
+        return (
+            <div className={`${styles.toolCard} ${styles.skeletonCard}`}>
+                <div className={styles.cardLogoBox}>
+                    <Skeleton className={styles.skeletonLogo} />
+                </div>
+                <div className={styles.cardContent}>
+                    <div className={`${styles.cardTitleRow} ${styles.cardTitleRowSkeleton}`}>
+                        <Skeleton className={styles.skeletonTitle} />
+                        <Skeleton className={styles.skeletonPill} />
+                    </div>
+                    <Skeleton className={styles.skeletonLineShort} />
+                    <Skeleton className={styles.skeletonLineFull} />
+                </div>
+                <div className={styles.cardFooter}>
+                    <Skeleton className={styles.skeletonFooterItem} />
+                    <Skeleton className={styles.skeletonFooterItem} />
+                </div>
+            </div>
+        );
+    }
+
+    const isSelectMode = !!onClickOverride;
+    const CardElement = isSelectMode ? 'div' : Link;
+    const cardProps = isSelectMode
+        ? { onClick: () => onClickOverride(tool) }
+        : { to: `/tool/${tool.slug}` };
 
     return (
-        <Link 
-            to={`/tool/${tool.slug}`} 
+        <CardElement
+            {...cardProps}
             className={`${styles.toolCard} ${tool.is_featured ? styles.featuredGlowCard : styles.standardToolCard}`}
         >
             <div className={styles.cardLogoBox}>
-                {renderIcon()}
+                <SmartImage
+                    src={tool.image_url}
+                    alt={tool.name}
+                    fallbackIcon={Zap}
+                    className={styles.cardLogoImage}
+                />
             </div>
 
             <div className={styles.cardContent}>
                 <div className={styles.cardTitleRow}>
-                    <h3>{tool.name}</h3>
-                    <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                    <div className={styles.nameContainer}>
+                        <h3>{tool.name || 'Untitled Tool'}</h3>
                         {tool.is_verified && (
-                            <div className="badge-pill-verified" title="Verified Tool">
-                                <CheckCircle2 size={12} strokeWidth={3} />
-                            </div>
+                            <CheckCircle2 size={16} className={styles.verifiedIcon} title="Verified Tool" />
                         )}
-                        <div className="badge-pill-price">
+                    </div>
+                    
+                    <div className={styles.cardMetaGroup}>
+                        <div className={styles.pillPrice}>
                             {tool.pricing_type || 'Free'}
                         </div>
                     </div>
                 </div>
-                
-                <p>{tool.short_description || tool.description}</p>
+
+                <p>{tool.short_description || tool.description || 'No description available for this tool.'}</p>
+
             </div>
 
             <div className={styles.cardFooter}>
                 <div className={styles.cardRating}>
-                    <Star size={12} fill="#ffaa00" /> 
-                    <span>{tool.rating?.toFixed(1) || '5.0'}</span>
+                    <Star size={12} className={styles.ratingIcon} style={{ fill: tool.reviews_count > 0 ? 'currentColor' : 'transparent' }} />
+                    <span>{tool.reviews_count > 0 ? tool.rating?.toFixed(1) : '0.0'}</span>
                 </div>
                 <div className={styles.cardLink}>
                     View <ArrowUpRight size={14} />
                 </div>
             </div>
-        </Link>
+        </CardElement>
     );
 };
 
 export default ToolCard;
+
+

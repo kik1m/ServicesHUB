@@ -1,231 +1,157 @@
-/* ToolFormMedia.module.css */
-
 .sectionCard {
-  background: rgba(255, 255, 255, 0.01);
-  border: 1px solid var(--border);
-  padding: 1.5rem; /* Reduced from 2rem */
-  border-radius: 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-  transition: 0.3s;
+    background: rgba(13, 17, 23, 0.6);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--border);
+    padding: 2.5rem;
+    border-radius: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+    transition: all 0.4s ease;
 }
 
 .sectionTitleRow {
-  display: flex;
-  align-items: center;
-  gap: 15px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
 }
 
 .titleIconBg {
-  width: 44px;
-  height: 44px;
-  background: rgba(255, 255, 255, 0.03);
-  border-radius: 14px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+    width: 52px;
+    height: 52px;
+    background: rgba(0, 210, 255, 0.1);
+    border: 1px solid rgba(0, 210, 255, 0.2);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary);
 }
 
 .sectionTitleRow h3 {
-  font-size: 1.3rem;
-  font-weight: 800;
-  color: white;
-  margin: 0;
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: white;
 }
 
 .uploadWrapperSlim {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
 }
 
 .uploadHeaderRow {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 .slimHeaderLabel {
-  font-size: 0.75rem;
-  font-weight: 800;
-  color: var(--text-muted);
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-}
-
-.premiumToggleBtn {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 8px 16px;
-  border-radius: 12px;
-  color: white;
-  font-size: 0.8rem;
-  font-weight: 700;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  transition: 0.3s;
-}
-
-.premiumToggleBtn:hover {
-  background: var(--primary);
-  border-color: var(--primary);
-  transform: translateY(-2px);
+    font-size: 0.85rem;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    color: var(--text-muted);
+    text-transform: uppercase;
 }
 
 .premiumInfoBanner {
-  background: linear-gradient(to right, rgba(0, 210, 255, 0.05), transparent);
-  border: 1px solid rgba(0, 210, 255, 0.1);
-  padding: 1.5rem;
-  border-radius: 20px;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
+    background: rgba(0, 210, 255, 0.05);
+    border: 1px solid rgba(0, 210, 255, 0.1);
+    padding: 1.2rem;
+    border-radius: 16px;
+    display: flex;
+    gap: 1rem;
+    align-items: center;
 }
 
 .bannerIconBg {
-  width: 44px;
-  height: 44px;
-  background: rgba(0, 210, 255, 0.1);
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--primary);
+    color: var(--primary);
 }
 
 .bannerContent h4 {
-  margin: 0 0 4px;
-  font-size: 1rem;
-  font-weight: 800;
-  color: white;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 4px;
 }
 
 .bannerContent p {
-  margin: 0;
-  font-size: 0.85rem;
-  color: var(--text-muted);
+    font-size: 0.85rem;
+    color: var(--text-muted);
 }
 
 .slimDropzone {
-  width: 100%;
-  border: 1px dashed var(--border); /* Thinner border */
-  border-radius: 20px;
-  padding: 1.5rem 1rem; /* Significantly reduced from 3rem */
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 1rem;
-  cursor: pointer;
-  transition: 0.3s;
-  background: rgba(255, 255, 255, 0.01);
+    width: 100%;
+    min-height: 240px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 2px dashed var(--border);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s;
 }
 
 .slimDropzone:hover {
-  border-color: var(--primary);
-  background: rgba(255, 255, 255, 0.03);
+    background: rgba(0, 210, 255, 0.03);
+    border-color: var(--primary);
 }
 
 .dropzoneLabel {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
-  cursor: pointer;
-  width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    cursor: pointer;
 }
 
 .dropzoneText {
-  font-size: 1rem;
-  font-weight: 700;
-  color: var(--text-muted);
+    font-weight: 700;
+    color: var(--text-muted);
 }
 
 .imagePreviewBox {
-  position: relative;
-  width: 100%;
-  height: 200px; /* Reduced from 280px */
-  border-radius: 16px;
-  overflow: hidden;
+    width: 100%;
+    height: 100%;
+    position: relative;
+    border-radius: 18px;
+    overflow: hidden;
 }
 
 .imagePreviewBox img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
 .changeImgOverlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.6);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  color: white;
-  font-weight: 800;
-  opacity: 0;
-  transition: 0.3s;
-  cursor: pointer;
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    color: white;
+    font-weight: 700;
+    opacity: 0;
+    transition: 0.3s;
+    cursor: pointer;
 }
 
 .imagePreviewBox:hover .changeImgOverlay {
   opacity: 1;
 }
 
-/* Global inputs reuse */
-.inputGroupSlim {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+.hiddenInput {
+  display: none;
 }
 
-.inputGroupSlim label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
-.slimInputField {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid var(--border);
-  padding: 14px 18px;
-  border-radius: 14px;
-  color: white;
-  font-size: 0.95rem;
-  width: 100%;
-  transition: 0.3s;
-}
-
-.slimInputField:focus {
-  outline: none;
-  border-color: var(--primary);
-  background: rgba(255, 255, 255, 0.05);
-}
-
-.errorText {
-  color: #ff3366;
-  font-size: 0.8rem;
-  font-weight: 600;
-  margin-top: 5px;
+.dropzoneIcon {
+  opacity: 0.5;
 }
 
 .textareaField {
-  min-height: 180px;
-  resize: vertical;
-}
-
-@media (max-width: 640px) {
-  .sectionCard {
-    padding: 1.5rem;
-  }
+    min-height: 180px;
 }

@@ -7,44 +7,89 @@
 }
 
 .detailSection {
-  margin-bottom: 2.5rem !important;
+  display: flex;
+  flex-direction: column;
+}
+
+.sectionSubtitle {
+  font-size: 1.55rem; /* Reduced from 1.8rem for better balance */
+  font-weight: 800;
+  margin-bottom: 1.5rem;
+  color: white;
+  letter-spacing: -0.5px;
+  line-height: 1.3;
+}
+
+.highlight {
+  background: linear-gradient(135deg, var(--primary) 0%, #00d2ff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.sectionText {
+  color: var(--text-muted);
+  line-height: 1.8;
+  font-size: 1.1rem;
+  max-width: 800px;
 }
 
 .featuresChecklist {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1.2rem !important;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
 }
 
 .featureItemPremium {
-  padding: 2rem;
-  border: 1px solid var(--border);
-  transition: 0.3s;
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  padding: 1.25rem;
   background: rgba(255, 255, 255, 0.02);
-  border-radius: 20px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  transition: all 0.3s ease;
 }
 
 .featureItemPremium:hover {
-  transform: translateY(-5px);
-  border-color: var(--primary);
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(var(--primary-rgb), 0.05);
+  border-color: rgba(var(--primary-rgb), 0.2);
+  transform: translateY(-2px);
 }
 
 .featureIconBox {
-  color: var(--primary);
-  margin-bottom: 1.2rem;
-  background: rgba(0, 210, 255, 0.05);
-  width: 45px;
-  height: 45px;
-  border-radius: 12px;
+  width: 44px;
+  height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
+  background: rgba(var(--primary-rgb), 0.1);
+  color: var(--primary);
+  border-radius: 12px;
+  flex-shrink: 0;
 }
 
 .featureText {
-  font-weight: 700;
-  font-size: 1rem;
   color: white;
-  line-height: 1.4;
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+/* Skeleton Styles */
+.skeletonTextRows {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.skeletonFlex1 {
+  flex: 1;
+}
+
+.mb1_5rem {
+  margin-bottom: 1.5rem;
+}
+
+.mb8px {
+  margin-bottom: 8px;
 }

@@ -100,8 +100,8 @@ export const adminService = {
     /**
      * Blog Management
      */
-    async createBlogPost(postData, authorId) {
-        const { data, error } = await supabase.from('blog_posts').insert([{ ...postData, author_id: authorId }]).select();
+    async createBlogPost(postData, authorName) {
+        const { data, error } = await supabase.from('blog_posts').insert([{ ...postData, author_name: authorName }]).select();
         if (error) throw error;
         return data[0];
     },
@@ -139,6 +139,7 @@ export const adminService = {
             slug,
             user_id: userId, 
             is_approved: true,
+            is_verified: true, // Official Platform Tools are verified by default
             rating: 5.0,
             reviews_count: 0,
             view_count: 0
@@ -169,5 +170,37 @@ export const adminService = {
         const { error } = await supabase.from('tools').update({ is_featured: !currentState }).eq('id', toolId);
         if (error) throw error;
         return !currentState;
+    },
+
+    /**
+     * Fetch all approved tools with pagination
+     */
+    async fetchAllToolsPaginated(page = 1, pageSize = 10) {
+        const from = (page - 1) * pageSize;
+        const to = from + pageSize - 1;
+
+        const { data, error, count } = await supabase
+            .from('tools')
+            .select('*, categories(name)', { count: 'exact' })
+            .eq('is_approved', true)
+            .order('created_at', { ascending: false })
+            .range(from, to);
+
+        if (error) throw error;
+        return { data, total: count };
+    },
+
+    /**
+     * Update tool data directly (Admin Override)
+     */
+    async updateToolDirect(toolId, updateData) {
+        const { data, error } = await supabase
+            .from('tools')
+            .update(updateData)
+            .eq('id', toolId)
+            .select();
+        
+        if (error) throw error;
+        return data[0];
     }
 };

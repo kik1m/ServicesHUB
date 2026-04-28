@@ -20,15 +20,15 @@
 
 .faqItem {
   margin-bottom: 1rem;
-  padding: 0 !important;
+  padding: 0;
   overflow: hidden;
   transition: all 0.3s ease;
-  border: 1px solid var(--border) !important;
-  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 20px;
 }
 
 .faqItem.open {
-  border-color: var(--primary) !important;
+  border-color: var(--primary);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
 }
 
@@ -56,7 +56,7 @@
   color: var(--text-muted);
   line-height: 1.7;
   font-size: 1rem;
-  border-top: 1px solid var(--border);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
   animation: slideDown 0.3s ease-out;
 }
 
@@ -73,4 +73,22 @@
   .faqAnswer {
     padding: 1.2rem 1.5rem 2rem;
   }
+}
+
+/* --- SKELETON LAYOUTS (Rule #81) --- */
+.skeletonGroupHeader {
+    width: 180px;
+    height: 24px;
+    margin-bottom: 1.5rem;
+}
+
+.skeletonQuestion {
+    width: 80%;
+    height: 18px;
+}
+
+.skeletonIconCircle {
+    width: 20px;
+    height: 20px;
+    border-radius: 100px;
 }

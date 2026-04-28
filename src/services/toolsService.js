@@ -3,25 +3,65 @@ import { supabase } from '../lib/supabaseClient';
 /**
  * Service for handling tool-related database queries
  */
+
+const BASE_SELECT = `
+    id, name, slug, short_description, image_url, icon_name,
+    is_verified, is_featured, pricing_type, rating,
+    categories(name)
+`;
+
+const BASE_DETAIL_SELECT = `
+    id, name, slug, description, short_description, image_url, icon_name, 
+    url, pricing_type, pricing_details, rating, reviews_count, 
+    is_featured, is_verified, category_id, view_count, click_count, features, 
+    user_id, categories(name, slug, icon_name)
+`;
+
 export const toolsService = {
     /**
-     * Create a new tool submission
+     * Create a new tool submission with mandatory sanitization
+     * Elite v2.2 Standard: Defensive Layer
      * @param {Object} toolData - The tool data to insert
      */
     async createTool(toolData) {
-        const slug = toolData.name.toLowerCase().replace(/[^a-z0-9]/g, '-');
-        
-        return supabase
-            .from('tools')
-            .insert([{
-                ...toolData,
-                slug,
-                is_approved: false, // All submissions require admin approval
-                rating: 5.0,
+        if (!toolData?.name || !toolData?.user_id) {
+            return { data: null, error: 'Mandatory fields missing (Name/User ID)' };
+        }
+
+        try {
+            // Rule #24.3: Data Sanitization (Defensive Layer)
+            const sanitizedData = {
+                name: toolData.name.trim(),
+                url: toolData.url?.trim() || '',
+                short_description: toolData.short_description?.trim() || '',
+                description: toolData.description?.trim() || '',
+                category_id: toolData.category_id,
+                user_id: toolData.user_id,
+                image_url: toolData.image_url || null,
+                pricing_type: toolData.pricing_type || 'Free',
+                pricing_details: toolData.pricing_details?.trim() || '',
+                // Rule #32: Defensive filtering for features
+                features: (toolData.features || []).map(f => f?.trim()).filter(Boolean),
+                
+                // Defaults for new tools
+                is_approved: false,
+                is_verified: false,
+                is_featured: false,
+                rating: 0,
                 reviews_count: 0,
                 view_count: 0,
-                created_at: new Date().toISOString()
-            }]);
+                click_count: 0,
+                created_at: new Date().toISOString(),
+                slug: toolData.name.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-')
+            };
+
+            return await supabase
+                .from('tools')
+                .insert([sanitizedData]);
+        } catch (err) {
+            console.error('toolsService.createTool Error:', err);
+            return { data: null, error: err.message };
+        }
     },
 
     /**
@@ -31,13 +71,38 @@ export const toolsService = {
     async getFeaturedTools(limit = 6) {
         return supabase
             .from('tools')
-            .select(`
-                id, name, slug, short_description, image_url, icon_name,
-                is_verified, is_featured, pricing_type, rating,
-                categories(name)
-            `)
+            .select(`${BASE_SELECT}, click_count`)
             .eq('is_approved', true)
             .eq('is_featured', true)
+            .limit(limit);
+    },
+
+    /**
+     * Fetch tools for the smart banner (Featured first, then latest)
+     * @param {number} limit 
+     */
+    async getBannerTools(limit = 20) {
+        const now = new Date().toISOString();
+        
+        // Try to get tools that are featured (either indefinitely or within their period)
+        const { data: featuredData, error: featuredError } = await supabase
+            .from('tools')
+            .select('id, name, short_description, image_url, url, slug, is_verified, click_count')
+            .eq('is_approved', true)
+            .eq('is_featured', true)
+            .or(`featured_until.is.null,featured_until.gt.${now}`)
+            .limit(limit);
+        
+        if (featuredData && featuredData.length > 0) {
+            return { data: featuredData, error: featuredError };
+        }
+
+        // Fallback to latest approved tools if no active featured tools
+        return supabase
+            .from('tools')
+            .select('id, name, short_description, image_url, url, slug, is_verified, click_count')
+            .eq('is_approved', true)
+            .order('created_at', { ascending: false })
             .limit(limit);
     },
 
@@ -45,14 +110,10 @@ export const toolsService = {
      * Fetch latest arrivals
      * @param {number} limit 
      */
-    async getLatestTools(limit = 4) {
+    async getLatestTools(limit = 6) {
         return supabase
             .from('tools')
-            .select(`
-                id, name, slug, short_description, image_url, icon_name,
-                is_verified, is_featured, pricing_type, rating,
-                categories(name)
-            `)
+            .select(`${BASE_SELECT}, click_count`)
             .eq('is_approved', true)
             .order('created_at', { ascending: false })
             .limit(limit);
@@ -62,14 +123,10 @@ export const toolsService = {
      * Fetch trending tools based on view count
      * @param {number} limit 
      */
-    async getTrendingTools(limit = 4) {
+    async getTrendingTools(limit = 6) {
         return supabase
             .from('tools')
-            .select(`
-                id, name, slug, short_description, image_url, icon_name,
-                view_count, is_verified, is_featured, pricing_type, rating,
-                categories(name)
-            `)
+            .select(`${BASE_SELECT}, view_count, click_count`)
             .eq('is_approved', true)
             .order('view_count', { ascending: false })
             .limit(limit);
@@ -77,74 +134,117 @@ export const toolsService = {
 
     /**
      * Get total tools count and total views
+     * Optimized to fetch only required fields
      */
     async getToolsStats() {
-        const countPromise = supabase
-            .from('tools')
-            .select('id', { count: 'exact', head: true })
-            .eq('is_approved', true);
-            
-        const viewsPromise = supabase
-            .from('tools')
-            .select('view_count')
-            .eq('is_approved', true);
+        try {
+            const countPromise = supabase
+                .from('tools')
+                .select('id', { count: 'exact', head: true })
+                .eq('is_approved', true);
+                
+            const viewsPromise = supabase
+                .from('tools')
+                .select('view_count, click_count')
+                .eq('is_approved', true);
 
-        const [countRes, viewsRes] = await Promise.all([countPromise, viewsPromise]);
+            const [countRes, viewsRes] = await Promise.all([countPromise, viewsPromise]);
 
-        const totalViews = viewsRes.data?.reduce((sum, t) => sum + (t.view_count || 0), 0) || 0;
+            // Note: For multi-thousand rows, a database RPC function would be better (e.g., 'get_total_views')
+            const totalViews = viewsRes.data?.reduce((sum, t) => sum + (t.view_count || 0), 0) || 0;
+            const totalClicks = viewsRes.data?.reduce((sum, t) => sum + (t.click_count || 0), 0) || 0;
 
-        return {
-            count: countRes.count || 0,
-            views: totalViews,
-            error: countRes.error || viewsRes.error
-        };
+            return {
+                count: countRes.count || 0,
+                views: totalViews,
+                clicks: totalClicks,
+                error: countRes.error || viewsRes.error
+            };
+        } catch (err) {
+            return { count: 0, views: 0, error: err.message };
+        }
     },
+
 
     /**
      * Paginated fetch for the tools directory with filtering and sorting
      */
     async getToolsPaginated({
         page = 0,
-        itemsPerPage = 12,
+        itemsPerPage = 20, // Standardized to 20 for better initial coverage
         searchQuery = '',
         categoryName = 'All',
         priceFilter = 'All',
-        sortBy = 'Newest',
+        sortBy = 'newest',
         categories = []
     }) {
+        const SELECT_FIELDS = 'id, name, slug, short_description, image_url, pricing_type, rating, reviews_count, is_featured, is_verified, category_id, categories(name)';
+
         let query = supabase
             .from('tools')
-            .select('id, name, slug, short_description, image_url, pricing_type, rating, reviews_count, is_featured, is_verified, categories(name)', { count: 'exact' })
+            .select(SELECT_FIELDS, { count: 'exact' })
             .eq('is_approved', true);
 
-        // Search Filter
-        if (searchQuery) {
-            query = query.or(`name.ilike.%${searchQuery}%,short_description.ilike.%${searchQuery}%`);
-        }
-
-        // Category Filter
-        if (categoryName !== 'All') {
+        // 🎯 1. Category Filter (Primary)
+        if (categoryName && categoryName !== 'All') {
             const catObj = categories.find(c => c.name === categoryName);
             if (catObj) {
                 query = query.eq('category_id', catObj.id);
             }
         }
 
-        // Price Filter
-        if (priceFilter !== 'All') {
-            query = query.eq('pricing_type', priceFilter);
+        // 💰 2. Price Filter (Secondary)
+        if (priceFilter && priceFilter !== 'All') {
+            // Standard Elite Filter: Case-insensitive match
+            query = query.ilike('pricing_type', priceFilter);
         }
 
-        // Sorting
-        if (sortBy === 'Newest') {
+        // 🔍 3. Search Filter (Nested Logic to prevent filter bypass)
+        if (searchQuery) {
+            const searchLower = searchQuery.toLowerCase();
+            const matchingCatIds = categories
+                .filter(c => c.id !== 'All' && c.name?.toLowerCase().includes(searchLower))
+                .map(c => c.id);
+
+            // Rule #32: Defensive Sanitization - Escape quotes to prevent syntax errors
+            const safeQuery = searchQuery.replace(/"/g, '""');
+
+            // Wrap values in double quotes to prevent PostgREST comma-splitting errors (400 Bad Request)
+            const searchConditions = [
+                `name.ilike."%${safeQuery}%"`,
+                `short_description.ilike."%${safeQuery}%"`
+            ];
+
+            // Use .eq for each category ID to avoid .in() comma parsing issues
+            if (matchingCatIds.length > 0) {
+                matchingCatIds.forEach(id => {
+                    searchConditions.push(`category_id.eq."${id}"`);
+                });
+            }
+
+            query = query.or(searchConditions.join(','));
+        }
+
+        // ⚡ 4. Sorting Logic (Elite Unified Sorting)
+        if (sortBy === 'newest') {
             query = query.order('is_featured', { ascending: false }).order('created_at', { ascending: false });
-        } else if (sortBy === 'Rating') {
+        } else if (sortBy === 'rating' || sortBy === 'top_rated') {
             query = query.order('is_featured', { ascending: false }).order('rating', { ascending: false });
-        } else if (sortBy === 'Popular') {
+        } else if (sortBy === 'popular') {
             query = query.order('is_featured', { ascending: false }).order('view_count', { ascending: false });
+        } else if (sortBy === 'alphabetical') {
+            query = query.order('name', { ascending: true });
+        } else if (sortBy === 'featured') {
+            query = query.order('is_featured', { ascending: false }).order('created_at', { ascending: false });
+        } else {
+            // Default: featured first, then newest
+            query = query.order('is_featured', { ascending: false }).order('created_at', { ascending: false });
         }
 
-        // Pagination
+        // Secondary stable order
+        query = query.order('id', { ascending: true });
+
+        // 📏 5. Pagination
         const from = page * itemsPerPage;
         const to = from + itemsPerPage - 1;
         query = query.range(from, to);
@@ -153,19 +253,33 @@ export const toolsService = {
     },
 
     /**
-     * Fetch a single tool by its slug including category name
+     * Fetch a single tool by its slug with defensive sanitization
+     * Rule #32: Defensive Layer
      */
     async getToolBySlug(slug) {
-        return supabase
-            .from('tools')
-            .select(`
-                id, name, slug, description, short_description, image_url, icon_name, 
-                url, pricing_type, pricing_details, rating, reviews_count, 
-                is_featured, is_verified, category_id, view_count, features, 
-                user_id, categories(name, slug)
-            `)
-            .eq('slug', slug)
-            .single();
+        try {
+            const { data, error } = await supabase
+                .from('tools')
+                .select(BASE_DETAIL_SELECT)
+                .eq('slug', slug)
+                .single();
+
+            if (error || !data) return { data: null, error };
+
+            // Defensive Data Sanitization
+            const sanitizedTool = {
+                ...data,
+                features: Array.isArray(data.features) ? data.features.filter(Boolean) : [],
+                rating: data.rating ?? 0,
+                reviews_count: data.reviews_count || 0,
+                short_description: data.short_description || data.description?.slice(0, 160) || '',
+                pricing_type: data.pricing_type || 'Free'
+            };
+
+            return { data: sanitizedTool, error: null };
+        } catch (err) {
+            return { data: null, error: err };
+        }
     },
 
     /**
@@ -175,6 +289,16 @@ export const toolsService = {
         return supabase
             .from('tools')
             .update({ view_count: (currentViews || 0) + 1 })
+            .eq('id', id);
+    },
+
+    /**
+     * Increment the click count of a tool
+     */
+    async incrementClickCount(id, currentClicks) {
+        return supabase
+            .from('tools')
+            .update({ click_count: (currentClicks || 0) + 1 })
             .eq('id', id);
     },
 
@@ -197,7 +321,7 @@ export const toolsService = {
         if (!userId) return { data: [], error: null };
         return supabase
             .from('tools')
-            .select('id, name, slug, short_description, image_url, pricing_type, is_approved, is_featured, is_verified, featured_until, created_at, view_count, rating')
+            .select('id, name, slug, short_description, image_url, pricing_type, is_approved, is_featured, is_verified, featured_until, created_at, view_count, click_count, rating')
             .eq('user_id', userId)
             .order('created_at', { ascending: false });
     },
@@ -211,36 +335,48 @@ export const toolsService = {
         const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(idOrSlug);
         
         const query = isUuid 
-            ? supabase.from('tools').select('*, categories(name)').eq('id', idOrSlug)
-            : supabase.from('tools').select('*, categories(name)').eq('slug', idOrSlug);
+            ? supabase.from('tools').select(BASE_DETAIL_SELECT).eq('id', idOrSlug)
+            : supabase.from('tools').select(BASE_DETAIL_SELECT).eq('slug', idOrSlug);
             
         return query.single();
     },
 
     /**
-     * Update an existing tool with pending changes logic
+     * Update an existing tool with mandatory sanitization
+     * Rule #24.3: Defensive Layer for data integrity
      * @param {string} id - Tool ID
      * @param {Object} toolData - The new data
      * @param {boolean} isAlreadyApproved - If true, changes are queued for review
      */
     async updateTool(id, toolData, isAlreadyApproved = false) {
-        const payload = isAlreadyApproved 
-            ? { 
-                pending_changes: { 
-                    ...toolData, 
-                    updated_at: new Date().toISOString() 
-                } 
-              }
-            : { 
-                ...toolData, 
-                is_approved: false, // Ensure unapproved tool remains unapproved
-                updated_at: new Date().toISOString() 
-              };
+        if (!id || !toolData) return { data: null, error: 'ID or ToolData missing' };
 
-        return supabase
-            .from('tools')
-            .update(payload)
-            .eq('id', id);
+        try {
+            const sanitizedData = {
+                name: toolData.name?.trim(),
+                url: toolData.url?.trim(),
+                short_description: toolData.short_description?.trim(),
+                description: toolData.description?.trim(),
+                category_id: toolData.category_id,
+                pricing_type: toolData.pricing_type,
+                pricing_details: toolData.pricing_details?.trim(),
+                image_url: toolData.image_url,
+                features: (toolData.features || []).map(f => f?.trim()).filter(Boolean),
+                updated_at: new Date().toISOString()
+            };
+
+            const payload = isAlreadyApproved 
+                ? { pending_changes: sanitizedData }
+                : { ...sanitizedData, is_approved: false };
+
+            return await supabase
+                .from('tools')
+                .update(payload)
+                .eq('id', id);
+        } catch (err) {
+            console.error('toolsService.updateTool Error:', err);
+            return { data: null, error: err.message };
+        }
     },
 
     /**
@@ -274,5 +410,7 @@ export const toolsService = {
             .from('tools')
             .delete()
             .eq('id', id);
-    }
+    },
+    // Force rebuild trigger: 2026-04-25-v2
+    _rebuild() { return true; }
 };

@@ -1,12 +1,17 @@
 .mainSection {
-  max-width: 850px;
+  max-width: 1400px;
   margin: 0 auto;
+  padding: 2rem 5% 6rem;
 }
 
 .legalContent {
-  padding: 4rem !important;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 4rem;
   line-height: 1.8;
-  border-radius: 30px !important;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 40px;
 }
 
 @media (max-width: 768px) {

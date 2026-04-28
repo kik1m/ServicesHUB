@@ -1,20 +1,28 @@
-/* BlogPost.module.css */
+/* BlogPost.module.css - Pure Elite Transparency */
 
 .postPage {
   min-height: 100vh;
   padding-bottom: 5rem;
+  background: transparent !important;
+  position: relative;
+  z-index: 1;
 }
 
 .mainContent {
-  max-width: 1200px;
-  margin: 0 auto;
-  display: grid;
-  grid-template-columns: 1fr 340px;
-  gap: 4rem;
-  padding: 0 5%;
-  margin-top: -80px; /* Overlap with header gradient if needed */
+  width: 100%;
+  padding: 2rem 0 8rem;
   position: relative;
   z-index: 2;
+}
+
+.layoutGrid {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4rem;
+  width: 100%;
+  max-width: 900px; /* Optimized for reading */
+  margin: 0 auto;
 }
 
 .loadingWrapper {
@@ -23,16 +31,6 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-}
-
-.skeletonHeader {
-  width: 100%;
-  max-width: 900px;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-  padding: 0 5%;
 }
 
 .errorWrapper {
@@ -45,7 +43,7 @@
 }
 
 .errorWrapper h2 {
-  color: #ff5050;
+  color: var(--danger);
   font-size: 2rem;
   font-weight: 800;
 }
@@ -62,14 +60,12 @@
 
 .backBtn:hover {
   transform: translateY(-3px);
-  box-shadow: 0 10px 20px rgba(0, 210, 255, 0.2);
+  box-shadow: 0 10px 20px var(--primary-glow);
 }
 
 @media (max-width: 1024px) {
-  .mainContent {
+  .layoutGrid {
     grid-template-columns: 1fr;
     gap: 3rem;
-    margin-top: 0;
-    padding-top: 2rem;
   }
 }

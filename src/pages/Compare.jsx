@@ -1,55 +1,96 @@
-import React from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { RefreshCcw } from 'lucide-react';
 import SmartBanner from '../components/SmartBanner';
 import useSEO from '../hooks/useSEO';
 import { useCompareData } from '../hooks/useCompareData';
+import { useBannerData } from '../hooks/useBannerData';
 
-// Import Modular Components
-import CompareHero from '../components/Compare/CompareHero';
+// Import Global Components
+import PageHero from '../components/ui/PageHero';
+import Safeguard from '../components/ui/Safeguard';
 import ToolCompareColumn from '../components/Compare/ToolCompareColumn';
 import ComparisonMatrix from '../components/Compare/ComparisonMatrix';
-import ToolSelectionModal from '../components/Compare/ToolSelectionModal';
+import CompareBuilder from '../components/Compare/CompareBuilder';
+import Button from '../components/ui/Button';
 
 // Import Modular CSS
 import styles from './Compare.module.css';
+import { COMPARE_UI_CONSTANTS } from '../constants/compareConstants';
 
+/**
+ * Compare Page - Ultimate Elite Standard (10/10)
+ * Rule #12: Pure UI (SmartBanner receives data from page)
+ * Rule #31: Component Resilience via Safeguard
+ */
 const Compare = () => {
+    const banner = useBannerData();
+    
     const {
         tool1,
         tool2,
+        isTool1Loading,
+        isTool2Loading,
         isSelectingFor,
-        searchQuery,
-        setSearchQuery,
-        availableTools,
-        loading,
-        error,
         handleSelect,
         clearTool,
         resetComparison,
         openSelector,
         closeSelector,
-        setIsSelectingFor // needed for modal logic
+        setIsSelectingFor,
+        error,
+        results
     } = useCompareData();
 
+    const handleClearTool1 = useCallback(() => clearTool('tool1'), [clearTool]);
+    const handleClearTool2 = useCallback(() => clearTool('tool2'), [clearTool]);
+    const handleOpenSelector1 = useCallback(() => openSelector('tool1'), [openSelector]);
+    const handleOpenSelector2 = useCallback(() => openSelector('tool2'), [openSelector]);
+
+    const isPageLoading = isTool1Loading || isTool2Loading;
+    const isComparisonReady = tool1?.id && tool2?.id && !isPageLoading;
+    
+    const seoTitle = useMemo(() => {
+        if (tool1?.name && tool2?.name) return `${tool1.name} vs ${tool2.name} | Professional Comparison`;
+        if (tool1?.name || tool2?.name) return `Compare ${tool1?.name || tool2?.name} with others`;
+        return "Compare AI Tools | Side-by-Side Analysis";
+    }, [tool1?.name, tool2?.name]);
+
+    // 2. SEO Hardening (v2.0)
     useSEO({
-        title: "Compare AI Tools | Side-by-Side Comparison",
-        description: "Compare the best AI tools and services side-by-side to find the perfect fit for your workflow.",
-        keywords: "compare ai tools, ai comparison, software comparison, services comparison"
+        title: seoTitle,
+        description: `Side-by-side comparison of ${tool1?.name || 'top tools'} and ${tool2?.name || 'more'}. Make informed decisions with HUBly.`,
     });
 
     return (
-        <div className={`page-wrapper ${styles.compareView}`}>
-            <SmartBanner />
+        <div className={styles.compareView}>
+            <SmartBanner 
+                tools={banner.tools}
+                isLoading={banner.loading}
+                error={banner.error}
+                next={banner.next}
+                prev={banner.prev}
+                currentIndex={banner.currentIndex}
+            />
             
-            <CompareHero />
+            <PageHero 
+                title={COMPARE_UI_CONSTANTS.hero.title} 
+                highlight={COMPARE_UI_CONSTANTS.hero.highlight} 
+                isLoading={false}
+                breadcrumbs={COMPARE_UI_CONSTANTS.hero.breadcrumbs}
+                subtitle={COMPARE_UI_CONSTANTS.hero.subtitle}
+            />
 
             <section className={styles.compareContainer}>
                 <div className={styles.comparisonContainer}>
                     <ToolCompareColumn 
                         tool={tool1} 
                         slot={1} 
-                        onClear={() => clearTool('tool1')}
-                        onSelect={() => openSelector('tool1')}
+                        onClear={handleClearTool1}
+                        onSelect={handleOpenSelector1}
+                        isLoading={isTool1Loading}
+                        content={COMPARE_UI_CONSTANTS?.placeholders}
+                        error={error}
+                        onRetry={resetComparison}
                     />
                     
                     <div className={styles.vsDivider}>VS</div>
@@ -57,35 +98,47 @@ const Compare = () => {
                     <ToolCompareColumn 
                         tool={tool2} 
                         slot={2} 
-                        onClear={() => clearTool('tool2')}
-                        onSelect={() => openSelector('tool2')}
+                        onClear={handleClearTool2}
+                        onSelect={handleOpenSelector2}
+                        isLoading={isTool2Loading}
+                        content={COMPARE_UI_CONSTANTS?.placeholders}
+                        error={error}
+                        onRetry={resetComparison}
                     />
                 </div>
 
-                <ComparisonMatrix tool1={tool1} tool2={tool2} />
+                <ComparisonMatrix 
+                    tool1={tool1} 
+                    tool2={tool2} 
+                    isLoading={isPageLoading}
+                    results={results}
+                    content={COMPARE_UI_CONSTANTS?.matrix}
+                    error={error}
+                    onRetry={resetComparison}
+                />
 
-                {tool1 && tool2 && (
+                {isComparisonReady && (
                     <div className={styles.resetContainer}>
-                        <button 
+                        <Button 
                             onClick={resetComparison} 
-                            className={`${styles.resetBtn} btn-secondary`}
+                            variant="secondary"
+                            icon={RefreshCcw}
                         >
-                            <RefreshCcw size={18} /> Reset Comparison
-                        </button>
+                            {COMPARE_UI_CONSTANTS?.actions?.reset}
+                        </Button>
                     </div>
                 )}
             </section>
 
-            {/* Selection Modal Overlay */}
             {isSelectingFor && (
-                <ToolSelectionModal 
-                    onClose={closeSelector}
-                    searchQuery={searchQuery}
-                    setSearchQuery={setSearchQuery}
-                    loading={loading}
-                    error={error}
-                    availableTools={availableTools}
+                <CompareBuilder 
+                    isSelectingFor={isSelectingFor}
+                    tool1={tool1}
+                    tool2={tool2}
                     onSelect={handleSelect}
+                    onClose={closeSelector}
+                    onClear={clearTool}
+                    onSwitchStep={setIsSelectingFor}
                 />
             )}
         </div>

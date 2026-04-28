@@ -1,25 +1,30 @@
 /* CategoryDetail.module.css */
 
 .categoryDetailPage {
-  min-height: 100vh;
+    min-height: 100vh;
 }
 
-.categoryContent {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 0 5% 5rem;
+.mainContent {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem 5% 5rem;
 }
 
-.loadingHero {
-  min-height: 35vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(255, 255, 255, 0.02);
+.container {
+    animation: fadeIn 0.5s ease-out;
+}
+
+.notFoundWrapper {
+    padding: 5rem 0;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 @media (max-width: 768px) {
-  .categoryContent {
-    padding: 0 1rem 3rem;
-  }
+    .mainContent {
+        padding: 1.5rem 1rem 3rem;
+    }
 }

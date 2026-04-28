@@ -1,64 +1,35 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { authService } from '../services/authService';
 
 /**
- * useAuthLogic Hook - Handles the state and logic for Auth & Registration
+ * useAuthLogic - Elite Coordinator Hook
+ * Rule #1: Logic Isolation
  */
 export const useAuthLogic = () => {
     const { user, loading: authLoading } = useAuth();
     const navigate = useNavigate();
     const { showToast } = useToast();
 
-    // UI & Navigation States
     const [isLogin, setIsLogin] = useState(true);
     const [forgotPasswordMode, setForgotPasswordMode] = useState(false);
-    
-    // Form States
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('');
-    const [fullName, setFullName] = useState('');
-    const [showPassword, setShowPassword] = useState(false);
-    
-    // Status States
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
-    /**
-     * Redirect if already logged in
-     */
     useEffect(() => {
         if (!authLoading && user) {
             navigate('/dashboard');
         }
     }, [user, authLoading, navigate]);
 
-    /**
-     * Handlers
-     */
-    const handleAuth = async (e) => {
-        e.preventDefault();
+    const handleLogin = useCallback(async (email, password) => {
         setLoading(true);
         setError(null);
-
-        if (!isLogin && password !== confirmPassword) {
-            showToast('Passwords do not match!', 'error');
-            setLoading(false);
-            return;
-        }
-
         try {
-            if (isLogin) {
-                await authService.signIn(email, password);
-                navigate('/dashboard');
-            } else {
-                await authService.signUp(email, password, fullName);
-                showToast('Welcome to HUBly! Account created.', 'success');
-                navigate('/dashboard');
-            }
+            await authService.signIn(email, password);
+            navigate('/dashboard');
         } catch (err) {
             const msg = err.message || 'Authentication failed';
             setError(msg);
@@ -66,10 +37,25 @@ export const useAuthLogic = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [navigate, showToast]);
 
-    const handleForgotPassword = async (e) => {
-        e.preventDefault();
+    const handleSignUp = useCallback(async (email, password, fullName) => {
+        setLoading(true);
+        setError(null);
+        try {
+            await authService.signUp(email, password, fullName);
+            showToast('Account created! Welcome to ServicesHUB.', 'success');
+            navigate('/dashboard');
+        } catch (err) {
+            const msg = err.message || 'Registration failed';
+            setError(msg);
+            showToast(msg, 'error');
+        } finally {
+            setLoading(false);
+        }
+    }, [navigate, showToast]);
+
+    const handleForgotPassword = useCallback(async (email) => {
         setLoading(true);
         setError(null);
         try {
@@ -82,34 +68,31 @@ export const useAuthLogic = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [showToast]);
 
-    const handleSocialLogin = async (provider) => {
+    const handleSocialLogin = useCallback(async (provider) => {
         try {
             await authService.signInWithSocial(provider);
         } catch (err) {
             showToast(err.message, 'error');
         }
-    };
+    }, [showToast]);
 
     const toggleAuthMode = () => {
-        setIsLogin(!isLogin);
+        setIsLogin(prev => !prev);
         setError(null);
+        setForgotPasswordMode(false);
     };
 
     return {
-        // States
-        isLogin, setIsLogin,
-        forgotPasswordMode, setForgotPasswordMode,
-        email, setEmail,
-        password, setPassword,
-        confirmPassword, setConfirmPassword,
-        fullName, setFullName,
-        showPassword, setShowPassword,
-        loading, error,
-        
-        // Handlers
-        handleAuth,
+        isLogin,
+        forgotPasswordMode,
+        setForgotPasswordMode,
+        loading,
+        error,
+        isInitialLoading: authLoading,
+        handleLogin,
+        handleSignUp,
         handleForgotPassword,
         handleSocialLogin,
         toggleAuthMode

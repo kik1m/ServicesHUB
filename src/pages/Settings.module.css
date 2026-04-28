@@ -1,58 +1,40 @@
-/* Settings.module.css - Modular styles for the Settings page */
-
 .settingsView {
-    padding: 80px 5% 60px;
-    min-height: 100vh;
+  min-height: 100vh;
+  padding-bottom: 60px;
 }
 
 .settingsContainer {
-    max-width: 1100px;
-    margin: 0 auto;
-}
-
-.settingsHeader {
-    margin-bottom: 3rem;
-}
-
-.settingsHeader h1 {
-    font-size: 2.5rem;
-    font-weight: 900;
-    margin-bottom: 8px;
-}
-
-.settingsHeader p {
-    color: var(--text-muted);
-    font-size: 1rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 5%;
 }
 
 .settingsLayout {
-    display: grid;
-    grid-template-columns: 280px 1fr;
-    gap: 2.5rem;
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 3rem;
+  margin-top: 3rem;
 }
 
 .settingsMainContent {
-    animation: fadeIn 0.5s ease-out;
+  animation: fadeIn 0.5s ease-out;
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 @media (max-width: 1024px) {
-    .settingsLayout {
-        grid-template-columns: 1fr;
-        gap: 2rem;
-    }
+  .settingsLayout {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    margin-top: 2rem;
+  }
 }
 
 @media (max-width: 768px) {
-    .settingsView {
-        padding: 60px 4% 40px;
-    }
-
-    .settingsHeader h1 {
-        font-size: 2rem;
-    }
+  .settingsView {
+    padding-bottom: 40px;
+  }
 }

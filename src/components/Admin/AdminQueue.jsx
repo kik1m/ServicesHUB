@@ -1,132 +1,172 @@
-import React from 'react';
-import { Trash2, Star } from 'lucide-react';
+import React, { memo } from 'react';
+import { ADMIN_UI_CONSTANTS } from '../../constants/adminConstants';
+import { Trash2, Star, Search, CheckCircle, HelpCircle } from 'lucide-react';
+import Skeleton from '../ui/Skeleton';
+import Input from '../ui/Input';
+import Button from '../ui/Button';
+import SmartImage from '../ui/SmartImage';
+import Safeguard from '../ui/Safeguard';
 import styles from './AdminQueue.module.css';
 
-const AdminQueue = ({ 
+/**
+ * AdminQueue - Elite Modular Queue Manager
+ * Rule #18: Memoized
+ */
+const AdminQueue = memo(({ 
     activeTab, 
-    pendingTools, 
-    featuredTools, 
+    pendingTools = [], 
+    featuredTools = [], 
     handleOpenReview, 
     handleReject, 
     handleToggleFeatured,
     adminSearchQuery = '',
     adminSearchResults = [],
     handleAdminSearch,
-    isSearchingTools
+    isLoading,
+    error,
+    onRetry
 }) => {
+    // 1. Guard for active tab
     if (activeTab !== 'pending' && activeTab !== 'featured') return null;
 
-    const tools = activeTab === 'pending' ? pendingTools : featuredTools;
-    const title = activeTab === 'pending' ? 'Approvals Queue' : 'Featured Showcase';
-    const badgeText = activeTab === 'pending' ? `${tools.length} PENDING` : `${tools.length} FEATURED`;
+    const SKELETON_COUNT = 4;
+    const labels = ADMIN_UI_CONSTANTS.queue;
 
     return (
-        <div className={styles.wrapper}>
-            <div className={styles.sectionHeader}>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    <h2 className={styles.title}>{title}</h2>
-                    <span className={styles.badge}>{badgeText}</span>
-                </div>
-                
-                {activeTab === 'featured' && (
-                    <div className={styles.searchWrapper}>
-                        <input 
-                            type="text" 
-                            placeholder="Add tool to featured..." 
-                            value={adminSearchQuery} 
-                            onChange={handleAdminSearch}
-                            className={styles.searchInput}
-                        />
-                    </div>
-                )}
-            </div>
-
-            {activeTab === 'featured' && adminSearchResults.length > 0 && (
-                <div className={styles.searchResultsSection}>
-                    <h4 className={styles.searchHeader}>
-                        Search Results
-                    </h4>
-                    <div className={styles.listContainer}>
-                        {adminSearchResults.map(tool => (
-                            <div key={tool.id} className={styles.itemRow} style={{ background: 'rgba(0, 163, 255, 0.03)', borderColor: 'rgba(0, 163, 255, 0.1)' }}>
-                                <div className={styles.itemContent}>
-                                    <div className={styles.itemThumb}>
-                                        {tool.image_url ? <img src={tool.image_url} alt={tool.name} /> : tool.name.charAt(0)}
+        <Safeguard error={error} onRetry={onRetry}>
+            <div className={styles.wrapper}>
+                {isLoading ? (
+                    <>
+                        <div className={styles.sectionHeader}>
+                            <Skeleton className={styles.skeletonSectionTitle} />
+                        </div>
+                        <div className={styles.listContainer}>
+                            {[...Array(SKELETON_COUNT)].map((_, i) => (
+                                <div key={`skeleton-admin-queue-${i}`} className={styles.itemRowSkeleton}>
+                                    <Skeleton className={styles.skeletonThumb} />
+                                    <div className={styles.skeletonText}>
+                                        <Skeleton className={styles.skeletonRowTitle} />
+                                        <Skeleton className={styles.skeletonRowMeta} />
                                     </div>
-                                    <div className={styles.itemInfo}>
-                                        <h4>{tool.name}</h4>
-                                        <p>{tool.categories?.name} • {tool.pricing_type}</p>
-                                    </div>
-                                    
-                                    <button
-                                        onClick={() => handleToggleFeatured(tool)}
-                                        className={`btn-primary-slim ${tool.is_featured ? styles.featuredActive : ''}`}
-                                    >
-                                        <Star size={14} style={{ marginRight: '5px', fill: tool.is_featured ? 'currentColor' : 'none' }} />
-                                        {tool.is_featured ? 'Featured' : 'Feature This'}
-                                    </button>
+                                    <Skeleton className={styles.skeletonActionBtn} />
                                 </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            )}
-
-            <div className={styles.listContainer}>
-                {tools.map(tool => (
-                    <div key={tool.id} className={styles.itemRow}>
-                        <div className={styles.itemContent}>
-                            <div className={styles.itemThumb}>
-                                {tool.image_url ? <img src={tool.image_url} alt={tool.name} /> : tool.name.charAt(0)}
-                            </div>
-                            <div className={styles.itemInfo}>
-                                <h4>{tool.name}</h4>
-                                <p>{tool.categories?.name} • {new Date(tool.created_at).toLocaleDateString()}</p>
+                            ))}
+                        </div>
+                    </>
+                ) : (
+                    <>
+                        <div className={styles.sectionHeader}>
+                            <div className={styles.headerInfo}>
+                                <h2 className={styles.title}>{activeTab === 'pending' ? labels.pendingTitle : labels.featuredTitle}</h2>
+                                <span className={styles.badge}>
+                                    {(activeTab === 'pending' ? pendingTools : featuredTools)?.length || 0} {activeTab.toUpperCase()}
+                                </span>
                             </div>
                             
-                            <div className={styles.actions}>
-                                {activeTab === 'pending' ? (
-                                    <>
-                                        {tool.pending_changes ? (
-                                            <button
-                                                onClick={() => handleOpenReview(tool)}
-                                                className="btn-primary-slim"
-                                                style={{ background: 'rgba(56, 189, 248, 0.1)', color: '#38bdf8', border: '1px solid #38bdf8' }}
-                                            >
-                                                Review Changes
-                                            </button>
-                                        ) : (
-                                            <button
-                                                onClick={() => handleOpenReview(tool)}
-                                                className="btn-primary-slim"
-                                                style={{ background: '#00ff88', color: '#000' }}
-                                            >
-                                                Full Review
-                                            </button>
-                                        )}
-                                    </>
-                                ) : (
-                                    <button
-                                        onClick={() => handleToggleFeatured(tool)}
-                                        className="btn-primary-slim"
-                                        style={{ background: 'rgba(255, 215, 0, 0.1)', color: '#FFD700', border: '1px solid #FFD700' }}
-                                    >
-                                        <Star size={14} style={{ marginRight: '5px', fill: '#FFD700' }} />
-                                        Featured
-                                    </button>
-                                )}
-                                
-                                <button onClick={() => handleReject(tool)} style={{ background: 'rgba(255, 80, 80, 0.1)', color: '#ff5050', padding: '8px' }} className="btn-primary-slim">
-                                    <Trash2 size={16} />
-                                </button>
-                            </div>
+                            {activeTab === 'featured' && (
+                                <div className={styles.searchWrapper}>
+                                    <Input 
+                                        placeholder={labels.searchPlaceholder} 
+                                        value={adminSearchQuery} 
+                                        onChange={handleAdminSearch}
+                                        icon={Search}
+                                        className={styles.adminSearchInput}
+                                    />
+                                </div>
+                            )}
                         </div>
-                    </div>
-                ))}
-                {tools.length === 0 && <p style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '2rem' }}>No {activeTab} tools found.</p>}
+
+                        {/* Search Results Dropdown - Rule #3: Dynamic Design */}
+                        {activeTab === 'featured' && adminSearchResults?.length > 0 && (
+                            <div className={styles.searchResultsSection}>
+                                <h4 className={styles.searchHeader}>{labels.searchResultTitle}</h4>
+                                <div className={styles.listContainer}>
+                                    {adminSearchResults.map(tool => (
+                                        <div key={`search-match-${tool.id}`} className={`${styles.itemRow} ${styles.searchMatch}`}>
+                                            <div className={styles.itemContent}>
+                                                <div className={styles.itemThumb}>
+                                                    <SmartImage src={tool.image_url} alt={tool.name} />
+                                                </div>
+                                                <div className={styles.itemInfo}>
+                                                    <h4>{tool?.name}</h4>
+                                                    <p>{tool?.categories?.name} • {tool?.pricing_type}</p>
+                                                </div>
+                                                
+                                                <Button
+                                                    variant={tool?.is_featured ? 'secondary' : 'primary'}
+                                                    onClick={() => handleToggleFeatured(tool)}
+                                                    className={tool?.is_featured ? styles.featuredActive : styles.featureTrigger}
+                                                    icon={Star}
+                                                    iconFill={tool?.is_featured ? 'currentColor' : 'none'}
+                                                >
+                                                    {tool?.is_featured ? labels.actions?.featured : labels.actions?.featureThis}
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Main List Container */}
+                        <div className={styles.listContainer}>
+                            {(activeTab === 'pending' ? pendingTools : featuredTools)?.map(tool => (
+                                <div key={tool.id} className={styles.itemRow}>
+                                    <div className={styles.itemContent}>
+                                        <div className={styles.itemThumb}>
+                                            <SmartImage src={tool.image_url} alt={tool.name} />
+                                        </div>
+                                        <div className={styles.itemInfo}>
+                                            <h4>{tool?.name}</h4>
+                                            <p>{tool?.categories?.name} • {tool?.formatted_date}</p>
+                                        </div>
+                                        
+                                        <div className={styles.actions}>
+                                            {activeTab === 'pending' ? (
+                                                <Button
+                                                    variant="ghost"
+                                                    onClick={() => handleOpenReview(tool)}
+                                                    className={`${styles.reviewBtn} ${tool?.pending_changes ? styles.updateMode : styles.newMode}`}
+                                                    icon={tool?.pending_changes ? HelpCircle : CheckCircle}
+                                                >
+                                                    {tool?.pending_changes ? labels.actions?.reviewUpdate : labels.actions?.fullReview}
+                                                </Button>
+                                            ) : (
+                                                <Button
+                                                    variant="secondary"
+                                                    onClick={() => handleToggleFeatured(tool)}
+                                                    className={`${styles.actionBtn} ${styles.featuredActive}`}
+                                                    icon={Star}
+                                                    iconFill="currentColor"
+                                                >
+                                                    {labels.actions?.featured}
+                                                </Button>
+                                            )}
+                                            
+                                            <button 
+                                                type="button"
+                                                onClick={() => handleReject(tool)} 
+                                                className={styles.rejectBtn}
+                                                title={labels.actions?.rejectTitle}
+                                            >
+                                                <Trash2 size={18} />
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                            
+                            {(activeTab === 'pending' ? pendingTools : featuredTools)?.length === 0 && (
+                                <div className={styles.emptyState}>
+                                    <p>{labels.empty?.replace('{status}', activeTab)}</p>
+                                </div>
+                            )}
+                        </div>
+                    </>
+                )}
             </div>
-        </div>
+        </Safeguard>
     );
-};
+});
 
 export default AdminQueue;

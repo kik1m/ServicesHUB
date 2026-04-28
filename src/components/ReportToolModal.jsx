@@ -1,11 +1,15 @@
 import React, { useState } from 'react';
-import { supabase } from '../lib/supabaseClient';
 import { AlertTriangle, Loader2, X } from 'lucide-react';
 import { useToast } from '../context/ToastContext';
-import { useAuth } from '../context/AuthContext';
+import { reportsService } from '../services/reportsService';
+import Button from './ui/Button';
+import styles from './ReportToolModal.module.css';
 
-const ReportToolModal = ({ toolId, toolName, onClose }) => {
-    const { user } = useAuth();
+/**
+ * ReportToolModal - Elite Standard
+ * Rule #1: Logic Isolation (reportsService)
+ */
+const ReportToolModal = ({ toolId, toolName, user, onClose }) => {
     const { showToast } = useToast();
     const [reason, setReason] = useState('');
     const [submitting, setSubmitting] = useState(false);
@@ -20,13 +24,11 @@ const ReportToolModal = ({ toolId, toolName, onClose }) => {
 
         setSubmitting(true);
         try {
-            const { error } = await supabase
-                .from('reports')
-                .insert([{
-                    tool_id: toolId,
-                    user_id: user ? user.id : null,
-                    reason: reason
-                }]);
+            const { error } = await reportsService.submitReport({
+                tool_id: toolId,
+                user_id: user?.id,
+                reason: reason
+            });
 
             if (error) throw error;
             
@@ -41,45 +43,47 @@ const ReportToolModal = ({ toolId, toolName, onClose }) => {
     };
 
     return (
-        <div style={{
-            position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh',
-            background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(5px)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            zIndex: 99999, padding: '20px'
-        }}>
-            <div className="glass-card" style={{ width: '100%', maxWidth: '500px', padding: '2rem', position: 'relative' }}>
-                <button onClick={onClose} style={{ position: 'absolute', top: '15px', right: '15px', background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>
+        <div className={styles.modalOverlay}>
+            <div className={styles.modalContent}>
+                <button onClick={onClose} className={styles.closeBtn} aria-label="Close modal">
                     <X size={24} />
                 </button>
 
-                <div style={{ display: 'flex', gap: '15px', alignItems: 'center', marginBottom: '1.5rem', color: '#ff4757' }}>
-                    <AlertTriangle size={32} />
-                    <h3 style={{ margin: 0 }}>Report an Issue</h3>
+                <div className={styles.header}>
+                    <AlertTriangle size={32} className={styles.warningIcon} />
+                    <h3>Report an Issue</h3>
                 </div>
 
-                <p style={{ color: 'var(--text-muted)', marginBottom: '1.5rem', fontSize: '0.95rem', lineHeight: '1.6' }}>
-                    If you noticed that the link for <strong>{toolName}</strong> is broken, leads to a completely different site, or contains malicious content, please let us know so we can investigate.
+                <p className={styles.description}>
+                    If you noticed that the link for <strong>{toolName}</strong> is broken, leads to a completely different site, or contains malicious content, please let us know.
                 </p>
 
-                <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                    <div>
-                        <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.9rem', color: 'var(--text-muted)' }}>Reason for reporting</label>
+                <form onSubmit={handleSubmit} className={styles.form}>
+                    <div className={styles.formGroup}>
+                        <label className={styles.label}>Reason for reporting</label>
                         <textarea 
                             rows="4"
                             placeholder="e.g. The link is 404 dead, or it redirects to spam..."
                             value={reason}
                             onChange={(e) => setReason(e.target.value)}
-                            style={{ width: '100%', padding: '15px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: 'white', borderRadius: '12px', resize: 'vertical' }}
+                            className={styles.textarea}
                             required
                         ></textarea>
                     </div>
 
-                    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem' }}>
-                        <button type="button" onClick={onClose} className="btn-outline">Cancel</button>
-                        <button type="submit" disabled={submitting} className="btn-primary" style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                            {submitting && <Loader2 className="animate-spin" size={16} />} 
+                    <div className={styles.actions}>
+                        <Button type="button" variant="outline" onClick={onClose}>
+                            Cancel
+                        </Button>
+                        <Button 
+                            type="submit" 
+                            variant="primary" 
+                            disabled={submitting}
+                            isLoading={submitting}
+                            className={styles.submitBtn}
+                        >
                             Submit Report
-                        </button>
+                        </Button>
                     </div>
                 </form>
             </div>

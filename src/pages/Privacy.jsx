@@ -1,71 +1,56 @@
 import React from 'react';
 import { Shield, Lock, Eye, Globe } from 'lucide-react';
-import SkeletonLoader from '../components/SkeletonLoader';
 import useSEO from '../hooks/useSEO';
 import { useLegalData } from '../hooks/useLegalData';
 
+// Import Global UI Components
+import PageHero from '../components/ui/PageHero';
+import Safeguard from '../components/ui/Safeguard';
+
 // Import Shared Legal Components
-import LegalHero from '../components/Legal/LegalHero';
 import LegalSection from '../components/Legal/LegalSection';
 
-// Import Modular CSS
+// Import Constants & Styles
+import { LEGAL_UI_CONSTANTS } from '../constants/legalConstants';
 import styles from './Privacy.module.css';
 
+/**
+ * Privacy Policy Page - Elite 10/10 Standard
+ * Rule #16: Pure Orchestration Pattern
+ * Rule #31: Component Resilience via Safeguard
+ */
 const Privacy = () => {
     const { loading } = useLegalData();
 
-    useSEO({
-        title: "Privacy Policy | HUBly Safety",
-        description: "Learn how ServicesHUB handles and protects your data. Transparency and security are our top priorities.",
-    });
+    // 1. SEO Hardening (v2.0)
+    useSEO({ pageKey: 'privacy' });
 
-    if (loading) {
-        return (
-            <div className={`page-wrapper ${styles.privacyPage}`}>
-                <LegalHero loading={true} />
-                <section className={styles.mainSection}>
-                    <SkeletonLoader height="300px" borderRadius="16px" style={{ marginBottom: '2rem' }} />
-                    <SkeletonLoader height="200px" borderRadius="16px" style={{ marginBottom: '2rem' }} />
-                </section>
-            </div>
-        );
-    }
+    const icons = [Eye, Lock, Globe, Shield];
 
     return (
-        <div className={`page-wrapper ${styles.privacyPage}`}>
-            <LegalHero 
-                loading={false}
-                badge="LEGAL DOCUMENTS"
-                title="Privacy"
-                accent="Policy"
-                subtitle="Last updated: March 26, 2026"
+        <div className={styles.privacyView}>
+            <PageHero 
+                title={LEGAL_UI_CONSTANTS.privacy.hero.title}
+                highlight={LEGAL_UI_CONSTANTS.privacy.hero.highlight}
+                subtitle={LEGAL_UI_CONSTANTS.privacy.hero.subtitle}
+                breadcrumbs={LEGAL_UI_CONSTANTS.privacy.hero.breadcrumbs}
+                icon={<Shield size={24} />}
+                isLoading={loading}
             />
 
             <section className={styles.mainSection}>
-                <div className={`glass-card ${styles.legalContent}`}>
-                    <LegalSection icon={Eye} number="1" title="Data Collection">
-                        We collect basic information when you use HUBly, such as your email
-                        address when you sign up or submit a tool. This information is used
-                        solely to provide our services and communicate with you.
-                    </LegalSection>
-
-                    <LegalSection icon={Lock} number="2" title="Security">
-                        We take data security seriously. We use modern encryption and industry-standard
-                        practices to ensure your account information remains safe and protected from
-                        unauthorized access.
-                    </LegalSection>
-
-                    <LegalSection icon={Globe} number="3" title="Third-Party Links">
-                        Our directory contains links to external websites. We are not responsible
-                        for the privacy practices or content of these third-party platforms.
-                        We encourage you to read their privacy policies.
-                    </LegalSection>
-
-                    <LegalSection icon={Shield} number="4" title="Your Rights">
-                        You have the right to access, update, or delete your personal information
-                        at any time from your profile settings. For any data-related queries,
-                        please contact our support team.
-                    </LegalSection>
+                <div className={styles.legalContent}>
+                    {(loading ? LEGAL_UI_CONSTANTS.SKELETON_COUNTS.sections : LEGAL_UI_CONSTANTS.privacy.sections).map((section, index) => (
+                        <LegalSection 
+                            key={loading ? index : section.id}
+                            isLoading={loading} 
+                            icon={icons[index] || Shield} 
+                            number={loading ? (index + 1).toString() : section.id.toString()} 
+                            title={loading ? "" : section.title}
+                        >
+                            {section.content}
+                        </LegalSection>
+                    ))}
                 </div>
             </section>
         </div>

@@ -1,34 +1,51 @@
-import React from 'react';
-import { Zap, Shield, Sparkles } from 'lucide-react';
+import React, { useMemo } from 'react';
+import { Zap, Shield, Sparkles, HelpCircle } from 'lucide-react';
+import SectionHeader from '../ui/SectionHeader';
+import Safeguard from '../ui/Safeguard';
+import { VALUE_PROPS } from '../../constants/homeConstants';
 import styles from './HomeValueProp.module.css';
 
-const HomeValueProp = () => {
-    return (
-        <section className="main-section value-prop-section">
-            <div className="section-header" style={{ marginBottom: '2.5rem' }}>
-                <h2 className="section-title">Built for <span className="gradient-text">Efficiency</span></h2>
-                <p className="section-desc">We simplify world-class tool discovery so you can focus on building.</p>
-            </div>
+const iconMap = {
+    'prop-fast': Zap,
+    'prop-quality': Shield,
+    'prop-trends': Sparkles
+};
 
-            <div className={styles.propGridNew}>
-                <div className={`glass-card ${styles.propCardPremium}`}>
-                    <div className={styles.propIconBg}><Zap size={28} /></div>
-                    <h4>Fast Access</h4>
-                    <p>No more digging through search results. Get direct, tested links to the world&apos;s most innovative tools instantly.</p>
+const HomeValueProp = ({ content, error }) => {
+    // Rule #35: Derived Data Stability + Rule #32: Defensive Rendering
+    const props = useMemo(() => VALUE_PROPS?.filter(Boolean) ?? [], []);
+
+    return (
+        <Safeguard error={error}>
+            <section className={styles.valuePropSection}>
+                <SectionHeader 
+                    title={content.header.title} 
+                    subtitle={content.header.subtitle} 
+                    description={content.header.description}
+                />
+
+                <div className={styles.propGridNew}>
+                    {props.map((prop) => {
+                        // Rule #37: Icon Safety Rule
+                        const Icon = iconMap[prop.id] || HelpCircle;
+                        return (
+                            <div key={prop.id} className={styles.propCardPremium}>
+                                <div className={styles.propIconBg}><Icon size={28} /></div>
+                                <h4>{prop.title}</h4>
+                                <p>{prop.desc}</p>
+                            </div>
+                        );
+                    })}
                 </div>
-                <div className={`glass-card ${styles.propCardPremium}`}>
-                    <div className={styles.propIconBg}><Shield size={28} /></div>
-                    <h4>Curated Quality</h4>
-                    <p>We only list tools that meet our high standards of quality, reliability, and actual value for your business.</p>
-                </div>
-                <div className={`glass-card ${styles.propCardPremium}`}>
-                    <div className={styles.propIconBg}><Sparkles size={28} /></div>
-                    <h4>Latest Trends</h4>
-                    <p>Stay updated with daily additions of the newest AI breakthroughs and SaaS innovations before they go viral.</p>
-                </div>
-            </div>
-        </section>
+            </section>
+        </Safeguard>
     );
 };
 
+
 export default HomeValueProp;
+
+
+
+
+

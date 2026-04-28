@@ -9,22 +9,66 @@
 .header {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 1rem;
   font-size: 1.5rem;
   font-weight: 800;
   margin-bottom: 1.5rem;
   margin-top: 0;
+  color: #fff;
+}
+
+.headerIcon {
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .titleText {
   color: var(--text-muted);
-  font-size: 1rem;
+  font-size: 1.05rem;
+  line-height: 1.8;
   margin: 0;
+}
+
+/* --- SKELETON LAYOUTS (Rule #81) --- */
+.skeletonHeader {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.skeletonNumber {
+    width: 40px;
+    height: 28px;
+    border-radius: 6px;
+}
+
+.skeletonTitle {
+    width: 300px;
+    height: 24px;
+}
+
+.skeletonBody {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.skeletonLine {
+    width: 100%;
+    height: 16px;
+}
+
+.skeletonLineSmall {
+    width: 60%;
+    height: 16px;
 }
 
 @media (max-width: 768px) {
   .header {
     font-size: 1.25rem;
-    gap: 10px;
+    gap: 0.75rem;
   }
 }

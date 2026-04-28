@@ -1,51 +1,69 @@
-/* SubmitTool.module.css */
-
 .submitContainer {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 80px 5% 60px;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
-
-.loadingWrapper {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 80vh;
-  width: 100%;
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
 }
 
 .submitWrapper {
-  max-width: 900px;
-  margin: 1.5rem auto;
-  width: 100%;
+    max-width: 900px;
+    margin: 2rem auto 5rem; /* Changed from -3rem to 2rem to prevent overlap */
+    width: 100%;
+    padding: 0 2rem;
+    z-index: 10;
 }
 
 .submitForm {
-  background: transparent;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 3.5rem; /* Applied to siblings inside the form */
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+    animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.actionContainer {
+    margin-top: 1rem;
+    padding: 2rem;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--border);
+    border-radius: 24px;
 }
 
 .limitReachedLock {
-  opacity: 0.6;
-  pointer-events: none;
-  user-select: none;
-  filter: grayscale(0.5);
-  cursor: not-allowed;
+    opacity: 0.6;
+    pointer-events: none;
+    user-select: none;
+    filter: grayscale(0.5);
+    cursor: not-allowed;
 }
 
 @media (max-width: 768px) {
-  .submitContainer {
-    padding: 60px 1rem 40px;
-  }
-  
-  .submitWrapper {
-    gap: 1.5rem;
-    margin: 1rem auto;
-  }
+    .submitWrapper {
+        margin-top: -1rem;
+        padding: 0 1rem;
+    }
+}
+
+.errorBanner {
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: rgba(255, 71, 87, 0.1);
+    border: 1px solid rgba(255, 71, 87, 0.2);
+    border-radius: 16px;
+    color: #ff4757;
+    font-size: 0.875rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    animation: fadeInSlideDown 0.4s ease-out;
+}
+
+@keyframes fadeInSlideDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
 }
