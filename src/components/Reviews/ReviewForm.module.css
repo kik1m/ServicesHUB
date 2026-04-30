@@ -1,0 +1,44 @@
+
+.formGroup {
+  margin-bottom: 1.5rem;
+}
+.inputFieldLabel {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  margin-bottom: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.ratingContainer {
+  display: flex;
+  gap: 8px;
+}
+.starIconInteractive {
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+.starIconInteractive:hover {
+  transform: scale(1.1);
+}
+.commentArea {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1rem;
+  color: white;
+  font-family: inherit;
+  resize: none;
+  transition: all 0.3s ease;
+}
+.commentArea:focus {
+  outline: none;
+  border-color: var(--primary);
+  background: rgba(var(--primary-rgb), 0.05);
+}
+.submitBtn {
+  width: 100%;
+  font-weight: 800;
+}

@@ -1,13 +1,13 @@
 
 import React, { memo } from 'react';
 import { ADMIN_UI_CONSTANTS } from '../../constants/adminConstants';
-import { Clock, Users, FileText, Star, PlusCircle, FolderTree, Tags, Mail, LayoutGrid } from 'lucide-react';
+import { Clock, Users, FileText, Star, PlusCircle, FolderTree, Tags, Mail, LayoutGrid, Bot } from 'lucide-react';
 import Skeleton from '../ui/Skeleton';
 import Safeguard from '../ui/Safeguard';
 import styles from './AdminTabs.module.css';
 
 /**
- * AdminTabs - Elite Tab Navigator (Full 9-Tab Version)
+ * AdminTabs - Elite Tab Navigator
  * Rule #18: Memoized
  */
 const AdminTabs = memo(({ activeTab, setActiveTab, pendingCount, blogCount, userCount, newsCount, isLoading, error, onRetry }) => {
@@ -15,6 +15,7 @@ const AdminTabs = memo(({ activeTab, setActiveTab, pendingCount, blogCount, user
 
     // Mapping icons to tab IDs - Rule #14
     const iconMap = {
+        'ai-manager': Bot,
         pending: Clock,
         'manage-tools': LayoutGrid,
         featured: Star,

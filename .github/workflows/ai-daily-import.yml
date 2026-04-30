@@ -1,0 +1,37 @@
+name: Elite AI Daily Tool Importer
+
+on:
+  workflow_dispatch:
+    inputs:
+      urls:
+        description: 'Comma separated list of URLs to process'
+        required: true
+        type: string
+
+jobs:
+  run-importer:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js Environment
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: 'scripts/ai-importer/package-lock.json'
+
+      - name: Install Dependencies
+        working-directory: ./scripts/ai-importer
+        run: npm ci
+
+      - name: Execute Elite AI Importer
+        working-directory: ./scripts/ai-importer
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          INPUT_URLS: ${{ github.event.inputs.urls }}
+        run: node index.js "$INPUT_URLS"

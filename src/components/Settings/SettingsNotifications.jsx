@@ -1,6 +1,7 @@
 import React, { memo } from 'react';
 import Skeleton from '../ui/Skeleton';
 import Toggle from '../ui/Toggle';
+import Safeguard from '../ui/Safeguard';
 import styles from './SettingsNotifications.module.css';
 
 /**
@@ -8,7 +9,7 @@ import styles from './SettingsNotifications.module.css';
  * Rule #18: Memoized
  * Rule #34: Constant-driven
  */
-const SettingsNotifications = memo(({ profile, isLoading, content }) => {
+const SettingsNotifications = memo(({ profile, isLoading, error, onRetry, content }) => {
     if (isLoading) {
         return (
             <div className={styles.fadeIn}>
@@ -33,27 +34,29 @@ const SettingsNotifications = memo(({ profile, isLoading, content }) => {
     }
 
     return (
-        <div className={styles.fadeIn}>
-            <div className={styles.settingsCard}>
-                <h3 className={styles.settingsSectionTitle}>{content.title}</h3>
-                <p className={styles.settingsSectionSubtitle}>{content.subtitle}</p>
-                
-                <div className={styles.notifPreferencesList}>
-                    {content.items.map(item => (
-                        <div key={item.id} className={styles.notifItem}>
-                            <div className={styles.notifItemInfo}>
-                                <h4>{item.label}</h4>
-                                <p>{item.desc}</p>
+        <Safeguard error={error} onRetry={onRetry} title="Notifications Unavailable">
+            <div className={styles.fadeIn}>
+                <div className={styles.settingsCard}>
+                    <h3 className={styles.settingsSectionTitle}>{content?.title}</h3>
+                    <p className={styles.settingsSectionSubtitle}>{content?.subtitle}</p>
+                    
+                    <div className={styles.notifPreferencesList}>
+                        {content?.items?.map(item => (
+                            <div key={item?.id} className={styles.notifItem}>
+                                <div className={styles.notifItemInfo}>
+                                    <h4>{item?.label}</h4>
+                                    <p>{item?.desc}</p>
+                                </div>
+                                <Toggle 
+                                    checked={true} // Hardcoded for demo, would come from user state in real app
+                                    onChange={(val) => console.log(`Toggle ${item?.id}:`, val)} 
+                                />
                             </div>
-                            <Toggle 
-                                checked={true} // Hardcoded for demo, would come from user state in real app
-                                onChange={(val) => console.log(`Toggle ${item.id}:`, val)} 
-                            />
-                        </div>
-                    ))}
+                        ))}
+                    </div>
                 </div>
             </div>
-        </div>
+        </Safeguard>
     );
 });
 

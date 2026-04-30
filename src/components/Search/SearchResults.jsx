@@ -43,7 +43,7 @@ const SearchResults = (props) => {
                             <Skeleton width="120px" height="18px" borderRadius="4px" />
                         ) : (
                             <p className={styles.resultCount}>
-                                Showing <span className={styles.resultCountHighlight}>{safeResults.length}</span> {content.found}
+                                Showing <span className={styles.resultCountHighlight}>{safeResults.length}</span> {content?.found}
                             </p>
                         )}
                     </div>
@@ -51,7 +51,7 @@ const SearchResults = (props) => {
                     {headerExtra && <div className={styles.headerExtra}>{headerExtra}</div>}
 
                     <div className={styles.sortContainer}>
-                        <span className={styles.sortLabel}>{content.sortBy || "Sort by:"}</span>
+                        <span className={styles.sortLabel}>{content?.sortBy || "Sort by:"}</span>
                         {isInitialLoad ? (
                             <Skeleton width="180px" height="44px" borderRadius="12px" />
                         ) : (
@@ -79,8 +79,8 @@ const SearchResults = (props) => {
                     ) : (
                         <div className={styles.searchResultsEmpty}>
                             <EmptyState
-                                message={content.noResults.title}
-                                description={content.noResults.description}
+                                message={content?.noResults?.title}
+                                description={content?.noResults?.description}
                                 icon={SearchIcon}
                             />
                         </div>

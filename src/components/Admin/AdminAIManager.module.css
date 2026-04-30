@@ -1,0 +1,341 @@
+.aiManagerContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 24px;
+    border-radius: 16px;
+}
+
+.titleWrapper {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.iconBox {
+    background: linear-gradient(135deg, rgba(56, 189, 248, 0.1), rgba(125, 211, 252, 0.05));
+    border: 1px solid rgba(56, 189, 248, 0.2);
+    color: #38bdf8;
+    padding: 12px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #f8fafc;
+    margin: 0 0 4px 0;
+}
+
+.subtitle {
+    font-size: 0.875rem;
+    color: #94a3b8;
+    margin: 0;
+}
+
+.refreshBtn {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #94a3b8;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.refreshBtn:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: #f8fafc;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr;
+    gap: 24px;
+}
+
+/* Control Panel */
+.controlPanel {
+    background: rgba(15, 23, 42, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 24px;
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.sectionTitle {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #e2e8f0;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.inputGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.label {
+    font-size: 0.875rem;
+    color: #cbd5e1;
+    font-weight: 500;
+}
+
+.textarea {
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 16px;
+    color: #f8fafc;
+    font-family: 'Inter', monospace;
+    font-size: 0.875rem;
+    resize: vertical;
+    min-height: 150px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.textarea:focus {
+    border-color: #38bdf8;
+}
+
+.textarea:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.triggerBtn {
+    background: linear-gradient(135deg, #0ea5e9, #2563eb);
+    color: white;
+    border: none;
+    padding: 14px 24px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.2s;
+    margin-top: 8px;
+}
+
+.triggerBtn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+}
+
+.triggerBtn:disabled {
+    background: #334155;
+    color: #94a3b8;
+    cursor: not-allowed;
+}
+
+.spin {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    100% { transform: rotate(360deg); }
+}
+
+.disclaimer {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.8rem;
+    color: #64748b;
+    margin: 0;
+    margin-top: -8px;
+}
+
+.statusBanner {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 16px;
+    border-radius: 10px;
+    font-size: 0.875rem;
+    line-height: 1.4;
+}
+
+.statusBanner.success {
+    background: rgba(34, 197, 94, 0.1);
+    border: 1px solid rgba(34, 197, 94, 0.2);
+    color: #4ade80;
+}
+
+.statusBanner.error {
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    color: #f87171;
+}
+
+/* Logs Panel (Terminal Style) */
+.logsPanel {
+    background: #020617;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    overflow: hidden;
+    position: relative;
+}
+
+.logsPanel::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #38bdf8, #818cf8, #c084fc);
+}
+
+.logsContainer {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding-right: 8px;
+}
+
+/* Custom Scrollbar for Logs */
+.logsContainer::-webkit-scrollbar {
+    width: 6px;
+}
+.logsContainer::-webkit-scrollbar-track {
+    background: transparent;
+}
+.logsContainer::-webkit-scrollbar-thumb {
+    background: #334155;
+    border-radius: 4px;
+}
+
+.loadingLogs, .emptyLogs {
+    color: #64748b;
+    font-size: 0.875rem;
+    font-family: 'Fira Code', monospace;
+    text-align: center;
+    padding: 40px 0;
+}
+
+.logCard {
+    background: #0f172a;
+    border: 1px solid #1e293b;
+    border-radius: 10px;
+    padding: 16px;
+}
+
+.logHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #1e293b;
+}
+
+.logDate {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.8rem;
+    color: #94a3b8;
+    font-family: 'Fira Code', monospace;
+}
+
+.logBadges {
+    display: flex;
+    gap: 8px;
+}
+
+.badge {
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 100px;
+}
+
+.badge.added {
+    background: rgba(34, 197, 94, 0.1);
+    color: #4ade80;
+}
+
+.badge.updated {
+    background: rgba(56, 189, 248, 0.1);
+    color: #38bdf8;
+}
+
+.badge.failed {
+    background: rgba(239, 68, 68, 0.1);
+    color: #f87171;
+}
+
+.logBody {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font-family: 'Fira Code', monospace;
+    font-size: 0.8rem;
+}
+
+.detailRow {
+    display: flex;
+    gap: 8px;
+    line-height: 1.5;
+}
+
+.detailStatus {
+    font-weight: 600;
+}
+
+.detailRow.added .detailStatus { color: #4ade80; }
+.detailRow.updated .detailStatus { color: #38bdf8; }
+.detailRow.failed .detailStatus { color: #f87171; }
+.detailRow.skipped .detailStatus { color: #94a3b8; }
+
+.detailName {
+    color: #e2e8f0;
+}
+
+.detailMsg {
+    color: #64748b;
+}
+
+@media (max-width: 1024px) {
+    .grid {
+        grid-template-columns: 1fr;
+    }
+}

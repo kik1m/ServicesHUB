@@ -51,10 +51,7 @@ export const profilesService = {
         try {
             const { data, error } = await supabase
                 .from('profiles')
-                .select(`
-                    id, full_name, avatar_url, role, bio, website, 
-                    twitter, github, linkedin, created_at, is_verified, is_premium
-                `)
+                .select('*')
                 .eq('id', id)
                 .single();
 

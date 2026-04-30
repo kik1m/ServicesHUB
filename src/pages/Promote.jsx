@@ -75,7 +75,7 @@ const Promote = () => {
                                 selectedToolId={selectedToolId}
                                 isLoading={loadingTools}
                                 content={PROMOTE_UI_CONSTANTS.plans}
-                                error={"Simulated Promotion Plans Error (Test)"} // Test Error Inject
+                                error={error}
                                 onRetry={refresh}
                             />
                         </section>

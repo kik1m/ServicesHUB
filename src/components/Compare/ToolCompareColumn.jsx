@@ -63,8 +63,12 @@ const ToolCompareColumn = ({ tool, onClear, onSelect, isLoading, error, onRetry,
                         <div className={styles.middleMeta}>
                             <span className={styles.categoryLabel}>{tool?.categories?.name || 'Uncategorized'}</span>
                             <div className={styles.ratingBox}>
-                                <Star size={14} fill="#ffaa00" color="#ffaa00" />
-                                <span>{tool?.average_rating?.toFixed(1) || '5.0'}</span>
+                                <Star 
+                                    size={14} 
+                                    color="#ffaa00" 
+                                    fill={tool?.reviews_count > 0 ? "currentColor" : "transparent"} 
+                                />
+                                <span>{tool?.reviews_count > 0 ? tool?.rating?.toFixed(1) : '0.0'}</span>
                             </div>
                         </div>
                         

@@ -17,6 +17,7 @@ export const ADMIN_UI_CONSTANTS = {
         ]
     },
     tabs: [
+        { id: 'ai-manager', label: 'AI Agent' },
         { id: 'pending', label: 'Approvals' },
         { id: 'manage-tools', label: 'Directory Manager' },
         { id: 'featured', label: 'Featured' },

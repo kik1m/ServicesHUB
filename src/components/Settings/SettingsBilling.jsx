@@ -2,13 +2,14 @@ import React, { memo } from 'react';
 import { CreditCard, Sparkles } from 'lucide-react';
 import Skeleton from '../ui/Skeleton';
 import Button from '../ui/Button';
+import Safeguard from '../ui/Safeguard';
 import styles from './SettingsBilling.module.css';
 
 /**
  * SettingsBilling - Elite Hardened Card
  * Rule #18: Memoized
  */
-const SettingsBilling = memo(({ profile, isLoading, content }) => {
+const SettingsBilling = memo(({ profile, isLoading, error, onRetry, content }) => {
     if (isLoading) {
         return (
             <div className={styles.fadeIn}>
@@ -29,40 +30,42 @@ const SettingsBilling = memo(({ profile, isLoading, content }) => {
     const isPremium = profile?.is_premium;
 
     return (
-        <div className={styles.fadeIn}>
-            <div className={styles.settingsCard}>
-                <div className={styles.billingStatusContainer}>
-                    <div className={`${styles.billingIconBox} ${isPremium ? styles.premiumActive : ''}`}>
-                        {isPremium ? <Sparkles size={40} className={styles.glowIcon} /> : <CreditCard size={40} />}
-                    </div>
+        <Safeguard error={error} onRetry={onRetry} title="Billing Unavailable">
+            <div className={styles.fadeIn}>
+                <div className={styles.settingsCard}>
+                    <div className={styles.billingStatusContainer}>
+                        <div className={`${styles.billingIconBox} ${isPremium ? styles.premiumActive : ''}`}>
+                            {isPremium ? <Sparkles size={40} className={styles.glowIcon} /> : <CreditCard size={40} />}
+                        </div>
 
-                    <div className={styles.billingTextContent}>
-                        <h3>
-                            {isPremium ? content.premiumActiveTitle : content.title}
-                        </h3>
-                        
-                        <p className={styles.billingDescription}>
-                            {isPremium ? content.premiumActiveDesc : content.freeDesc}
-                        </p>
+                        <div className={styles.billingTextContent}>
+                            <h3>
+                                {isPremium ? content?.premiumActiveTitle : content?.title}
+                            </h3>
+                            
+                            <p className={styles.billingDescription}>
+                                {isPremium ? content?.premiumActiveDesc : content?.freeDesc}
+                            </p>
 
-                        {!isPremium ? (
-                            <Button 
-                                as="a"
-                                href="/premium" 
-                                className={styles.btnPremiumUpgrade}
-                                icon={Sparkles}
-                            >
-                                {content.upgradeBtn}
-                            </Button>
-                        ) : (
-                            <div className={styles.premiumStatusBadge}>
-                                <Sparkles size={16} /> {content.verifiedBadge}
-                            </div>
-                        )}
+                            {!isPremium ? (
+                                <Button 
+                                    as="a"
+                                    href="/premium" 
+                                    className={styles.btnPremiumUpgrade}
+                                    icon={Sparkles}
+                                >
+                                    {content?.upgradeBtn}
+                                </Button>
+                            ) : (
+                                <div className={styles.premiumStatusBadge}>
+                                    <Sparkles size={16} /> {content?.verifiedBadge}
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </Safeguard>
     );
 });
 

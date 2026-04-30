@@ -72,7 +72,7 @@ const ToolCard = ({ tool, isLoading = false, onClickOverride = null }) => {
 
             <div className={styles.cardFooter}>
                 <div className={styles.cardRating}>
-                    <Star size={12} className={styles.ratingIcon} style={{ fill: tool.reviews_count > 0 ? 'currentColor' : 'transparent' }} />
+                    <Star size={12} className={styles.ratingIcon} fill={tool.reviews_count > 0 ? 'currentColor' : 'transparent'} />
                     <span>{tool.reviews_count > 0 ? tool.rating?.toFixed(1) : '0.0'}</span>
                 </div>
                 <div className={styles.cardLink}>

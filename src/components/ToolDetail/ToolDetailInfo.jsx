@@ -1,9 +1,10 @@
 import React from 'react';
 import { CheckCircle2 } from 'lucide-react';
 import Skeleton from '../ui/Skeleton';
+import Safeguard from '../ui/Safeguard';
 import styles from './ToolDetailInfo.module.css';
 
-const ToolDetailInfo = ({ tool, isLoading, content }) => {
+const ToolDetailInfo = ({ tool, isLoading, error, onRetry, content }) => {
     // Rule #11 & #4: Component-Owned Skeletons
     if (isLoading) {
         return (
@@ -38,35 +39,37 @@ const ToolDetailInfo = ({ tool, isLoading, content }) => {
     if (!tool) return null;
 
     // Rule #32: Defensive Rendering for features
-    const safeFeatures = tool.features?.filter(Boolean) ?? [];
+    const safeFeatures = tool?.features?.filter(Boolean) ?? [];
 
     return (
-        <div className={styles.toolMainInfo}>
-            <div className={styles.detailSection}>
-                <h3 className={styles.sectionSubtitle}>
-                    {content.tabs.overview} <span className={styles.highlight}>{tool.name || content.tabs.thisTool}</span>
-                </h3>
-                <p className={styles.sectionText}>
-                    {tool.description || tool.short_description || content.tabs.defaultDesc}
-                </p>
-            </div>
-
-            {safeFeatures.length > 0 && (
+        <Safeguard error={error} onRetry={onRetry}>
+            <div className={styles.toolMainInfo}>
                 <div className={styles.detailSection}>
-                    <h3 className={styles.sectionSubtitle}>{content.tabs.features}</h3>
-                    <div className={styles.featuresChecklist}>
-                        {safeFeatures.map((feature, i) => (
-                            <div key={`${tool.id}-feature-${i}`} className={styles.featureItemPremium}>
-                                <div className={styles.featureIconBox}>
-                                    <CheckCircle2 size={24} />
-                                </div>
-                                <p className={styles.featureText}>{feature}</p>
-                            </div>
-                        ))}
-                    </div>
+                    <h3 className={styles.sectionSubtitle}>
+                        {content?.tabs?.overview} <span className={styles.highlight}>{tool?.name || content?.tabs?.thisTool}</span>
+                    </h3>
+                    <p className={styles.sectionText}>
+                        {tool?.description || tool?.short_description || content?.tabs?.defaultDesc}
+                    </p>
                 </div>
-            )}
-        </div>
+
+                {safeFeatures.length > 0 && (
+                    <div className={styles.detailSection}>
+                        <h3 className={styles.sectionSubtitle}>{content?.tabs?.features}</h3>
+                        <div className={styles.featuresChecklist}>
+                            {safeFeatures.map((feature, i) => (
+                                <div key={`${tool?.id}-feature-${i}`} className={styles.featureItemPremium}>
+                                    <div className={styles.featureIconBox}>
+                                        <CheckCircle2 size={24} />
+                                    </div>
+                                    <p className={styles.featureText}>{feature}</p>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+            </div>
+        </Safeguard>
     );
 };
 

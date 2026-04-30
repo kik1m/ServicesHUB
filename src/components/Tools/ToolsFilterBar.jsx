@@ -2,6 +2,7 @@ import React, { memo } from 'react';
 import Select from '../ui/Select';
 import Skeleton from '../ui/Skeleton';
 import Button from '../ui/Button';
+import Safeguard from '../ui/Safeguard';
 import styles from './ToolsFilterBar.module.css';
 
 /**
@@ -18,6 +19,8 @@ const ToolsFilterBar = memo(({
     sortBy, 
     setSortBy,
     isLoading,
+    error,
+    onRetry,
     content
 }) => {
     
@@ -42,41 +45,43 @@ const ToolsFilterBar = memo(({
     }
 
     return (
-        <div className={styles.filterBarLayout}>
-            <div className={styles.categoryScrollContainer}>
-                <div className={styles.categoryTabs}>
-                    {categories.map(cat => (
-                        <Button
-                            key={cat.id || cat.name}
-                            variant="ghost"
-                            onClick={() => setSelectedCategory(cat.name)}
-                            className={`${styles.tabBtn} ${selectedCategory === cat.name ? styles.active : ''}`}
-                        >
-                            {cat.name === 'All' ? 'All Directory' : cat.name}
-                        </Button>
-                    ))}
+        <Safeguard error={error} onRetry={onRetry}>
+            <div className={styles.filterBarLayout}>
+                <div className={styles.categoryScrollContainer}>
+                    <div className={styles.categoryTabs}>
+                        {categories?.map(cat => (
+                            <Button
+                                key={cat?.id || cat?.name}
+                                variant="ghost"
+                                onClick={() => setSelectedCategory(cat?.name)}
+                                className={`${styles.tabBtn} ${selectedCategory === cat?.name ? styles.active : ''}`}
+                            >
+                                {cat?.name === 'All' ? 'All Directory' : cat?.name}
+                            </Button>
+                        ))}
+                    </div>
+                </div>
+                
+                <div className={styles.sortFilters}>
+                    <div className={styles.selectWrapper}>
+                        <Select
+                            options={content?.pricing}
+                            value={priceFilter}
+                            onChange={setPriceFilter}
+                            placeholder="Pricing"
+                        />
+                    </div>
+                    <div className={styles.selectWrapper}>
+                        <Select
+                            options={content?.sorting}
+                            value={sortBy}
+                            onChange={setSortBy}
+                            placeholder="Sort Order"
+                        />
+                    </div>
                 </div>
             </div>
-            
-            <div className={styles.sortFilters}>
-                <div className={styles.selectWrapper}>
-                    <Select
-                        options={content.pricing}
-                        value={priceFilter}
-                        onChange={setPriceFilter}
-                        placeholder="Pricing"
-                    />
-                </div>
-                <div className={styles.selectWrapper}>
-                    <Select
-                        options={content.sorting}
-                        value={sortBy}
-                        onChange={setSortBy}
-                        placeholder="Sort Order"
-                    />
-                </div>
-            </div>
-        </div>
+        </Safeguard>
     );
 });
 

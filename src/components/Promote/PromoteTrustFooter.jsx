@@ -1,6 +1,7 @@
 import React, { memo } from 'react';
 import { ShieldCheck, CheckCircle2, TrendingUp, Star } from 'lucide-react';
 import Skeleton from '../ui/Skeleton';
+import Safeguard from '../ui/Safeguard';
 import styles from './PromoteTrustFooter.module.css';
 
 /**
@@ -8,7 +9,7 @@ import styles from './PromoteTrustFooter.module.css';
  * Rule #14: Constant-driven content SSOT
  * Rule #11.1: Zero-Shift Skeleton Standard
  */
-const PromoteTrustFooter = ({ isLoading, content }) => {
+const PromoteTrustFooter = ({ isLoading, error, onRetry, content }) => {
     if (isLoading) {
         return (
             <footer className={styles.trustFooter}>
@@ -29,28 +30,30 @@ const PromoteTrustFooter = ({ isLoading, content }) => {
     if (!content) return null;
 
     return (
-        <footer className={styles.trustFooter}>
-            <div className={styles.iconWrapper}>
-                <ShieldCheck size={32} />
-            </div>
-            
-            <h3 className={styles.title}>{content.title}</h3>
-            
-            <div className={styles.badgesRow}>
-                <div className={`${styles.badgeItem} ${styles.badgeSecure}`}>
-                    <CheckCircle2 size={16} /> 
-                    <span>{content.badges?.secure || 'Secure Payments'}</span>
+        <Safeguard error={error} onRetry={onRetry}>
+            <footer className={styles.trustFooter}>
+                <div className={styles.iconWrapper}>
+                    <ShieldCheck size={32} />
                 </div>
-                <div className={`${styles.badgeItem} ${styles.badgeGrowth}`}>
-                    <TrendingUp size={16} /> 
-                    <span>{content.badges?.growth || 'Instant Growth'}</span>
+                
+                <h3 className={styles.title}>{content?.title}</h3>
+                
+                <div className={styles.badgesRow}>
+                    <div className={`${styles.badgeItem} ${styles.badgeSecure}`}>
+                        <CheckCircle2 size={16} /> 
+                        <span>{content?.badges?.secure || 'Secure Payments'}</span>
+                    </div>
+                    <div className={`${styles.badgeItem} ${styles.badgeGrowth}`}>
+                        <TrendingUp size={16} /> 
+                        <span>{content?.badges?.growth || 'Instant Growth'}</span>
+                    </div>
+                    <div className={`${styles.badgeItem} ${styles.badgeSupport}`}>
+                        <Star size={16} /> 
+                        <span>{content?.badges?.support || 'Elite Support'}</span>
+                    </div>
                 </div>
-                <div className={`${styles.badgeItem} ${styles.badgeSupport}`}>
-                    <Star size={16} /> 
-                    <span>{content.badges?.support || 'Elite Support'}</span>
-                </div>
-            </div>
-        </footer>
+            </footer>
+        </Safeguard>
     );
 };
 

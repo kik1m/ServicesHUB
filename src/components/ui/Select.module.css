@@ -6,6 +6,10 @@
     gap: 10px; /* Unified gap */
 }
 
+.selectContainerActive {
+    z-index: 9999;
+}
+
 .label {
     display: block;
     font-size: 0.8rem;
@@ -65,6 +69,17 @@
 .placeholder {
     color: var(--text-muted);
     font-weight: 400;
+}
+
+.chevron {
+    transform: rotate(0);
+    transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    color: var(--text-muted);
+}
+
+.chevronOpen {
+    transform: rotate(180deg);
+    color: var(--secondary);
 }
 
 .multiValueBox {

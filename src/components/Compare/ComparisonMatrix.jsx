@@ -143,14 +143,14 @@ const ComparisonMatrix = ({ tool1, tool2, isLoading, error, onRetry, results, co
                             <div className={styles.featureLabel}>{features?.rating}</div>
                             <div className={styles.checkContainer}>
                                 <div className={styles.ratingCell}>
-                                    <Star size={16} fill="var(--warning)" color="var(--warning)" />
-                                    <span>{tool1?.average_rating?.toFixed(1) || '5.0'}</span>
+                                    <Star size={16} color="var(--warning)" fill={tool1?.reviews_count > 0 ? "var(--warning)" : "transparent"} />
+                                    <span>{tool1?.reviews_count > 0 ? tool1?.rating?.toFixed(1) : '0.0'}</span>
                                 </div>
                             </div>
                             <div className={styles.checkContainer}>
                                 <div className={styles.ratingCell}>
-                                    <Star size={16} fill="var(--warning)" color="var(--warning)" />
-                                    <span>{tool2?.average_rating?.toFixed(1) || '5.0'}</span>
+                                    <Star size={16} color="var(--warning)" fill={tool2?.reviews_count > 0 ? "var(--warning)" : "transparent"} />
+                                    <span>{tool2?.reviews_count > 0 ? tool2?.rating?.toFixed(1) : '0.0'}</span>
                                 </div>
                             </div>
                         </div>

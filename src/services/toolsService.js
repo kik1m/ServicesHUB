@@ -227,11 +227,11 @@ export const toolsService = {
 
         // ⚡ 4. Sorting Logic (Elite Unified Sorting)
         if (sortBy === 'newest') {
-            query = query.order('is_featured', { ascending: false }).order('created_at', { ascending: false });
+            query = query.order('created_at', { ascending: false });
         } else if (sortBy === 'rating' || sortBy === 'top_rated') {
-            query = query.order('is_featured', { ascending: false }).order('rating', { ascending: false });
+            query = query.order('rating', { ascending: false }).order('reviews_count', { ascending: false });
         } else if (sortBy === 'popular') {
-            query = query.order('is_featured', { ascending: false }).order('view_count', { ascending: false });
+            query = query.order('view_count', { ascending: false }).order('click_count', { ascending: false });
         } else if (sortBy === 'alphabetical') {
             query = query.order('name', { ascending: true });
         } else if (sortBy === 'featured') {

@@ -20,6 +20,7 @@ import AdminUserManager from '../components/Admin/AdminUserManager';
 import AdminSidebar from '../components/Admin/AdminSidebar';
 import AdminReviewModal from '../components/Admin/AdminReviewModal';
 import AdminToolManager from '../components/Admin/AdminToolManager';
+import AdminAIManager from '../components/Admin/AdminAIManager'; // [NEW] AI Manager
 
 // Styles
 import styles from './AdminDashboard.module.css';
@@ -49,6 +50,9 @@ const AdminDashboard = () => {
     useSEO({ pageKey: 'admin' });
 
     const TAB_RESOURCES = useMemo(() => ({
+        'ai-manager': (
+            <AdminAIManager activeTab={activeTab} />
+        ),
         pending: (
             <AdminQueue 
                 activeTab={activeTab}

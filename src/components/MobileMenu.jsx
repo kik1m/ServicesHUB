@@ -2,6 +2,7 @@ import React from 'react';
 import { createPortal } from 'react-dom';
 import { Link } from 'react-router-dom';
 import { X, LogOut } from 'lucide-react';
+import Logo from './Logo';
 import { MOBILE_GROUPS, NAV_LABELS } from '../constants/navbarConstants';
 import styles from './MobileMenu.module.css';
 
@@ -22,12 +23,7 @@ const MobileMenu = ({ isOpen, onClose, user, handleLogout }) => {
             {/* Sidebar */}
             <aside className={`${styles.sidebar} ${isOpen ? styles.active : ''}`}>
                 <div className={styles.header}>
-                    <Link to="/" onClick={onClose} className={styles.logoLink}>
-                        <img src="/logo.png" alt="Logo" style={{ height: '34px' }} />
-                        <div style={{ fontWeight: '900', fontSize: '1.2rem', display: 'flex', color: '#fff' }}>
-                            HUB<span style={{ background: 'var(--gradient)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>ly</span>
-                        </div>
-                    </Link>
+                    <Logo size={34} onClick={onClose} className={styles.logoLink} />
                     <button onClick={onClose} className={styles.closeBtn}>
                         <X size={22} />
                     </button>

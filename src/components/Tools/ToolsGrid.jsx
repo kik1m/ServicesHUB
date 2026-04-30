@@ -10,32 +10,34 @@ import styles from './ToolsGrid.module.css';
  * Rule #29: Pure Rendering with Safeguard Protection
  * Rule #11: Infinite Scroll implementation
  */
-const ToolsGrid = memo(({ 
-    tools, 
-    isLoading, 
-    loadingMore, 
-    hasMore, 
+const ToolsGrid = memo(({
+    tools,
+    isLoading,
+    loadingMore,
+    hasMore,
     setPage,
     refresh,
-    emptyMessage
+    emptyMessage,
+    error,
+    onRetry
 }) => {
     const observer = useRef();
-    
+
     const lastElementRef = useCallback(node => {
         if (isLoading || loadingMore) return;
         if (observer.current) observer.current.disconnect();
-        
+
         observer.current = new IntersectionObserver(entries => {
             if (entries[0].isIntersecting && hasMore) {
                 setPage(prev => prev + 1);
             }
         });
-        
+
         if (node) observer.current.observe(node);
     }, [isLoading, loadingMore, hasMore, setPage]);
 
     // 1. Initial Loading State (Skeleton)
-    if (isLoading && tools.length === 0) {
+    if (isLoading && (!tools || tools.length === 0)) {
         return (
             <div className={styles.gridWrapper}>
                 <div className={styles.resultsGrid}>
@@ -48,7 +50,7 @@ const ToolsGrid = memo(({
     }
 
     // 2. Empty State Handling
-    if (tools.length === 0 && !isLoading) {
+    if ((!tools || tools.length === 0) && !isLoading) {
         return (
             <div className={styles.emptyState}>
                 <SearchX size={48} strokeWidth={1.5} className={styles.emptyIcon} />
@@ -62,11 +64,11 @@ const ToolsGrid = memo(({
     }
 
     return (
-        <Safeguard>
+        <Safeguard error={error} onRetry={onRetry}>
             <div className={styles.gridWrapper}>
                 <div className={styles.resultsGrid}>
-                    {tools.map(tool => (
-                        <ToolCard key={tool.id || tool.slug} tool={tool} />
+                    {tools?.map(tool => (
+                        <ToolCard key={tool?.id || tool?.slug} tool={tool} />
                     ))}
                 </div>
 

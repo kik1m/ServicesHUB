@@ -37,16 +37,16 @@ const SearchSidebar = memo((props) => {
                 {/* 1. Header */}
                 <div className={styles.sidebarFilterHeader}>
                     <Filter size={18} />
-                    <h3>{content.title}</h3>
+                    <h3>{content?.title}</h3>
                 </div>
 
                 {/* 2. Categories Section */}
                 <div className={styles.filterGroup}>
-                    <span className={styles.filterLabel}>{content.categories.title}</span>
+                    <span className={styles.filterLabel}>{content?.categories?.title}</span>
                     
                     <div className={styles.categorySearchWrapper}>
                         <Input 
-                            placeholder={content.categories.searchPlaceholder}
+                            placeholder={content?.categories?.searchPlaceholder}
                             icon={SearchIcon}
                             value={catSearchQuery}
                             onChange={(e) => setCatSearchQuery(e.target.value)}
@@ -95,7 +95,7 @@ const SearchSidebar = memo((props) => {
 
                 {/* 3. Pricing Section */}
                 <div className={styles.filterGroup}>
-                    <span className={styles.filterLabel}>{content.pricing.title}</span>
+                    <span className={styles.filterLabel}>{content?.pricing?.title}</span>
                     <div className={styles.pricingFilterChips}>
                         {isLoading ? (
                             Array.from({ length: 4 }).map((_, i) => (

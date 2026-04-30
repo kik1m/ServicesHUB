@@ -5,6 +5,7 @@ import Button from '../ui/Button';
 import SmartImage from '../ui/SmartImage';
 import Input from '../ui/Input';
 import Select from '../ui/Select';
+import Safeguard from '../ui/Safeguard';
 import styles from './AdminReviewModal.module.css';
 import { ADMIN_UI_CONSTANTS } from '../../constants/adminConstants';
 

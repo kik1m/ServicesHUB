@@ -4,10 +4,11 @@ import ToolCard from '../ToolCard';
 import Button from '../ui/Button';
 import Skeleton from '../ui/Skeleton';
 import EmptyState from '../ui/EmptyState';
+import Safeguard from '../ui/Safeguard';
 import { SKELETON_COUNTS } from '../../constants/toolDetailConstants';
 import styles from './ToolDetailRelated.module.css';
 
-const ToolDetailRelated = ({ relatedTools, isLoading, content }) => {
+const ToolDetailRelated = ({ relatedTools, isLoading, error, onRetry, content }) => {
     // Rule #11 & #4: Component-Owned Skeletons
     if (isLoading) {
         return (
@@ -24,37 +25,31 @@ const ToolDetailRelated = ({ relatedTools, isLoading, content }) => {
         );
     }
 
-    // Rule #31: Empty State Handling
-    if (!relatedTools || relatedTools.length === 0) {
-        return (
+    return (
+        <Safeguard error={error} onRetry={onRetry}>
             <div className={styles.relatedSection}>
                 <div className={styles.sectionHeader}>
                     <h2 className={styles.sectionTitle}>
-                        {content.related.title} <span className={styles.highlight}>{content.related.highlight}</span>
+                        {content?.related?.title} <span className={styles.highlight}>{content?.related?.highlight}</span>
                     </h2>
+                    {relatedTools?.length > 0 && (
+                        <Button as={Link} to="/tools" variant="text">Browse Directory</Button>
+                    )}
                 </div>
-                <EmptyState 
-                    message={content.related.empty}
-                    description={content.related.desc}
-                />
+                {(!relatedTools || relatedTools.length === 0) ? (
+                    <EmptyState 
+                        message={content?.related?.empty}
+                        description={content?.related?.desc}
+                    />
+                ) : (
+                    <div className={styles.toolsGrid}>
+                        {relatedTools.map(rTool => (
+                            <ToolCard key={rTool?.id || rTool?.slug} tool={rTool} />
+                        ))}
+                    </div>
+                )}
             </div>
-        );
-    }
-
-    return (
-        <div className={styles.relatedSection}>
-            <div className={styles.sectionHeader}>
-                <h2 className={styles.sectionTitle}>
-                    {content.related.title} <span className={styles.highlight}>{content.related.highlight}</span>
-                </h2>
-                <Button as={Link} to="/tools" variant="text">Browse Directory</Button>
-            </div>
-            <div className={styles.toolsGrid}>
-                {relatedTools.map(rTool => (
-                    <ToolCard key={rTool.id || rTool.slug} tool={rTool} />
-                ))}
-            </div>
-        </div>
+        </Safeguard>
     );
 };
 

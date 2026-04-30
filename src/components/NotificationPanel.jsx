@@ -96,13 +96,13 @@ const NotificationPanel = ({ onClose, className = '' }) => {
 
             <div className={styles.list}>
                 {loading ? (
-                    <div style={{ textAlign: 'center', padding: '1rem' }}>
+                    <div className={styles.loaderWrapper}>
                         <Loader2 className="animate-spin" size={24} color="var(--primary)" />
                     </div>
                 ) : notifications.length > 0 ? (
                     notifications.map(notif => (
                         <div key={notif.id} className={styles.item}>
-                            <div style={{ marginTop: '3px' }}>{getIcon(notif.type)}</div>
+                            <div className={styles.iconWrapper}>{getIcon(notif.type)}</div>
                             <div className={styles.itemContent}>
                                 <h4>{notif.title}</h4>
                                 <p>{notif.message}</p>
@@ -121,7 +121,7 @@ const NotificationPanel = ({ onClose, className = '' }) => {
                         </div>
                     ))
                 ) : (
-                    <div style={{ textAlign: 'center', padding: '2rem 0', color: 'var(--text-muted)', fontSize: '0.9rem' }}>
+                    <div className={styles.emptyState}>
                         No new notifications
                     </div>
                 )}

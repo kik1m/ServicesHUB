@@ -99,3 +99,19 @@
     background: rgba(255, 255, 255, 0.1);
     border-radius: 10px;
 }
+
+.loaderWrapper {
+    text-align: center;
+    padding: 1rem;
+}
+
+.iconWrapper {
+    margin-top: 3px;
+}
+
+.emptyState {
+    text-align: center;
+    padding: 2rem 0;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}

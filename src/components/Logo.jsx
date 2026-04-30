@@ -12,14 +12,17 @@ const Logo = ({ size = 32, className = '', onClick }) => {
             to="/" 
             className={`${styles.logo} ${className}`} 
             onClick={onClick}
+            style={{ 
+                '--logo-size': `${size}px`, 
+                '--logo-font-size': `${size * 0.7}px` 
+            }}
         >
             <img 
                 src="/logo.png" 
                 alt="HUBly" 
                 className={styles.image}
-                style={{ height: `${size}px` }} 
             />
-            <div className={styles.text} style={{ fontSize: `${size * 0.7}px` }}>
+            <div className={styles.text}>
                 <span className={styles.white}>HUB</span>
                 <span className={styles.gradient}>ly</span>
             </div>

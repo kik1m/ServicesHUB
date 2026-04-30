@@ -2,6 +2,7 @@ import React from 'react';
 import { Save, ArrowRight, ArrowLeft } from 'lucide-react';
 import Button from '../ui/Button';
 import Skeleton from '../ui/Skeleton';
+import Safeguard from '../ui/Safeguard';
 import styles from './ToolFormActions.module.css';
 
 /**
@@ -17,7 +18,9 @@ const ToolFormActions = ({
     currentStep, 
     isLastStep, 
     isLoading,
-    content // New prop
+    error,
+    onRetry,
+    content 
 }) => {
     if (isLoading) {
         return (
@@ -36,40 +39,42 @@ const ToolFormActions = ({
     };
 
     return (
-        <div className={styles.formActionBar}>
-            <div className={styles.mainActions}>
-                {isLastStep ? (
-                    <Button 
-                        type="submit"
-                        isLoading={saving || uploading} 
-                        className={styles.premiumSubmitBtn}
-                        icon={Save}
-                        iconSize={20}
-                    >
-                        {labels.submit}
-                    </Button>
-                ) : (
-                    <Button 
-                        onClick={onNext}
-                        className={styles.premiumSubmitBtn}
-                        icon={ArrowRight}
-                        iconPosition="right"
-                        iconSize={20}
-                    >
-                        {labels.next} {currentStep + 1}
-                    </Button>
-                )}
-            </div>
+        <Safeguard error={error} onRetry={onRetry}>
+            <div className={styles.formActionBar}>
+                <div className={styles.mainActions}>
+                    {isLastStep ? (
+                        <Button 
+                            type="submit"
+                            isLoading={saving || uploading} 
+                            className={styles.premiumSubmitBtn}
+                            icon={Save}
+                            iconSize={20}
+                        >
+                            {labels?.submit}
+                        </Button>
+                    ) : (
+                        <Button 
+                            onClick={onNext}
+                            className={styles.premiumSubmitBtn}
+                            icon={ArrowRight}
+                            iconPosition="right"
+                            iconSize={20}
+                        >
+                            {labels?.next} {currentStep + 1}
+                        </Button>
+                    )}
+                </div>
 
-            <Button 
-                variant="ghost" 
-                onClick={onCancel} 
-                className={styles.premiumCancelBtn}
-                icon={currentStep > 1 ? ArrowLeft : null}
-            >
-                {currentStep > 1 ? labels.prev : labels.cancel}
-            </Button>
-        </div>
+                <Button 
+                    variant="ghost" 
+                    onClick={onCancel} 
+                    className={styles.premiumCancelBtn}
+                    icon={currentStep > 1 ? ArrowLeft : null}
+                >
+                    {currentStep > 1 ? labels?.prev : labels?.cancel}
+                </Button>
+            </div>
+        </Safeguard>
     );
 };
 

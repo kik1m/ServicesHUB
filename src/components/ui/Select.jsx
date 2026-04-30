@@ -134,7 +134,7 @@ const Select = ({
     };
 
     return (
-        <div className={styles.selectContainer} ref={dropdownRef} onKeyDown={handleKeyDown}>
+        <div className={`${styles.selectContainer} ${isOpen ? styles.selectContainerActive : ''}`} ref={dropdownRef} onKeyDown={handleKeyDown}>
             {label && <label className={styles.label}>{label}</label>}
             
             <div 
@@ -151,11 +151,7 @@ const Select = ({
                 </div>
                 <ChevronDown 
                     size={18} 
-                    style={{ 
-                        transform: isOpen ? 'rotate(180deg)' : 'rotate(0)', 
-                        transition: '0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                        color: isOpen ? 'var(--secondary)' : 'var(--text-muted)'
-                    }} 
+                    className={`${styles.chevron} ${isOpen ? styles.chevronOpen : ''}`}
                 />
             </div>
 
