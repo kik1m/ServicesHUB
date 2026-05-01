@@ -22,11 +22,6 @@ export default async function handler(req, res) {
     const { slug1, slug2 } = req.query;
     console.log(`[AI-API] Request received for: ${slug1} vs ${slug2}`);
 
-    if (!process.env.GEMINI_API_KEY) {
-        console.error("[AI-API] Error: GEMINI_API_KEY is not defined in environment variables.");
-        return res.status(500).json({ error: 'AI Configuration Error: Missing API Key.' });
-    }
-
     if (!slug1 || !slug2) {
         return res.status(400).json({ error: 'Both slug1 and slug2 are required.' });
     }
@@ -55,9 +50,9 @@ export default async function handler(req, res) {
         const idA = toolA.id;
         const idB = toolB.id;
 
-        // 2. Check if a comparison already exists in the cache table
+        // 2. Check DB cache FIRST — works regardless of API key availability
         // We check BOTH permutations to find manually saved comparisons regardless of order
-        const { data: cachedComparison, error: cacheError } = await supabase
+        const { data: cachedComparison } = await supabase
             .from('tool_comparisons')
             .select('tool1_id, tool2_id, ai_report_json')
             .or(`and(tool1_id.eq.${idA},tool2_id.eq.${idB}),and(tool1_id.eq.${idB},tool2_id.eq.${idA})`)
@@ -67,7 +62,7 @@ export default async function handler(req, res) {
             console.log(`⚡ Serving cached comparison for ${slug1} vs ${slug2}`);
             let report = cachedComparison.ai_report_json;
 
-            // If the cache was stored with toolB as tool1, we must swap the data to match the requested order
+            // Smart Swapper: If cache was stored in reverse order, flip to match request
             if (cachedComparison.tool1_id === idB) {
                 console.log(`🔄 Swapping JSON data to match requested order (${slug1} vs ${slug2})`);
                 
@@ -97,6 +92,14 @@ export default async function handler(req, res) {
             }
 
             return res.status(200).json({ data: report, source: 'cache' });
+        }
+
+        // 3. No cache found — check API key before attempting AI generation
+        if (!process.env.GEMINI_API_KEY) {
+            console.error("[AI-API] No cache found and GEMINI_API_KEY is missing. Cannot generate new comparison.");
+            return res.status(503).json({ 
+                error: 'AI generation is not available for this pair yet. Please check back later or contact support.' 
+            });
         }
 
         // 3. If no cache exists, Generate the Live Comparison using Gemini
