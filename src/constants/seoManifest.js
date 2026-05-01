@@ -12,12 +12,12 @@ export const SEO_CONFIG = {
         titleSuffix: " | HUBly - Elite Premium Directory",
         defaultDescription: "Discover, compare, and scale with the world's most innovative AI tools and SaaS solutions. Your gateway to productivity.",
         defaultKeywords: ["AI tools", "SaaS directory", "productivity tools", "machine learning", "software reviews", "premium resources"],
-        defaultImage: "/og-default.jpg",
+        defaultImage: "https://www.hubly-tools.com/android-chrome-512x512.png",
         twitterHandle: "@hubly_platform",
         organization: {
             name: "HUBly Platform",
-            url: "https://hubly.com",
-            logo: "https://hubly.com/logo.png"
+            url: "https://www.hubly-tools.com",
+            logo: "https://www.hubly-tools.com/android-chrome-512x512.png"
         }
     },
     pages: {

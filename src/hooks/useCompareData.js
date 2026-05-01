@@ -68,8 +68,15 @@ export const useCompareData = () => {
                 // Handle AI Result
                 if (resAi) {
                     if (!resAi.ok) {
-                        const errorText = await resAi.text();
-                        throw new Error(`AI API Error: ${resAi.status}`);
+                        let errMsg = `AI API Error: ${resAi.status}`;
+                        try {
+                            const errData = await resAi.json();
+                            if (errData.error) errMsg = errData.error;
+                        } catch(e) {
+                            const errorText = await resAi.text();
+                            if (errorText) errMsg = errorText;
+                        }
+                        throw new Error(errMsg);
                     }
                     const aiData = await resAi.json();
                     if (aiData.error) throw new Error(aiData.error);
