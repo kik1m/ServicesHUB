@@ -39,6 +39,38 @@ const ComparisonMatrix = ({ tool1, tool2, isLoading, isTool1Loading, isTool2Load
     const displayWinner = tool1IsWinner ? 1 : tool2IsWinner ? 2 : (score1 > score2 ? 1 : score1 < score2 ? 2 : 0);
     const isScoreFromAI = aiScore1 != null && aiScore2 != null;
 
+    // Fallback Matrix: Basic feature comparison when AI is unavailable or failing
+    const fallbackMatrix = React.useMemo(() => {
+        if (!tool1 || !tool2) return null;
+        
+        const f1 = tool1.features || [];
+        const f2 = tool2.features || [];
+        const uniqueTo1 = f1.filter(f => !f2.includes(f));
+        const uniqueTo2 = f2.filter(f => !f1.includes(f));
+        const shared = f1.filter(f => f2.includes(f));
+        
+        const combined = [...uniqueTo1.slice(0, 2), ...uniqueTo2.slice(0, 2), ...shared.slice(0, 1)];
+        while (combined.length < 5 && (f1.length > 0 || f2.length > 0)) {
+            const nextFeat = [...f1, ...f2].find(f => !combined.includes(f));
+            if (!nextFeat) break;
+            combined.push(nextFeat);
+        }
+
+        if (combined.length === 0) return null;
+
+        return combined.map(feat => {
+            const has1 = f1.includes(feat);
+            const has2 = f2.includes(feat);
+            return {
+                feature: feat,
+                tool1_value: has1 ? "Available" : "Not Supported",
+                tool2_value: has2 ? "Available" : "Not Supported",
+                winner: (has1 && !has2) ? 1 : (has2 && !has1) ? 2 : 0,
+                insight: "Standard Database Feature"
+            };
+        });
+    }, [tool1, tool2]);
+
     const LOADING_MESSAGES = [
         "AI Analyst is distilling strategic insights...",
         "Deep-scanning feature vectors for both tools...",
@@ -234,10 +266,27 @@ const ComparisonMatrix = ({ tool1, tool2, isLoading, isTool1Loading, isTool2Load
                                         </div>
                                     </div>
                                 ))
+                            ) : fallbackMatrix ? (
+                                fallbackMatrix.map((row, i) => (
+                                    <div key={i} className={styles.aiFeatureRow}>
+                                        <div className={styles.featureLabel}>
+                                            <div className={styles.aiLabelTitle}>{row.feature}</div>
+                                            <div className={styles.aiLabelInsight}>{row.insight}</div>
+                                        </div>
+                                        <div className={`${styles.checkContainer} ${row.winner === 1 ? styles.aiWinnerCell : ''}`}>
+                                            <div className={styles.aiValue}>{row.tool1_value}</div>
+                                            {row.winner === 1 && <ShieldCheck size={14} className={styles.winnerCheck} />}
+                                        </div>
+                                        <div className={`${styles.checkContainer} ${row.winner === 2 ? styles.aiWinnerCell : ''}`}>
+                                            <div className={styles.aiValue}>{row.tool2_value}</div>
+                                            {row.winner === 2 && <ShieldCheck size={14} className={styles.winnerCheck} />}
+                                        </div>
+                                    </div>
+                                ))
                             ) : (
                                 <div className={styles.noAiData}>
                                     <BrainCircuit size={36} className={styles.noAiIcon} />
-                                    <p>{aiError ? 'AI analysis unavailable for this pair.' : 'Select both tools to generate AI analysis.'}</p>
+                                    <p>Select both tools to generate analysis.</p>
                                 </div>
                             )}
                         </div>
