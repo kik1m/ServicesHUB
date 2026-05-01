@@ -70,7 +70,7 @@ const ToolCompareColumn = ({ tool, onClear, onSelect, isLoading, error, onRetry,
                                     className={styles.ratingIcon}
                                     fill={tool?.reviews_count > 0 ? "currentColor" : "transparent"} 
                                 />
-                                <span>{tool?.reviews_count > 0 ? tool?.rating?.toFixed(1) : '5.0'}</span>
+                                <span>{tool?.reviews_count > 0 ? tool?.rating?.toFixed(1) : '0.0'}</span>
                             </div>
 
                         </div>

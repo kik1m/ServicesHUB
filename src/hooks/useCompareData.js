@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { compareService } from '../services/compareService';
 
@@ -30,8 +30,16 @@ export const useCompareData = () => {
 
     // 🧠 Elite Parallel Hydration (V4)
     // Rule #17: Progressive Rendering - Fetch tools and AI in parallel if slugs exist
+    const prevT1Slug = useRef(null);
+    const prevT2Slug = useRef(null);
+
     useEffect(() => {
         const hydrateAll = async () => {
+            const t1Changed = t1Slug !== prevT1Slug.current;
+            const t2Changed = t2Slug !== prevT2Slug.current;
+
+            if (!t1Changed && !t2Changed) return; // Nothing to do
+
             if (!t1Slug && !t2Slug) {
                 setTool1(null);
                 setTool2(null);
@@ -39,38 +47,52 @@ export const useCompareData = () => {
                 setIsTool1Loading(false);
                 setIsTool2Loading(false);
                 setIsAiLoading(false);
+                prevT1Slug.current = null;
+                prevT2Slug.current = null;
                 return;
             }
 
             // Start all requests in parallel
-            const tool1Promise = t1Slug ? compareService.getToolBySlug(t1Slug) : Promise.resolve({ data: null });
-            const tool2Promise = t2Slug ? compareService.getToolBySlug(t2Slug) : Promise.resolve({ data: null });
+            const tool1Promise = (t1Slug && t1Changed) ? compareService.getToolBySlug(t1Slug) : Promise.resolve({ data: null });
+            const tool2Promise = (t2Slug && t2Changed) ? compareService.getToolBySlug(t2Slug) : Promise.resolve({ data: null });
             
             // Note: AI comparison needs slugs, but doesn't strictly need the hydrated tool objects yet
-            const aiPromise = (t1Slug && t2Slug) ? fetch(`/api/generate-comparison?slug1=${t1Slug}&slug2=${t2Slug}`) : Promise.resolve(null);
+            const aiPromise = (t1Slug && t2Slug && (t1Changed || t2Changed)) ? fetch(`/api/generate-comparison?slug1=${t1Slug}&slug2=${t2Slug}`) : Promise.resolve(null);
 
-            if (t1Slug) setIsTool1Loading(true);
-            if (t2Slug) setIsTool2Loading(true);
-            if (t1Slug && t2Slug) setIsAiLoading(true);
+            if (t1Slug && t1Changed) setIsTool1Loading(true);
+            if (t2Slug && t2Changed) setIsTool2Loading(true);
+            if (t1Slug && t2Slug && (t1Changed || t2Changed)) setIsAiLoading(true);
 
-        try {
+            try {
                 const [res1, res2] = await Promise.all([tool1Promise, tool2Promise]);
 
                 // Handle Tool 1
-                if (res1.data) setTool1(res1.data);
-                if (res1.error) throw res1.error;
+                if (t1Slug) {
+                    if (t1Changed) {
+                        if (res1.error) throw res1.error;
+                        if (res1.data) setTool1(res1.data);
+                    }
+                } else {
+                    setTool1(null);
+                }
 
                 // Handle Tool 2
-                if (res2.data) setTool2(res2.data);
-                if (res2.error) throw res2.error;
+                if (t2Slug) {
+                    if (t2Changed) {
+                        if (res2.error) throw res2.error;
+                        if (res2.data) setTool2(res2.data);
+                    }
+                } else {
+                    setTool2(null);
+                }
 
                 setError(null);
             } catch (err) {
                 console.error("Tool Hydration Error:", err);
                 setError(err.message || "Failed to load tool data");
             } finally {
-                setIsTool1Loading(false);
-                setIsTool2Loading(false);
+                if (t1Changed) setIsTool1Loading(false);
+                if (t2Changed) setIsTool2Loading(false);
             }
 
             // Handle AI Result independently so tool errors don't block it and vice versa
@@ -81,11 +103,15 @@ export const useCompareData = () => {
                         if (!resAi.ok) {
                             let errMsg = `AI API Error: ${resAi.status}`;
                             try {
-                                const errData = await resAi.json();
-                                if (errData.error) errMsg = errData.error;
-                            } catch(e) {
-                                const errorText = await resAi.text();
-                                if (errorText) errMsg = errorText;
+                                const text = await resAi.text();
+                                try {
+                                    const errData = JSON.parse(text);
+                                    if (errData.error) errMsg = errData.error;
+                                } catch {
+                                    if (text) errMsg = text;
+                                }
+                            } catch {
+                                // fallback to default status error if text extraction fails
                             }
                             setAiError(errMsg);
                         } else {
@@ -108,8 +134,14 @@ export const useCompareData = () => {
                     setIsAiLoading(false);
                 }
             } else {
+                setAiResults(null);
+                setAiError(null);
                 setIsAiLoading(false);
             }
+
+            // Update refs after successful run
+            prevT1Slug.current = t1Slug;
+            prevT2Slug.current = t2Slug;
         };
 
         hydrateAll();

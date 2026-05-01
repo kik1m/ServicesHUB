@@ -69,40 +69,39 @@ export default async function handler(req, res) {
                 console.log(`⚡ Serving cached comparison for ${slug1} vs ${slug2}`);
                 
                 // Smart Swapper: If cache was stored in reverse order, flip to match request
-            if (cachedComparison.tool1_id === idB) {
-                console.log(`🔄 Swapping JSON data to match requested order (${slug1} vs ${slug2})`);
-                
-                const newWhyBuy = {
-                    tool1: report.why_buy?.tool2 || [],
-                    tool2: report.why_buy?.tool1 || []
-                };
-
-                const newMatrix = (report.comparison_matrix || []).map(row => {
-                    let newWinner = row.winner;
-                    if (row.winner === 1) newWinner = 2;
-                    else if (row.winner === 2) newWinner = 1;
-
-                    return {
-                        ...row,
-                        tool1_value: row.tool2_value,
-                        tool2_value: row.tool1_value,
-                        winner: newWinner
+                if (cachedComparison.tool1_id === idB) {
+                    console.log(`🔄 Swapping JSON data to match requested order (${slug1} vs ${slug2})`);
+                    
+                    const newWhyBuy = {
+                        tool1: report.why_buy?.tool2 || [],
+                        tool2: report.why_buy?.tool1 || []
                     };
-                });
 
-                // Swap scores too
-                const newScores = report.scores ? {
-                    tool1: report.scores.tool2,
-                    tool2: report.scores.tool1
-                } : undefined;
+                    const newMatrix = (report.comparison_matrix || []).map(row => {
+                        let newWinner = row.winner;
+                        if (row.winner === 1) newWinner = 2;
+                        else if (row.winner === 2) newWinner = 1;
 
-                report = {
-                    ...report,
-                    why_buy: newWhyBuy,
-                    comparison_matrix: newMatrix,
-                    ...(newScores && { scores: newScores })
-                };
-            }
+                        return {
+                            ...row,
+                            tool1_value: row.tool2_value,
+                            tool2_value: row.tool1_value,
+                            winner: newWinner
+                        };
+                    });
+
+                    // Swap scores too
+                    const newScores = report.scores ? {
+                        tool1: report.scores.tool2,
+                        tool2: report.scores.tool1
+                    } : undefined;
+
+                    report = {
+                        ...report,
+                        why_buy: newWhyBuy,
+                        comparison_matrix: newMatrix,
+                        ...(newScores && { scores: newScores })
+                    };
                 }
 
                 return res.status(200).json({ data: report, source: 'cache' });
