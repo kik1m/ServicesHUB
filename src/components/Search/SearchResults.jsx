@@ -69,8 +69,12 @@ const SearchResults = (props) => {
 
                 <div className={props.mode === 'lite' ? styles.resultsGridLite : styles.resultsGrid}>
                     {safeResults.length > 0 ? (
-                        safeResults.map(tool => (
-                            <ToolCard key={tool.id || tool.slug} tool={tool} onClickOverride={onToolClick} />
+                        safeResults.map((tool, index) => (
+                            <ToolCard 
+                                key={`${tool.id || tool.slug}-${index}`} 
+                                tool={tool} 
+                                onClickOverride={onToolClick} 
+                            />
                         ))
                     ) : isInitialLoad ? (
                         Array.from({ length: SKELETON_COUNTS.RESULTS_GRID }).map((_, i) => (

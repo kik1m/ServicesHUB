@@ -10,13 +10,13 @@ import { SCORING_WEIGHTS, REVIEWS_THRESHOLDS, PRICING_MULTIPLIERS } from '../con
  */
 export const useCompareData = () => {
     const [searchParams, setSearchParams] = useSearchParams();
-    
+
     const t1Slug = searchParams.get('t1');
     const t2Slug = searchParams.get('t2');
 
     const [tool1, setTool1] = useState(null);
     const [tool2, setTool2] = useState(null);
-    
+
     // UI Loading states independent of search modal
     const [isTool1Loading, setIsTool1Loading] = useState(!!t1Slug);
     const [isTool2Loading, setIsTool2Loading] = useState(!!t2Slug);
@@ -24,56 +24,79 @@ export const useCompareData = () => {
     const [isSelectingFor, setIsSelectingFor] = useState(null); // 'tool1' | 'tool2'
     const [error, setError] = useState(null);
 
-    // Rule #34: Hydrate tool slots from URL dynamically
-    useEffect(() => {
-        const hydrateTool1 = async () => {
-            if (!t1Slug) {
-                setTool1(null);
-                setIsTool1Loading(false);
-                return;
-            }
-            if (tool1?.slug === t1Slug) return;
-            
-            setIsTool1Loading(true);
-            try {
-                const { data, error: fetchError } = await compareService.getToolBySlug(t1Slug);
-                if (fetchError) throw fetchError;
-                setTool1(data);
-                setError(null);
-            } catch (err) {
-                console.error("Hydration Error Slot 1:", err);
-                setError(err.message || "Failed to load tool");
-            } finally {
-                setIsTool1Loading(false);
-            }
-        };
-        hydrateTool1();
-    }, [t1Slug, tool1?.slug]);
+    // AI Dynamic Results State
+    const [aiResults, setAiResults] = useState(null);
+    const [isAiLoading, setIsAiLoading] = useState(false);
+    const [aiError, setAiError] = useState(null);
 
+    // 🧠 Elite Parallel Hydration (V4)
+    // Rule #17: Progressive Rendering - Fetch tools and AI in parallel if slugs exist
     useEffect(() => {
-        const hydrateTool2 = async () => {
-            if (!t2Slug) {
+        const hydrateAll = async () => {
+            if (!t1Slug && !t2Slug) {
+                setTool1(null);
                 setTool2(null);
+                setAiResults(null);
+                setIsTool1Loading(false);
                 setIsTool2Loading(false);
+                setIsAiLoading(false);
                 return;
             }
-            if (tool2?.slug === t2Slug) return;
+
+            // Start all requests in parallel
+            const tool1Promise = t1Slug ? compareService.getToolBySlug(t1Slug) : Promise.resolve({ data: null });
+            const tool2Promise = t2Slug ? compareService.getToolBySlug(t2Slug) : Promise.resolve({ data: null });
             
-            setIsTool2Loading(true);
+            // Note: AI comparison needs slugs, but doesn't strictly need the hydrated tool objects yet
+            const aiPromise = (t1Slug && t2Slug) ? fetch(`/api/generate-comparison?slug1=${t1Slug}&slug2=${t2Slug}`) : Promise.resolve(null);
+
+            if (t1Slug) setIsTool1Loading(true);
+            if (t2Slug) setIsTool2Loading(true);
+            if (t1Slug && t2Slug) setIsAiLoading(true);
+
             try {
-                const { data, error: fetchError } = await compareService.getToolBySlug(t2Slug);
-                if (fetchError) throw fetchError;
-                setTool2(data);
+                const [res1, res2, resAi] = await Promise.all([tool1Promise, tool2Promise, aiPromise]);
+
+                // Handle Tool 1
+                if (res1.data) setTool1(res1.data);
+                if (res1.error) throw res1.error;
+
+                // Handle Tool 2
+                if (res2.data) setTool2(res2.data);
+                if (res2.error) throw res2.error;
+
+                // Handle AI Result
+                if (resAi) {
+                    if (!resAi.ok) {
+                        const errorText = await resAi.text();
+                        throw new Error(`AI API Error: ${resAi.status}`);
+                    }
+                    const aiData = await resAi.json();
+                    if (aiData.error) throw new Error(aiData.error);
+                    
+                    setAiResults({
+                        ...aiData.data,
+                        tool1_id: res1.data?.id,
+                        tool2_id: res2.data?.id,
+                        source: aiData.source
+                    });
+                }
+                
                 setError(null);
             } catch (err) {
-                console.error("Hydration Error Slot 2:", err);
-                setError(err.message || "Failed to load tool");
+                console.error("Parallel Hydration Error:", err);
+                setError(err.message || "Failed to load comparison data");
+                setAiError(err.message);
             } finally {
+                setIsTool1Loading(false);
                 setIsTool2Loading(false);
+                setIsAiLoading(false);
             }
         };
-        hydrateTool2();
-    }, [t2Slug, tool2?.slug]);
+
+        hydrateAll();
+    }, [t1Slug, t2Slug]);
+
 
     // Rule #116: Logic Isolation - Comparison Calculation Engine
     const comparisonResults = useMemo(() => {
@@ -81,7 +104,7 @@ export const useCompareData = () => {
 
         const featuresA = tool1.features || [];
         const featuresB = tool2.features || [];
-        
+
         const uniqueToA = featuresA.filter(f => !featuresB.includes(f));
         const uniqueToB = featuresB.filter(f => !featuresA.includes(f));
         const sharedFeatures = featuresA.filter(f => featuresB.includes(f));
@@ -95,14 +118,47 @@ export const useCompareData = () => {
         const reviewsWinner = reviews1 > reviews2 ? 1 : reviews1 < reviews2 ? 2 : 0;
 
         const getPricingFactor = (tool) => {
+            const details = tool.pricing_details || '';
             const type = tool.pricing_type?.toLowerCase() || '';
+            
+            // 🧠 Elite Parsing Engine (V2)
+            // 1. Try to parse numeric price (supports $20, 20$, .01, etc.)
+            const priceMatch = details.match(/(?:\$|£|€)?\s*(\d+(?:\.\d+)?)\s*(?:\$|£|€)?/);
+            
+            if (priceMatch) {
+                const price = parseFloat(priceMatch[1]);
+                const lowDetails = details.toLowerCase();
+
+                // Logic A: Monthly subscription
+                if (lowDetails.includes('/mo') || lowDetails.includes('per month') || lowDetails.includes('monthly')) {
+                    return price * 12;
+                }
+                
+                // Logic B: Usage-based (e.g. .01 per min)
+                // We assume a "Standard Professional Usage" of 500 mins/year for TCO estimation
+                if (lowDetails.includes('per min') || lowDetails.includes('/min')) {
+                    return Math.max(price * 500 * 12, PRICING_MULTIPLIERS.DEFAULT); 
+                }
+
+                // Logic C: Small numbers usually imply usage/per-unit
+                if (price < 1 && price > 0) {
+                    return PRICING_MULTIPLIERS.DEFAULT;
+                }
+
+                return price; // Assume yearly if it's a large number
+            }
+
+            // 2. Fallback to intelligent multipliers
             if (type.includes('free') && !type.includes('mium')) return PRICING_MULTIPLIERS.FREE;
             if (type.includes('open source')) return PRICING_MULTIPLIERS.OPEN_SOURCE;
             if (type.includes('freemium')) return PRICING_MULTIPLIERS.FREEMIUM;
             if (type.includes('paid') || type.includes('premium')) return PRICING_MULTIPLIERS.PAID;
             if (type.includes('enterprise')) return PRICING_MULTIPLIERS.ENTERPRISE;
-            return PRICING_MULTIPLIERS.DEFAULT; 
+            
+            return PRICING_MULTIPLIERS.DEFAULT;
         };
+
+
 
         const factor1 = getPricingFactor(tool1);
         const factor2 = getPricingFactor(tool2);
@@ -196,6 +252,9 @@ export const useCompareData = () => {
         openSelector,
         closeSelector,
         error,
-        results: comparisonResults
+        results: comparisonResults,
+        aiResults,
+        isAiLoading,
+        aiError
     };
 };

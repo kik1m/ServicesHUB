@@ -48,10 +48,44 @@ const ToolDetailInfo = ({ tool, isLoading, error, onRetry, content }) => {
                     <h3 className={styles.sectionSubtitle}>
                         {content?.tabs?.overview} <span className={styles.highlight}>{tool?.name || content?.tabs?.thisTool}</span>
                     </h3>
-                    <p className={styles.sectionText}>
-                        {tool?.description || tool?.short_description || content?.tabs?.defaultDesc}
-                    </p>
+                    {(tool?.description || tool?.short_description || content?.tabs?.defaultDesc)
+                        .split('\n\n')
+                        .map((section, i) => {
+                            // Extract title and content using tags
+                            const titleMatch = section.match(/\[TITLE\](.*?)\[CONTENT\]/s);
+                            const contentMatch = section.split('[CONTENT]')[1];
+
+                            const title = titleMatch ? titleMatch[1].trim() : null;
+                            const contentText = contentMatch ? contentMatch.trim() : section.replace(/\[TITLE\]|\[CONTENT\]/g, '').trim();
+
+                            return (
+                                <div key={`desc-section-${i}`} className={styles.descriptionSection}>
+                                    {title ? (
+                                        <>
+                                            <h4 className={styles.sectionEntryTitle}>{title}</h4>
+                                            <p className={styles.sectionText}>{contentText}</p>
+                                        </>
+                                    ) : (
+                                        <p className={styles.sectionText}>{contentText}</p>
+                                    )}
+                                </div>
+                            );
+                        })}
                 </div>
+                
+                {tool?.use_cases?.length > 0 && (
+                    <div className={styles.detailSection}>
+                        <h3 className={styles.sectionSubtitle}>Best For / Use Cases</h3>
+                        <div className={styles.useCasesGrid}>
+                            {tool.use_cases.map((useCase, i) => (
+                                <div key={`usecase-${i}`} className={styles.useCaseTag}>
+                                    <span className={styles.useCaseBullet}>•</span>
+                                    {useCase}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
 
                 {safeFeatures.length > 0 && (
                     <div className={styles.detailSection}>

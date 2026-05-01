@@ -43,190 +43,196 @@ const PageLoader = () => (
 );
 
 const AuthSkeleton = () => (
-    <div style={{ minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
-        <div style={{ 
-            width: '100%', 
-            maxWidth: '450px', 
-            padding: '2.5rem', 
-            background: 'var(--card-bg)', 
-            borderRadius: '24px',
-            border: '1px solid var(--border)',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '20px'
-        }}>
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '15px', marginBottom: '1rem' }}>
-                <div style={{ width: '60px', height: '60px', borderRadius: '15px', background: 'var(--skeleton-bg)', animation: 'pulse 1.5s infinite ease-in-out' }} />
-                <div style={{ width: '150px', height: '24px', borderRadius: '100px', background: 'var(--skeleton-bg)', animation: 'pulse 1.5s infinite ease-in-out' }} />
-            </div>
-            <div style={{ height: '76px', borderRadius: '14px', background: 'var(--skeleton-bg)', animation: 'pulse 1.5s infinite ease-in-out' }} />
-            <div style={{ height: '76px', borderRadius: '14px', background: 'var(--skeleton-bg)', animation: 'pulse 1.5s infinite ease-in-out' }} />
-            <div style={{ height: '54px', borderRadius: '12px', background: 'var(--skeleton-bg)', animation: 'pulse 1.5s infinite ease-in-out', marginTop: '10px' }} />
-        </div>
+  <div style={{ minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
+    <div style={{
+      width: '100%',
+      maxWidth: '450px',
+      padding: '2.5rem',
+      background: 'var(--card-bg)',
+      borderRadius: '24px',
+      border: '1px solid var(--border)',
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '20px'
+    }}>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '15px', marginBottom: '1rem' }}>
+        <div style={{ width: '60px', height: '60px', borderRadius: '15px', background: 'var(--skeleton-bg)', animation: 'pulse 1.5s infinite ease-in-out' }} />
+        <div style={{ width: '150px', height: '24px', borderRadius: '100px', background: 'var(--skeleton-bg)', animation: 'pulse 1.5s infinite ease-in-out' }} />
+      </div>
+      <div style={{ height: '76px', borderRadius: '14px', background: 'var(--skeleton-bg)', animation: 'pulse 1.5s infinite ease-in-out' }} />
+      <div style={{ height: '76px', borderRadius: '14px', background: 'var(--skeleton-bg)', animation: 'pulse 1.5s infinite ease-in-out' }} />
+      <div style={{ height: '54px', borderRadius: '12px', background: 'var(--skeleton-bg)', animation: 'pulse 1.5s infinite ease-in-out', marginTop: '10px' }} />
     </div>
+  </div>
 );
 
 function App() {
+  const [isMounted, setIsMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   return (
     <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-      <div className="app-container">
+      <div className={`app-container ${isMounted ? 'is-ready' : ''}`}>
         <ScrollToTop />
         <Navbar />
         <main className="content">
-          <Suspense fallback={<PageLoader />}>
+          <Suspense fallback={null}>
             <Routes>
               {/* Core Exploration Routes (Silent Load) */}
               <Route path="/" element={
                 <Suspense fallback={null}>
-                    <Home />
+                  <Home />
                 </Suspense>
               } />
               <Route path="/search" element={
                 <Suspense fallback={null}>
-                    <Search />
+                  <Search />
                 </Suspense>
               } />
               <Route path="/categories" element={
                 <Suspense fallback={null}>
-                    <Categories />
+                  <Categories />
                 </Suspense>
               } />
               <Route path="/category/:id" element={
                 <Suspense fallback={null}>
-                    <CategoryDetail />
+                  <CategoryDetail />
                 </Suspense>
               } />
               <Route path="/tool/:id" element={
                 <Suspense fallback={null}>
-                    <ToolDetail />
+                  <ToolDetail />
                 </Suspense>
               } />
-              
+
               {/* Profile Routes (Silent Load) */}
               <Route path="/profile" element={
                 <Suspense fallback={null}>
-                    <Profile />
+                  <Profile />
                 </Suspense>
               } />
               <Route path="/profile/:id" element={
                 <Suspense fallback={null}>
-                    <PublicProfile />
+                  <PublicProfile />
                 </Suspense>
               } />
               <Route path="/u/:id" element={
                 <Suspense fallback={null}>
-                    <PublicProfile />
+                  <PublicProfile />
                 </Suspense>
               } />
 
               {/* Auth Routes (Custom Skeletons) */}
               <Route path="/auth" element={
                 <Suspense fallback={<AuthSkeleton />}>
-                    <Auth />
+                  <Auth />
                 </Suspense>
               } />
               <Route path="/reset-password" element={
                 <Suspense fallback={<AuthSkeleton />}>
-                    <ResetPassword />
+                  <ResetPassword />
                 </Suspense>
               } />
 
               {/* Functional Routes */}
               <Route path="/dashboard" element={
                 <Suspense fallback={null}>
-                    <Dashboard />
+                  <Dashboard />
                 </Suspense>
               } />
               <Route path="/settings" element={
                 <Suspense fallback={null}>
-                    <Settings />
+                  <Settings />
                 </Suspense>
               } />
               <Route path="/submit" element={
                 <Suspense fallback={null}>
-                    <SubmitTool />
+                  <SubmitTool />
                 </Suspense>
               } />
               <Route path="/edit-tool/:id" element={
                 <Suspense fallback={null}>
-                    <EditTool />
+                  <EditTool />
                 </Suspense>
               } />
 
               {/* Secondary/Static Routes */}
               <Route path="/tools" element={
                 <Suspense fallback={null}>
-                    <Tools />
+                  <Tools />
                 </Suspense>
               } />
               <Route path="/about" element={
                 <Suspense fallback={null}>
-                    <About />
+                  <About />
                 </Suspense>
               } />
               <Route path="/contact" element={
                 <Suspense fallback={null}>
-                    <Contact />
+                  <Contact />
                 </Suspense>
               } />
               <Route path="/blog" element={
                 <Suspense fallback={null}>
-                    <Blog />
+                  <Blog />
                 </Suspense>
               } />
               <Route path="/blog/:id" element={
                 <Suspense fallback={null}>
-                    <BlogPost />
+                  <BlogPost />
                 </Suspense>
               } />
               <Route path="/faq" element={
                 <Suspense fallback={null}>
-                    <FAQ />
+                  <FAQ />
                 </Suspense>
               } />
               <Route path="/terms" element={
                 <Suspense fallback={null}>
-                    <Terms />
+                  <Terms />
                 </Suspense>
               } />
               <Route path="/privacy" element={
                 <Suspense fallback={null}>
-                    <Privacy />
+                  <Privacy />
                 </Suspense>
               } />
               <Route path="/premium" element={
                 <Suspense fallback={null}>
-                    <Premium />
+                  <Premium />
                 </Suspense>
               } />
               <Route path="/promote" element={
                 <Suspense fallback={null}>
-                    <Promote />
+                  <Promote />
                 </Suspense>
               } />
               <Route path="/compare" element={
                 <Suspense fallback={null}>
-                    <Compare />
+                  <Compare />
                 </Suspense>
               } />
               <Route path="/notifications" element={
                 <Suspense fallback={null}>
-                    <Notifications />
+                  <Notifications />
                 </Suspense>
               } />
               <Route path="/admin" element={
                 <Suspense fallback={null}>
-                    <AdminDashboard />
+                  <AdminDashboard />
                 </Suspense>
               } />
               <Route path="/success" element={
                 <Suspense fallback={null}>
-                    <Success />
+                  <Success />
                 </Suspense>
               } />
               <Route path="*" element={
                 <Suspense fallback={null}>
-                    <NotFound />
+                  <NotFound />
                 </Suspense>
               } />
             </Routes>

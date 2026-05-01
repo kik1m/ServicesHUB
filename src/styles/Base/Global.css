@@ -80,8 +80,15 @@
 }
 
 @keyframes fadeInDown {
-  from { opacity: 0; transform: translateY(-10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .custom-option {
@@ -288,6 +295,13 @@
   padding-top: 68px;
 }
 
+.content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh; /* Force content area to be at least one full screen height */
+}
+
 /* Compact Card System */
 .compact-glass-card {
   padding: 1.2rem !important;
@@ -309,6 +323,7 @@
   0% {
     background-position: 200% 0;
   }
+
   100% {
     background-position: -200% 0;
   }
@@ -436,6 +451,7 @@ body {
 }
 
 @media (max-width: 768px) {
+
   /* General Layout & Typography */
   h1 {
     font-size: 2.2rem !important;
@@ -486,4 +502,10 @@ body {
     text-align: center;
     justify-content: center;
   }
+}
+/* ?? Elite Hydration Protection */
+.app-container:not(.is-ready) footer {
+    opacity: 0 !important;
+    pointer-events: none !important;
+    visibility: hidden !important;
 }

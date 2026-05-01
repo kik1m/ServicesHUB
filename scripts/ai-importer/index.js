@@ -40,13 +40,34 @@ async function runDailyImport(urlsToProcess = []) {
         console.log(`⏳ Processing: ${url}`);
         
         try {
-            // 1. Check if tool already exists
+            // 1. Check if tool already exists (Smart Check)
             let existingTool = null;
-            const { data: existingData } = await supabaseAdmin.from('tools').select('*').eq('url', url).maybeSingle();
+            const normalizedUrl = url.replace(/\/$/, ""); // Remove trailing slash
             
-            if (existingData) {
-                console.log(`⚠️ Tool exists. Preparing SEO Upgrade...`);
-                existingTool = existingData;
+            // Check by exact URL or Normalized URL
+            const { data: existingByUrl } = await supabaseAdmin
+                .from('tools')
+                .select('*')
+                .or(`url.eq.${url},url.eq.${normalizedUrl}`)
+                .maybeSingle();
+
+            if (existingByUrl) {
+                existingTool = existingByUrl;
+                console.log(`⚠️ Tool exists (URL Match). Preparing SEO Upgrade...`);
+            } else {
+                // Potential Name Match (We'll check after scraping/AI if needed, 
+                // but for now let's try a simple name-from-URL check)
+                const potentialName = url.split('.').slice(-2, -1)[0]; // e.g. 'runwayml' from 'https://runwayml.com'
+                const { data: existingByName } = await supabaseAdmin
+                    .from('tools')
+                    .select('*')
+                    .ilike('name', `%${potentialName}%`)
+                    .maybeSingle();
+                
+                if (existingByName) {
+                    existingTool = existingByName;
+                    console.log(`⚠️ Potential match found by Name: [${existingByName.name}]. Upgrading existing instead of adding.`);
+                }
             }
 
             // 2. Scrape
@@ -100,6 +121,11 @@ async function runDailyImport(urlsToProcess = []) {
                 reviews_count: existingTool?.reviews_count || 0,
                 rating: existingTool?.rating || 0
             };
+
+            // Rule #32: Defensive Column Injection (Only add use_cases if supported or defined)
+            if (toolData.use_cases) {
+                finalPayload.use_cases = toolData.use_cases;
+            }
 
             // 6. DB Action
             let data, error;

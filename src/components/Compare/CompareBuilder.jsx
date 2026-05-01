@@ -160,6 +160,17 @@ const CompareBuilder = ({ isSelectingFor, tool1, tool2, onSelect, onClose, onCle
                                 <Zap className={styles.wizardIcon} size={18} />
                                 <h2>{wizardTitle}</h2>
                             </div>
+                            
+                            <div className={styles.headerSearchWrapper}>
+                                <Input 
+                                    type="text" 
+                                    placeholder={isSelectingFor === 'tool1' ? COMPARE_UI_CONSTANTS?.wizard?.searchA : `${COMPARE_UI_CONSTANTS?.wizard?.searchB} ${tool1?.name || 'the selected tool'}...`}
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    className={styles.builderSearchInput}
+                                    autoFocus
+                                />
+                            </div>
                         </div>
                         
                         <Button 
@@ -167,19 +178,8 @@ const CompareBuilder = ({ isSelectingFor, tool1, tool2, onSelect, onClose, onCle
                             onClick={onClose} 
                             aria-label="Cancel Selection"
                             icon={X}
-                            iconSize={24}
+                            iconSize={20}
                             className={styles.closeBtn}
-                        />
-                    </div>
-
-                    <div className={styles.builderSearchRow}>
-                        <Input 
-                            type="text" 
-                            placeholder={isSelectingFor === 'tool1' ? COMPARE_UI_CONSTANTS?.wizard?.searchA : `${COMPARE_UI_CONSTANTS?.wizard?.searchB} ${tool1?.name || 'the selected tool'}...`}
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            className={styles.builderSearchInput}
-                            autoFocus
                         />
                     </div>
 

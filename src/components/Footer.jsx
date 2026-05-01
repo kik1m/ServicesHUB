@@ -27,6 +27,24 @@ const Footer = () => {
                 throw error;
             }
             showToast('Subscribed to the newsletter successfully!', 'success');
+            
+            // 🚀 Send Welcome Email via Resend API
+            try {
+                await fetch('/api/send-email', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        to: email,
+                        subject: 'Welcome to HUBly Tools! 🚀',
+                        type: 'welcome',
+                        data: { name: email.split('@')[0] }
+                    })
+                });
+            } catch (emailErr) {
+                console.error('Failed to send welcome email:', emailErr);
+                // Silent fail for email to not disrupt user experience
+            }
+
             setEmail('');
         } catch (error) {
             showToast(error.message || 'Subscription failed. Please try again.', 'error');

@@ -2,8 +2,16 @@
     background: rgba(0, 0, 0, 0.4);
     border-top: 1px solid var(--border);
     padding: 80px 0 40px;
-    margin-top: 80px;
+    margin-top: auto;
     backdrop-filter: blur(10px);
+    opacity: 0;
+    animation: footerFadeIn 0.5s ease forwards;
+    animation-delay: 0.2s;
+}
+
+@keyframes footerFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
 }
 
 .footerContainer {

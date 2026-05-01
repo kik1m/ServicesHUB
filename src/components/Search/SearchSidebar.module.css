@@ -6,19 +6,19 @@
 }
 
 .sidebarCard {
-  padding: 1.25rem;
+  padding: 1.25rem; /* Restored */
   background: rgba(255, 255, 255, 0.03);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 20px;
+  border-radius: 20px; /* Restored */
 }
 
 .sidebarFilterHeader {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.5rem; /* Restored */
   color: var(--primary);
 }
 
@@ -30,7 +30,7 @@
 }
 
 .filterGroup {
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.5rem; /* Restored */
 }
 
 .filterGroup:last-child {
@@ -54,9 +54,8 @@
 .filterOptionsVertical {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  max-height: 220px;
-  overflow-y: auto;
+  gap: 4px; /* Restored */
+  /* Removed max-height and overflow to show all categories */
   padding-right: 4px;
 }
 
@@ -70,13 +69,13 @@
 
 .filterBtn {
   width: 100%;
-  padding: 8px 10px;
+  padding: 8px 10px; /* Restored */
   text-align: left;
   background: transparent;
   border: 1px solid transparent;
   border-radius: 8px;
   color: var(--text-muted);
-  font-size: 0.85rem;
+  font-size: 0.85rem; /* Restored */
   font-weight: 500;
   display: flex;
   justify-content: space-between;

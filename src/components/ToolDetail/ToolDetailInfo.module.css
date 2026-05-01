@@ -93,3 +93,13 @@
 .mb8px {
   margin-bottom: 8px;
 }
+
+.sectionText + .sectionText { margin-top: 1.2rem; }
+
+.descriptionSection { margin-bottom: 2rem; }
+.sectionEntryTitle { color: var(--secondary); font-size: 1.1rem; font-weight: 700; margin-bottom: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; border-left: 3px solid var(--secondary); padding-left: 12px; }
+
+.useCasesGrid { display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 1rem; }
+.useCaseTag { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 0.6rem 1.2rem; color: var(--text-main); font-size: 0.95rem; display: flex; align-items: center; gap: 0.5rem; backdrop-filter: blur(4px); transition: all 0.3s ease; }
+.useCaseTag:hover { background: rgba(255, 255, 255, 0.08); border-color: var(--secondary); transform: translateY(-2px); shadow: 0 4px 12px rgba(0, 0, 0, 0.2); }
+.useCaseBullet { color: var(--secondary); font-weight: bold; font-size: 1.2rem; }

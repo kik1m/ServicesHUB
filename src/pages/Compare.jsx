@@ -38,7 +38,10 @@ const Compare = () => {
         closeSelector,
         setIsSelectingFor,
         error,
-        results
+        results,
+        aiResults,
+        isAiLoading,
+        aiError
     } = useCompareData();
 
     const handleClearTool1 = useCallback(() => clearTool('tool1'), [clearTool]);
@@ -111,7 +114,12 @@ const Compare = () => {
                     tool1={tool1} 
                     tool2={tool2} 
                     isLoading={isPageLoading}
+                    isTool1Loading={isTool1Loading}
+                    isTool2Loading={isTool2Loading}
+                    isAiLoading={isAiLoading}
                     results={results}
+                    aiResults={aiResults}
+                    aiError={aiError}
                     content={COMPARE_UI_CONSTANTS?.matrix}
                     error={error}
                     onRetry={resetComparison}

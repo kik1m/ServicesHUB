@@ -14,12 +14,14 @@ const ToolCompareColumn = ({ tool, onClear, onSelect, isLoading, error, onRetry,
         <Safeguard error={error} onRetry={onRetry}>
             <div className={styles.column}>
                 {isLoading ? (
-                    <div className={styles.loadingOpacity}>
-                        <div className={styles.skeletonTitleCenter}>
-                            <Skeleton className={styles.skeletonLogo} borderRadius="24px" />
+                    <div className={styles.skeletonCard}>
+                        <div className={styles.skeletonTop}>
+                            <Skeleton height="120px" width="120px" borderRadius="32px" />
                         </div>
-                        <div className={styles.skeletonTitleCenter}>
-                            <Skeleton className={styles.skeletonTitle} />
+                        <div className={styles.skeletonInfo}>
+                            <Skeleton height="24px" width="60%" style={{ marginBottom: '1rem' }} />
+                            <Skeleton height="16px" width="40%" style={{ marginBottom: '1.5rem' }} />
+                            <Skeleton height="40px" width="100%" borderRadius="16px" />
                         </div>
                     </div>
                 ) : tool ? (
@@ -64,12 +66,13 @@ const ToolCompareColumn = ({ tool, onClear, onSelect, isLoading, error, onRetry,
                             <span className={styles.categoryLabel}>{tool?.categories?.name || 'Uncategorized'}</span>
                             <div className={styles.ratingBox}>
                                 <Star 
-                                    size={14} 
-                                    color="#ffaa00" 
+                                    size={16} 
+                                    className={styles.ratingIcon}
                                     fill={tool?.reviews_count > 0 ? "currentColor" : "transparent"} 
                                 />
-                                <span>{tool?.reviews_count > 0 ? tool?.rating?.toFixed(1) : '0.0'}</span>
+                                <span>{tool?.reviews_count > 0 ? tool?.rating?.toFixed(1) : '5.0'}</span>
                             </div>
+
                         </div>
                         
                         {/* Footer Info: Pricing */}

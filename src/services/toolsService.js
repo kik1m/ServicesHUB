@@ -13,7 +13,7 @@ const BASE_SELECT = `
 const BASE_DETAIL_SELECT = `
     id, name, slug, description, short_description, image_url, icon_name, 
     url, pricing_type, pricing_details, rating, reviews_count, 
-    is_featured, is_verified, category_id, view_count, click_count, features, 
+    is_featured, is_verified, category_id, view_count, click_count, features, use_cases,
     user_id, categories(name, slug, icon_name)
 `;
 
@@ -270,6 +270,7 @@ export const toolsService = {
             const sanitizedTool = {
                 ...data,
                 features: Array.isArray(data.features) ? data.features.filter(Boolean) : [],
+                use_cases: Array.isArray(data.use_cases) ? data.use_cases.filter(Boolean) : [],
                 rating: data.rating ?? 0,
                 reviews_count: data.reviews_count || 0,
                 short_description: data.short_description || data.description?.slice(0, 160) || '',

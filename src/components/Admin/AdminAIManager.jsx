@@ -95,42 +95,34 @@ const AdminAIManager = ({ activeTab }) => {
             </header>
 
             <div className={styles.grid}>
-                {/* Control Panel */}
+                {/* Manual Trigger Guide */}
                 <section className={styles.controlPanel}>
-                    <h3 className={styles.sectionTitle}>Agent Command Center</h3>
+                    <h3 className={styles.sectionTitle}>
+                        <Terminal size={18} /> Terminal Command Center
+                    </h3>
                     
-                    <div className={styles.inputGroup}>
-                        <label className={styles.label}>Target URLs (One per line)</label>
-                        <textarea 
-                            className={styles.textarea}
-                            placeholder="https://v0.dev&#10;https://runwayml.com"
-                            value={urlsInput}
-                            onChange={(e) => setUrlsInput(e.target.value)}
-                            disabled={isTriggering}
-                        />
+                    <div className={styles.guideBox}>
+                        <p className={styles.guideText}>
+                            To import new tools using the <strong>Autonomous AI Agent</strong>, run the following command in your terminal:
+                        </p>
+                        
+                        <div className={styles.commandPreview}>
+                            <code>node scripts/ai-importer/index.js "URL1,URL2"</code>
+                        </div>
+
+                        <ul className={styles.stepsList}>
+                            <li>1. Open a new terminal in the project root.</li>
+                            <li>2. Paste the command above with your target URLs.</li>
+                            <li>3. Watch the progress in the terminal.</li>
+                            <li>4. Refresh this page to see the updated logs below.</li>
+                        </ul>
                     </div>
 
-                    {statusMessage && (
-                        <div className={`${styles.statusBanner} ${styles[statusMessage.type]}`}>
-                            {statusMessage.type === 'error' ? <AlertCircle size={18} /> : <CheckCircle2 size={18} />}
-                            <span>{statusMessage.text}</span>
+                    <div className={styles.statusInfo}>
+                        <div className={styles.infoBadge}>
+                            <AlertCircle size={14} /> Local Processing Mode Active
                         </div>
-                    )}
-
-                    <button 
-                        className={styles.triggerBtn} 
-                        onClick={handleTriggerAgent}
-                        disabled={isTriggering || !urlsInput.trim()}
-                    >
-                        {isTriggering ? (
-                            <><RefreshCw size={18} className={styles.spin} /> Deploying Servers...</>
-                        ) : (
-                            <><Play size={18} /> Launch Agent</>
-                        )}
-                    </button>
-                    <p className={styles.disclaimer}>
-                        <AlertCircle size={14} /> Background processing takes ~15 seconds per URL. Do not close the platform.
-                    </p>
+                    </div>
                 </section>
 
                 {/* Logs Terminal */}

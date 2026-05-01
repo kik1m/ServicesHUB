@@ -83,9 +83,10 @@ export const REVIEWS_THRESHOLDS = {
 export const PRICING_MULTIPLIERS = {
     FREE: 0,
     OPEN_SOURCE: 0,
-    FREEMIUM: 19,
-    PAID: 35,
-    PREMIUM: 35,
-    ENTERPRISE: 99,
-    DEFAULT: 25
+    FREEMIUM: 149, // Yearly average for basic tiers
+    PAID: 299,     // Yearly average for pro tiers
+    PREMIUM: 499,
+    ENTERPRISE: 2400,
+    DEFAULT: 199
 };
+
