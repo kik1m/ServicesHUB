@@ -1,7 +1,7 @@
 .panel {
     /* Positioning handled centrally in Navbar.module.css */
     width: 320px;
-    max-height: 480px;
+    max-height: 360px;
     display: flex;
     flex-direction: column;
 }

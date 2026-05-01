@@ -280,11 +280,22 @@
     background: rgba(255, 255, 255, 0.05);
 }
 
-.authSkeleton {
-    width: 68px;
-    height: 38px;
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 12px;
+.authSkeletonWrapper {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.skeletonSubmitBtn {
+    width: 110px;
+    height: 36px;
+    border-radius: 10px;
+}
+
+.skeletonLoginBtn {
+    width: 70px;
+    height: 36px;
+    border-radius: 10px;
 }
 
 .notifBadge {

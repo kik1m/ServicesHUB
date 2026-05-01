@@ -123,8 +123,9 @@ const Navbar = () => {
                 {/* Actions */}
                 <div className={styles.navActions}>
                     {authLoading ? (
-                        <div className={styles.authSkeleton}>
-                            <Skeleton width="120px" height="36px" borderRadius="12px" />
+                        <div className={styles.authSkeletonWrapper}>
+                            <Skeleton className={styles.skeletonSubmitBtn} />
+                            <Skeleton className={styles.skeletonLoginBtn} />
                         </div>
                     ) : (
                         <>

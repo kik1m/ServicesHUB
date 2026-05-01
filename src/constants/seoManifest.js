@@ -22,7 +22,7 @@ export const SEO_CONFIG = {
     },
     pages: {
         home: {
-            title: "HUBly - Ultimate AI & SaaS Directory",
+            title: "HUBly - Ultimate AI and SaaS Directory",
             description: "The world's largest directory of AI and SaaS tools. Find the best resources to grow your business.",
             keywords: ["AI directory", "SaaS ecosystem", "Top AI tools 2026"]
         },
@@ -32,7 +32,7 @@ export const SEO_CONFIG = {
             keywords: ["Software search", "Tool discovery", "SaaS comparison"]
         },
         blog: {
-            title: "HUBly Magazine - AI & SaaS Insights",
+            title: "HUBly Magazine - AI and SaaS Insights",
             description: "Latest news, expert guides, and industry trends in the AI and SaaS world.",
             keywords: ["AI news", "SaaS blog", "Tech insights"]
         },
