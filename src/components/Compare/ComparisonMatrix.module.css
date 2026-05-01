@@ -74,6 +74,20 @@
     color: white;
 }
 
+.aiScoreBadge {
+    display: inline-block;
+    margin-top: 6px;
+    font-size: 0.6rem;
+    font-weight: 900;
+    letter-spacing: 1.5px;
+    color: var(--secondary);
+    background: rgba(var(--secondary-rgb), 0.08);
+    border: 1px solid rgba(var(--secondary-rgb), 0.2);
+    border-radius: 100px;
+    padding: 3px 10px;
+    text-transform: uppercase;
+}
+
 .verdictCenter {
     text-align: center;
     flex: 1;

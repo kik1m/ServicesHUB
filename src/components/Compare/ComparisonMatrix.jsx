@@ -16,7 +16,7 @@ const ComparisonMatrix = ({ tool1, tool2, isLoading, isTool1Loading, isTool2Load
     const tool1IsWinner = !!(aiResults && tool1?.name && aiWinner === tool1.name);
     const tool2IsWinner = !!(aiResults && tool2?.name && aiWinner === tool2.name);
 
-    // Lightweight display score: rating + reviews + verification (display only)
+    // Lightweight display score: local fallback during AI loading
     const calculateDisplayScore = (tool) => {
         if (!tool) return 0;
         let score = Math.round(((parseFloat(tool?.rating) || 0) / 5) * 55);
@@ -28,9 +28,16 @@ const ComparisonMatrix = ({ tool1, tool2, isLoading, isTool1Loading, isTool2Load
         else score += 5;
         return Math.min(score, 100);
     };
-    const score1 = calculateDisplayScore(tool1);
-    const score2 = calculateDisplayScore(tool2);
-    const displayWinner = score1 > score2 ? 1 : score1 < score2 ? 2 : 0;
+
+    // Prefer AI scores (contextual & strategic) — fall back to local scores during loading
+    const aiScore1 = aiResults?.scores?.tool1;
+    const aiScore2 = aiResults?.scores?.tool2;
+    const score1 = (aiScore1 != null) ? aiScore1 : calculateDisplayScore(tool1);
+    const score2 = (aiScore2 != null) ? aiScore2 : calculateDisplayScore(tool2);
+
+    // Winner: AI verdict takes priority, then score comparison
+    const displayWinner = tool1IsWinner ? 1 : tool2IsWinner ? 2 : (score1 > score2 ? 1 : score1 < score2 ? 2 : 0);
+    const isScoreFromAI = aiScore1 != null && aiScore2 != null;
 
     const LOADING_MESSAGES = [
         "AI Analyst is distilling strategic insights...",
@@ -139,6 +146,7 @@ const ComparisonMatrix = ({ tool1, tool2, isLoading, isTool1Loading, isTool2Load
                                     </div>
                                 )}
                                 <h4 className={styles.toolScoreName}>{isTool1Loading ? <Skeleton width="100px" height="20px" /> : tool1?.name}</h4>
+                                {isScoreFromAI && !isTool1Loading && <span className={styles.aiScoreBadge}>AI SCORE</span>}
                             </div>
 
                             <div className={styles.verdictCenter}>
@@ -183,6 +191,7 @@ const ComparisonMatrix = ({ tool1, tool2, isLoading, isTool1Loading, isTool2Load
                                     </div>
                                 )}
                                 <h4 className={styles.toolScoreName}>{isTool2Loading ? <Skeleton width="100px" height="20px" /> : tool2?.name}</h4>
+                                {isScoreFromAI && !isTool2Loading && <span className={styles.aiScoreBadge}>AI SCORE</span>}
                             </div>
                         </div>
 

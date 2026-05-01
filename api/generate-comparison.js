@@ -84,10 +84,17 @@ export default async function handler(req, res) {
                     };
                 });
 
+                // Swap scores too
+                const newScores = report.scores ? {
+                    tool1: report.scores.tool2,
+                    tool2: report.scores.tool1
+                } : undefined;
+
                 report = {
                     ...report,
                     why_buy: newWhyBuy,
-                    comparison_matrix: newMatrix
+                    comparison_matrix: newMatrix,
+                    ...(newScores && { scores: newScores })
                 };
             }
 
@@ -131,6 +138,10 @@ export default async function handler(req, res) {
                 "winner": "String ('${toolA.name}', '${toolB.name}', or 'Tie')",
                 "reasoning": "String (A brutal, honest 1-sentence justification)"
             },
+            "scores": {
+                "tool1": 0, // Integer 0-100: Overall strategic score for ${toolA.name} considering features, pricing, value, and market fit
+                "tool2": 0  // Integer 0-100: Overall strategic score for ${toolB.name} considering features, pricing, value, and market fit
+            },
             "why_buy": {
                 "tool1": ["String", "String", "String"], // 3 strategic reasons to buy Tool 1
                 "tool2": ["String", "String", "String"]  // 3 strategic reasons to buy Tool 2
@@ -150,6 +161,7 @@ export default async function handler(req, res) {
         RULES:
         1. Output ONLY raw JSON.
         2. Be decisive and strategic.
+        3. Scores must be integers between 0-100. The winner's score must always be higher than the loser's.
         `;
 
         const geminiResponse = await ai.models.generateContent({
