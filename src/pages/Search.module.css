@@ -19,6 +19,12 @@
   align-items: start;
 }
 
+.resultsColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
 @media (max-width: 1024px) {
   .searchGridLayout {
     grid-template-columns: 1fr;

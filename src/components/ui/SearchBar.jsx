@@ -1,6 +1,5 @@
 import React from 'react';
 import { Search } from 'lucide-react';
-import Input from './Input';
 import Button from './Button';
 import styles from './SearchBar.module.css';
 
@@ -28,16 +27,13 @@ const SearchBar = ({
             />
             
             <div className={styles.searchInputWrapper}>
-                <Input
+                <input
                     type="text"
                     placeholder={placeholder}
                     value={value}
                     onChange={onChange}
                     onKeyDown={onKeyDown}
-                    className={styles.searchInputGroup}
-                    fieldClassName={styles.searchInputField}
-                    wrapperClassName={styles.searchInputWrapperOverride}
-                    variant="naked" /* Naked variant doesn't have its own border/bg */
+                    className={styles.searchInputField}
                 />
             </div>
 

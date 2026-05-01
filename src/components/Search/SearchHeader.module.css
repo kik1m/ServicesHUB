@@ -1,40 +1,16 @@
 /* SearchHeader.module.css */
 
-.inputSection {
+.searchBarWrapper {
   width: 100%;
-  max-width: 560px;
-  margin: 0 auto;
+  position: relative;
+  z-index: 10;
 }
 
-.searchInputWrapper {
-  position: relative;
+.inputSection {
+  width: 100%;
 }
 
 .skeletonInputWrapper {
   position: relative;
   width: 100%;
-  max-width: 560px;
-  margin: 0 auto;
-}
-
-.searchInputInner {
-  background: rgba(15, 17, 26, 0.8);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 10px 24px;
-  border-radius: 100px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-  transition: all 0.3s ease;
-}
-
-.searchInputInner:focus-within {
-  border-color: var(--secondary);
-  box-shadow: 0 0 20px rgba(0, 255, 170, 0.15);
-  background: rgba(15, 17, 26, 0.95);
-}
-
-@media (max-width: 768px) {
-  .inputSection {
-    padding: 0 1rem;
-  }
 }

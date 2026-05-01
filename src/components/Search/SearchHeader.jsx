@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Search as SearchIcon } from 'lucide-react';
 import Input from '../ui/Input';
 import Skeleton from '../ui/Skeleton';
-import PageHero from '../ui/PageHero';
 import Safeguard from '../ui/Safeguard';
 import styles from './SearchHeader.module.css';
 
@@ -29,15 +28,11 @@ const SearchHeader = (props) => {
 
     return (
         <Safeguard error={error} onRetry={onRetry} title="Search Header Unavailable">
-            <PageHero 
-                title={content?.title} 
-                highlight={content?.highlight}
-                breadcrumbs={content?.breadcrumbs}
-            >
+            <div className={styles.searchBarWrapper}>
                 <div className={styles.inputSection}>
                     {isLoading && !localQuery ? (
                         <div className={styles.skeletonInputWrapper}>
-                            <Skeleton width="100%" height="56px" borderRadius="100px" />
+                            <Skeleton width="100%" height="44px" borderRadius="12px" />
                         </div>
                     ) : (
                         <Input
@@ -45,13 +40,11 @@ const SearchHeader = (props) => {
                             icon={SearchIcon}
                             value={localQuery}
                             onChange={handleSearchChange}
-                            className={styles.searchInputWrapper}
-                            wrapperClassName={styles.searchInputInner}
-                            variant="pill"
+                            variant="ghost"
                         />
                     )}
                 </div>
-            </PageHero>
+            </div>
         </Safeguard>
     );
 };

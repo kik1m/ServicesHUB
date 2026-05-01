@@ -4,6 +4,7 @@ import { useSearchEngine } from '../hooks/useSearchEngine';
 import { SEARCH_UI_CONSTANTS } from '../constants/searchConstants';
 
 // Import Modular Components
+import PageHero from '../components/ui/PageHero';
 import SearchHeader from '../components/Search/SearchHeader';
 import SearchSidebar from '../components/Search/SearchSidebar';
 import SearchResults from '../components/Search/SearchResults';
@@ -60,14 +61,13 @@ const Search = () => {
 
     return (
         <div className={styles.searchPage}>
+            <PageHero 
+                title={SEARCH_UI_CONSTANTS.header?.title} 
+                highlight={SEARCH_UI_CONSTANTS.header?.highlight}
+                subtitle={SEARCH_UI_CONSTANTS.header?.subtitle}
+                breadcrumbs={SEARCH_UI_CONSTANTS.header?.breadcrumbs}
+            />
             <div className={styles.searchContainer}>
-                <SearchHeader 
-                    searchQuery={searchQuery} 
-                    setSearchQuery={setQuery} 
-                    isLoading={isLoading}
-                    content={SEARCH_UI_CONSTANTS.header}
-                />
-
                 <Safeguard error={error} onRetry={refresh} fullPage title="Search Engine Offline">
                     <div className={styles.searchGridLayout}>
                         <SearchSidebar 
@@ -85,18 +85,27 @@ const Search = () => {
                             setShowAllCats={setShowAllCats}
                         />
 
-                        <SearchResults 
-                            results={results}
-                            isLoading={isLoading}
-                            loadingMore={loadingMore}
-                            hasMore={hasMore}
-                            setPage={setPageNum}
-                            sortBy={sortBy}
-                            setSortBy={setSort}
-                            error={error}
-                            refetch={refresh}
-                            content={SEARCH_UI_CONSTANTS.results}
-                        />
+                        <div className={styles.resultsColumn}>
+                            <SearchHeader 
+                                searchQuery={searchQuery} 
+                                setSearchQuery={setQuery} 
+                                isLoading={isLoading}
+                                content={SEARCH_UI_CONSTANTS.header}
+                            />
+                            
+                            <SearchResults 
+                                results={results}
+                                isLoading={isLoading}
+                                loadingMore={loadingMore}
+                                hasMore={hasMore}
+                                setPage={setPageNum}
+                                sortBy={sortBy}
+                                setSortBy={setSort}
+                                error={error}
+                                refetch={refresh}
+                                content={SEARCH_UI_CONSTANTS.results}
+                            />
+                        </div>
                     </div>
                 </Safeguard>
             </div>

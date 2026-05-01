@@ -1,5 +1,6 @@
 import React, { useCallback } from 'react';
-import SearchBar from '../ui/SearchBar';
+import { Search as SearchIcon, ArrowRight } from 'lucide-react';
+import Input from '../ui/Input';
 import Skeleton from '../ui/Skeleton';
 import Button from '../ui/Button';
 import Safeguard from '../ui/Safeguard';
@@ -61,14 +62,15 @@ const HomeHero = ({ searchQuery, setSearchQuery, navigate, statsCount, isLoading
                                 <Skeleton className={styles.skeletonSearchInner} />
                             </div>
                         ) : (
-                            <SearchBar 
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                onSearch={handleSearch}
-                                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                                placeholder={content.searchPlaceholder}
-                                className={styles.heroSearchOverride}
-                            />
+                        <Input 
+                            icon={SearchIcon}
+                            rightIcon={ArrowRight}
+                            onRightIconClick={handleSearch}
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                            placeholder={content.searchPlaceholder}
+                        />
                         )}
                     </div>
 
