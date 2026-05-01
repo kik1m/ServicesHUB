@@ -1,7 +1,6 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { compareService } from '../services/compareService';
-import { SCORING_WEIGHTS, REVIEWS_THRESHOLDS, PRICING_MULTIPLIERS } from '../constants/compareConstants';
 
 /**
  * Hook for managing comparison page state and logic
@@ -116,108 +115,7 @@ export const useCompareData = () => {
         hydrateAll();
     }, [t1Slug, t2Slug]);
 
-
-    // Rule #116: Logic Isolation - Comparison Calculation Engine
-    const comparisonResults = useMemo(() => {
-        if (!tool1 || !tool2) return null;
-
-        const featuresA = tool1.features || [];
-        const featuresB = tool2.features || [];
-
-        const uniqueToA = featuresA.filter(f => !featuresB.includes(f));
-        const uniqueToB = featuresB.filter(f => !featuresA.includes(f));
-        const sharedFeatures = featuresA.filter(f => featuresB.includes(f));
-
-        const rating1 = parseFloat(tool1.rating) || 5.0;
-        const rating2 = parseFloat(tool2.rating) || 5.0;
-        const ratingWinner = rating1 > rating2 ? 1 : rating1 < rating2 ? 2 : 0;
-
-        const reviews1 = tool1.reviews_count || 0;
-        const reviews2 = tool2.reviews_count || 0;
-        const reviewsWinner = reviews1 > reviews2 ? 1 : reviews1 < reviews2 ? 2 : 0;
-
-        const getPricingFactor = (tool) => {
-            const details = tool.pricing_details || '';
-            const type = tool.pricing_type?.toLowerCase() || '';
-            
-            // 🧠 Elite Parsing Engine (V2)
-            // 1. Try to parse numeric price (supports $20, 20$, .01, etc.)
-            const priceMatch = details.match(/(?:\$|£|€)?\s*(\d+(?:\.\d+)?)\s*(?:\$|£|€)?/);
-            
-            if (priceMatch) {
-                const price = parseFloat(priceMatch[1]);
-                const lowDetails = details.toLowerCase();
-
-                // Logic A: Monthly subscription
-                if (lowDetails.includes('/mo') || lowDetails.includes('per month') || lowDetails.includes('monthly')) {
-                    return price * 12;
-                }
-                
-                // Logic B: Usage-based (e.g. .01 per min)
-                // We assume a "Standard Professional Usage" of 500 mins/year for TCO estimation
-                if (lowDetails.includes('per min') || lowDetails.includes('/min')) {
-                    return Math.max(price * 500 * 12, PRICING_MULTIPLIERS.DEFAULT); 
-                }
-
-                // Logic C: Small numbers usually imply usage/per-unit
-                if (price < 1 && price > 0) {
-                    return PRICING_MULTIPLIERS.DEFAULT;
-                }
-
-                return price; // Assume yearly if it's a large number
-            }
-
-            // 2. Fallback to intelligent multipliers
-            if (type.includes('free') && !type.includes('mium')) return PRICING_MULTIPLIERS.FREE;
-            if (type.includes('open source')) return PRICING_MULTIPLIERS.OPEN_SOURCE;
-            if (type.includes('freemium')) return PRICING_MULTIPLIERS.FREEMIUM;
-            if (type.includes('paid') || type.includes('premium')) return PRICING_MULTIPLIERS.PAID;
-            if (type.includes('enterprise')) return PRICING_MULTIPLIERS.ENTERPRISE;
-            
-            return PRICING_MULTIPLIERS.DEFAULT;
-        };
-
-
-
-        const factor1 = getPricingFactor(tool1);
-        const factor2 = getPricingFactor(tool2);
-
-        const calculateConfidenceScore = (tool, uniqueCount, otherUniqueCount) => {
-            let score = 0;
-            const rating = parseFloat(tool.rating) || 0;
-            score += (rating / 5) * SCORING_WEIGHTS.RATING_MAX;
-            if (tool.is_verified) score += SCORING_WEIGHTS.VERIFIED_BONUS;
-            const reviews = tool.reviews_count || 0;
-            if (reviews > REVIEWS_THRESHOLDS.HIGH) score += SCORING_WEIGHTS.REVIEWS_MAX;
-            else if (reviews > REVIEWS_THRESHOLDS.MEDIUM) score += 10;
-            else if (reviews > REVIEWS_THRESHOLDS.LOW) score += 5;
-            const totalDifferential = uniqueCount + otherUniqueCount;
-            if (totalDifferential > 0) score += (uniqueCount / totalDifferential) * SCORING_WEIGHTS.FEATURE_DOMINANCE_MAX;
-            else score += SCORING_WEIGHTS.EQUAL_FEATURES_DEFAULT;
-            return Math.min(Math.round(score), 100);
-        };
-
-        const score1 = calculateConfidenceScore(tool1, uniqueToA.length, uniqueToB.length);
-        const score2 = calculateConfidenceScore(tool2, uniqueToB.length, uniqueToA.length);
-        const overallWinner = score1 > score2 ? 1 : score1 < score2 ? 2 : 0;
-
-        return {
-            uniqueToA,
-            uniqueToB,
-            sharedFeatures,
-            rating1,
-            rating2,
-            ratingWinner,
-            reviews1,
-            reviews2,
-            reviewsWinner,
-            factor1,
-            factor2,
-            score1,
-            score2,
-            overallWinner
-        };
-    }, [tool1, tool2]);
+    // Tool selection and URL sync logic below
 
     // Handle tool selection by modifying the URL parameters (SSOT)
     const handleSelect = useCallback((tool) => {
@@ -271,7 +169,7 @@ export const useCompareData = () => {
         openSelector,
         closeSelector,
         error,
-        results: comparisonResults,
+        results: null,
         aiResults,
         isAiLoading,
         aiError

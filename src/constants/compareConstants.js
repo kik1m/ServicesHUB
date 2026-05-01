@@ -66,27 +66,3 @@ export const COMPARE_UI_CONSTANTS = {
     }
 };
 
-export const SCORING_WEIGHTS = {
-    RATING_MAX: 40,
-    VERIFIED_BONUS: 15,
-    REVIEWS_MAX: 15,
-    FEATURE_DOMINANCE_MAX: 30,
-    EQUAL_FEATURES_DEFAULT: 15
-};
-
-export const REVIEWS_THRESHOLDS = {
-    HIGH: 500,
-    MEDIUM: 100,
-    LOW: 10
-};
-
-export const PRICING_MULTIPLIERS = {
-    FREE: 0,
-    OPEN_SOURCE: 0,
-    FREEMIUM: 149, // Yearly average for basic tiers
-    PAID: 299,     // Yearly average for pro tiers
-    PREMIUM: 499,
-    ENTERPRISE: 2400,
-    DEFAULT: 199
-};
-

@@ -128,7 +128,6 @@ const Compare = () => {
                     isTool1Loading={isTool1Loading}
                     isTool2Loading={isTool2Loading}
                     isAiLoading={isAiLoading}
-                    results={results}
                     aiResults={aiResults}
                     aiError={aiError}
                     content={COMPARE_UI_CONSTANTS?.matrix}

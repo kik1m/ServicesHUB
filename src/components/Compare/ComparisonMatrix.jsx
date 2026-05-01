@@ -1,16 +1,20 @@
-import React, { useState } from 'react';
-import { X, Star, CheckCircle2, Trophy, Info, Users, Calculator, Sparkles, BrainCircuit, ShieldCheck, Target, Zap } from 'lucide-react';
+import React from 'react';
+import { CheckCircle2, Trophy, Info, Calculator, Sparkles, BrainCircuit, ShieldCheck, Target } from 'lucide-react';
 import Skeleton from '../ui/Skeleton';
 import Safeguard from '../ui/Safeguard';
 import styles from './ComparisonMatrix.module.css';
 
 /**
- * ComparisonMatrix - Elite v4.0 (AI Generative Version)
- * Feature: Live AI Strategic Analysis & Dynamic Feature Matrix.
+ * ComparisonMatrix - Elite v5.0 (Pure AI Version)
+ * Legacy engine removed. 100% powered by AI strategic analysis.
  */
-const ComparisonMatrix = ({ tool1, tool2, isLoading, isTool1Loading, isTool2Loading, isAiLoading, aiResults, aiError, error, onRetry, results, content }) => {
-    const [teamSize, setTeamSize] = useState(10);
+const ComparisonMatrix = ({ tool1, tool2, isLoading, isTool1Loading, isTool2Loading, isAiLoading, aiResults, aiError, error, onRetry, content }) => {
     const [loadingMessageIndex, setLoadingMessageIndex] = React.useState(0);
+
+    // Derive winner from AI verdict only — no legacy scoring engine
+    const aiWinner = aiResults?.verdict?.winner;
+    const tool1IsWinner = !!(aiResults && tool1?.name && aiWinner === tool1.name);
+    const tool2IsWinner = !!(aiResults && tool2?.name && aiWinner === tool2.name);
 
     const LOADING_MESSAGES = [
         "AI Analyst is distilling strategic insights...",
@@ -32,10 +36,7 @@ const ComparisonMatrix = ({ tool1, tool2, isLoading, isTool1Loading, isTool2Load
 
     const headers = content?.headers || { feature: "Feature", tool1: "Tool 1", tool2: "Tool 2" };
 
-    const calculateTCO = (factor, size) => {
-        if (!factor) return '0';
-        return (factor * size).toLocaleString();
-    };
+
 
     return (
         <Safeguard error={error} onRetry={onRetry} title="Comparison Analysis Offline">
@@ -111,10 +112,9 @@ const ComparisonMatrix = ({ tool1, tool2, isLoading, isTool1Loading, isTool2Load
                                 {isTool1Loading || !tool1 ? (
                                     <Skeleton width="120px" height="120px" borderRadius="50%" />
                                 ) : (
-                                    <div className={`${styles.scoreRing} ${results?.overallWinner === 1 ? styles.winnerRing : ''}`} style={{ '--score': `${results?.score1}%`, '--score-color': results?.overallWinner === 1 ? 'var(--success)' : 'var(--secondary)' }}>
+                                    <div className={`${styles.scoreRing} ${tool1IsWinner ? styles.winnerRing : ''}`}>
                                         <div className={styles.scoreInner}>
-                                            <span className={styles.scoreNumber}>{results?.score1}</span>
-                                            <span className={styles.scoreLabel}>SCORE</span>
+                                            {tool1IsWinner ? <Trophy size={32} color="#ffd700" /> : <span className={styles.scoreLabel}>—</span>}
                                         </div>
                                     </div>
                                 )}
@@ -128,7 +128,7 @@ const ComparisonMatrix = ({ tool1, tool2, isLoading, isTool1Loading, isTool2Load
                                             <BrainCircuit size={14} />
                                             <span>AI ANALYZING</span>
                                         </div>
-                                    ) : (aiResults ? "AI Expert Verdict" : (results?.overallWinner === 0 ? "It's a Tie!" : "Ultimate Verdict"))}
+                                    ) : (aiResults ? 'AI Expert Verdict' : 'Awaiting Analysis')}
                                 </div>
                                 <div className={styles.verdictText}>
                                     {isAiLoading ? (
@@ -137,16 +137,13 @@ const ComparisonMatrix = ({ tool1, tool2, isLoading, isTool1Loading, isTool2Load
                                             <Skeleton width="60%" height="14px" />
                                         </div>
                                     ) : (
-                                        aiResults ? aiResults.verdict?.reasoning :
-                                            (results?.overallWinner === 1 ? `${tool1?.name} ${content?.verdict?.winnerSuffix}` :
-                                                results?.overallWinner === 2 ? `${tool2?.name} ${content?.verdict?.winnerSuffix}` :
-                                                    content?.verdict?.draw)
+                                        aiResults?.verdict?.reasoning || null
                                     )}
                                 </div>
-                                {!isAiLoading && (aiResults || results?.overallWinner !== 0) && (
+                                {!isAiLoading && aiResults && (
                                     <div className={styles.winnerHighlight}>
                                         <Trophy size={18} />
-                                        <span>{aiResults ? aiResults.verdict?.winner : (results?.overallWinner === 1 ? tool1?.name : tool2?.name)} - DOMINANT CHOICE</span>
+                                        <span>{aiResults.verdict?.winner} - DOMINANT CHOICE</span>
                                     </div>
                                 )}
                             </div>
@@ -155,10 +152,9 @@ const ComparisonMatrix = ({ tool1, tool2, isLoading, isTool1Loading, isTool2Load
                                 {isTool2Loading || !tool2 ? (
                                     <Skeleton width="120px" height="120px" borderRadius="50%" />
                                 ) : (
-                                    <div className={`${styles.scoreRing} ${results?.overallWinner === 2 ? styles.winnerRing : ''}`} style={{ '--score': `${results?.score2}%`, '--score-color': results?.overallWinner === 2 ? 'var(--success)' : 'var(--secondary)' }}>
+                                    <div className={`${styles.scoreRing} ${tool2IsWinner ? styles.winnerRing : ''}`}>
                                         <div className={styles.scoreInner}>
-                                            <span className={styles.scoreNumber}>{results?.score2}</span>
-                                            <span className={styles.scoreLabel}>SCORE</span>
+                                            {tool2IsWinner ? <Trophy size={32} color="#ffd700" /> : <span className={styles.scoreLabel}>—</span>}
                                         </div>
                                     </div>
                                 )}
@@ -206,74 +202,24 @@ const ComparisonMatrix = ({ tool1, tool2, isLoading, isTool1Loading, isTool2Load
                                     </div>
                                 ))
                             ) : (
-                                /* Fallback to Static Matrix only if AI Analysis failed or not present */
-                                <>
-                                    {results?.uniqueToA?.map((feat, i) => (
-                                        <div key={`ua-${i}`} className={`${styles.featureRow} ${styles.featureRowHighlightA}`}>
-                                            <div className={styles.featureLabel}>{feat}</div>
-                                            <div className={styles.checkContainer}><CheckCircle2 size={20} color="var(--success)" /></div>
-                                            <div className={styles.checkContainer}><X size={20} color="var(--text-muted-op)" /></div>
-                                        </div>
-                                    ))}
-
-                                    {results?.uniqueToB?.map((feat, i) => (
-                                        <div key={`ub-${i}`} className={`${styles.featureRow} ${styles.featureRowHighlightB}`}>
-                                            <div className={styles.featureLabel}>{feat}</div>
-                                            <div className={styles.checkContainer}><X size={20} color="var(--text-muted-op)" /></div>
-                                            <div className={styles.checkContainer}><CheckCircle2 size={20} color="var(--success)" /></div>
-                                        </div>
-                                    ))}
-
-                                    {results?.sharedFeatures?.map((feat, i) => (
-                                        <div key={`sh-${i}`} className={styles.featureRow}>
-                                            <div className={styles.featureLabel}>{feat}</div>
-                                            <div className={styles.checkContainer}><CheckCircle2 size={20} color="var(--secondary)" /></div>
-                                            <div className={styles.checkContainer}><CheckCircle2 size={20} color="var(--secondary)" /></div>
-                                        </div>
-                                    ))}
-                                </>
+                                <div className={styles.noAiData}>
+                                    <BrainCircuit size={36} className={styles.noAiIcon} />
+                                    <p>{aiError ? 'AI analysis unavailable for this pair.' : 'Select both tools to generate AI analysis.'}</p>
+                                </div>
                             )}
                         </div>
 
 
-                        {/* 📊 Section 2: Predictive Cost Scaling (TCO) */}
-                        <div className={styles.tcoSection}>
-                            <div className={styles.tcoHeader}>
-                                <Calculator size={20} color="var(--secondary)" />
-                                <h4>{content?.tco?.title}</h4>
-                            </div>
-                            <p className={styles.tcoDesc}>{aiResults ? aiResults.pricing_analysis : content?.tco?.desc}</p>
-
-                            <div className={styles.sliderContainer}>
-                                <div className={styles.sliderLabelRow}>
-                                    <span className={styles.sliderLabel}><Users size={14} /> Team Members</span>
-                                    <div className={styles.teamSizeBadge}>{teamSize} Members</div>
+                        {/* 📊 Section 2: AI Pricing Analysis */}
+                        {aiResults && (
+                            <div className={styles.tcoSection}>
+                                <div className={styles.tcoHeader}>
+                                    <Calculator size={20} color="var(--secondary)" />
+                                    <h4>{content?.tco?.title || 'Pricing Analysis'}</h4>
                                 </div>
-                                <input
-                                    type="range"
-                                    min="1"
-                                    max="100"
-                                    value={teamSize}
-                                    onChange={(e) => setTeamSize(parseInt(e.target.value))}
-                                    className={styles.tcoSlider}
-                                />
+                                <p className={styles.tcoDesc}>{aiResults.pricing_analysis}</p>
                             </div>
-
-                            <div className={styles.tcoResults}>
-                                <div className={styles.tcoResultCard}>
-                                    <div className={styles.tcoLabel}>{tool1?.name} EST.</div>
-                                    <div className={styles.tcoValue} style={{ '--tco-color': 'var(--secondary)' }}>
-                                        ${calculateTCO(results?.factor1, teamSize)}<span>/yr</span>
-                                    </div>
-                                </div>
-                                <div className={styles.tcoResultCard}>
-                                    <div className={styles.tcoLabel}>{tool2?.name} EST.</div>
-                                    <div className={styles.tcoValue} style={{ '--tco-color': 'var(--success)' }}>
-                                        ${calculateTCO(results?.factor2, teamSize)}<span>/yr</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                        )}
                     </>
                 )}
             </div>

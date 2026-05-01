@@ -30,18 +30,20 @@
     width: 120px;
     height: 120px;
     border-radius: 50%;
-    background: conic-gradient(var(--score-color) var(--score), rgba(255, 255, 255, 0.05) 0);
+    background: rgba(255, 255, 255, 0.04);
+    border: 2px solid rgba(255, 255, 255, 0.1);
     display: flex;
     align-items: center;
     justify-content: center;
     position: relative;
     box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
-    transition: all 1.5s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .winnerRing {
-    box-shadow: 0 0 35px var(--score-color);
-    border: 2px solid var(--score-color);
+    border-color: #ffd700;
+    box-shadow: 0 0 35px rgba(255, 215, 0, 0.4);
+    background: rgba(255, 215, 0, 0.05);
 }
 
 .scoreInner {
@@ -185,38 +187,7 @@
     font-weight: 800;
 }
 
-.tcoResults {
-    display: flex;
-    gap: 1.5rem;
-}
 
-.tcoResultCard {
-    flex: 1;
-    background: rgba(0, 0, 0, 0.2);
-    padding: 1.8rem;
-    border-radius: 24px;
-    text-align: center;
-    border: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.tcoLabel {
-    font-size: 0.8rem;
-    font-weight: 700;
-    color: var(--text-muted);
-    margin-bottom: 0.8rem;
-}
-
-.tcoValue {
-    font-size: 2.4rem;
-    font-weight: 900;
-    color: var(--tco-color, white);
-}
-
-.tcoValue span {
-    font-size: 1rem;
-    color: var(--text-muted);
-    opacity: 0.5;
-}
 
 /* Feature Grid Styles */
 .matrixSectionHeader {
@@ -277,14 +248,22 @@
 }
 
 
-.featureRowHighlightA {
-    background: linear-gradient(90deg, rgba(0, 162, 255, 0.05), transparent);
-    border-left: 3px solid #00a2ff;
+/* No legacy highlight rows remain */
+
+/* Empty AI state */
+.noAiData {
+    text-align: center;
+    padding: 3rem 2rem;
+    color: var(--text-muted);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
 }
 
-.featureRowHighlightB {
-    background: linear-gradient(-90deg, rgba(0, 230, 118, 0.05), transparent);
-    border-right: 3px solid #00e676;
+.noAiIcon {
+    opacity: 0.3;
+    color: var(--secondary);
 }
 
 .headerRowActive {
