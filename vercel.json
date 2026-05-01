@@ -2,6 +2,10 @@
   "framework": "vite",
   "rewrites": [
     {
+      "source": "/api/(.*)",
+      "destination": "/api/$1"
+    },
+    {
       "source": "/sitemap.xml",
       "destination": "/api/sitemap"
     },
@@ -10,11 +14,7 @@
       "destination": "/api/robots"
     },
     {
-      "source": "/api/:match*",
-      "destination": "/api/:match*"
-    },
-    {
-      "source": "/(.*)",
+      "source": "/((?!api|sitemap|robots|@|src|node_modules|client|.*\\..*).*)",
       "destination": "/index.html"
     }
   ]

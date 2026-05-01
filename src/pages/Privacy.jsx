@@ -1,5 +1,5 @@
 import React from 'react';
-import { Shield, Lock, Eye, Globe } from 'lucide-react';
+import { Shield } from 'lucide-react';
 import useSEO from '../hooks/useSEO';
 import { useLegalData } from '../hooks/useLegalData';
 
@@ -25,8 +25,6 @@ const Privacy = () => {
     // 1. SEO Hardening (v2.0)
     useSEO({ pageKey: 'privacy' });
 
-    const icons = [Eye, Lock, Globe, Shield];
-
     return (
         <div className={styles.privacyView}>
             <PageHero 
@@ -44,7 +42,6 @@ const Privacy = () => {
                         <LegalSection 
                             key={loading ? index : section.id}
                             isLoading={loading} 
-                            icon={icons[index] || Shield} 
                             number={loading ? (index + 1).toString() : section.id.toString()} 
                             title={loading ? "" : section.title}
                         >

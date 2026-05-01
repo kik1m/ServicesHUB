@@ -1,5 +1,5 @@
 import React from 'react';
-import { FileText, Gavel, Scale, FileCheck } from 'lucide-react';
+import { FileText } from 'lucide-react';
 import useSEO from '../hooks/useSEO';
 import { useLegalData } from '../hooks/useLegalData';
 
@@ -25,8 +25,6 @@ const Terms = () => {
     // 1. SEO Hardening (v2.0)
     useSEO({ pageKey: 'terms' });
 
-    const icons = [FileText, Gavel, Scale, FileCheck];
-
     return (
         <div className={styles.termsView}>
             <PageHero
@@ -44,7 +42,6 @@ const Terms = () => {
                         <LegalSection
                             key={loading ? index : section.id}
                             isLoading={loading}
-                            icon={icons[index] || FileText}
                             number={loading ? (index + 1).toString() : section.id.toString()}
                             title={loading ? "" : section.title}
                         >

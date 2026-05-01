@@ -1,5 +1,5 @@
 import React, { memo } from 'react';
-import { ShieldCheck, CheckCircle2, TrendingUp, Star } from 'lucide-react';
+import { ShieldCheck, CheckCircle2, Lock, Zap } from 'lucide-react';
 import Skeleton from '../ui/Skeleton';
 import Safeguard from '../ui/Safeguard';
 import styles from './PromoteTrustFooter.module.css';
@@ -32,24 +32,33 @@ const PromoteTrustFooter = ({ isLoading, error, onRetry, content }) => {
     return (
         <Safeguard error={error} onRetry={onRetry}>
             <footer className={styles.trustFooter}>
-                <div className={styles.iconWrapper}>
-                    <ShieldCheck size={32} />
-                </div>
-                
-                <h3 className={styles.title}>{content?.title}</h3>
-                
-                <div className={styles.badgesRow}>
-                    <div className={`${styles.badgeItem} ${styles.badgeSecure}`}>
-                        <CheckCircle2 size={16} /> 
-                        <span>{content?.badges?.secure || 'Secure Payments'}</span>
+                <div className={styles.trustCard}>
+                    <div className={styles.iconWrapper}>
+                        <ShieldCheck size={36} className={styles.shieldIcon} />
+                        <div className={styles.pulse} />
                     </div>
-                    <div className={`${styles.badgeItem} ${styles.badgeGrowth}`}>
-                        <TrendingUp size={16} /> 
-                        <span>{content?.badges?.growth || 'Instant Growth'}</span>
-                    </div>
-                    <div className={`${styles.badgeItem} ${styles.badgeSupport}`}>
-                        <Star size={16} /> 
-                        <span>{content?.badges?.support || 'Elite Support'}</span>
+                    
+                    <div className={styles.content}>
+                        <h3 className={styles.title}>{content?.title}</h3>
+                        <p className={styles.description}>
+                            Transactions are encrypted and processed by <strong>Lemon Squeezy</strong>. 
+                            We never store your credit card information.
+                        </p>
+                        
+                        <div className={styles.badgesRow}>
+                            <div className={`${styles.badgeItem} ${styles.badgeSecure}`}>
+                                <CheckCircle2 size={14} /> 
+                                <span>{content?.badges?.secure}</span>
+                            </div>
+                            <div className={`${styles.badgeItem} ${styles.badgeCompliance}`}>
+                                <Lock size={14} /> 
+                                <span>{content?.badges?.compliance}</span>
+                            </div>
+                            <div className={`${styles.badgeItem} ${styles.badgeGrowth}`}>
+                                <Zap size={14} /> 
+                                <span>{content?.badges?.growth}</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </footer>

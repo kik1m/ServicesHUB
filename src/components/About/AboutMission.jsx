@@ -19,7 +19,7 @@ const AboutMission = ({ isLoading, content, error, onRetry }) => {
 
     return (
         <Safeguard error={error} onRetry={onRetry}>
-            <div className={`${styles.missionCard} glass-card`}>
+            <div className={styles.missionCard}>
                 {isLoading ? (
                     <>
                         <Skeleton className={styles.skeletonTitle} />
@@ -43,6 +43,7 @@ const AboutMission = ({ isLoading, content, error, onRetry }) => {
                         <h2 className={styles.title}>
                             {content?.title} <span className="gradient-text">{content?.highlight}</span>
                         </h2>
+
                         <p className={styles.description}>
                             {content?.description}
                         </p>

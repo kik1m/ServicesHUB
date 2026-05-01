@@ -7,7 +7,8 @@
 .card {
   padding: 2.5rem;
   border-radius: 32px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: #1a1a1a;
+  border: 1px solid #333;
   transition: all 0.4s ease;
 }
 

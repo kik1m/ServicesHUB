@@ -4,18 +4,52 @@
   gap: 1rem;
 }
 
-.emptyState {
-  padding: 3.5rem 2rem;
-  text-align: center;
-  color: var(--text-muted);
-  border: 1px dashed rgba(255, 255, 255, 0.1);
-  border-radius: 28px;
-  background: rgba(255, 255, 255, 0.01);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 1rem;
+.emptyWrapper {
+    grid-column: 1 / -1;
+    padding: 3.5rem 2rem;
+    text-align: center;
+    color: var(--text-muted);
+    border: 1px dashed rgba(255, 255, 255, 0.1);
+    border-radius: 28px;
+    background: rgba(255, 255, 255, 0.01);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-top: 1rem;
+}
+
+.emptyTitle {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: white;
+    margin: 0;
+}
+
+.emptyText {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin: 0 0 0.5rem 0;
+    max-width: 320px;
+    opacity: 0.8;
+}
+
+.emptyAction {
+    padding: 10px 24px;
+    background: var(--primary);
+    color: white;
+    text-decoration: none;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.emptyAction:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(var(--primary-rgb), 0.2);
+    filter: brightness(1.1);
 }
 
 .emptyState h4 {

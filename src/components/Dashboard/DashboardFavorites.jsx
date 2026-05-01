@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import ToolCard from '../ToolCard';
 import styles from './DashboardFavorites.module.css';
 import Safeguard from '../ui/Safeguard';
@@ -22,7 +23,13 @@ const DashboardFavorites = ({ favorites = [], isLoading, error, onRetry, content
                             <ToolCard key={tool?.id} tool={tool} />
                         ))
                     ) : (
-                        <div className={styles.emptyText}>{content?.empty}</div>
+                        <div className={styles.emptyWrapper}>
+                            <h3 className={styles.emptyTitle}>{content?.empty?.title}</h3>
+                            <p className={styles.emptyText}>{content?.empty?.text}</p>
+                            <Link to="/tools" className={styles.emptyAction}>
+                                {content?.empty?.action}
+                            </Link>
+                        </div>
                     )}
                 </div>
             </div>

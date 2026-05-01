@@ -26,13 +26,7 @@ const LegalSection = ({ icon: Icon, number, title, children, isLoading, error, o
             ) : (
                 <div className={styles.unit}>
                     <h2 className={styles.header}>
-                        <span className="gradient-text">{number}.</span>
-                        {Icon && (
-                            <span className={styles.headerIcon}>
-                                <Icon size={24} />
-                            </span>
-                        )}
-                        {title}
+                        <span>{number}.</span> {title}
                     </h2>
                     <div className={styles.titleText}>
                         {children}

@@ -5,6 +5,7 @@ import Button from '../ui/Button';
 import Safeguard from '../ui/Safeguard';
 import styles from './AboutSideCards.module.css';
 import { ABOUT_UI_CONSTANTS } from '../../constants/aboutConstants';
+import AboutFounderCard from './AboutFounderCard';
 
 /**
  * AboutSideCards - Elite Component
@@ -19,7 +20,7 @@ const AboutSideCards = ({ isLoading, error, onRetry }) => {
             <div className={styles.sideStack}>
                 {isLoading ? (
                     [1, 2].map(i => (
-                        <div key={i} className={`${styles.card} glass-card`}>
+                        <div key={i} className={styles.card}>
                             <Skeleton className={styles.skeletonIcon} />
                             <Skeleton className={styles.skeletonTitle} />
                             <Skeleton className={styles.skeletonLine} />
@@ -28,7 +29,9 @@ const AboutSideCards = ({ isLoading, error, onRetry }) => {
                     ))
                 ) : (
                     <>
-                        <div className={`${styles.card} glass-card`}>
+                        <AboutFounderCard />
+
+                        <div className={styles.card}>
                             <div className={styles.iconBox}>
                                 <Rocket size={20} />
                             </div>
@@ -36,7 +39,7 @@ const AboutSideCards = ({ isLoading, error, onRetry }) => {
                             <p className={styles.cardDesc}>{data?.vision?.description}</p>
                         </div>
 
-                        <div className={`${styles.card} glass-card`}>
+                        <div className={styles.card}>
                             <div className={styles.iconBox}>
                                 <Sparkles size={20} />
                             </div>
@@ -44,7 +47,7 @@ const AboutSideCards = ({ isLoading, error, onRetry }) => {
                             <p className={styles.cardDesc}>{data?.growth?.description}</p>
                         </div>
 
-                        <div className={`${styles.card} ${styles.joinCard} glass-card`}>
+                        <div className={`${styles.card} ${styles.joinCard}`}>
                             <h3 className={styles.joinTitle}>{data?.join?.title}</h3>
                             <p className={styles.joinDesc}>{data?.join?.description}</p>
                             <Button 

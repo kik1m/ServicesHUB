@@ -34,11 +34,11 @@ export const PROMOTE_UI_CONSTANTS = {
         currency: "$"
     },
     trust: {
-        title: "Trusted by thousands of makers",
+        title: "Verified Secure Transaction",
         badges: {
-            secure: "Secure Payments",
-            growth: "Instant Growth",
-            support: "Elite Support"
+            secure: "Secured by Lemon Squeezy",
+            compliance: "PCI-DSS Compliant",
+            growth: "Instant Activation"
         },
         stats: [
             { label: "Active Users", value: "50K+" },

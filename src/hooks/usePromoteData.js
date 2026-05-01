@@ -3,6 +3,7 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { lsPaymentService } from '../services/lsPaymentService';
+import { promotionService } from '../services/promotionService';
 
 import { PROMOTE_UI_CONSTANTS } from '../constants/promoteConstants';
 

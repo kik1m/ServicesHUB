@@ -4,59 +4,59 @@
  */
 export const ABOUT_UI_CONSTANTS = {
     seo: {
-        title: "About Hubly | Our Mission & Vision",
-        description: "Learn about the mission, vision, and the team behind Hubly - your curated platform for tool discovery."
+        title: "About Karim Mahmoud & Hubly | The Ultimate Tool Discovery Hub",
+        description: "Discover the story behind Hubly, founded by Karim Mahmoud to revolutionize how students, businesses, and creators find and compare high-quality tools."
     },
     hero: {
-        title: "Our",
-        highlight: "Mission",
-        subtitle: "Bridging the gap between innovators and high-performance tools through expert curation and elite architecture.",
+        title: "The Story Behind",
+        highlight: "HUBly",
+        subtitle: "Founded by Karim Mahmoud to revolutionize how students, professionals, and businesses discover, compare, and leverage the world's best software.",
         breadcrumbs: [
             { label: 'Home', path: '/' },
             { label: 'About Us' }
         ]
     },
     mission: {
-        title: "Our",
-        highlight: "Mission",
-        description: "We believe that the right tool can transform a workflow. Our goal is to bridge the gap between innovation and implementation by providing a seamless experience for finding the exact tool you need.",
+        title: "A Message from",
+        highlight: "The Founder",
+        description: "Hello, I'm Karim Mahmoud. I built HUBly to solve a problem I faced daily: the overwhelming struggle to find the right tool. My mission is to provide a unified, fast, and highly reliable platform where anyone can save time searching. We don't just list tools; we provide intelligent, AI-powered comparisons with real-time data so you can make instant, confident decisions on what to use or buy.",
         points: [
             {
-                title: "Focus on Quality",
-                description: "Only the most reliable and high-performing tools make it to our platform."
+                title: "Curated Quality Over Quantity",
+                description: "We don't just dump every tool on the market. Every submission is rigorously reviewed, tested, and vetted so you can trust the quality of what you find."
             },
             {
-                title: "Radical Transparency",
-                description: "Honest reviews and clear pricing structures for everything we list."
+                title: "AI-Powered Comparisons",
+                description: "Save time with our advanced comparison engine that provides instant, side-by-side live data to help you make the perfect purchasing or usage decision."
             },
             {
-                title: "Security First",
-                description: "Every tool undergoes a safety check before being featured on our platform."
+                title: "A Gateway for Creators",
+                description: "Developers can publish their tools, get real community reviews, and reach targeted audiences through our premium promotions, newsletters, and social campaigns."
             },
             {
-                title: "Community Led",
-                description: "Driven by feedback from our global community of creators."
+                title: "Your Ultimate Reference",
+                description: "From our continuous platform updates to our dedicated blog articles, we keep you informed about the latest and greatest in the AI and tech world."
             }
         ]
     },
     stats: [
-        { label: "Active Users", value: "10k+" },
-        { label: "Curated Tools", value: "250+" },
-        { label: "Countries", value: "50+" },
-        { label: "Availability", value: "24/7" }
+        { label: "Curated Tools", value: "Premium" },
+        { label: "AI Comparisons", value: "Real-time" },
+        { label: "Community", value: "Growing" },
+        { label: "Updates", value: "Daily" }
     ],
     sideCards: {
         vision: {
-            title: "Our Vision",
-            description: "To become the global standard for software discovery, where every project finds its perfect technical companion."
+            title: "The Vision",
+            description: "To make HUBly the ultimate, trusted daily reference for anyone looking to learn, explore, and confidently choose the best software in any field."
         },
         growth: {
-            title: "Constant Growth",
-            description: "We are constantly iterating, adding new features, and refining our database to serve you better every day."
+            title: "Empowering Developers",
+            description: "We offer robust promotion plans to drive real engagement, putting your hard work directly in front of the users who need it most."
         },
         join: {
-            title: "Join the Journey",
-            description: "Have a tool to share? Be part of our growing ecosystem.",
+            title: "Join the Community",
+            description: "Whether you're looking for the perfect tool or you've built one yourself, you belong here.",
             button: "Submit a Tool"
         }
     }

@@ -44,8 +44,8 @@ export const AuthProvider = ({ children }) => {
             const metaAvatar = sessionUser.user_metadata?.avatar_url;
             const currentMetaStr = JSON.stringify({ metaName, metaAvatar });
 
-            // If it's the same user and metadata hasn't changed, just stop loading
-            if (lastFetchedId.current === sessionUser.id && lastMetaRef.current === currentMetaStr) {
+            // If it's the same user and metadata hasn't changed, and we already have profile data, just stop
+            if (lastFetchedId.current === sessionUser.id && lastMetaRef.current === currentMetaStr && user?.updated_at) {
                 setLoading(false);
                 return;
             }
@@ -59,10 +59,10 @@ export const AuthProvider = ({ children }) => {
                 ...sessionUser,
                 full_name: metaName || prev?.full_name
             }));
-            setLoading(false);
 
-            // Fetch full profile in background
-            fetchProfile(sessionUser.id).then(async (profile) => {
+            // Fetch full profile
+            try {
+                const profile = await fetchProfile(sessionUser.id);
                 if (mounted) {
                     if (profile) {
                         setUser(prev => ({
@@ -71,34 +71,37 @@ export const AuthProvider = ({ children }) => {
                             full_name: profile.full_name || prev?.full_name || metaName
                         }));
                     } else {
-                        // Profile missing - Create it (Healing Logic)
-                        try {
-                            const { data: newProfile, error } = await supabase
-                                .from('profiles')
-                                .insert({
-                                    id: sessionUser.id,
-                                    full_name: metaName || 'New User',
-                                    avatar_url: metaAvatar || '',
-                                    role: 'user', // Default role
-                                    updated_at: new Date().toISOString()
-                                })
-                                .select()
-                                .single();
-                            
-                            if (!error && newProfile) {
-                                setUser(prev => ({ ...prev, ...newProfile }));
-                            }
-                        } catch (err) {
-                            console.error("Error healing profile:", err);
+                        // Healing logic... (omitted for brevity in this replace, but I'll keep it)
+                        const { data: newProfile } = await supabase
+                            .from('profiles')
+                            .insert({
+                                id: sessionUser.id,
+                                full_name: metaName || 'User',
+                                avatar_url: metaAvatar || '',
+                                role: 'user',
+                                updated_at: new Date().toISOString()
+                            })
+                            .select()
+                            .single();
+                        
+                        if (newProfile) {
+                            setUser(prev => ({ ...prev, ...newProfile }));
                         }
                     }
+                    setLoading(false);
                 }
-            });
+            } catch (err) {
+                if (mounted) setLoading(false);
+            }
         };
 
         const initAuth = async () => {
             const { data: { session } } = await supabase.auth.getSession();
-            handleUserData(session?.user);
+            if (session?.user) {
+                handleUserData(session.user);
+            } else {
+                setLoading(false);
+            }
         };
 
         const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {

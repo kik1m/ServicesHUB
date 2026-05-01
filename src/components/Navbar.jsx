@@ -122,79 +122,83 @@ const Navbar = () => {
 
                 {/* Actions */}
                 <div className={styles.navActions}>
-                    {user && !user.is_premium && (
-                        <div className="desktop-only">
+                    {authLoading ? (
+                        <div className={styles.authSkeleton}>
+                            <Skeleton width="120px" height="36px" borderRadius="12px" />
+                        </div>
+                    ) : (
+                        <>
+                            {user && user.is_premium === false && (
+                                <div className="desktop-only">
+                                    <Button 
+                                        variant="primary" 
+                                        size="sm" 
+                                        onClick={() => navigate('/premium')}
+                                        className={styles.premiumBtn}
+                                        icon={Star}
+                                    >
+                                        {NAV_LABELS.PREMIUM_CTA}
+                                    </Button>
+                                </div>
+                            )}
+                            
                             <Button 
                                 variant="primary" 
                                 size="sm" 
-                                onClick={() => navigate('/premium')}
-                                className={styles.premiumBtn}
-                                icon={Star}
+                                onClick={() => navigate('/submit')}
                             >
-                                {NAV_LABELS.PREMIUM_CTA}
+                                {NAV_LABELS.SUBMIT}
                             </Button>
-                        </div>
-                    )}
-                    
-                    <Button 
-                        variant="primary" 
-                        size="sm" 
-                        onClick={() => navigate('/submit')}
-                    >
-                        {NAV_LABELS.SUBMIT}
-                    </Button>
 
-                    {authLoading ? (
-                        <div className={styles.authSkeleton}>
-                            <Skeleton width="100%" height="100%" borderRadius="12px" />
-                        </div>
-                    ) : !user ? (
-                        <Button 
-                            variant="outline" 
-                            size="sm" 
-                            onClick={() => navigate('/auth')}
-                        >
-                            {NAV_LABELS.LOGIN}
-                        </Button>
-                    ) : (
-                        <div className={styles.userControls}>
-                            <div className={styles.notifWrapper}>
-                                <button
-                                    className={styles.navIconBtn}
-                                    onClick={() => toggleDropdown('notifications')}
-                                    title="Notifications"
+                            {!user ? (
+                                <Button 
+                                    variant="outline" 
+                                    size="sm" 
+                                    onClick={() => navigate('/auth')}
                                 >
-                                    <Bell size={20} />
-                                    {unreadCount > 0 && (
-                                        <span className={styles.notifBadge}>{unreadCount}</span>
-                                    )}
-                                </button>
-                                {activeDropdown === 'notifications' && (
-                                    <NotificationPanel 
-                                        onClose={closeAll} 
-                                        className={styles.notifDropdown}
-                                    />
-                                )}
-                            </div>
+                                    {NAV_LABELS.LOGIN}
+                                </Button>
+                            ) : (
+                                <div className={styles.userControls}>
+                                    <div className={styles.notifWrapper}>
+                                        <button
+                                            className={styles.navIconBtn}
+                                            onClick={() => toggleDropdown('notifications')}
+                                            title="Notifications"
+                                        >
+                                            <Bell size={20} />
+                                            {unreadCount > 0 && (
+                                                <span className={styles.notifBadge}>{unreadCount}</span>
+                                            )}
+                                        </button>
+                                        {activeDropdown === 'notifications' && (
+                                            <NotificationPanel 
+                                                onClose={closeAll} 
+                                                className={styles.notifDropdown}
+                                            />
+                                        )}
+                                    </div>
 
-                            <div className={styles.accountWrapper}>
-                                <button
-                                    className={styles.navProfileTrigger}
-                                    onClick={() => toggleDropdown('account')}
-                                    title="Account"
-                                >
-                                    <User size={22} />
-                                </button>
-                                {activeDropdown === 'account' && (
-                                    <AccountMenu 
-                                        onClose={closeAll} 
-                                        handleLogout={handleLogout} 
-                                        user={user}
-                                        className={styles.accountDropdown}
-                                    />
-                                )}
-                            </div>
-                        </div>
+                                    <div className={styles.accountWrapper}>
+                                        <button
+                                            className={styles.navProfileTrigger}
+                                            onClick={() => toggleDropdown('account')}
+                                            title="Account"
+                                        >
+                                            <User size={22} />
+                                        </button>
+                                        {activeDropdown === 'account' && (
+                                            <AccountMenu 
+                                                onClose={closeAll} 
+                                                handleLogout={handleLogout} 
+                                                user={user}
+                                                className={styles.accountDropdown}
+                                            />
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+                        </>
                     )}
 
                     <button
