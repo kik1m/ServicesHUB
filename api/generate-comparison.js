@@ -52,30 +52,28 @@ export default async function handler(req, res) {
 
         // 2. Check DB cache FIRST — works regardless of API key availability
         // We check BOTH permutations to find manually saved comparisons regardless of order
+        // Rule #24: Prefer existing strategic analysis over live generation
         const { data: cachedComparison } = await supabase
             .from('tool_comparisons')
             .select('tool1_id, tool2_id, ai_report_json')
-            .or(`and(tool1_id.eq.${idA},tool2_id.eq.${idB}),and(tool1_id.eq.${idB},tool2_id.eq.${idA})`)
+            .or(`and(tool1_id.eq."${idA}",tool2_id.eq."${idB}"),and(tool1_id.eq."${idB}",tool2_id.eq."${idA}")`)
             .maybeSingle();
 
         if (cachedComparison && cachedComparison.ai_report_json) {
             let report = cachedComparison.ai_report_json;
 
-            // Cache Validation: If the cached report is missing 'scores' AND we have an API key, we should regenerate
-            if (!report.scores && process.env.GEMINI_API_KEY) {
-                console.log(`⚠️ Cache missing 'scores' field. Regenerating to standardize format for ${slug1} vs ${slug2}...`);
-                // Skip returning cache, let it fall through to generation
-            } else {
-                console.log(`⚡ Serving cached comparison for ${slug1} vs ${slug2}`);
+            // Elite Standardization: If the cache was stored, we serve it.
+            // We only regenerate if explicitly forced or if the data is corrupted.
+            console.log(`⚡ Serving cached comparison for ${slug1} vs ${slug2}`);
                 
-                // Smart Swapper: If cache was stored in reverse order, flip to match request
-                if (cachedComparison.tool1_id === idB) {
-                    console.log(`🔄 Swapping JSON data to match requested order (${slug1} vs ${slug2})`);
+            // Smart Swapper: If cache was stored in reverse order, flip to match request
+            if (cachedComparison.tool1_id === idB) {
+                console.log(`🔄 Swapping JSON data to match requested order (${slug1} vs ${slug2})`);
                     
-                    const newWhyBuy = {
-                        tool1: report.why_buy?.tool2 || [],
-                        tool2: report.why_buy?.tool1 || []
-                    };
+                const newWhyBuy = {
+                    tool1: report.why_buy?.tool2 || [],
+                    tool2: report.why_buy?.tool1 || []
+                };
 
                     const newMatrix = (report.comparison_matrix || []).map(row => {
                         let newWinner = row.winner;
@@ -106,7 +104,6 @@ export default async function handler(req, res) {
 
                 return res.status(200).json({ data: report, source: 'cache' });
             }
-        }
 
         // 3. No cache found — check API key before attempting AI generation
         if (!process.env.GEMINI_API_KEY) {

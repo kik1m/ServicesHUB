@@ -6,15 +6,15 @@ import Select from '../ui/Select';
 import EmptyState from '../ui/EmptyState';
 import Safeguard from '../ui/Safeguard';
 import { SORT_OPTIONS, SKELETON_COUNTS } from '../../constants/searchConstants';
-import styles from './SearchResults.module.css';
+import styles from './DirectoryResults.module.css';
 
 /**
- * SearchResults Component - Elite Grid
+ * DirectoryResults Component - Elite Grid
  * Rule #29: Pure View with Safeguard protection
  * Rule #11: Infinite Scroll implementation
  */
-const SearchResults = (props) => {
-    const { results, isLoading, loadingMore, hasMore, setPage, sortBy, setSortBy, error, refetch, onToolClick, className = '', content, headerExtra } = props;
+const DirectoryResults = (props) => {
+    const { results, totalResults, isLoading, loadingMore, hasMore, setPage, sortBy, setSortBy, error, refetch, onToolClick, className = '', content, headerExtra } = props;
 
     const observerTarget = useRef(null);
     const safeResults = results?.filter(Boolean) ?? [];
@@ -43,7 +43,7 @@ const SearchResults = (props) => {
                             <Skeleton width="120px" height="18px" borderRadius="4px" />
                         ) : (
                             <p className={styles.resultCount}>
-                                Showing <span className={styles.resultCountHighlight}>{safeResults.length}</span> {content?.found}
+                                Showing <span className={styles.resultCountHighlight}>{safeResults.length}</span> {totalResults ? `of ${totalResults}` : ''} {content?.found}
                             </p>
                         )}
                     </div>
@@ -101,4 +101,4 @@ const SearchResults = (props) => {
     );
 };
 
-export default SearchResults;
+export default DirectoryResults;

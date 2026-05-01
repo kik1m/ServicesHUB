@@ -1,8 +1,8 @@
 import React, { useMemo, useEffect, memo } from 'react';
 import { X, ArrowRight, Zap } from 'lucide-react';
 import { useSearchEngine } from '../../hooks/useSearchEngine';
-import SearchSidebar from '../Search/SearchSidebar';
-import SearchResults from '../Search/SearchResults';
+import DirectorySidebar from '../Directory/DirectorySidebar';
+import DirectoryResults from '../Directory/DirectoryResults';
 import Button from '../ui/Button';
 import Input from '../ui/Input';
 import useLockBodyScroll from '../../hooks/useLockBodyScroll';
@@ -185,7 +185,7 @@ const CompareBuilder = ({ isSelectingFor, tool1, tool2, onSelect, onClose, onCle
 
                     <div className={styles.builderGrid}>
                         <div className={styles.builderGridSidebar}>
-                            <SearchSidebar 
+                            <DirectorySidebar 
                                 categoryFilter={categoryFilter}
                                 pricingFilter={pricingFilter}
                                 isLoading={isToolsLoading && categories?.length === 0}
@@ -203,7 +203,7 @@ const CompareBuilder = ({ isSelectingFor, tool1, tool2, onSelect, onClose, onCle
                         </div>
 
                         <div className={styles.builderGridMain}>
-                            <SearchResults 
+                            <DirectoryResults 
                                 results={results}
                                 isLoading={isToolsLoading}
                                 loadingMore={loadingMore}

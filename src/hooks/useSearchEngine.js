@@ -35,7 +35,8 @@ export const useSearchEngine = ({
     const selectedCategory = syncUrl ? (searchParams.get('category') || 'All') : localCategory;
     const selectedPrice = syncUrl ? (searchParams.get('price') || 'All') : localPrice;
     const sortBy = syncUrl ? (searchParams.get('sort') || 'featured') : localSort;
-    const page = syncUrl ? parseInt(searchParams.get('page') || '0', 10) : localPage;
+    const rawPage = syncUrl ? parseInt(searchParams.get('page') || '0', 10) : localPage;
+    const page = isNaN(rawPage) ? 0 : rawPage;
 
     // 3. Partitioned States
     const [isLoading, setIsLoading] = useState(true);
@@ -97,7 +98,10 @@ export const useSearchEngine = ({
     const setCategory = useCallback((val) => updateParams({ category: val }), [updateParams]);
     const setPrice = useCallback((val) => updateParams({ price: val }), [updateParams]);
     const setSort = useCallback((val) => updateParams({ sort: val }), [updateParams]);
-    const setPageNum = useCallback((val) => updateParams({ page: val }), [updateParams]);
+    const setPageNum = useCallback((val) => {
+        const nextVal = typeof val === 'function' ? val(page) : val;
+        updateParams({ page: nextVal });
+    }, [updateParams, page]);
 
     // Fetch Categories
     const fetchCategories = useCallback(async () => {
@@ -115,12 +119,13 @@ export const useSearchEngine = ({
 
     // Core Fetch Engine
     const fetchTools = useCallback(async (isInitial = true) => {
-        const cacheKey = `${searchQuery}|${selectedCategory}|${selectedPrice}|${sortBy}|${page}`;
+        const cacheKey = `${searchQuery}|${selectedCategory}|${selectedPrice}|${sortBy}|${page}|${itemsPerPage}`;
         const cached = searchCache.get(cacheKey);
 
         if (cached && isInitial) {
             setResults(cached.data);
             setHasMore(cached.hasMore);
+            setTotalResults(cached.total || 0);
             setIsLoading(false);
             return;
         }
@@ -148,14 +153,32 @@ export const useSearchEngine = ({
             if (fetchErr) throw fetchErr;
 
             if (data) {
-                const hasMoreData = data.length === itemsPerPage;
-                searchCache.set(cacheKey, { data, hasMore: hasMoreData });
+                const totalCount = count !== null ? count : (page === 0 ? data.length : totalResults);
+                const currentTotalLoaded = (page === 0 ? 0 : results.length) + data.length;
+                const hasMoreData = currentTotalLoaded < totalCount;
+                
+                searchCache.set(cacheKey, { data, hasMore: hasMoreData, total: totalCount });
                 
                 setResults(prev => page === 0 ? data : [...prev, ...data]);
                 setHasMore(hasMoreData);
-                if (count !== null) setTotalResults(count);
+                setTotalResults(totalCount);
+            } else if (page === 0) {
+                // Defensive: If first page returns null data, ensure results is empty array
+                setResults([]);
+                setTotalResults(0);
+                setHasMore(false);
             }
         } catch (err) {
+            // Rule #32: Graceful degradation for out-of-bounds ranges (416)
+            if (err.code === 'PGRST103' || err.message?.includes('416')) {
+                if (page > 0 && results.length === 0) {
+                    updateParams({ page: 0 });
+                }
+                setHasMore(false);
+                setLoadingMore(false);
+                setIsLoading(false);
+                return;
+            }
             setError(err.message || "Operation failed. Please check your connectivity.");
         } finally {
             setIsLoading(false);
@@ -173,6 +196,13 @@ export const useSearchEngine = ({
         }, page === 0 ? debounceMs : 0);
         return () => clearTimeout(timer);
     }, [fetchTools, page, debounceMs]);
+
+    // 🎯 Reset page to 0 if itemsPerPage changes to avoid out-of-bounds pages
+    useEffect(() => {
+        if (page > 0) {
+            updateParams({ page: 0 });
+        }
+    }, [itemsPerPage]);
 
     // 🚀 Elite Derived Data Logic (Rule #35)
     const searchFilteredCategories = useMemo(() => {

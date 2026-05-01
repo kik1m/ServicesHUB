@@ -3,12 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { Sparkles } from 'lucide-react';
 import Button from '../ui/Button';
 import Safeguard from '../ui/Safeguard';
-import styles from './ToolsSubmitCTA.module.css';
+import styles from './DirectorySubmitCTA.module.css';
 
 /**
- * ToolsSubmitCTA - Standardized Community Call-to-Action
+ * DirectorySubmitCTA - Standardized Community Call-to-Action
  */
-const ToolsSubmitCTA = memo(({ error, onRetry, content }) => {
+const DirectorySubmitCTA = memo(({ error, onRetry, content }) => {
     const navigate = useNavigate();
 
     return (
@@ -33,4 +33,4 @@ const ToolsSubmitCTA = memo(({ error, onRetry, content }) => {
     );
 });
 
-export default ToolsSubmitCTA;
+export default DirectorySubmitCTA;

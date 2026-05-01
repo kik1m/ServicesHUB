@@ -1,7 +1,7 @@
 /* HomeCategories.module.css */
 
 .categoriesSection {
-  padding: 80px 5%;
+  padding: 80px 1.5rem;
   max-width: 1400px;
   width: 100%;
   margin: 0 auto;
@@ -9,7 +9,7 @@
 
 .categoriesGridSmall {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 1.5rem;
   margin-top: 1.5rem;
 }
@@ -70,9 +70,6 @@
   font-weight: 700;
   margin-bottom: 2px;
   color: var(--text-main);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .catInfo p {

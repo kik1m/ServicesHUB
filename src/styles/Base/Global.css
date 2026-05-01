@@ -4,7 +4,7 @@
 
 /* 1. Global Layout Wrappers */
 .main-section {
-  padding: 80px 5%;
+  padding: 80px 1.5rem;
   max-width: 1400px;
   margin: 0 auto;
 }

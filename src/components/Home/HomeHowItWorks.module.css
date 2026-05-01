@@ -2,7 +2,7 @@
 
 .howItWorks {
   background: radial-gradient(circle at center, rgba(var(--primary-rgb), 0.03) 0%, transparent 70%);
-  padding: 80px 5%;
+  padding: 80px 1.5rem;
   max-width: 1400px;
   width: 100%;
   margin: 0 auto;

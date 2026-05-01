@@ -3,13 +3,13 @@ import { Filter, ChevronRight, Search as SearchIcon } from 'lucide-react';
 import Skeleton from '../ui/Skeleton';
 import Input from '../ui/Input';
 import Safeguard from '../ui/Safeguard';
-import styles from './SearchSidebar.module.css';
+import styles from './DirectorySidebar.module.css';
 
 /**
- * SearchSidebar Component - Elite Gold Standard
+ * DirectorySidebar Component - Elite Gold Standard
  * Rule #29: Pure View with internal Safeguard protection
  */
-const SearchSidebar = memo((props) => {
+const DirectorySidebar = memo((props) => {
     const { 
         categoryFilter, 
         pricingFilter, 
@@ -119,4 +119,4 @@ const SearchSidebar = memo((props) => {
     );
 });
 
-export default SearchSidebar;
+export default DirectorySidebar;

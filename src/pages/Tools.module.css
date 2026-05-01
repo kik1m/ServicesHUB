@@ -1,64 +1,69 @@
-/* Tools.module.css */
+/* Tools.module.css - Elite Unified Directory Layout */
 
 .toolsDirectoryPage {
-    min-height: 100vh;
-    background: transparent;
+  min-height: 100vh;
+  padding-bottom: 5rem;
 }
 
-.mainContainer {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 0 5% 5rem;
+.searchContainer {
+  max-width: 1400px; /* Standardized Elite Container */
+  margin: 0 auto;
+  padding: 0 1.5rem; /* Reduced for a tighter look */
 }
 
-.contentLayout {
-    display: flex;
-    flex-direction: column;
-    gap: 2.5rem;
-    margin-top: 2rem; /* Standard spacing, no overlap with hero subtitle */
-    position: relative;
-    z-index: 10;
+.searchGridLayout {
+  display: grid !important;
+  grid-template-columns: 260px 1fr !important;
+  gap: 1.25rem !important; /* Brought elements closer */
+  margin-top: 2rem;
+  align-items: start;
 }
 
-/* Elite Search Bar Integration */
-.searchWrapper {
-    width: 100%;
-    max-width: 800px;
-    margin: 0 auto;
+.resultsColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem; /* Reduced gap between search input and results */
+  align-items: center; /* Centering the whole column content */
 }
 
-.searchInner {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    width: 100%;
+.searchHeaderWrapper {
+  max-width: 820px; /* Aligns with the new grid width */
+  width: 100%;
+  margin: 0 auto 0.5rem auto; /* Center within column */
 }
 
-.toolsMainInput {
-    margin-bottom: 0 !important;
+.bottomCtaSection {
+  margin-top: 5rem;
+  padding: 0 5%;
 }
 
-.resultsBadge {
-    background: rgba(0, 136, 204, 0.1);
-    color: var(--primary);
-    padding: 4px 12px;
-    border-radius: 100px;
-    font-size: 0.85rem;
-    font-weight: 800;
-    white-space: nowrap;
+@media (max-width: 1200px) {
+    .searchGridLayout {
+        gap: 1.5rem;
+    }
+}
+
+@media (max-width: 1024px) {
+  .searchGridLayout {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+  
+  .searchContainer {
+    padding: 0 2rem;
+  }
 }
 
 @media (max-width: 768px) {
-    .contentLayout {
-        margin-top: 20px;
-        gap: 1.5rem;
-    }
-    
-    .searchInner {
-        padding: 10px 18px;
-    }
-    
-    .resultsBadge {
-        display: none;
-    }
+  .searchContainer {
+    padding: 0 1rem;
+  }
+  
+  .searchGridLayout {
+    gap: 1.5rem;
+  }
+  
+  .bottomCtaSection {
+    margin-top: 3rem;
+  }
 }
