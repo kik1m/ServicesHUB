@@ -54,8 +54,8 @@ export const useCompareData = () => {
             if (t2Slug) setIsTool2Loading(true);
             if (t1Slug && t2Slug) setIsAiLoading(true);
 
-            try {
-                const [res1, res2, resAi] = await Promise.all([tool1Promise, tool2Promise, aiPromise]);
+        try {
+                const [res1, res2] = await Promise.all([tool1Promise, tool2Promise]);
 
                 // Handle Tool 1
                 if (res1.data) setTool1(res1.data);
@@ -65,38 +65,50 @@ export const useCompareData = () => {
                 if (res2.data) setTool2(res2.data);
                 if (res2.error) throw res2.error;
 
-                // Handle AI Result
-                if (resAi) {
-                    if (!resAi.ok) {
-                        let errMsg = `AI API Error: ${resAi.status}`;
-                        try {
-                            const errData = await resAi.json();
-                            if (errData.error) errMsg = errData.error;
-                        } catch(e) {
-                            const errorText = await resAi.text();
-                            if (errorText) errMsg = errorText;
-                        }
-                        throw new Error(errMsg);
-                    }
-                    const aiData = await resAi.json();
-                    if (aiData.error) throw new Error(aiData.error);
-                    
-                    setAiResults({
-                        ...aiData.data,
-                        tool1_id: res1.data?.id,
-                        tool2_id: res2.data?.id,
-                        source: aiData.source
-                    });
-                }
-                
                 setError(null);
             } catch (err) {
-                console.error("Parallel Hydration Error:", err);
-                setError(err.message || "Failed to load comparison data");
-                setAiError(err.message);
+                console.error("Tool Hydration Error:", err);
+                setError(err.message || "Failed to load tool data");
             } finally {
                 setIsTool1Loading(false);
                 setIsTool2Loading(false);
+            }
+
+            // Handle AI Result independently so tool errors don't block it and vice versa
+            if (t1Slug && t2Slug) {
+                try {
+                    const resAi = await aiPromise;
+                    if (resAi) {
+                        if (!resAi.ok) {
+                            let errMsg = `AI API Error: ${resAi.status}`;
+                            try {
+                                const errData = await resAi.json();
+                                if (errData.error) errMsg = errData.error;
+                            } catch(e) {
+                                const errorText = await resAi.text();
+                                if (errorText) errMsg = errorText;
+                            }
+                            setAiError(errMsg);
+                        } else {
+                            const aiData = await resAi.json();
+                            if (aiData.error) {
+                                setAiError(aiData.error);
+                            } else {
+                                setAiResults({
+                                    ...aiData.data,
+                                    source: aiData.source
+                                });
+                                setAiError(null);
+                            }
+                        }
+                    }
+                } catch (aiErr) {
+                    console.error("AI Hydration Error:", aiErr);
+                    setAiError(aiErr.message || 'Failed to load AI analysis');
+                } finally {
+                    setIsAiLoading(false);
+                }
+            } else {
                 setIsAiLoading(false);
             }
         };
