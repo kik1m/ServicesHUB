@@ -74,8 +74,9 @@ export default async function handler(req, res) {
         }
 
         const { data: resendData, error } = await resend.emails.send({
-            from: 'HUBly Tools <noreply@hubly-tools.com>',
+            from: 'HUBly Tools <support@hubly-tools.com>',
             to: [to],
+            reply_to: 'support@hubly-tools.com',
             subject: subject,
             html: html,
         });

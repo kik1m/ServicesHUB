@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
-import { premiumService } from '../services/premiumService';
+import { lsPaymentService } from '../services/lsPaymentService';
 import { PREMIUM_UI_CONSTANTS } from '../constants/premiumConstants';
 
 /**
@@ -15,7 +15,7 @@ export const usePremiumData = () => {
     const { showToast } = useToast();
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
-    const { messages } = PREMIUM_UI_CONSTANTS;
+    const { messages, pricing } = PREMIUM_UI_CONSTANTS;
 
     const handleUpgrade = async () => {
         if (!user) {
@@ -25,7 +25,12 @@ export const usePremiumData = () => {
 
         setLoading(true);
         try {
-            const data = await premiumService.createPremiumCheckout(user.id);
+            const data = await lsPaymentService.createCheckout({
+                userId: user.id,
+                itemType: 'account_premium',
+                planName: pricing.planName,
+                variantId: pricing.variantId
+            });
 
             if (data?.url) {
                 showToast(messages.successRedirect, 'success');

@@ -4,8 +4,8 @@
  */
 export const CONTACT_UI_CONSTANTS = {
     seo: {
-        title: "Contact Us | Get in Touch with ServicesHUB",
-        description: "Have questions or feedback? Contact the ServicesHUB team for support, partnership inquiries, or general help."
+        title: "Contact Us | Get in Touch with Hubly",
+        description: "Have questions or feedback? Contact the Hubly team for support, partnership inquiries, or general help."
     },
     hero: {
         title: "Get in",
@@ -20,7 +20,7 @@ export const CONTACT_UI_CONSTANTS = {
         title: "Contact Information",
         email: {
             title: "Email Us",
-            value: "support@serviceshub.com"
+            value: "support@hubly-tools.com"
         },
         chat: {
             title: "Live Chat",

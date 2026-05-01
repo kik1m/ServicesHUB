@@ -44,7 +44,7 @@ export const useAuthLogic = () => {
         setError(null);
         try {
             await authService.signUp(email, password, fullName);
-            showToast('Account created! Welcome to ServicesHUB.', 'success');
+            showToast('Account created! Welcome to Hubly.', 'success');
             navigate('/dashboard');
         } catch (err) {
             const msg = err.message || 'Registration failed';

@@ -4,8 +4,8 @@
  */
 export const ABOUT_UI_CONSTANTS = {
     seo: {
-        title: "About ServicesHUB | Our Mission & Vision",
-        description: "Learn about the mission, vision, and the team behind ServicesHUB - your curated platform for tool discovery."
+        title: "About Hubly | Our Mission & Vision",
+        description: "Learn about the mission, vision, and the team behind Hubly - your curated platform for tool discovery."
     },
     hero: {
         title: "Our",

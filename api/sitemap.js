@@ -11,15 +11,17 @@ const BASE_URL = 'https://hubly-tools.com';
 export default async function handler(req, res) {
     try {
         // 1. Fetch all required data in parallel
-        const [toolsRes, catsRes, postsRes] = await Promise.all([
+        const [toolsRes, catsRes, postsRes, profilesRes] = await Promise.all([
             supabase.from('tools').select('slug, updated_at').eq('is_approved', true),
             supabase.from('categories').select('slug'),
-            supabase.from('blog_posts').select('id, created_at')
+            supabase.from('blog_posts').select('id, created_at'),
+            supabase.from('profiles').select('id').eq('membership', 'premium') // Only index premium or active profiles for quality
         ]);
 
         const tools = toolsRes.data || [];
         const categories = catsRes.data || [];
         const posts = postsRes.data || [];
+        const profiles = profilesRes.data || [];
 
         // 2. Build the XML string
         let xml = `<?xml version="1.0" encoding="UTF-8"?>
@@ -33,17 +35,17 @@ export default async function handler(req, res) {
     <url>
         <loc>${BASE_URL}/search</loc>
         <changefreq>daily</changefreq>
-        <priority>0.8</priority>
+        <priority>0.9</priority>
     </url>
     <url>
         <loc>${BASE_URL}/categories</loc>
         <changefreq>weekly</changefreq>
-        <priority>0.7</priority>
+        <priority>0.8</priority>
     </url>
     <url>
         <loc>${BASE_URL}/tools</loc>
         <changefreq>daily</changefreq>
-        <priority>0.7</priority>
+        <priority>0.8</priority>
     </url>
     <url>
         <loc>${BASE_URL}/blog</loc>
@@ -57,6 +59,46 @@ export default async function handler(req, res) {
     </url>
     <url>
         <loc>${BASE_URL}/about</loc>
+        <changefreq>monthly</changefreq>
+        <priority>0.6</priority>
+    </url>
+    <url>
+        <loc>${BASE_URL}/contact</loc>
+        <changefreq>monthly</changefreq>
+        <priority>0.6</priority>
+    </url>
+    <url>
+        <loc>${BASE_URL}/faq</loc>
+        <changefreq>monthly</changefreq>
+        <priority>0.6</priority>
+    </url>
+    <url>
+        <loc>${BASE_URL}/premium</loc>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>${BASE_URL}/promote</loc>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>${BASE_URL}/privacy</loc>
+        <changefreq>monthly</changefreq>
+        <priority>0.4</priority>
+    </url>
+    <url>
+        <loc>${BASE_URL}/terms</loc>
+        <changefreq>monthly</changefreq>
+        <priority>0.4</priority>
+    </url>
+    <url>
+        <loc>${BASE_URL}/login</loc>
+        <changefreq>monthly</changefreq>
+        <priority>0.5</priority>
+    </url>
+    <url>
+        <loc>${BASE_URL}/signup</loc>
         <changefreq>monthly</changefreq>
         <priority>0.5</priority>
     </url>
@@ -85,6 +127,14 @@ export default async function handler(req, res) {
         <lastmod>${new Date(post.created_at || Date.now()).toISOString()}</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.6</priority>
+    </url>`).join('')}
+
+    <!-- Dynamic Publisher Profiles -->
+    ${profiles.map(profile => `
+    <url>
+        <loc>${BASE_URL}/profile/${profile.id}</loc>
+        <changefreq>weekly</changefreq>
+        <priority>0.5</priority>
     </url>`).join('')}
 </urlset>`;
 

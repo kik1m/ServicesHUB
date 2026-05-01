@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
-import { promotionService } from '../services/promotionService';
+import { lsPaymentService } from '../services/lsPaymentService';
 
 import { PROMOTE_UI_CONSTANTS } from '../constants/promoteConstants';
 
@@ -73,12 +73,13 @@ export const usePromoteData = () => {
         try {
             const finalToolName = toolName || userTools.find(t => t.id === selectedToolId)?.name;
             
-            const session = await promotionService.createCheckoutSession({
+            const session = await lsPaymentService.createCheckout({
                 userId: user.id,
                 toolId: selectedToolId,
                 toolName: finalToolName,
                 planName: plan.name,
-                priceAmount: plan.amount
+                itemType: 'tool_promotion',
+                variantId: plan.variantId
             });
 
             if (session?.url) {

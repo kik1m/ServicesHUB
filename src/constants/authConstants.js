@@ -5,8 +5,8 @@
 export const AUTH_UI_CONSTANTS = {
     login: {
         seo: {
-            title: "Login | ServicesHUB Elite Access",
-            description: "Log in to your ServicesHUB account to manage your tools, reviews, and professional profile."
+            title: "Login | Hubly Elite Access",
+            description: "Log in to your Hubly account to manage your tools, reviews, and professional profile."
         },
         header: {
             title: "Welcome Back",
@@ -28,8 +28,8 @@ export const AUTH_UI_CONSTANTS = {
     },
     signup: {
         seo: {
-            title: "Join ServicesHUB | Professional AI Directory",
-            description: "Create your ServicesHUB account today and start showcasing your AI tools to a global audience."
+            title: "Join Hubly | Professional AI Directory",
+            description: "Create your Hubly account today and start showcasing your AI tools to a global audience."
         },
         header: {
             title: "Create Account",
@@ -54,8 +54,8 @@ export const AUTH_UI_CONSTANTS = {
     },
     forgotPassword: {
         seo: {
-            title: "Reset Password | ServicesHUB",
-            description: "Recover your ServicesHUB account access by resetting your password."
+            title: "Reset Password | Hubly",
+            description: "Recover your Hubly account access by resetting your password."
         },
         header: {
             title: "Reset Password",
@@ -82,8 +82,8 @@ export const AUTH_UI_CONSTANTS = {
     },
     resetPassword: {
         seo: {
-            title: "Set New Password | ServicesHUB",
-            description: "Securely update your ServicesHUB account password."
+            title: "Set New Password | Hubly",
+            description: "Securely update your Hubly account password."
         },
         header: {
             title: "Set New Password",

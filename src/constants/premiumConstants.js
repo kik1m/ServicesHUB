@@ -20,7 +20,7 @@ export const PREMIUM_UI_CONSTANTS = {
     },
     pricing: {
         planName: "Prime Member",
-        price: "19",
+        price: "99",
         period: "/one-time",
         features: [
             "Elite Verified Badge",
@@ -31,7 +31,8 @@ export const PREMIUM_UI_CONSTANTS = {
         ],
         buttonText: "Upgrade Now",
         buttonLoading: "Preparing Checkout...",
-        guarantee: "Safe & Secure Checkout via Stripe"
+        guarantee: "Safe & Secure Checkout via Lemon Squeezy",
+        variantId: "1597126"
     },
     faq: {
         title: "Common",

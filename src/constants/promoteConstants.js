@@ -58,7 +58,8 @@ export const PROMOTE_UI_CONSTANTS = {
             recommended: true,
             theme: "#00d2ff",
             glow: "rgba(0, 210, 255, 0.3)",
-            cta: "Get Featured"
+            cta: "Get Featured",
+            variantId: "1597143"
         },
         {
             id: 'enterprise',
@@ -71,7 +72,8 @@ export const PROMOTE_UI_CONSTANTS = {
             recommended: false,
             theme: "#bf5af2",
             glow: "rgba(191, 90, 242, 0.3)",
-            cta: "Go Enterprise"
+            cta: "Go Enterprise",
+            variantId: "1597146"
         }
     ]
 };

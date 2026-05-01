@@ -1,5 +1,4 @@
 import { supabase } from '../lib/supabaseClient';
-import axios from 'axios';
 
 /**
  * Service for handling all tool promotion and advertising logic.
@@ -31,21 +30,5 @@ export const promotionService = {
         
         if (error) throw error;
         return data || [];
-    },
-
-    /**
-     * Initiates a Stripe checkout session for a promotion plan
-     */
-    async createCheckoutSession(params) {
-        const { data } = await axios.post(`/api/create-checkout-session`, {
-            userId: params.userId,
-            toolId: params.toolId,
-            toolName: params.toolName,
-            planName: params.planName,
-            priceAmount: params.priceAmount,
-            itemType: 'tool_promotion'
-        });
-        
-        return data;
     }
 };

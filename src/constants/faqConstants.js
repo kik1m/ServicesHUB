@@ -4,8 +4,8 @@
  */
 export const FAQ_UI_CONSTANTS = {
     seo: {
-        title: "Frequently Asked Questions | ServicesHUB Help",
-        description: "Find answers to common questions about using ServicesHUB, submitting tools, and managing your account."
+        title: "Frequently Asked Questions | Hubly Help",
+        description: "Find answers to common questions about using Hubly, submitting tools, and managing your account."
     },
     hero: {
         title: "Help",
