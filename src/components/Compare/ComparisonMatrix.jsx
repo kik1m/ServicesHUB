@@ -16,6 +16,22 @@ const ComparisonMatrix = ({ tool1, tool2, isLoading, isTool1Loading, isTool2Load
     const tool1IsWinner = !!(aiResults && tool1?.name && aiWinner === tool1.name);
     const tool2IsWinner = !!(aiResults && tool2?.name && aiWinner === tool2.name);
 
+    // Lightweight display score: rating + reviews + verification (display only)
+    const calculateDisplayScore = (tool) => {
+        if (!tool) return 0;
+        let score = Math.round(((parseFloat(tool?.rating) || 0) / 5) * 55);
+        if (tool?.is_verified) score += 20;
+        const r = tool?.reviews_count || 0;
+        if (r > 500) score += 25;
+        else if (r > 100) score += 15;
+        else if (r > 10) score += 10;
+        else score += 5;
+        return Math.min(score, 100);
+    };
+    const score1 = calculateDisplayScore(tool1);
+    const score2 = calculateDisplayScore(tool2);
+    const displayWinner = score1 > score2 ? 1 : score1 < score2 ? 2 : 0;
+
     const LOADING_MESSAGES = [
         "AI Analyst is distilling strategic insights...",
         "Deep-scanning feature vectors for both tools...",
@@ -112,9 +128,13 @@ const ComparisonMatrix = ({ tool1, tool2, isLoading, isTool1Loading, isTool2Load
                                 {isTool1Loading || !tool1 ? (
                                     <Skeleton width="120px" height="120px" borderRadius="50%" />
                                 ) : (
-                                    <div className={`${styles.scoreRing} ${tool1IsWinner ? styles.winnerRing : ''}`}>
+                                    <div
+                                        className={`${styles.scoreRing} ${(tool1IsWinner || displayWinner === 1) ? styles.winnerRing : ''}`}
+                                        style={{ '--score': `${score1}%`, '--score-color': (tool1IsWinner || displayWinner === 1) ? 'var(--success)' : 'var(--secondary)' }}
+                                    >
                                         <div className={styles.scoreInner}>
-                                            {tool1IsWinner ? <Trophy size={32} color="#ffd700" /> : <span className={styles.scoreLabel}>—</span>}
+                                            <span className={styles.scoreNumber}>{score1}</span>
+                                            <span className={styles.scoreLabel}>SCORE</span>
                                         </div>
                                     </div>
                                 )}
@@ -152,9 +172,13 @@ const ComparisonMatrix = ({ tool1, tool2, isLoading, isTool1Loading, isTool2Load
                                 {isTool2Loading || !tool2 ? (
                                     <Skeleton width="120px" height="120px" borderRadius="50%" />
                                 ) : (
-                                    <div className={`${styles.scoreRing} ${tool2IsWinner ? styles.winnerRing : ''}`}>
+                                    <div
+                                        className={`${styles.scoreRing} ${(tool2IsWinner || displayWinner === 2) ? styles.winnerRing : ''}`}
+                                        style={{ '--score': `${score2}%`, '--score-color': (tool2IsWinner || displayWinner === 2) ? 'var(--success)' : 'var(--secondary)' }}
+                                    >
                                         <div className={styles.scoreInner}>
-                                            {tool2IsWinner ? <Trophy size={32} color="#ffd700" /> : <span className={styles.scoreLabel}>—</span>}
+                                            <span className={styles.scoreNumber}>{score2}</span>
+                                            <span className={styles.scoreLabel}>SCORE</span>
                                         </div>
                                     </div>
                                 )}

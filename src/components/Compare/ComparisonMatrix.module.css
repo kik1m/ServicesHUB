@@ -30,20 +30,18 @@
     width: 120px;
     height: 120px;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.04);
-    border: 2px solid rgba(255, 255, 255, 0.1);
+    background: conic-gradient(var(--score-color) var(--score), rgba(255, 255, 255, 0.05) 0);
     display: flex;
     align-items: center;
     justify-content: center;
     position: relative;
     box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
-    transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: all 1.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .winnerRing {
-    border-color: #ffd700;
-    box-shadow: 0 0 35px rgba(255, 215, 0, 0.4);
-    background: rgba(255, 215, 0, 0.05);
+    box-shadow: 0 0 35px var(--score-color);
+    border: 2px solid var(--score-color);
 }
 
 .scoreInner {
