@@ -1,9 +1,10 @@
 import React, { useCallback, useMemo } from 'react';
-import { RefreshCcw } from 'lucide-react';
+import { RefreshCcw, Share2 } from 'lucide-react';
 import SmartBanner from '../components/SmartBanner';
 import useSEO from '../hooks/useSEO';
 import { useCompareData } from '../hooks/useCompareData';
 import { useBannerData } from '../hooks/useBannerData';
+import { useToast } from '../context/ToastContext';
 
 // Import Global Components
 import PageHero from '../components/ui/PageHero';
@@ -24,6 +25,7 @@ import { COMPARE_UI_CONSTANTS } from '../constants/compareConstants';
  */
 const Compare = () => {
     const banner = useBannerData();
+    const { addToast } = useToast();
     
     const {
         tool1,
@@ -63,6 +65,15 @@ const Compare = () => {
         title: seoTitle,
         description: `Side-by-side comparison of ${tool1?.name || 'top tools'} and ${tool2?.name || 'more'}. Make informed decisions with HUBly.`,
     });
+
+    // 3. Share Functionality
+    const handleShare = () => {
+        if (!tool1?.slug || !tool2?.slug) return;
+        const shareUrl = `${window.location.origin}/compare?t1=${tool1.slug}&t2=${tool2.slug}`;
+        navigator.clipboard.writeText(shareUrl).then(() => {
+            addToast('success', 'Comparison link copied to clipboard!');
+        });
+    };
 
     return (
         <div className={styles.compareView}>
@@ -127,6 +138,13 @@ const Compare = () => {
 
                 {isComparisonReady && (
                     <div className={styles.resetContainer}>
+                        <Button 
+                            onClick={handleShare} 
+                            variant="primary"
+                            icon={Share2}
+                        >
+                            Share Comparison
+                        </Button>
                         <Button 
                             onClick={resetComparison} 
                             variant="secondary"

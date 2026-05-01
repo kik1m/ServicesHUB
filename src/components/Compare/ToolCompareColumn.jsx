@@ -75,11 +75,16 @@ const ToolCompareColumn = ({ tool, onClear, onSelect, isLoading, error, onRetry,
 
                         </div>
                         
-                        {/* Footer Info: Pricing */}
+                        {/* Footer Info: Pricing & Actions */}
                         <div className={styles.infoSection}>
                             <div className={styles.pricingBox}>
                                 <div className={styles.pricingLabel}>Pricing Model</div>
                                 <div className={styles.pricingValue}>{tool?.pricing_type || 'Paid'}</div>
+                            </div>
+                            
+                            <div className={styles.actionGroup}>
+                                <a href={`/tool/${tool?.slug}`} className={styles.detailsBtn}>Details</a>
+                                <a href={tool?.url} target="_blank" rel="noopener noreferrer" className={styles.visitBtn}>Visit</a>
                             </div>
                         </div>
                     </div>

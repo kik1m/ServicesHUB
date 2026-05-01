@@ -35,8 +35,12 @@
 }
 
 .resetContainer {
-    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
     margin-top: 4rem;
+    flex-wrap: wrap;
 }
 
 @media (max-width: 992px) {

@@ -122,12 +122,12 @@
 }
 
 .primaryVisitBtn {
-    padding: 16px 45px !important;
-    border-radius: 18px !important;
-    font-weight: 900 !important;
-    font-size: 1.1rem !important;
+    padding: 12px 28px !important;
+    border-radius: 14px !important;
+    font-weight: 800 !important;
+    font-size: 0.95rem !important;
     background: linear-gradient(135deg, #00d2ff 0%, #3a7bd5 100%) !important;
-    box-shadow: 0 10px 30px rgba(0, 210, 255, 0.3) !important;
+    box-shadow: 0 8px 25px rgba(0, 210, 255, 0.25) !important;
 }
 
 .iconicFavBtn {

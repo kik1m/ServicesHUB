@@ -219,6 +219,47 @@
     color: white;
 }
 
+/* 🚀 New Action Buttons for Compare Card */
+.actionGroup {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+    width: 100%;
+}
+
+.detailsBtn, .visitBtn {
+    flex: 1;
+    padding: 12px 0;
+    border-radius: 16px;
+    font-weight: 800;
+    font-size: 0.9rem;
+    text-decoration: none;
+    text-align: center;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.detailsBtn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+.detailsBtn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.visitBtn {
+    background: linear-gradient(135deg, #00d2ff 0%, #3a7bd5 100%);
+    color: white;
+    box-shadow: 0 5px 15px rgba(0, 210, 255, 0.3);
+}
+
+.visitBtn:hover {
+    box-shadow: 0 8px 25px rgba(0, 210, 255, 0.4);
+    transform: translateY(-2px);
+}
+
 /* Placeholder */
 .placeholder {
     width: 100%;
