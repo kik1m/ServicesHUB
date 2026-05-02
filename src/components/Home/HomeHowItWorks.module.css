@@ -21,6 +21,10 @@
   border-radius: 24px;
   text-align: center;
   transition: 0.4s;
+  display: block; /* Ensure link fills the card space */
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
 }
 
 .stepCard:hover {

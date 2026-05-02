@@ -6,11 +6,11 @@ import styles from './Logo.module.css';
  * 💎 Elite Logo Atom
  * Rule #1: Modular Styles (Rule #81)
  */
-const Logo = ({ size = 32, className = '', onClick }) => {
+const Logo = ({ size = 32, className = '', onClick, hideText = false }) => {
     return (
         <Link 
             to="/" 
-            className={`${styles.logo} ${className}`} 
+            className={`${styles.logo} ${className} ${hideText ? styles.iconOnly : ''}`} 
             onClick={onClick}
             style={{ 
                 '--logo-size': `${size}px`, 
@@ -22,10 +22,12 @@ const Logo = ({ size = 32, className = '', onClick }) => {
                 alt="HUBly" 
                 className={styles.image}
             />
-            <div className={styles.text}>
-                <span className={styles.white}>HUB</span>
-                <span className={styles.gradient}>ly</span>
-            </div>
+            {!hideText && (
+                <div className={styles.text}>
+                    <span className={styles.white}>HUB</span>
+                    <span className={styles.gradient}>ly</span>
+                </div>
+            )}
         </Link>
     );
 };

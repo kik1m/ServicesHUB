@@ -35,3 +35,8 @@
     background-clip: text;
     -webkit-text-fill-color: transparent;
 }
+
+.iconOnly {
+    gap: 0;
+    justify-content: center;
+}

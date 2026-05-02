@@ -55,13 +55,19 @@ const VideoGuide = () => {
                 </div>
 
                 <div className={styles.guideVideoWrapper}>
-                    <iframe
-                        src={`https://www.youtube.com/embed/${current.videoId}`}
-                        title="HUBly Guide"
-                        frameBorder="0"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowFullScreen
-                    ></iframe>
+                    {current.videoId ? (
+                        <iframe
+                            src={`https://www.youtube.com/embed/${current.videoId}`}
+                            title="HUBly Guide"
+                            frameBorder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowFullScreen
+                        ></iframe>
+                    ) : (
+                        <div className={styles.soonPlaceholder}>
+                            <span className={styles.soonText}>SOON</span>
+                        </div>
+                    )}
                 </div>
             </div>
         </section>

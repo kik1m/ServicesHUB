@@ -55,7 +55,7 @@ const AboutSideCards = ({ isLoading, error, onRetry }) => {
                                 className={styles.joinBtn} 
                                 icon={Plus} 
                                 iconPosition="right"
-                                to="/submit-tool"
+                                to="/submit"
                             >
                                 {data?.join?.button}
                             </Button>

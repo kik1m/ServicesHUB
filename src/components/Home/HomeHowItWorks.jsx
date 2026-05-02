@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import { Search, CheckCircle2, Zap, HelpCircle } from 'lucide-react';
 import SectionHeader from '../ui/SectionHeader';
 import Safeguard from '../ui/Safeguard';
@@ -30,12 +31,16 @@ const HomeHowItWorks = ({ content, error }) => {
                         // Rule #37: Icon Safety Rule
                         const Icon = iconMap[step.num] || HelpCircle;
                         return (
-                            <div key={step.id || step.num} className={styles.stepCard}>
+                            <Link 
+                                to={step.path} 
+                                key={step.id || step.num} 
+                                className={styles.stepCard}
+                            >
                                 <div className={styles.stepNum}>{step.num}</div>
                                 <div className={styles.stepIcon}><Icon size={32} /></div>
                                 <h3>{step.title}</h3>
                                 <p>{step.desc}</p>
-                            </div>
+                            </Link>
                         );
                     })}
                 </div>

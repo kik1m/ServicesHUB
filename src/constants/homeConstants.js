@@ -59,18 +59,21 @@ export const HOW_IT_WORKS_STEPS = [
         id: 'step-1',
         num: '01',
         title: 'Discover',
+        path: '/tools',
         desc: 'Explore our hand-picked collection of AI and SaaS gems.'
     },
     {
         id: 'step-2',
         num: '02',
         title: 'Compare',
+        path: '/compare',
         desc: 'Review features, pricing, and community feedback.'
     },
     {
         id: 'step-3',
         num: '03',
         title: 'Build',
+        path: '/submit',
         desc: 'Deploy the best tech and scale your next big idea.'
     }
 ];
@@ -98,7 +101,7 @@ export const VIDEO_GUIDE_CONTENT = {
         id: 'guide-seeker',
         title: "For Tool Seekers",
         subtitle: "Find the perfect AI tool for your workflow in seconds.",
-        videoId: "dQw4w9WgXcQ",
+        videoId: null,
         features: [
             "Advanced filtering by category & price",
             "Real-user reviews and ratings",
@@ -110,7 +113,7 @@ export const VIDEO_GUIDE_CONTENT = {
         id: 'guide-publisher',
         title: "For Tool Publishers",
         subtitle: "Get your SaaS in front of thousands of potential users.",
-        videoId: "dQw4w9WgXcQ",
+        videoId: null,
         features: [
             "High-conversion tool landing pages",
             "Featured slots for maximum visibility",

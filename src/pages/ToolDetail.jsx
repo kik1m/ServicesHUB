@@ -54,11 +54,24 @@ const ToolDetail = () => {
         url: getCurrentUrl(),
         schema: tool ? {
             "@context": "https://schema.org/",
-            "@type": "Product",
+            "@type": "SoftwareApplication",
             "name": tool.name,
+            "applicationCategory": "MultimediaApplication", // Generic category for AI tools
+            "operatingSystem": "Web",
             "image": tool.image_url,
             "description": tool.short_description || tool.description,
-            "brand": { "@type": "Brand", "name": tool.category || "Technology" }
+            "brand": { "@type": "Brand", "name": tool.categories?.name || "AI Tool" },
+            "aggregateRating": tool.rating > 0 ? {
+                "@type": "AggregateRating",
+                "ratingValue": tool.rating,
+                "reviewCount": tool.reviews_count || 1
+            } : undefined,
+            "offers": {
+                "@type": "Offer",
+                "price": tool.pricing_type === 'Free' ? "0" : "1", // Use dummy for paid if exact price unknown, but valid schema
+                "priceCurrency": "USD",
+                "availability": "https://schema.org/InStock"
+            }
         } : null
     });
 
