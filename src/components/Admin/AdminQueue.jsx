@@ -145,7 +145,10 @@ const AdminQueue = memo(({
                                             
                                             <button 
                                                 type="button"
-                                                onClick={() => handleReject(tool)} 
+                                                onClick={() => {
+                                                    const reason = window.prompt("اكتب سبب الرفض (سيتم إرسال هذا السبب لصاحب الأداة عبر الإيميل، اتركه فارغاً إذا لم ترغب بكتابة سبب):");
+                                                    if (reason !== null) handleReject(tool, reason);
+                                                }} 
                                                 className={styles.rejectBtn}
                                                 title={labels.actions?.rejectTitle}
                                             >

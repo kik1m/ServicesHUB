@@ -164,11 +164,19 @@ export default async function handler(req, res) {
                     
                     <!-- 🛠️ Dynamic Tools Loop -->
                     ${data.tools.map(tool => `
-                        <div class="card" style="display: block; text-decoration: none; color: inherit;">
-                            <img src="${tool.image_url}" alt="${tool.name}" style="width: 100%; height: 200px; object-fit: cover; border-radius: 12px; margin-bottom: 15px;">
-                            <h2 style="margin: 0 0 10px 0; font-size: 20px;">${tool.name}</h2>
-                            <p style="margin: 0 0 15px 0; font-size: 14px; color: #888;">${tool.short_description}</p>
-                            <a href="https://hubly-tools.com/tool/${tool.slug}" style="color: ${brandSecondary}; font-weight: 800; text-decoration: none; font-size: 14px;">VIEW TOOL DETAILS →</a>
+                        <div class="card" style="margin-bottom: 15px; padding: 20px;">
+                            <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                                <tr>
+                                    <td width="90" valign="top">
+                                        <img src="${tool.image_url}" alt="${tool.name}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 12px; border: 1px solid #333; display: block;">
+                                    </td>
+                                    <td valign="top" style="padding-left: 15px;">
+                                        <h2 style="margin: 0 0 5px 0; font-size: 18px;">${tool.name}</h2>
+                                        <p style="margin: 0 0 10px 0; font-size: 13px; color: #888; line-height: 1.4;">${tool.short_description}</p>
+                                        <a href="https://hubly-tools.com/tool/${tool.slug}" style="color: ${brandSecondary}; font-weight: 800; text-decoration: none; font-size: 12px;">VIEW TOOL →</a>
+                                    </td>
+                                </tr>
+                            </table>
                         </div>
                     `).join('')}
 
