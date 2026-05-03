@@ -202,18 +202,28 @@ export const toolsService = {
         // 🔍 3. Search Filter (Nested Logic to prevent filter bypass)
         if (searchQuery) {
             const searchLower = searchQuery.toLowerCase();
+            const words = searchLower.split(/\s+/).filter(w => w.length > 2);
+            
             const matchingCatIds = categories
                 .filter(c => c.id !== 'All' && c.name?.toLowerCase().includes(searchLower))
                 .map(c => c.id);
 
-            // Rule #32: Defensive Sanitization - Escape quotes to prevent syntax errors
+            // Rule #32: Defensive Sanitization - Escape quotes
             const safeQuery = searchQuery.replace(/"/g, '""');
 
-            // Wrap values in double quotes to prevent PostgREST comma-splitting errors (400 Bad Request)
             const searchConditions = [
                 `name.ilike."%${safeQuery}%"`,
                 `short_description.ilike."%${safeQuery}%"`
             ];
+
+            // Add keyword-based matches for more flexibility
+            if (words.length > 0) {
+                words.forEach(word => {
+                    const safeWord = word.replace(/"/g, '""');
+                    searchConditions.push(`name.ilike."%${safeWord}%"`);
+                    searchConditions.push(`short_description.ilike."%${safeWord}%"`);
+                });
+            }
 
             // Use .eq for each category ID to avoid .in() comma parsing issues
             if (matchingCatIds.length > 0) {

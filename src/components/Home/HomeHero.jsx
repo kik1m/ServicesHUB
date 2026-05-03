@@ -5,27 +5,8 @@ import Skeleton from '../ui/Skeleton';
 import Button from '../ui/Button';
 import Safeguard from '../ui/Safeguard';
 import { HERO_CONSTANTS, SKELETON_COUNTS } from '../../constants/homeConstants';
+import InteractiveParticles from './InteractiveParticles';
 import styles from './HomeHero.module.css';
-
-const UsersGroup = ({ isLoading }) => (
-    <div className={styles.userTrustBox}>
-        <div className={styles.avatarGroup}>
-            {isLoading ? (
-                SKELETON_COUNTS.HERO_AVATARS.map((i) => (
-                    <div key={`skeleton-avatar-${i}`} className={styles.avatarMini}>
-                        <Skeleton width="100%" height="100%" borderRadius="50%" />
-                    </div>
-                ))
-            ) : (
-                HERO_CONSTANTS.TRUST_AVATARS.filter(Boolean).map((img, i) => (
-                    <div key={`avatar-${i}`} className={styles.avatarMini}>
-                        <img src={img} alt={`User ${i + 1}`} className={styles.avatarImg} />
-                    </div>
-                ))
-            )}
-        </div>
-    </div>
-);
 
 /**
  * HomeHero - Elite Entry Point
@@ -42,15 +23,17 @@ const HomeHero = ({ searchQuery, setSearchQuery, navigate, statsCount, isLoading
         navigate(`/search?category=${encodeURIComponent(catName)}`);
     }, [navigate]);
 
-    const usersCount = statsCount?.users ?? HERO_CONSTANTS.DEFAULT_USERS_COUNT;
-
     return (
         <header className={styles.heroSectionSlim}>
+            <div className={styles.mouseGlow} />
             <Safeguard error={error}>
                 <div className={styles.heroContent}>
+                    <div className={styles.logoWrapper}>
+                        <img src="/logo.png" alt="Hubly Logo" className={styles.heroLogo} />
+                    </div>
                     <div className={styles.badge}>{content.badge}</div>
-                    <h1 className={styles.heroTitleSlim}>
-                        {content.title} <span className={styles.gradientText}>{content.highlight}</span>
+                    <h1 className={`${styles.heroTitleSlim} ${styles.gradientText}`}>
+                        {content.title} {content.highlight}
                     </h1>
                     <p className={styles.heroSubtitleSlim}>
                         {content.subtitle}
@@ -70,6 +53,7 @@ const HomeHero = ({ searchQuery, setSearchQuery, navigate, statsCount, isLoading
                             onChange={(e) => setSearchQuery(e.target.value)}
                             onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                             placeholder={content.searchPlaceholder}
+                            wrapperClassName={styles.heroSearchInput}
                         />
                         )}
                     </div>
@@ -95,24 +79,14 @@ const HomeHero = ({ searchQuery, setSearchQuery, navigate, statsCount, isLoading
                         )}
                     </div>
 
-                    <div className={styles.heroCtaWrapper}>
-                        <div className={styles.userTrust}>
-                            <UsersGroup isLoading={isLoading} /> 
-                            {isLoading ? (
-                                <div className={styles.skeletonTrust}>
-                                    <Skeleton className={styles.skeletonTrustInner} />
-                                </div>
-                            ) : (
-                                <span>{content.trustPrefix} <strong className={styles.strongText}>{usersCount.toLocaleString()}</strong> {content.trustSuffix}</span>
-                            )}
-                        </div>
-                    </div>
-
                     <div className={styles.trustLogos}>
                         <p>{content.logosPrefix}</p>
                         <div className={styles.logoRow}>
                             {content.logos.map(logo => (
-                                <span key={logo} className={styles.logoItem}>{logo}</span>
+                                <div key={logo} className={styles.logoItemWrapper}>
+                                    <span className={styles.logoDot}>•</span>
+                                    <span className={styles.logoItem}>{logo}</span>
+                                </div>
                             ))}
                         </div>
                     </div>

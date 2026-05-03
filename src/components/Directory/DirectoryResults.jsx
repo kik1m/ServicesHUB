@@ -14,7 +14,7 @@ import styles from './DirectoryResults.module.css';
  * Rule #11: Infinite Scroll implementation
  */
 const DirectoryResults = (props) => {
-    const { results, totalResults, isLoading, loadingMore, hasMore, setPage, sortBy, setSortBy, error, refetch, onToolClick, className = '', content, headerExtra } = props;
+    const { results, totalResults, isLoading, loadingMore, hasMore, setPage, sortBy, setSortBy, error, refetch, onToolClick, className = '', content, headerExtra, onClearFilters } = props;
 
     const observerTarget = useRef(null);
     const safeResults = results?.filter(Boolean) ?? [];
@@ -83,9 +83,11 @@ const DirectoryResults = (props) => {
                     ) : (
                         <div className={styles.searchResultsEmpty}>
                             <EmptyState
-                                message={content?.noResults?.title}
-                                description={content?.noResults?.description}
+                                title={content?.noResults?.title || "No results found"}
+                                message={content?.noResults?.description || "Try adjusting your search or filters to find what you're looking for."}
                                 icon={SearchIcon}
+                                actionText="Clear Filters"
+                                onAction={onClearFilters}
                             />
                         </div>
                     )}

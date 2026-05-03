@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import { compareService } from '../services/compareService';
 
 /**
@@ -8,10 +8,20 @@ import { compareService } from '../services/compareService';
  * Responsibility: Slot Hydration, Selection State, and Parameter Sync.
  */
 export const useCompareData = () => {
+    const { comparisonSlug } = useParams();
     const [searchParams, setSearchParams] = useSearchParams();
 
-    const t1Slug = searchParams.get('t1');
-    const t2Slug = searchParams.get('t2');
+    // 1. Logic for extracting slugs (Priority: Static Path > Query Params)
+    let t1Slug = searchParams.get('t1');
+    let t2Slug = searchParams.get('t2');
+
+    if (comparisonSlug && comparisonSlug.includes('-vs-')) {
+        const [p1, p2] = comparisonSlug.split('-vs-');
+        if (p1 && p2) {
+            t1Slug = p1;
+            t2Slug = p2;
+        }
+    }
 
     const [tool1, setTool1] = useState(null);
     const [tool2, setTool2] = useState(null);
@@ -149,36 +159,66 @@ export const useCompareData = () => {
 
     // Tool selection and URL sync logic below
 
-    // Handle tool selection by modifying the URL parameters (SSOT)
+    const navigate = useNavigate();
+
+    // Handle tool selection by modifying the URL parameters or path (SSOT)
     const handleSelect = useCallback((tool) => {
-        const newParams = new URLSearchParams(searchParams);
         const currentSlot = isSelectingFor;
-        let nextSlot = null;
+        
+        let nextT1 = t1Slug;
+        let nextT2 = t2Slug;
 
         if (currentSlot === 'tool1') {
-            newParams.set('t1', tool.slug);
+            nextT1 = tool.slug;
             setTool1(tool);
-            if (!t2Slug) nextSlot = 'tool2';
         } else if (currentSlot === 'tool2') {
-            newParams.set('t2', tool.slug);
+            nextT2 = tool.slug;
             setTool2(tool);
-            if (!t1Slug) nextSlot = 'tool1';
         }
 
-        setSearchParams(newParams, { replace: true });
+        // If both tools are present, use the static "vs" route
+        if (nextT1 && nextT2) {
+            navigate(`/compare/${nextT1}-vs-${nextT2}`, { replace: true });
+        } else {
+            // Otherwise fallback to query params for single selection
+            const newParams = new URLSearchParams(searchParams);
+            if (nextT1) newParams.set('t1', nextT1);
+            else newParams.delete('t1');
+            
+            if (nextT2) newParams.set('t2', nextT2);
+            else newParams.delete('t2');
+
+            setSearchParams(newParams, { replace: true });
+        }
+
+        // Auto-advance logic
+        let nextSlot = null;
+        if (currentSlot === 'tool1' && !nextT2) nextSlot = 'tool2';
+        else if (currentSlot === 'tool2' && !nextT1) nextSlot = 'tool1';
+        
         setIsSelectingFor(nextSlot);
-    }, [isSelectingFor, searchParams, setSearchParams, t1Slug, t2Slug]);
+    }, [isSelectingFor, searchParams, setSearchParams, t1Slug, t2Slug, navigate]);
 
     const clearTool = useCallback((slot) => {
-        const newParams = new URLSearchParams(searchParams);
-        if (slot === 'tool1') newParams.delete('t1');
-        if (slot === 'tool2') newParams.delete('t2');
-        setSearchParams(newParams, { replace: true });
-    }, [searchParams, setSearchParams]);
+        const nextT1 = slot === 'tool1' ? null : t1Slug;
+        const nextT2 = slot === 'tool2' ? null : t2Slug;
+
+        if (!nextT1 && !nextT2) {
+            navigate('/compare', { replace: true });
+        } else if (nextT1 && nextT2) {
+            navigate(`/compare/${nextT1}-vs-${nextT2}`, { replace: true });
+        } else {
+            // If only one tool remains, fallback to query params at /compare
+            const newParams = new URLSearchParams();
+            if (nextT1) newParams.set('t1', nextT1);
+            if (nextT2) newParams.set('t2', nextT2);
+            navigate(`/compare?${newParams.toString()}`, { replace: true });
+        }
+    }, [t1Slug, t2Slug, navigate]);
 
     const resetComparison = useCallback(() => {
-        setSearchParams(new URLSearchParams(), { replace: true });
-    }, [setSearchParams]);
+        navigate('/compare', { replace: true });
+    }, [navigate]);
 
     const openSelector = useCallback((slot) => {
         setIsSelectingFor(slot);

@@ -221,7 +221,12 @@ export const useToolForm = ({ mode = 'submit' } = {}) => {
                 const { error: submitErr } = await toolsService.createTool({ ...formData, user_id: user.id });
                 if (submitErr) throw submitErr;
 
-                await sendNotification(user.id, 'Submission Received', `Request for "${formData.name}" is pending approval.`, 'info');
+                await sendNotification(
+                    user.id, 
+                    'Submission Successfully Logged!', 
+                    `We've received your request for "${formData.name}". Our curators will review it for elite quality standards within 24-48 hours.`, 
+                    'info'
+                );
                 localStorage.removeItem(STORAGE_KEY);
                 setIsSuccess(true);
             } else {
@@ -229,7 +234,12 @@ export const useToolForm = ({ mode = 'submit' } = {}) => {
                 const { error: updateErr } = await toolsService.updateTool(id, formData, isApproved);
                 if (updateErr) throw updateErr;
 
-                await sendNotification(user.id, 'Update Under Review', `Modifications for "${formData.name}" submitted.`, 'pending');
+                await sendNotification(
+                    user.id, 
+                    'Modifications Received', 
+                    `The updates for "${formData.name}" have been submitted for review. They will appear live once verified.`, 
+                    'info'
+                );
                 showToast(isApproved ? 'Submitted for review!' : 'Updated successfully!', 'success');
                 navigate('/dashboard');
             }

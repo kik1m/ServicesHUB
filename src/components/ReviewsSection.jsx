@@ -36,6 +36,12 @@ const ReviewsSection = ({ toolId, content, onReviewSuccess }) => {
         hoveredRating,
         setHoveredRating,
         submitReview,
+        submitReply,
+        handleDeleteReview,
+        replyingTo,
+        setReplyingTo,
+        replyComment,
+        setReplyComment,
         hasUserReviewed,
         user
     } = useReviewsData(toolId, labels, onReviewSuccess);
@@ -117,7 +123,17 @@ const ReviewsSection = ({ toolId, content, onReviewSuccess }) => {
 
                 <main className={styles.listContainer}>
                     {reviews.length > 0 ? (
-                        <ReviewList reviews={reviews} />
+                        <ReviewList 
+                            reviews={reviews} 
+                            user={user}
+                            onReply={submitReply}
+                            onDelete={handleDeleteReview}
+                            replyingTo={replyingTo}
+                            setReplyingTo={setReplyingTo}
+                            replyComment={replyComment}
+                            setReplyComment={setReplyComment}
+                            isSubmitting={submitting}
+                        />
                     ) : (
                         <EmptyState 
                             message={labels.empty?.title}

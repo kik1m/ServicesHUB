@@ -1,0 +1,312 @@
+.container {
+    animation: fadeIn 0.5s ease-out;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.title {
+    font-size: 24px;
+    font-weight: 800;
+    margin: 0;
+    background: linear-gradient(135deg, #fff 0%, #888 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.subtitle {
+    font-size: 14px;
+    color: #888;
+    margin: 5px 0 0 0;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+}
+
+.section {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 20px;
+    padding: 25px;
+    margin-bottom: 20px;
+}
+
+.sectionTitle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin: 0 0 20px 0;
+    color: var(--primary);
+}
+
+.inputGroup {
+    margin-bottom: 15px;
+}
+
+.inputGroup label {
+    display: block;
+    font-size: 12px;
+    color: #666;
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+.textarea {
+    width: 100%;
+    min-height: 100px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 12px;
+    color: white;
+    font-size: 14px;
+    resize: vertical;
+    transition: all 0.3s ease;
+}
+
+.textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.searchWrapper {
+    position: relative;
+    margin-bottom: 15px;
+}
+
+.searchIcon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #555;
+}
+
+.searchInput {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 12px 12px 12px 40px;
+    color: white;
+    font-size: 14px;
+}
+
+.toolSelector {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-height: 300px;
+    overflow-y: auto;
+    padding-right: 5px;
+}
+
+.toolOption {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.toolOption:hover {
+    background: rgba(255, 255, 255, 0.08);
+    transform: translateX(5px);
+}
+
+.toolOption.selected {
+    border-color: var(--primary);
+    background: rgba(0, 255, 162, 0.05);
+}
+
+.toolIcon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    object-fit: cover;
+}
+
+.toolName {
+    flex: 1;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+/* Preview Panel */
+.previewPanel {
+    position: sticky;
+    top: 20px;
+    height: fit-content;
+}
+
+.emailPreview {
+    background: #121212;
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+    border: 1px solid #222;
+}
+
+.emailHeader {
+    background: #050505;
+    padding: 30px;
+    text-align: center;
+    border-bottom: 1px solid #222;
+}
+
+.brand {
+    color: white;
+    font-weight: 900;
+    font-size: 24px;
+    letter-spacing: 1px;
+}
+
+.accent {
+    color: var(--primary);
+}
+
+.emailContent {
+    padding: 40px;
+    color: #e0e0e0;
+}
+
+.previewBadge {
+    display: inline-block;
+    padding: 4px 12px;
+    background: rgba(0, 210, 255, 0.1);
+    color: #00d2ff;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 800;
+    margin-bottom: 15px;
+}
+
+.previewSubject {
+    font-size: 28px;
+    font-weight: 800;
+    margin: 0 0 10px 0;
+    color: #ffffff;
+}
+
+.previewIntro {
+    font-size: 16px;
+    line-height: 1.6;
+    color: #e0e0e0;
+    margin-bottom: 30px;
+}
+
+.previewToolCard {
+    background: #1a1a1a;
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 20px;
+    border: 1px solid #222;
+    display: flex;
+    gap: 20px;
+}
+
+.previewToolImg {
+    width: 120px;
+    height: 80px;
+    border-radius: 10px;
+    object-fit: cover;
+}
+
+.previewToolInfo {
+    flex: 1;
+}
+
+.previewToolInfo h5 {
+    margin: 0 0 5px 0;
+    font-size: 16px;
+    color: #ffffff;
+}
+
+.previewToolInfo p {
+    margin: 0 0 10px 0;
+    font-size: 13px;
+    color: #888;
+    line-height: 1.4;
+}
+
+.previewLink {
+    font-size: 12px;
+    font-weight: 800;
+    color: var(--primary);
+}
+
+.previewOffer {
+    background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+    border-radius: 20px;
+    padding: 25px;
+    margin-top: 30px;
+    color: white;
+    text-align: center;
+}
+
+.offerBadge {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-size: 10px;
+    font-weight: 800;
+}
+
+.previewOffer h4 {
+    margin: 10px 0 5px 0;
+    color: white;
+}
+
+.previewOffer p {
+    font-size: 13px;
+    opacity: 0.9;
+    margin-bottom: 15px;
+}
+
+.offerBtn {
+    display: inline-block;
+    padding: 10px 20px;
+    background: white;
+    color: #6c5ce7;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.emptyPreview {
+    padding: 40px;
+    text-align: center;
+    border: 2px dashed #eee;
+    border-radius: 16px;
+    color: #ccc;
+    font-style: italic;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 1200px) {
+    .grid {
+        grid-template-columns: 1fr;
+    }
+}

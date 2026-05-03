@@ -1,4 +1,8 @@
 User-agent: *
 Allow: /
+Allow: /compare/*
+Allow: /tools/*
+Allow: /category/*
+Allow: /blog/*
 
-Sitemap: https://services-hub.vercel.app/sitemap.xml
+Sitemap: https://www.hubly-tools.com/sitemap.xml

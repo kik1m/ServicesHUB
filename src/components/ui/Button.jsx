@@ -12,6 +12,7 @@ const Button = ({
     size = 'md', 
     isLoading = false, 
     disabled = false, 
+    fullWidth = false,
     icon: Icon,
     iconPosition = 'left',
     iconSize = 18,
@@ -24,6 +25,7 @@ const Button = ({
         ${styles.btn} 
         ${styles[variant]} 
         ${styles[size]} 
+        ${fullWidth ? styles.fullWidth : ''}
         ${className}
     `.trim();
 

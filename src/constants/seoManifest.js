@@ -22,7 +22,7 @@ export const SEO_CONFIG = {
     },
     pages: {
         home: {
-            title: "HUBly - Ultimate AI and SaaS Directory",
+            title: "Ultimate AI and SaaS Directory",
             description: "The world's largest directory of AI and SaaS tools. Find the best resources to grow your business.",
             keywords: ["AI directory", "SaaS ecosystem", "Top AI tools 2026"]
         },
@@ -32,7 +32,7 @@ export const SEO_CONFIG = {
             keywords: ["Software search", "Tool discovery", "SaaS comparison"]
         },
         blog: {
-            title: "HUBly Magazine - AI and SaaS Insights",
+            title: "Magazine - AI and SaaS Insights",
             description: "Latest news, expert guides, and industry trends in the AI and SaaS world.",
             keywords: ["AI news", "SaaS blog", "Tech insights"]
         },
@@ -47,9 +47,9 @@ export const SEO_CONFIG = {
             keywords: ["Software categories", "Niche AI tools"]
         },
         compare: {
-            title: "Compare Resources",
-            description: "Side-by-side comparison of the world's top AI and SaaS tools. Make data-driven decisions.",
-            keywords: ["Software comparison", "Tool VS", "SaaS analysis"]
+            title: "Expert Tool Comparison | Side-by-Side Analysis",
+            description: "Detailed, data-driven comparisons between the world's leading AI and SaaS tools. Find the best alternative for your workflow.",
+            keywords: ["AI vs AI", "SaaS comparison", "Software alternatives", "Tool scoring", "Side-by-side analysis"]
         },
         promote: {
             title: "Promote Your Tool",
@@ -67,7 +67,7 @@ export const SEO_CONFIG = {
             noindex: true
         },
         about: {
-            title: "About HUBly",
+            title: "About Us",
             description: "The story behind the world's most advanced AI and SaaS directory.",
             keywords: ["About us", "HUBly mission"]
         },
@@ -153,6 +153,17 @@ export const getSchema = (type, data = {}) => {
                     "https://twitter.com/hubly",
                     "https://linkedin.com/company/hubly"
                 ]
+            };
+        case 'BreadcrumbList':
+            return {
+                "@context": "https://schema.org",
+                "@type": "BreadcrumbList",
+                "itemListElement": data.items.map((item, index) => ({
+                    "@type": "ListItem",
+                    "position": index + 1,
+                    "name": item.label,
+                    "item": item.path ? `${global.organization.url}${item.path}` : global.organization.url
+                }))
             };
         case 'WebSite':
             return {

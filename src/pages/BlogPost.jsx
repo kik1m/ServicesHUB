@@ -22,29 +22,43 @@ const BlogPost = () => {
     const { post, relatedPosts, loading, error, refresh } = useBlogPostData();
     const { POST, HERO, SEO } = BLOG_CONSTANTS;
 
+    const breadcrumbItems = useMemo(() => [
+        ...HERO.BREADCRUMBS,
+        { label: post?.title || '...', path: `/blog/${post?.id}` }
+    ], [post, HERO.BREADCRUMBS]);
+
     // Rule #34/41: SEO and Article Schema Implementation
     useSEO({
         title: post?.title ? `${post.title}${SEO.POST_TITLE_SUFFIX}` : 'Article Details',
         description: post?.excerpt || post?.content?.substring(0, 160),
         image: post?.featured_image,
-        schema: post ? {
-            "@context": "https://schema.org",
-            "@type": "Article",
-            "headline": post.title,
-            "image": post.featured_image,
-            "author": {
-                "@type": "Person",
-                "name": post.author_name || "HUBly Expert"
+        schema: post ? [
+            {
+                "@context": "https://schema.org",
+                "@type": "Article",
+                "headline": post.title,
+                "image": post.featured_image,
+                "author": {
+                    "@type": "Person",
+                    "name": post.author_name || "HUBly Expert"
+                },
+                "datePublished": post.created_at,
+                "description": post.excerpt
             },
-            "datePublished": post.created_at,
-            "description": post.excerpt
-        } : null
+            {
+                "@context": "https://schema.org",
+                "@type": "BreadcrumbList",
+                "itemListElement": breadcrumbItems.map((item, index) => ({
+                    "@type": "ListItem",
+                    "position": index + 1,
+                    "name": item.label,
+                    "item": `https://hubly-tools.com${item.path}`
+                }))
+            }
+        ] : null
     });
 
-    const breadcrumbItems = useMemo(() => [
-        ...HERO.BREADCRUMBS,
-        { label: post?.title || '...', path: `/blog/${post?.id}` }
-    ], [post, HERO.BREADCRUMBS]);
+
 
     return (
         <div className={styles.postPage}>

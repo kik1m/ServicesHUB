@@ -21,16 +21,20 @@ async function runDailyImport(urlsToProcess = []) {
         return;
     }
 
-    console.log("📂 Fetching existing categories...");
-    const { data: categories, error: catError } = await supabaseAdmin.from('categories').select('id, name');
-    
-    if (catError || !categories) {
-        console.error("❌ Failed to fetch categories.", catError);
+    console.log("📂 Initializing Metadata...");
+    const [catRes, adminRes] = await Promise.all([
+        supabaseAdmin.from('categories').select('id, name'),
+        supabaseAdmin.from('profiles').select('id').or('full_name.ilike.Hubly team,role.eq.admin').limit(1).maybeSingle()
+    ]);
+
+    if (catRes.error || !catRes.data) {
+        console.error("❌ Failed to fetch categories.", catRes.error);
         process.exit(1);
     }
-    
-    let activeCategories = [...categories];
-    const systemBotId = process.env.SYSTEM_BOT_ID || '8ded6b0a-6982-495c-8ba8-fda45ac7e082'; // Hubly Team Default ID
+
+    let activeCategories = [...catRes.data];
+    const systemBotId = adminRes.data?.id || process.env.SYSTEM_BOT_ID || '8ded6b0a-6982-495c-8ba8-fda45ac7e082';
+    console.log(`👤 Using Publisher ID: ${systemBotId} (${adminRes.data ? 'Hubly Team Found' : 'Using Fallback'})`);
 
     let stats = { added: 0, updated: 0, skipped: 0, failed: 0 };
     let logDetails = []; // Array to store precise details for the DB
@@ -55,9 +59,8 @@ async function runDailyImport(urlsToProcess = []) {
                 existingTool = existingByUrl;
                 console.log(`⚠️ Tool exists (URL Match). Preparing SEO Upgrade...`);
             } else {
-                // Potential Name Match (We'll check after scraping/AI if needed, 
-                // but for now let's try a simple name-from-URL check)
-                const potentialName = url.split('.').slice(-2, -1)[0]; // e.g. 'runwayml' from 'https://runwayml.com'
+                // Potential Name Match
+                const potentialName = url.split('.').slice(-2, -1)[0]; 
                 const { data: existingByName } = await supabaseAdmin
                     .from('tools')
                     .select('*')
@@ -103,7 +106,7 @@ async function runDailyImport(urlsToProcess = []) {
                 }
             }
 
-            // 5. Final Payload
+            // 5. Final Payload (Rule #21: Schema Alignment)
             const finalPayload = {
                 name: toolData.name,
                 slug: toolData.slug,
@@ -117,7 +120,7 @@ async function runDailyImport(urlsToProcess = []) {
                 image_url: scrapedResult.exactImageUrl || toolData.image_url || existingTool?.image_url,
                 is_approved: true,
                 is_verified: true,
-                creator_id: systemBotId || existingTool?.creator_id,
+                user_id: existingTool?.user_id || systemBotId, // Preserve original owner if tool exists
                 reviews_count: existingTool?.reviews_count || 0,
                 rating: existingTool?.rating || 0
             };

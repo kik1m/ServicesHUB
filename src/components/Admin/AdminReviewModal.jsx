@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect } from 'react';
-import { X, CheckCircle, AlertCircle, ExternalLink, RefreshCw, FilePlus, Edit3, Save, Trash2, PlusCircle, LayoutGrid, Zap, DollarSign } from 'lucide-react';
+import { X, CheckCircle, AlertCircle, RefreshCw, FilePlus, Edit3, Save, Trash2, PlusCircle, LayoutGrid, Zap, DollarSign } from 'lucide-react';
 import Button from '../ui/Button';
 import SmartImage from '../ui/SmartImage';
 import Input from '../ui/Input';
@@ -10,7 +9,7 @@ import styles from './AdminReviewModal.module.css';
 import { ADMIN_UI_CONSTANTS } from '../../constants/adminConstants';
 
 /**
- * AdminReviewModal - Elite Hardened Modal (Standard Version)
+ * AdminReviewModal - Elite Hardened Modal (Advanced Email Support)
  */
 const AdminReviewModal = ({ 
     showReviewModal, 
@@ -27,10 +26,10 @@ const AdminReviewModal = ({
     const labels = ADMIN_UI_CONSTANTS.review;
     const [editData, setEditData] = useState(null);
     const [isSaving, setIsSaving] = useState(false);
+    const [feedback, setFeedback] = useState('');
 
     useEffect(() => {
         if (selectedReview && editMode) {
-            // Rule #24.3: Ensure no nulls are passed to inputs (React Warning fix)
             const sanitizedInitial = { ...selectedReview };
             Object.keys(sanitizedInitial).forEach(key => {
                 if (sanitizedInitial[key] === null) sanitizedInitial[key] = '';
@@ -38,6 +37,7 @@ const AdminReviewModal = ({
             setEditData(sanitizedInitial);
         } else {
             setEditData(null);
+            setFeedback('');
         }
     }, [selectedReview, editMode]);
 
@@ -49,19 +49,11 @@ const AdminReviewModal = ({
         if (!editData) return;
         setIsSaving(true);
         try {
-            // Elite Sanitization: Strip ALL known virtual/relational fields and read-only metadata
             const { 
-                categories, 
-                formatted_date, 
-                pending_changes,
-                created_at, 
-                updated_at,
-                click_count,
-                view_count,
-                ...cleanPayload 
+                categories, formatted_date, pending_changes, profiles,
+                created_at, updated_at, click_count, view_count, ...cleanPayload 
             } = editData;
             
-            // Convert empty strings back to null if needed
             Object.keys(cleanPayload).forEach(key => {
                 if (cleanPayload[key] === '') cleanPayload[key] = null;
             });
@@ -76,16 +68,12 @@ const AdminReviewModal = ({
     };
 
     const renderFieldValue = (field, value) => {
-        if (field.isImage) {
-            return <SmartImage src={value} alt="Preview" className={styles.diffImg} />;
-        }
-        if (field.isArray) {
-            return (
-                <div className={styles.diffArray}>
-                    {(value || []).map((v, i) => <div key={i} className={styles.diffArrayItem}>• {v}</div>)}
-                </div>
-            );
-        }
+        if (field.isImage) return <SmartImage src={value} alt="Preview" className={styles.diffImg} />;
+        if (field.isArray) return (
+            <div className={styles.diffArray}>
+                {(value || []).map((v, i) => <div key={i} className={styles.diffArrayItem}>• {v}</div>)}
+            </div>
+        );
         return <div className={styles.diffText}>{value}</div>;
     };
 
@@ -130,12 +118,7 @@ const AdminReviewModal = ({
                                         <div className={styles.fieldWrapper}>
                                             <label className={styles.fieldLabel}>Pricing Model</label>
                                             <Select 
-                                                options={[
-                                                    { value: 'Free', label: 'Free' },
-                                                    { value: 'Freemium', label: 'Freemium' },
-                                                    { value: 'Paid', label: 'Paid' },
-                                                    { value: 'Subscription', label: 'Subscription' }
-                                                ]}
+                                                options={[{ value: 'Free', label: 'Free' }, { value: 'Freemium', label: 'Freemium' }, { value: 'Paid', label: 'Paid' }, { value: 'Subscription', label: 'Subscription' }]}
                                                 value={editData?.pricing_type}
                                                 onChange={(val) => setEditData({ ...editData, pricing_type: val })}
                                                 placeholder="Choose Model"
@@ -152,31 +135,6 @@ const AdminReviewModal = ({
                                         <Input label="Pricing Details / Notes" value={editData?.pricing_details || ''} onChange={e => setEditData({...editData, pricing_details: e.target.value})} />
                                     </div>
                                 </div>
-
-                                <div className={styles.editSection}>
-                                    <h4 className={styles.sectionTitle}><DollarSign size={16} /> Assets & Capabilities</h4>
-                                    <div className={styles.fullGrid}>
-                                        <Input label="Direct Image/Logo URL" value={editData?.image_url || ''} onChange={e => setEditData({...editData, image_url: e.target.value})} />
-                                        <div className={styles.featuresEdit}>
-                                            <label className={styles.fieldLabel}>Core Features</label>
-                                            <div className={styles.featuresList}>
-                                                {(editData?.features || []).map((f, i) => (
-                                                    <div key={i} className={styles.featureInputRow}>
-                                                        <Input value={f} onChange={e => {
-                                                            const nf = [...editData.features];
-                                                            nf[i] = e.target.value;
-                                                            setEditData({...editData, features: nf});
-                                                        }} placeholder={`Feature ${i+1}`} />
-                                                        <button type="button" onClick={() => setEditData({...editData, features: editData.features.filter((_, idx) => idx !== i)})} className={styles.removeFeature}><Trash2 size={16} /></button>
-                                                    </div>
-                                                ))}
-                                                <button type="button" onClick={() => setEditData({...editData, features: [...(editData?.features || []), '']})} className={styles.addFeatureBtn}>
-                                                    <PlusCircle size={16} /> Add Capability
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
                             </div>
                         ) : (
                             <div className={styles.diffView}>
@@ -187,7 +145,6 @@ const AdminReviewModal = ({
                                                 <span className={styles.fieldLabel}>{field.label}</span>
                                                 {field.hasChanged && <span className={styles.changeBadge}>Changed</span>}
                                             </div>
-
                                             <div className={styles.diffContent}>
                                                 {isUpdate ? (
                                                     <div className={styles.compareGrid}>
@@ -211,23 +168,31 @@ const AdminReviewModal = ({
                                 </div>
                             </div>
                         )}
+
+                        {!editMode && (
+                            <div className={styles.feedbackSection}>
+                                <label className={styles.feedbackLabel}>Internal Feedback / Decision Reason (Sent to Publisher Email)</label>
+                                <textarea 
+                                    className={styles.feedbackArea}
+                                    placeholder="Provide context for your decision (e.g., Please improve description quality or Your tool aligns perfectly with our standards)..."
+                                    value={feedback}
+                                    onChange={(e) => setFeedback(e.target.value)}
+                                />
+                            </div>
+                        )}
                     </div>
 
                     <footer className={styles.modalFooter}>
                         {editMode ? (
                             <>
-                                <Button variant="secondary" onClick={handleCloseReview} disabled={isSaving}>
-                                    Cancel
-                                </Button>
-                                <Button variant="primary" onClick={onSave} isLoading={isSaving} icon={Save}>
-                                    Save Changes
-                                </Button>
+                                <Button variant="secondary" onClick={handleCloseReview} disabled={isSaving}>Cancel</Button>
+                                <Button variant="primary" onClick={onSave} isLoading={isSaving} icon={Save}>Save Changes</Button>
                             </>
                         ) : (
                             <>
                                 <Button
                                     variant="secondary"
-                                    onClick={() => handleReject(selectedReview)}
+                                    onClick={() => handleReject(selectedReview, feedback)}
                                     icon={AlertCircle}
                                     className={styles.rejectBtn}
                                 >
@@ -236,7 +201,7 @@ const AdminReviewModal = ({
                                 
                                 <Button
                                     variant="primary"
-                                    onClick={() => handleApprove(selectedReview)}
+                                    onClick={() => handleApprove(selectedReview, feedback)}
                                     icon={CheckCircle}
                                     className={styles.approveBtn}
                                 >

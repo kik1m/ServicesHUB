@@ -62,7 +62,12 @@ export const profilesService = {
                 ...data,
                 full_name: data.full_name || 'Member',
                 role: data.role || 'Member',
-                bio: data.bio || 'No bio provided.'
+                bio: data.bio || 'No bio provided.',
+                is_premium: !!data.is_premium,
+                is_verified: !!data.is_verified,
+                followers_count: data.followers_count || 0,
+                following_count: data.following_count || 0,
+                joinYear: data.created_at ? new Date(data.created_at).getFullYear() : null
             };
         } catch (err) {
             console.error('profilesService.getPublicProfile Error:', err);

@@ -26,7 +26,9 @@ export const ADMIN_UI_CONSTANTS = {
         { id: 'categories', label: 'Tool Categories' },
         { id: 'blog-categories', label: 'Blog Categories' },
         { id: 'users', label: 'Users' },
-        { id: 'newsletter', label: 'Subscribers' }
+        { id: 'newsletter', label: 'Subscribers' },
+        { id: 'newsletter-manager', label: 'Campaign Center' },
+        { id: 'lab', label: 'Notification Lab' }
     ],
     stats: {
         totalTools: "Total Tools",
@@ -169,15 +171,15 @@ export const ADMIN_UI_CONSTANTS = {
     },
     messages: {
         approvals: {
-            updateApproved: "Data Update Approved",
-            toolApproved: "New Tool Approved",
-            updateApprovedDesc: "Modifications for \"{name}\" approved.",
-            toolApprovedDesc: "\"{name}\" is now live.",
-            rejectConfirm: "Reject changes for \"{name}\"?",
-            deleteConfirm: "Reject and DELETE \"{name}\"?",
-            rejectSubject: "Update Regarding Your Submission",
-            rejectUpdateDesc: "Changes for \"{name}\" rejected.",
-            rejectToolDesc: "Submission \"{name}\" not approved."
+            updateApproved: "Elite Status: Data Update Confirmed",
+            toolApproved: "Success: Your Tool is Now Live!",
+            updateApprovedDesc: "The modifications for \"{name}\" have been verified and applied to the public directory. Your tool is now showcasing the latest fidelity standards.",
+            toolApprovedDesc: "Congratulations! \"{name}\" has successfully passed our review process and is now active in the global ecosystem. Share your tool and start growing your user base.",
+            rejectConfirm: "Are you sure you want to decline changes for \"{name}\"?",
+            deleteConfirm: "Confirm permanent rejection and deletion of \"{name}\"?",
+            rejectSubject: "Critical Update: Tool Submission Review",
+            rejectUpdateDesc: "After careful evaluation, the proposed updates for \"{name}\" could not be accepted at this time as they do not meet our current platform standards.",
+            rejectToolDesc: "We regret to inform you that the submission \"{name}\" has been declined following our architectural and quality review."
         }
     },
     platform: {

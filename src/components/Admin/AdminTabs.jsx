@@ -1,7 +1,7 @@
 
 import React, { memo } from 'react';
 import { ADMIN_UI_CONSTANTS } from '../../constants/adminConstants';
-import { Clock, Users, FileText, Star, PlusCircle, FolderTree, Tags, Mail, LayoutGrid, Bot } from 'lucide-react';
+import { Clock, Users, FileText, Star, PlusCircle, FolderTree, Tags, Mail, LayoutGrid, Bot, Sparkles } from 'lucide-react';
 import Skeleton from '../ui/Skeleton';
 import Safeguard from '../ui/Safeguard';
 import styles from './AdminTabs.module.css';
@@ -24,7 +24,8 @@ const AdminTabs = memo(({ activeTab, setActiveTab, pendingCount, blogCount, user
         categories: FolderTree,
         'blog-categories': Tags,
         users: Users,
-        newsletter: Mail
+        newsletter: Mail,
+        'newsletter-manager': Sparkles
     };
 
     // Mapping counts to tab IDs

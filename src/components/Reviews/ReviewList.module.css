@@ -38,6 +38,43 @@
   align-items: flex-start;
   margin-bottom: 0.25rem;
 }
+.headerRight {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.deleteBtn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.4;
+}
+.deleteBtn:hover {
+  background: rgba(255, 80, 80, 0.1);
+  color: #ff5050;
+  opacity: 1;
+  transform: scale(1.1);
+}
+.userInfoRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.userLink {
+  text-decoration: none;
+  transition: opacity 0.2s ease;
+}
+.userLink:hover {
+  opacity: 0.8;
+}
 .userName {
   font-size: 1.05rem;
   font-weight: 800;
@@ -58,7 +95,92 @@
   font-size: 0.95rem;
   line-height: 1.6;
 }
-.skeletonReviewCard {
-    display: flex;
-    gap: 20px;
+.premiumBadge {
+  color: #ffd700;
+  background: rgba(255, 215, 0, 0.1);
+  border: 1px solid rgba(255, 215, 0, 0.2);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.6rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.adminCheck {
+  color: #3b82f6; /* Unified Premium Blue matching ToolCard & Founder Card */
+  filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.4));
+  flex-shrink: 0;
+}
+
+.ownerBadge {
+  color: var(--primary);
+  background: rgba(var(--primary-rgb), 0.1);
+  border: 1px solid rgba(var(--primary-rgb), 0.2);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.6rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.replyActionRow {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1rem;
+}
+
+.repliesContainer {
+  margin-top: 1.5rem;
+  padding-left: 2rem;
+  border-left: 2px solid rgba(255, 255, 255, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.replyCard {
+  background: rgba(255, 255, 255, 0.015);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  padding: 1rem;
+  display: flex;
+  gap: 1rem;
+}
+
+.replyCard.ownerReply {
+  border-color: rgba(var(--primary-rgb), 0.2);
+  background: rgba(var(--primary-rgb), 0.02);
+}
+
+.replyInputArea {
+  margin-top: 1rem;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 1rem;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.replyTextarea {
+  width: 100%;
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 0.9rem;
+  min-height: 60px;
+  resize: vertical;
+  outline: none;
+}
+
+.replyButtons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+@media (max-width: 768px) {
+  .repliesContainer {
+    padding-left: 1rem;
+  }
 }

@@ -72,3 +72,14 @@ export const SKELETON_COUNTS = {
     RESULTS_GRID: 9,
     RESULTS_MORE: 3
 };
+
+export const AI_SEARCH_CONSTANTS = {
+    badge: "AI Powered Search",
+    title: "How can I help you discover tools today?",
+    placeholder: "e.g. 'Find me an AI for making logo' or 'Best SEO tools cheaper than Ahrefs'",
+    loading: "Thinking and scanning our universe...",
+    error: "My circuits are a bit fuzzy. Can you try again?",
+    success: "Here's what I found for you:",
+    noResults: "I couldn't find exactly that, but these might interest you:",
+    disclaimer: "Powered by HUBly Semantic Engine v2.0"
+};

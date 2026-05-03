@@ -274,6 +274,7 @@ export const useSearchEngine = ({
         selectedPrice, setPrice,
         sortBy, setSort,
         page, setPageNum,
+        setFilters: updateParams,
         refresh: () => {
             searchCache.clear();
             fetchTools(true);

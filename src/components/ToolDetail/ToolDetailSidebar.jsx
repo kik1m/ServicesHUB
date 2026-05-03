@@ -72,13 +72,13 @@ const ToolDetailSidebar = ({
                             <div className={styles.infoRowItem}>
                                 <span className={styles.infoLabel}>{content?.sidebar?.publisher}</span>
                                 <Link 
-                                    to={publisher?.id === '8ded6b0a-6982-495c-8ba8-fda45ac7e082' ? '#' : `/u/${publisher?.id}`} 
+                                    to={`/u/${publisher?.id || tool?.user_id}`} 
                                     className={`${styles.publisherLinkPremium} ${publisher?.id === '8ded6b0a-6982-495c-8ba8-fda45ac7e082' ? styles.teamHubly : ''}`}
                                 >
                                     <span className={styles.publisherNameWrapper}>
                                         {publisher?.id === '8ded6b0a-6982-495c-8ba8-fda45ac7e082' ? 'Team Hubly' : (publisher?.full_name || content?.sidebar?.anonymous)}
-                                        {publisher?.id === '8ded6b0a-6982-495c-8ba8-fda45ac7e082' && (
-                                            <CheckCircle2 size={14} className={styles.teamVerifiedBadge} />
+                                        {(publisher?.id === '8ded6b0a-6982-495c-8ba8-fda45ac7e082' || publisher?.role?.toLowerCase() === 'admin') && (
+                                            <CheckCircle2 size={15} className={styles.teamVerifiedBadge} strokeWidth={2.5} />
                                         )}
                                     </span>
                                     <ChevronRight size={14} />

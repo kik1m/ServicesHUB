@@ -21,6 +21,8 @@ import AdminSidebar from '../components/Admin/AdminSidebar';
 import AdminReviewModal from '../components/Admin/AdminReviewModal';
 import AdminToolManager from '../components/Admin/AdminToolManager';
 import AdminAIManager from '../components/Admin/AdminAIManager'; // [NEW] AI Manager
+import AdminNewsletterManager from '../components/Admin/AdminNewsletterManager'; // [NEW] Newsletter Orchestrator
+import NotificationLab from '../components/Admin/NotificationLab'; // [LAB] Test Tool
 
 // Styles
 import styles from './AdminDashboard.module.css';
@@ -43,6 +45,7 @@ const AdminDashboard = () => {
         newPost, setNewPost, newCategory, setNewCategory, newTool, setNewTool,
         selectedReview, showReviewModal, editMode,
         handleOpenReview, handleOpenEdit, handleCloseReview,
+        campaignData, setCampaignData, handleBroadcast,
         init // For retry
     } = useAdminData();
 
@@ -175,6 +178,18 @@ const AdminDashboard = () => {
                 error={error}
                 onRetry={init}
             />
+        ),
+        'newsletter-manager': (
+            <AdminNewsletterManager 
+                campaignData={campaignData}
+                setCampaignData={setCampaignData}
+                allTools={allTools}
+                handleBroadcast={handleBroadcast}
+                isSubmitting={submitting}
+            />
+        ),
+        lab: (
+            <NotificationLab />
         )
     }), [
         activeTab, pendingTools, featuredTools, allTools, allToolsTotal, allToolsPage, setAllToolsPage,
@@ -186,7 +201,7 @@ const AdminDashboard = () => {
         setNewPost, handleCreateBlogPost, handleDeleteBlog, setNewTool, 
         setAdminUseManualUrl, handleAdminFileChange, addAdminFeature, removeAdminFeature, 
         handleAdminFeatureChange, handleDirectAddTool, setNewCategory, handleCategoryAction, 
-        loading, error, init
+        loading, error, init, campaignData, setCampaignData, handleBroadcast, submitting
     ]);
 
     const activeTabView = TAB_RESOURCES[activeTab] || null;

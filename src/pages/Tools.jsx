@@ -1,7 +1,8 @@
-import React, { useMemo, memo } from 'react';
+import React, { useMemo, memo, useCallback } from 'react';
 import { Search as SearchIcon, Layers } from 'lucide-react';
 import useSEO from '../hooks/useSEO';
 import { useSearchEngine } from '../hooks/useSearchEngine';
+import { useAiSearch } from '../hooks/useAiSearch';
 import { useBannerData } from '../hooks/useBannerData';
 import { TOOLS_UI_CONSTANTS } from '../constants/toolsConstants';
 import { SEARCH_UI_CONSTANTS } from '../constants/searchConstants';
@@ -10,12 +11,14 @@ import { SEARCH_UI_CONSTANTS } from '../constants/searchConstants';
 import PageHero from '../components/ui/PageHero';
 import Safeguard from '../components/ui/Safeguard';
 import SmartBanner from '../components/SmartBanner';
-import Input from '../components/ui/Input';
+import { useAuth } from '../context/AuthContext';
+
 
 // Import Unified Search Components
 import DirectorySidebar from '../components/Directory/DirectorySidebar';
 import DirectoryResults from '../components/Directory/DirectoryResults';
 import DirectorySubmitCTA from '../components/Directory/DirectorySubmitCTA';
+import AiSearchAssistant from '../components/Directory/AiSearchAssistant';
 
 // Styles
 import styles from './Tools.module.css';
@@ -36,6 +39,7 @@ const Tools = () => {
         selectedPrice, setPrice,
         sortBy, setSort,
         page, setPageNum,
+        setFilters,
         refresh,
         displayedCategories, hiddenCount,
         catSearchQuery, setCatSearchQuery,
@@ -45,6 +49,26 @@ const Tools = () => {
         syncUrl: true,
         itemsPerPage: 20
     });
+
+    // 1.5. Hook into the AI Semantic Search
+    // Use setFilters for a single atomic URL update (prevents race conditions)
+    const handleAiFilters = useCallback((filters) => {
+        const params = {};
+        if (filters.q !== undefined) params.q = filters.q;
+        if (filters.category !== undefined) params.category = filters.category;
+        if (filters.price !== undefined) params.price = filters.price;
+        setFilters(params);
+    }, [setFilters]);
+
+    const { user } = useAuth();
+
+    const { processQuery, aiMessage, aiResults, isAiLoading, setAiMessage, error: aiError, setError: setAiError, resetAi } = useAiSearch({ 
+        userId: user?.id
+    });
+
+    const handleAiReset = useCallback(() => {
+        resetAi();
+    }, [resetAi]);
 
     // Debugging Logic (Elite Health Check)
     console.log('[Tools] Results:', results.length, 'Total:', totalResults, 'Loading:', isLoading);
@@ -96,29 +120,31 @@ const Tools = () => {
 
                         {/* 2. Main Results Column */}
                         <div className={styles.resultsColumn}>
-                            {/* Unified Search Input */}
+                            {/* Unified Smart Search Bar */}
                             <div className={styles.searchHeaderWrapper}>
-                                <Input 
-                                    placeholder={TOOLS_UI_CONSTANTS.filters.placeholder}
-                                    icon={SearchIcon}
-                                    value={searchQuery}
-                                    onChange={(e) => setQuery(e.target.value)}
-                                    variant="ghost"
+                                <AiSearchAssistant 
+                                    standardQuery={searchQuery}
+                                    setStandardQuery={setQuery}
+                                    onProcess={processQuery} 
+                                    onReset={handleAiReset}
+                                    message={aiMessage || aiError} 
+                                    isThinking={isAiLoading}
                                 />
                             </div>
 
                             <DirectoryResults 
-                                results={results}
-                                totalResults={totalResults}
-                                isLoading={isLoading}
+                                results={aiResults !== null ? aiResults : results}
+                                totalResults={aiResults !== null ? aiResults.length : totalResults}
+                                isLoading={isAiLoading || isLoading}
                                 loadingMore={loadingMore}
-                                hasMore={hasMore}
+                                hasMore={aiResults ? false : hasMore}
                                 setPage={setPageNum}
                                 sortBy={sortBy}
                                 setSortBy={setSort}
                                 error={error}
                                 refetch={refresh}
                                 content={SEARCH_UI_CONSTANTS.results}
+                                onClearFilters={handleAiReset}
                             />
                         </div>
                     </div>

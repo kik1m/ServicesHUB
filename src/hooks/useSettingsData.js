@@ -3,6 +3,8 @@ import { supabase } from '../lib/supabaseClient';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { settingsService } from '../services/settingsService';
+import { sendNotification } from '../utils/notifications';
+import { emailTriggers } from '../utils/emailService';
 
 /**
  * useSettingsData - Elite Hardened Hook
@@ -72,7 +74,37 @@ export const useSettingsData = () => {
         try {
             setSaving(true);
             setActionError(null);
-            await settingsService.updateProfile(authUser.id, profile);
+
+            // Elite Sanitization: Only allow user-editable fields
+            const sanitizedProfile = {
+                full_name: profile.full_name,
+                role: profile.role,
+                bio: profile.bio,
+                avatar_url: profile.avatar_url,
+                website: profile.website,
+                twitter: profile.twitter,
+                github: profile.github,
+                linkedin: profile.linkedin
+            };
+
+            await settingsService.updateProfile(authUser.id, sanitizedProfile);
+            
+            await sendNotification(
+                authUser.id, 
+                'Identity Synchronized', 
+                'Your profile information has been successfully updated across our ecosystem.', 
+                'success'
+            ).catch(() => {});
+
+            // Elite Email Security Alert
+            if (authUser.email) {
+                await emailTriggers.sendSecurityAlert(
+                    authUser.email,
+                    profile.full_name || 'Member',
+                    'Profile Information Update'
+                ).catch(() => {});
+            }
+
             showToast('Profile updated successfully!', 'success');
         } catch (err) {
             console.error('Error updating profile:', err);
@@ -99,6 +131,23 @@ export const useSettingsData = () => {
                 password: passwords.new
             });
             if (error) throw error;
+
+            await sendNotification(
+                authUser.id, 
+                'Security Alert: Password Updated', 
+                'Your account password was recently changed. If you did not perform this action, please contact support immediately.', 
+                'warning'
+            ).catch(() => {});
+
+            // Elite Email Security Alert
+            if (authUser.email) {
+                await emailTriggers.sendSecurityAlert(
+                    authUser.email,
+                    profile.full_name || 'Member',
+                    'Account Password Change'
+                ).catch(() => {});
+            }
+
             showToast('Password updated successfully!', 'success');
             setPasswords({ new: '', confirm: '' });
         } catch (err) {

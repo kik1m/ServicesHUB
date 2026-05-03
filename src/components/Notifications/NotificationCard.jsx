@@ -1,5 +1,5 @@
 import React, { memo } from 'react';
-import { Bell, Info, CheckCircle, AlertTriangle } from 'lucide-react';
+import { Bell, Info, CheckCircle, AlertTriangle, XCircle, Users } from 'lucide-react';
 import Skeleton from '../ui/Skeleton';
 import Button from '../ui/Button';
 import Safeguard from '../ui/Safeguard';
@@ -48,9 +48,12 @@ const NotificationCard = memo(({ notif, onMarkRead, isLoading, error, onRetry })
                     <div className={styles.iconBox}>
                         {(() => {
                             switch (notif?.type) {
-                                case 'success': return <CheckCircle size={20} />;
-                                case 'warning': return <AlertTriangle size={20} />;
-                                case 'info': return <Info size={20} />;
+                                case 'approval': return <CheckCircle size={20} className={styles.approvalIcon} />;
+                                case 'rejection': return <XCircle size={20} className={styles.rejectionIcon} />;
+                                case 'social': return <Users size={20} className={styles.socialIcon} />;
+                                case 'success': return <CheckCircle size={20} className={styles.successIcon} />;
+                                case 'warning': return <AlertTriangle size={20} className={styles.warningIcon} />;
+                                case 'info': return <Info size={20} className={styles.infoIcon} />;
                                 default: return <Bell size={20} />;
                             }
                         })()}
@@ -65,18 +68,20 @@ const NotificationCard = memo(({ notif, onMarkRead, isLoading, error, onRetry })
                             <span className={styles.time}>{formatTimeAgo(notif?.created_at)}</span>
                         </div>
                         
-                        <p className={styles.message}>{notif?.message}</p>
+                        <p className={styles.message}>{notif?.content}</p>
                         
-                        {notif?.is_unread && (
-                            <Button 
-                                variant="ghost"
-                                size="small"
-                                onClick={onMarkRead} 
-                                className={styles.markReadBtn}
-                            >
-                                {labels?.markAsRead}
-                            </Button>
-                        )}
+                        <div className={styles.actionRow}>
+                            {notif?.is_unread && (
+                                <Button 
+                                    variant="ghost"
+                                    size="small"
+                                    onClick={onMarkRead} 
+                                    className={styles.markReadBtn}
+                                >
+                                    {labels?.markAsRead}
+                                </Button>
+                            )}
+                        </div>
                     </div>
                 </div>
             )}

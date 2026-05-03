@@ -66,6 +66,8 @@ const AuthSkeleton = () => (
   </div>
 );
 
+import InteractiveParticles from './components/Home/InteractiveParticles';
+
 function App() {
   const [isMounted, setIsMounted] = React.useState(false);
 
@@ -76,6 +78,7 @@ function App() {
   return (
     <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <div className={`app-container ${isMounted ? 'is-ready' : ''}`}>
+        <InteractiveParticles />
         <ScrollToTop />
         <Navbar />
         <main className="content">
@@ -211,6 +214,11 @@ function App() {
                 </Suspense>
               } />
               <Route path="/compare" element={
+                <Suspense fallback={null}>
+                  <Compare />
+                </Suspense>
+              } />
+              <Route path="/compare/:comparisonSlug" element={
                 <Suspense fallback={null}>
                   <Compare />
                 </Suspense>

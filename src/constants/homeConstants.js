@@ -10,15 +10,15 @@ export const HOME_UI_CONSTANTS = {
         url: 'https://hubly.com'
     },
     hero: {
-        badge: "Expertly Curated Tool Directory",
-        title: "Get the Best Professional Tools for",
-        highlight: "Your Projects",
-        subtitle: "HUBly is your transparent window to the world's most innovative and reliable technical solutions. We save your valuable time by handpicking high-value, high-credibility tools that empower you to master new skills and scale your projects.",
+        badge: "Elite AI Tool Directory",
+        title: "Discover the Future of",
+        highlight: "AI Innovation",
+        subtitle: "The world's most innovative directory for professional AI tools. We handpick high-authority solutions to help you build faster and scale smarter.",
         searchPlaceholder: "Search for tools, categories, or keywords...",
         popularLabel: "Popular:",
-        trustPrefix: "A community of",
+        trustPrefix: "Trusted by over",
         trustSuffix: "makers worldwide",
-        logosPrefix: "Trusted by creators from",
+        logosPrefix: "Trusted by pioneers from",
         logos: ["Product Hunt", "Hacker News", "Indie Hackers", "Dev.to"]
     },
     howItWorks: {

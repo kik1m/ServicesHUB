@@ -46,40 +46,54 @@ const ToolDetail = () => {
         refresh
     } = useToolDetailData();
 
+    const breadcrumbItems = useMemo(() => [
+        { label: TOOL_DETAIL_UI_CONSTANTS.breadcrumbs.home, path: '/' },
+        { label: TOOL_DETAIL_UI_CONSTANTS.breadcrumbs.tools, path: '/tools' },
+        { label: tool?.name || 'Tool' }
+    ], [tool?.name]);
+
     // SEO Hardening
     useSEO({
         title: tool?.name ? `${tool.name} ${TOOL_DETAIL_UI_CONSTANTS.seo.titleSuffix}` : 'Tool Details',
         description: tool?.short_description || tool?.description,
         image: tool?.image_url,
         url: getCurrentUrl(),
-        schema: tool ? {
-            "@context": "https://schema.org/",
-            "@type": "SoftwareApplication",
-            "name": tool.name,
-            "applicationCategory": "MultimediaApplication", // Generic category for AI tools
-            "operatingSystem": "Web",
-            "image": tool.image_url,
-            "description": tool.short_description || tool.description,
-            "brand": { "@type": "Brand", "name": tool.categories?.name || "AI Tool" },
-            "aggregateRating": tool.rating > 0 ? {
-                "@type": "AggregateRating",
-                "ratingValue": tool.rating,
-                "reviewCount": tool.reviews_count || 1
-            } : undefined,
-            "offers": {
-                "@type": "Offer",
-                "price": tool.pricing_type === 'Free' ? "0" : "1", // Use dummy for paid if exact price unknown, but valid schema
-                "priceCurrency": "USD",
-                "availability": "https://schema.org/InStock"
+        schema: tool ? [
+            {
+                "@context": "https://schema.org/",
+                "@type": "SoftwareApplication",
+                "name": tool.name,
+                "applicationCategory": "MultimediaApplication",
+                "operatingSystem": "Web",
+                "image": tool.image_url,
+                "description": tool.short_description || tool.description,
+                "brand": { "@type": "Brand", "name": tool.categories?.name || "AI Tool" },
+                "aggregateRating": tool.rating > 0 ? {
+                    "@type": "AggregateRating",
+                    "ratingValue": tool.rating,
+                    "reviewCount": tool.reviews_count || 1
+                } : undefined,
+                "offers": {
+                    "@type": "Offer",
+                    "price": tool.pricing_type === 'Free' ? "0" : "1",
+                    "priceCurrency": "USD",
+                    "availability": "https://schema.org/InStock"
+                }
+            },
+            {
+                "@context": "https://schema.org",
+                "@type": "BreadcrumbList",
+                "itemListElement": breadcrumbItems.map((item, index) => ({
+                    "@type": "ListItem",
+                    "position": index + 1,
+                    "name": item.label,
+                    "item": item.path ? `https://hubly-tools.com${item.path}` : `https://hubly-tools.com/tool/${tool.slug}`
+                }))
             }
-        } : null
+        ] : null
     });
 
-    const breadcrumbItems = useMemo(() => [
-        { label: TOOL_DETAIL_UI_CONSTANTS.breadcrumbs.home, path: '/' },
-        { label: TOOL_DETAIL_UI_CONSTANTS.breadcrumbs.tools, path: '/tools' },
-        { label: tool?.name || 'Tool' }
-    ], [tool?.name]);
+
 
     const handleAuthAction = async (action) => {
         if (!user) {

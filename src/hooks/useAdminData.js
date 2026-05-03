@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { useNavigate } from 'react-router-dom';
 import { sendNotification } from '../utils/notifications';
+import { emailTriggers } from '../utils/emailService';
 import { Package, Users, Clock, Activity } from 'lucide-react';
 import { ADMIN_UI_CONSTANTS } from '../constants/adminConstants';
 
@@ -52,6 +53,36 @@ export const useAdminData = () => {
         name: '', url: '', category_id: '', short_description: '',
         description: '', image_url: '', pricing_type: 'Free', features: [''], pricing_details: ''
     });
+
+    const [campaignData, setCampaignData] = useState({
+        subject: '',
+        intro: '',
+        selectedTools: [],
+        specialOffer: { title: '', description: '', link: '' }
+    });
+    
+    const handleBroadcast = useCallback(async () => {
+        if (!campaignData.subject || campaignData.selectedTools.length === 0) {
+            showToast('Subject and at least one tool are required!', 'warning');
+            return;
+        }
+
+        if (!window.confirm(`Are you ready to broadcast this newsletter to all subscribers?`)) return;
+
+        setSubmitting(true);
+        try {
+            setActionError(null);
+            const results = await adminService.sendNewsletterBroadcast({
+                ...campaignData,
+                tools: campaignData.selectedTools
+            });
+            showToast(`Broadcast Finished! Sent: ${results.sent}, Failed: ${results.failed}`, 'success');
+        } catch (err) {
+            setActionError(`Broadcast Failed: ${err.message}`);
+        } finally {
+            setSubmitting(false);
+        }
+    }, [campaignData, showToast]);
 
     const [selectedReview, setSelectedReview] = useState(null);
     const [showReviewModal, setShowReviewModal] = useState(false);
@@ -204,7 +235,7 @@ export const useAdminData = () => {
         }
     }, [showToast]);
 
-    const handleApprove = useCallback(async (tool) => {
+    const handleApprove = useCallback(async (tool, feedback = '') => {
         const msg = ADMIN_UI_CONSTANTS.messages.approvals;
         if (!window.confirm(`Are you sure you want to approve "${tool.name}"?`)) return;
 
@@ -216,12 +247,24 @@ export const useAdminData = () => {
             const isUpdate = !!tool.pending_changes;
             await adminService.approveTool(tool);
             
+            // 1. Internal Notification
             await sendNotification(
                 tool.user_id, 
                 isUpdate ? msg.updateApproved : msg.toolApproved, 
                 isUpdate ? msg.updateApprovedDesc.replace('{name}', tool.name) : msg.toolApprovedDesc.replace('{name}', tool.name), 
                 'approval'
             );
+
+            // 2. Elite Email Notification
+            if (tool.profiles?.email) {
+                await emailTriggers.sendToolStatus(
+                    tool.profiles.email,
+                    tool.name,
+                    'approved',
+                    tool.slug,
+                    feedback || (isUpdate ? 'Your tool update has been reviewed and approved.' : 'Your tool submission is now live on our platform.')
+                ).catch(err => console.warn('Email failed:', err));
+            }
             
             setPendingTools(prev => prev.filter(t => t.id !== tool.id));
             showToast(isUpdate ? 'Update applied!' : 'Tool approved!', 'success');
@@ -233,9 +276,9 @@ export const useAdminData = () => {
         } finally {
             setSubmitting(false);
         }
-    }, [showToast, sendNotification, setPendingTools, setActionError, handleCloseReview]);
+    }, [showToast, handleCloseReview]);
 
-    const handleReject = useCallback(async (tool) => {
+    const handleReject = useCallback(async (tool, feedback = '') => {
         const msg = ADMIN_UI_CONSTANTS.messages.approvals;
         const isUpdate = !!tool.pending_changes;
         const confirmMsg = isUpdate ? msg.rejectConfirm.replace('{name}', tool.name) : msg.deleteConfirm.replace('{name}', tool.name);
@@ -249,12 +292,24 @@ export const useAdminData = () => {
             
             await adminService.rejectTool(tool);
             
+            // 1. Internal Notification
             await sendNotification(
                 tool.user_id, 
                 msg.rejectSubject, 
                 isUpdate ? msg.rejectUpdateDesc.replace('{name}', tool.name) : msg.rejectToolDesc.replace('{name}', tool.name), 
                 'rejection'
             );
+
+            // 2. Elite Email Notification (With Dynamic Feedback)
+            if (tool.profiles?.email) {
+                await emailTriggers.sendToolStatus(
+                    tool.profiles.email,
+                    tool.name,
+                    'rejected',
+                    tool.slug,
+                    feedback || 'Unfortunately, your submission does not meet our current quality standards or editorial guidelines.'
+                ).catch(err => console.warn('Email failed:', err));
+            }
             
             setPendingTools(prev => prev.filter(t => t.id !== tool.id));
             setAllTools(prev => prev.filter(t => t.id !== tool.id));
@@ -269,7 +324,7 @@ export const useAdminData = () => {
         } finally {
             setSubmitting(false);
         }
-    }, [showToast, sendNotification, setPendingTools, setAllTools, setFeaturedTools, setActionError, handleCloseReview]);
+    }, [showToast, handleCloseReview]);
 
     const handleAdminSearch = useCallback(async (e) => {
         const query = e.target.value;
@@ -449,6 +504,7 @@ export const useAdminData = () => {
         handleCreateBlogPost, handleDeleteBlog, handleCategoryAction,
         handleAdminFileChange, handleDirectAddTool, handleUpdateToolDirect,
         handleOpenReview, handleOpenEdit, handleCloseReview,
-        addAdminFeature, removeAdminFeature, handleAdminFeatureChange
+        addAdminFeature, removeAdminFeature, handleAdminFeatureChange,
+        handleBroadcast, setCampaignData, campaignData
     };
 };

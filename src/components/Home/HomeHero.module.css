@@ -1,259 +1,184 @@
 /* HomeHero.module.css */
 
-.badge {
-  display: inline-block;
-  background: rgba(var(--primary-rgb), 0.15);
-  padding: 6px 16px;
-  border-radius: 100px;
-  font-size: 0.8rem;
-  font-weight: 700;
-  color: var(--primary);
-  margin-bottom: 1.5rem;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-}
-
-.gradientText {
-  background: var(--gradient);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
 .heroSectionSlim {
-  padding: 60px 1.5rem 30px;
-  min-height: 25vh;
+  padding: 80px 1.5rem 40px;
+  min-height: 55vh;
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
   position: relative;
   overflow: hidden;
-  border-bottom: 1px solid var(--border);
+  /* Completely transparent to let the page background shine */
+  background: transparent !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Neutral Vignette to protect text readability over the dynamic canvas */
+.heroSectionSlim::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at center, transparent 0%, rgba(0,0,0,0.4) 100%);
+  z-index: 2;
+  pointer-events: none;
 }
 
 .heroContent {
   max-width: 900px;
   margin: 0 auto;
+  z-index: 10; /* Above the canvas engine */
+  animation: fadeIn 1s ease-out;
+  position: relative;
+}
+
+.logoWrapper {
+  margin-bottom: 1.5rem;
+  display: flex;
+  justify-content: center;
+}
+
+.heroLogo {
+  height: 60px;
+  width: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.1));
+}
+
+.badge {
+  display: inline-block;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 6px 16px;
+  border-radius: 100px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: #00d2ff;
+  margin-bottom: 1.5rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(8px);
 }
 
 .heroTitleSlim {
-  font-size: 2.8rem;
+  font-size: clamp(2rem, 4.5vw, 3rem);
   font-weight: 900;
-  margin-bottom: 0.8rem;
+  margin-bottom: 1rem;
   line-height: 1.1;
   letter-spacing: -1.5px;
 }
 
+.gradientText {
+  background: linear-gradient(135deg, #00d2ff 0%, #3a7bd5 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: inline-block;
+}
+
 .heroSubtitleSlim {
-  font-size: 1rem;
-  color: var(--text-muted);
+  font-size: 1.1rem;
+  color: rgba(255, 255, 255, 0.5);
   max-width: 650px;
-  margin: 0 auto 1.5rem;
-  line-height: 1.5;
+  margin: 0 auto 2.5rem;
+  line-height: 1.6;
 }
 
 .heroSearchContainer {
-  max-width: 700px;
-  margin: 0 auto 3rem;
+  max-width: 600px;
+  margin: 0 auto 2.5rem;
   width: 100%;
+  position: relative;
+}
+
+.heroSearchInput {
+  background: #111827 !important;
+  background-color: #111827 !important;
+  opacity: 1 !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 100px !important;
+  box-shadow: 0 15px 50px rgba(0, 0, 0, 0.6) !important;
+  min-height: 56px !important;
+}
+
+.heroSearchInput :global(*) {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+.heroSearchInput:focus-within {
+  border-color: #00d2ff !important;
 }
 
 .popularTags {
-  margin-top: 1.5rem;
   display: flex;
   justify-content: center;
   align-items: center;
   gap: 12px;
   flex-wrap: wrap;
   font-size: 0.85rem;
-  color: var(--text-muted);
+  color: rgba(255, 255, 255, 0.3);
 }
 
 .tagLink {
-  color: var(--primary);
-  text-decoration: none;
-  background: rgba(var(--primary-rgb), 0.05);
-  padding: 4px 12px;
-  border-radius: 100px;
-  border: 1px solid rgba(var(--primary-rgb), 0.1);
-  transition: 0.3s;
-}
-
-.popularTags:hover .tagLink {
-  opacity: 0.7;
-}
-
-.popularTags .tagLink:hover {
-  opacity: 1;
-}
-
-.userTrustBox {
-  display: flex;
-  align-items: center;
-  margin-left: 0.5rem;
-}
-
-.avatarGroup {
-  display: flex;
-  align-items: center;
-}
-
-.avatarMini {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  border: 2px solid var(--bg-dark);
-  margin-left: -12px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-  overflow: hidden; /* Ensure image doesn't overflow rounded corners */
-}
-
-
-.avatarImg {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-.avatarMini:first-child { margin-left: 0; z-index: 4; }
-.avatarMini:nth-child(2) { z-index: 3; rotate: 2deg; }
-.avatarMini:nth-child(3) { z-index: 2; rotate: -2deg; }
-.avatarMini:nth-child(4) { z-index: 1; rotate: 1deg; }
-
-.userTrust {
-  display: inline-flex;
-  align-items: center;
-  gap: 15px;
-  background: rgba(255, 255, 255, 0.02);
-  padding: 10px 24px;
-  border-radius: 100px;
-  border: 1px solid var(--border);
+  color: #00d2ff !important;
+  background: rgba(0, 210, 255, 0.03) !important;
+  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+  padding: 5px 14px !important;
+  border-radius: 100px !important;
 }
 
 .trustLogos {
-  margin-top: 5rem;
-  padding-top: 3rem;
-  border-top: 1px solid var(--border);
-  text-align: center;
+  margin-top: 3rem;
+  width: 100%;
+  padding-top: 2rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.03);
 }
 
 .trustLogos p {
   font-size: 0.75rem;
   text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.2);
+  margin-bottom: 1.2rem;
   letter-spacing: 2px;
-  margin-bottom: 2rem;
-  color: var(--text-muted);
-  opacity: 0.8;
 }
 
 .logoRow {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 4rem;
+  gap: 3rem;
   flex-wrap: wrap;
 }
 
-.logoItem {
-  font-weight: 800;
-  font-size: 1.4rem;
-  color: var(--text-muted);
-  filter: grayscale(1);
-  transition: 0.4s;
-  letter-spacing: -0.5px;
-}
-
-.logoItem:hover {
-  filter: grayscale(0);
-  color: var(--text-main);
-}
-
-.heroCtaWrapper {
-  margin-top: 2.5rem;
-}
-
-.strongText {
-  font-weight: 800;
-}
-
-/* Skeleton Styles */
-.skeletonBadge {
+.logoItemWrapper {
   display: flex;
-  justify-content: center;
-  margin-bottom: 1rem;
-}
-
-.skeletonBadgeInner {
-  width: 180px;
-  height: 24px;
-  border-radius: 100px;
-}
-
-.skeletonTitle {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 1.5rem;
-}
-
-.skeletonTitleInner {
-  width: 70%;
-  height: 56px;
-  border-radius: 12px;
-}
-
-.skeletonSubtitle {
-  display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 2.5rem;
+  gap: 10px;
 }
 
-.skeletonSubtitleLine1 {
-  width: 85%;
-  height: 18px;
+.logoDot {
+  color: #00d2ff;
+  font-size: 1.4rem;
+  line-height: 1;
 }
 
-.skeletonSubtitleLine2 {
-  width: 60%;
-  height: 18px;
+.logoItem {
+  font-weight: 700;
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.25);
 }
 
-.skeletonSearch {
-  max-width: 700px;
-  margin: 0 auto;
-  width: 100%;
-  margin-bottom: 2rem;
-}
-
-.skeletonSearchInner {
-  width: 100%;
-  height: 62px;
-  border-radius: 18px;
-}
-
-.skeletonTags {
-  display: flex;
-  justify-content: center;
-  gap: 12px;
-  margin-bottom: 3rem;
-}
-
-.skeletonTagInner {
-  width: 80px;
-  height: 32px;
-  border-radius: 100px;
-}
-
-.skeletonTrust {
-  display: flex;
-  justify-content: center;
-}
-
-.skeletonTrustInner {
-  width: 280px;
-  height: 44px;
-  border-radius: 12px;
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

@@ -69,7 +69,7 @@ const Compare = () => {
     // 3. Share Functionality
     const handleShare = () => {
         if (!tool1?.slug || !tool2?.slug) return;
-        const shareUrl = `${window.location.origin}/compare?t1=${tool1.slug}&t2=${tool2.slug}`;
+        const shareUrl = `${window.location.origin}/compare/${tool1.slug}-vs-${tool2.slug}`;
         navigator.clipboard.writeText(shareUrl).then(() => {
             addToast('success', 'Comparison link copied to clipboard!');
         });

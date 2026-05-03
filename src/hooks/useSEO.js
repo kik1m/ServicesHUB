@@ -82,7 +82,12 @@ export const useSEO = ({
                 schemaScript.type = 'application/ld+json';
                 document.head.appendChild(schemaScript);
             }
-            schemaScript.text = JSON.stringify(schema);
+            // Support multiple schemas via array or single object
+            const schemaData = Array.isArray(schema) ? schema : [schema];
+            schemaScript.text = JSON.stringify(schemaData.length === 1 ? schemaData[0] : {
+                "@context": "https://schema.org",
+                "@graph": schemaData
+            });
         } else if (schemaScript) {
             schemaScript.remove();
         }

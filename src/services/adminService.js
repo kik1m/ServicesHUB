@@ -18,8 +18,8 @@ export const adminService = {
             subs,
             counts
         ] = await Promise.all([
-            // 1. Pending Tools & Updates
-            supabase.from('tools').select('*, categories(name)').or('is_approved.eq.false,pending_changes.not.is.null').order('updated_at', { ascending: false }),
+            // 1. Pending Tools & Updates (Enriched with Publisher Profile Data)
+            supabase.from('tools').select('*, categories(name), profiles:user_id(id, full_name)').or('is_approved.eq.false,pending_changes.not.is.null').order('updated_at', { ascending: false }),
             
             // 2. Featured Tools
             supabase.from('tools').select('*, categories(name)').eq('is_featured', true).order('featured_until', { ascending: true }),
@@ -202,5 +202,50 @@ export const adminService = {
         
         if (error) throw error;
         return data[0];
+    },
+    /**
+     * Broadcast Newsletter to all subscribers
+     */
+    async sendNewsletterBroadcast(campaignData) {
+        // 1. Get all subscribers
+        const { data: subsData, error: subsError } = await supabase.from('newsletter_subscribers').select('email');
+        if (subsError) throw subsError;
+        
+        // Filter to ONLY valid Gmail accounts (User's real accounts for testing)
+        const subs = subsData.filter(sub => sub.email.toLowerCase().endsWith('@gmail.com'));
+        
+        if (!subs || subs.length === 0) throw new Error('No valid Gmail subscribers found to broadcast to.');
+
+        // 2. Prepare payload for the Email Engine
+        const payload = {
+            type: 'newsletter_broadcast',
+            subject: campaignData.subject,
+            data: {
+                subject: campaignData.subject,
+                intro: campaignData.intro,
+                tools: campaignData.tools,
+                specialOffer: campaignData.specialOffer
+            }
+        };
+
+        // 3. Sequential Broadcast (Safest for delivery)
+        const results = { total: subs.length, sent: 0, failed: 0 };
+        
+        for (const sub of subs) {
+            try {
+                const response = await fetch('/api/send-email', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ ...payload, to: sub.email })
+                });
+                if (!response.ok) throw new Error('API Error');
+                results.sent++;
+            } catch (err) {
+                console.warn(`Failed to send to ${sub.email}:`, err);
+                results.failed++;
+            }
+        }
+
+        return results;
     }
 };

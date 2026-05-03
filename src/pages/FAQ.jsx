@@ -36,7 +36,33 @@ const FAQ = () => {
     } = useFAQData();
 
     // 1. SEO Hardening (v2.0)
-    useSEO({ pageKey: 'faq' });
+    useSEO({ 
+        pageKey: 'faq',
+        schema: [
+            {
+                "@context": "https://schema.org",
+                "@type": "BreadcrumbList",
+                "itemListElement": FAQ_UI_CONSTANTS.hero.breadcrumbs.map((item, index) => ({
+                    "@type": "ListItem",
+                    "position": index + 1,
+                    "name": item.label,
+                    "item": item.path ? `https://hubly-tools.com${item.path}` : `https://hubly-tools.com/faq`
+                }))
+            },
+            {
+                "@context": "https://schema.org",
+                "@type": "FAQPage",
+                "mainEntity": filteredFaqs.slice(0, 10).map(faq => ({
+                    "@type": "Question",
+                    "name": faq.question,
+                    "acceptedAnswer": {
+                        "@type": "Answer",
+                        "text": faq.answer
+                    }
+                }))
+            }
+        ]
+    });
 
     return (
         <div className={styles.faqPage}>

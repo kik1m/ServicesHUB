@@ -42,6 +42,13 @@
     flex: 1;
 }
 
+.approvalIcon { color: #00ff88; }
+.rejectionIcon { color: #ff4757; }
+.socialIcon { color: #747dff; }
+.successIcon { color: #2ed573; }
+.warningIcon { color: #ffa502; }
+.infoIcon { color: #70a1ff; }
+
 .headerLine {
     display: flex;
     justify-content: space-between;

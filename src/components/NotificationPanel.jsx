@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { CheckCircle, Info, Rss, Circle, Loader2, AlertTriangle, Clock } from 'lucide-react';
+import { CheckCircle, Info, Rss, Circle, Loader2, AlertTriangle, Clock, XCircle, Users } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabaseClient';
 import styles from './NotificationPanel.module.css';
@@ -77,8 +77,9 @@ const NotificationPanel = ({ onClose, className = '' }) => {
 
     const getIcon = (type) => {
         switch (type) {
-            case 'approval': return <CheckCircle size={16} color="#00C853" />;
-            case 'rejection': return <AlertTriangle size={16} color="#FF5252" />;
+            case 'approval': return <CheckCircle size={16} color="#00ff88" />;
+            case 'rejection': return <XCircle size={16} color="#ff4757" />;
+            case 'social': return <Users size={16} color="#747dff" />;
             case 'pending': return <Clock size={16} color="#FFD700" />;
             case 'blog': return <Rss size={16} color="var(--primary)" />;
             default: return <Info size={16} color="var(--text-muted)" />;
@@ -105,7 +106,7 @@ const NotificationPanel = ({ onClose, className = '' }) => {
                             <div className={styles.iconWrapper}>{getIcon(notif.type)}</div>
                             <div className={styles.itemContent}>
                                 <h4>{notif.title}</h4>
-                                <p>{notif.message}</p>
+                                <p>{notif.content}</p>
                                 <span className={styles.itemTime}>
                                     {new Date(notif.created_at).toLocaleDateString()}
                                 </span>

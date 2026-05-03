@@ -3,6 +3,7 @@ import { Github, Twitter, Linkedin } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabaseClient';
 import { useToast } from '../context/ToastContext';
+import { emailTriggers } from '../utils/emailService';
 
 // Import UI Atoms
 import Button from './ui/Button';
@@ -19,35 +20,35 @@ const Footer = () => {
     const handleSubscribe = async (e) => {
         e.preventDefault();
         if (!email) return;
+
         setSubmitting(true);
         try {
-            const { error } = await supabase.from('newsletter_subscribers').insert([{ email }]);
-            if (error) {
-                if (error.code === '23505') throw new Error('You are already subscribed!');
-                throw error;
-            }
-            showToast('Subscribed to the newsletter successfully!', 'success');
-            
-            // 🚀 Send Welcome Email via Resend API
-            try {
-                await fetch('/api/send-email', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        to: email,
-                        subject: 'Welcome to HUBly Tools! 🚀',
-                        type: 'welcome',
-                        data: { name: email.split('@')[0] }
-                    })
-                });
-            } catch (emailErr) {
-                console.error('Failed to send welcome email:', emailErr);
-                // Silent fail for email to not disrupt user experience
+            // 1. Database Insertion (Persistence)
+            const { error: dbError } = await supabase
+                .from('newsletter_subscribers')
+                .insert([{ email }]);
+
+            if (dbError) {
+                // Rule #42.3: Detailed RLS Debugging for the User
+                if (dbError.code === '42501' || dbError.status === 403) {
+                    throw new Error('Permission Denied (403): Please ensure Public Insert is enabled for "newsletter_subscribers" in Supabase RLS.');
+                }
+                if (dbError.code === '23505') {
+                    throw new Error('You are already part of our elite circle!');
+                }
+                throw dbError;
             }
 
+            showToast('Welcome to the elite circle!', 'success');
             setEmail('');
-        } catch (error) {
-            showToast(error.message || 'Subscription failed. Please try again.', 'error');
+
+            // 2. Email Delivery (Non-blocking elite trigger)
+            emailTriggers.sendWelcome(email, email.split('@')[0])
+                .catch(err => console.warn('Welcome Email failed:', err));
+
+        } catch (err) {
+            console.error('[Newsletter Error]:', err);
+            showToast(err.message || 'Subscription failed. Please try again.', 'error');
         } finally {
             setSubmitting(false);
         }
