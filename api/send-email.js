@@ -192,9 +192,9 @@ export default async function handler(req, res) {
                 throw new Error('Unsupported email type');
         }
 
-        // ✉️ Send via Resend (Using onboarding address for testing stability)
+        // ✉️ Send via Resend (Using Verified Domain)
         const { data: resendData, error } = await resend.emails.send({
-            from: 'HUBly Elite <onboarding@resend.dev>',
+            from: 'HUBly Elite <newsletter@hubly-tools.com>',
             to: [to],
             reply_to: 'support@hubly-tools.com',
             subject: subject,
