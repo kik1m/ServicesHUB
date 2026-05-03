@@ -8,7 +8,7 @@ import styles from './PromotionPlans.module.css';
  * PromotionPlans - Elite Orchestrator
  * Rule #16: Component Orchestration
  */
-const PromotionPlans = ({ plans = [], handlePromote, loadingPlan, selectedToolId, isLoading, error, onRetry, content }) => {
+const PromotionPlans = ({ plans = [], handlePromote, loadingPlan, selectedToolId, hasActivePlan, checkingPlan, isLoading, error, onRetry, content }) => {
     return (
         <Safeguard error={error} onRetry={onRetry} title="Plans Unavailable">
             <div className={styles.plansContainer}>
@@ -17,7 +17,7 @@ const PromotionPlans = ({ plans = [], handlePromote, loadingPlan, selectedToolId
                     <h3 className={styles.sectionTitle}>{content?.title}</h3>
                 </div>
 
-                {(isLoading || !plans?.length) ? (
+                {(isLoading || checkingPlan || !plans?.length) ? (
                     <div className={styles.plansGrid}>
                         {[1, 2, 3].map(i => (
                             <div key={i} className={styles.skeletonCard}>
@@ -45,7 +45,8 @@ const PromotionPlans = ({ plans = [], handlePromote, loadingPlan, selectedToolId
                             plan={plan}
                             onSelect={handlePromote}
                             isLoading={loadingPlan === plan?.name}
-                            disabled={!selectedToolId}
+                            disabled={!selectedToolId || hasActivePlan}
+                            hasActivePlan={hasActivePlan}
                             content={content}
                         />
                     ))}

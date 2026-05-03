@@ -9,14 +9,17 @@ import styles from './PromotionCard.module.css';
  * Rule #112: Zero Inline Styles
  * Rule #19: Atomic Design Standard
  */
-const PromotionCard = ({ plan, onSelect, isLoading, error, onRetry, disabled, content }) => {
+const PromotionCard = ({ plan, onSelect, isLoading, error, onRetry, disabled, hasActivePlan, content }) => {
     return (
         <Safeguard error={error} onRetry={onRetry}>
-            <div className={`${styles.card} ${plan?.recommended ? styles.recommended : ''}`}>
-                {plan?.recommended && (
+            <div className={`${styles.card} ${plan?.recommended ? styles.recommended : ''} ${hasActivePlan ? styles.locked : ''}`}>
+                {plan?.recommended && !hasActivePlan && (
                     <div className={styles.popularBadge}>
                         {content?.featured}
                     </div>
+                )}
+                {hasActivePlan && (
+                    <div className={styles.lockedBadge}>✓ Plan Active</div>
                 )}
 
                 <div className={styles.header}>
@@ -52,11 +55,11 @@ const PromotionCard = ({ plan, onSelect, isLoading, error, onRetry, disabled, co
                     isLoading={isLoading}
                     disabled={disabled}
                     className={`${styles.ctaBtn} ${styles['btn_' + plan?.id]}`}
-                    icon={ArrowRight}
+                    icon={hasActivePlan ? null : ArrowRight}
                     iconPosition="right"
-                    variant={plan?.recommended ? 'primary' : 'secondary'}
+                    variant={hasActivePlan ? 'secondary' : (plan?.recommended ? 'primary' : 'secondary')}
                 >
-                    {content?.cta}
+                    {hasActivePlan ? 'Already Active' : content?.cta}
                 </Button>
             </div>
         </Safeguard>

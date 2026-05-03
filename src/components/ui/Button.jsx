@@ -18,6 +18,7 @@ const Button = ({
     iconSize = 18,
     className = '',
     as: Component = 'button',
+    iconFill,
     onClick,
     ...props 
 }) => {
@@ -43,11 +44,11 @@ const Button = ({
         >
             {isLoading && <Loader2 size={18} className={styles.spinner} />}
             
-            {!isLoading && Icon && iconPosition === 'left' && <Icon size={iconSize} />}
+            {!isLoading && Icon && iconPosition === 'left' && <Icon size={iconSize} fill={iconFill} />}
             
             {children}
             
-            {!isLoading && Icon && iconPosition === 'right' && <Icon size={iconSize} />}
+            {!isLoading && Icon && iconPosition === 'right' && <Icon size={iconSize} fill={iconFill} />}
         </Component>
     );
 };

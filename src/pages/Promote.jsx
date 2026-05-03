@@ -31,6 +31,7 @@ const Promote = () => {
         loadingPlan,
         loadingTools,
         handlePromote,
+        hasActivePlan,
         error,
         refresh
     } = usePromoteData();
@@ -73,6 +74,8 @@ const Promote = () => {
                                 handlePromote={handlePromote}
                                 loadingPlan={loadingPlan}
                                 selectedToolId={selectedToolId}
+                                hasActivePlan={hasActivePlan}
+                                checkingPlan={checkingPlan}
                                 isLoading={loadingTools}
                                 content={PROMOTE_UI_CONSTANTS.plans}
                                 error={error}

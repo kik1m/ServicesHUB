@@ -4,7 +4,6 @@ import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { lsPaymentService } from '../services/lsPaymentService';
 import { promotionService } from '../services/promotionService';
-
 import { PROMOTE_UI_CONSTANTS } from '../constants/promoteConstants';
 
 /**
@@ -25,6 +24,8 @@ export const usePromoteData = () => {
     const [selectedToolId, setSelectedToolId] = useState(toolId || '');
     const [loadingPlan, setLoadingPlan] = useState(null);
     const [loadingTools, setLoadingTools] = useState(false);
+    const [hasActivePlan, setHasActivePlan] = useState(false);
+    const [checkingPlan, setCheckingPlan] = useState(false);
 
     // Initial Auth Check
     useEffect(() => {
@@ -61,6 +62,27 @@ export const usePromoteData = () => {
         initializeData();
     }, [toolId, user, authLoading]);
 
+    // Check active plan whenever selectedToolId changes
+    useEffect(() => {
+        if (!selectedToolId) {
+            setHasActivePlan(false);
+            return;
+        }
+        const check = async () => {
+            setCheckingPlan(true);
+            try {
+                const active = await promotionService.fetchActivePlan(selectedToolId);
+                setHasActivePlan(active);
+            } catch (err) {
+                console.error('Active plan check error:', err);
+                setHasActivePlan(false);
+            } finally {
+                setCheckingPlan(false);
+            }
+        };
+        check();
+    }, [selectedToolId]);
+
     /**
      * Handles the promotion CTA click
      */
@@ -70,17 +92,22 @@ export const usePromoteData = () => {
             return;
         }
 
+        if (hasActivePlan) {
+            showToast('هذه الأداة لديها خطة مفعلة بالفعل ولا يمكن ترقيتها مرة أخرى.', 'warning');
+            return;
+        }
+
         setLoadingPlan(plan.name);
         try {
             const finalToolName = toolName || userTools.find(t => t.id === selectedToolId)?.name;
-            
+
             const session = await lsPaymentService.createCheckout({
                 userId: user.id,
                 toolId: selectedToolId,
                 toolName: finalToolName,
                 planName: plan.name,
                 itemType: 'tool_promotion',
-                variantId: plan.variantId
+                variantId: plan.variantId,
             });
 
             if (session?.url) {
@@ -106,6 +133,8 @@ export const usePromoteData = () => {
         setSelectedToolId,
         loadingPlan,
         loadingTools,
-        handlePromote
+        hasActivePlan,
+        checkingPlan,
+        handlePromote,
     };
 };
