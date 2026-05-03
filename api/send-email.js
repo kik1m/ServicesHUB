@@ -63,12 +63,9 @@ export default async function handler(req, res) {
                         ${content}
                     </div>
                     <div class="footer">
-                        <p>© ${new Date().getFullYear()} HUBly Tools Ecosystem. All rights reserved.</p>
-                        <p>123 AI Boulevard, Silicon Valley, CA 94025</p>
-                        <div style="margin-top: 15px;">
-                            <a href="https://hubly-tools.com/settings" style="color: #636e72; text-decoration: underline;">Settings</a> • 
-                            <a href="https://hubly-tools.com/support" style="color: #636e72; text-decoration: underline;">Support</a> • 
-                            <a href="https://hubly-tools.com/unsubscribe" style="color: #636e72; text-decoration: underline;">Unsubscribe</a>
+                        <p>© ${new Date().getFullYear()} HUBly Tools. All rights reserved.</p>
+                        <div style="margin-top: 10px;">
+                            <a href="https://hubly-tools.com" style="color: #636e72; text-decoration: none;">Visit Platform</a>
                         </div>
                     </div>
                 </div>
