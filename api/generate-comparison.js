@@ -55,7 +55,7 @@ export default async function handler(req, res) {
         const { data: cachedComparison } = await supabase
             .from('tool_comparisons')
             .select('tool1_id, tool2_id, ai_report_json')
-            .or(`and(tool1_id.eq."${idA}",tool2_id.eq."${idB}"),and(tool1_id.eq."${idB}",tool2_id.eq."${idA}")`)
+            .or(`and(tool1_id.eq.${idA},tool2_id.eq.${idB}),and(tool1_id.eq.${idB},tool2_id.eq.${idA})`)
             .maybeSingle();
 
         if (cachedComparison && cachedComparison.ai_report_json) {

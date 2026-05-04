@@ -13,6 +13,10 @@ export const seoService = {
      */
     async getMetadata(entityId, entityType) {
         if (!entityId || !entityType) return null;
+
+        // Prevent PostgreSQL 400 errors by validating UUID format
+        const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(entityId);
+        if (!isUUID) return null;
         
         try {
             const { data, error } = await supabase
