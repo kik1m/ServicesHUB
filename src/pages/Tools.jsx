@@ -88,7 +88,7 @@ const Tools = () => {
         description: isSearchMode && searchQuery
             ? `Explore the most relevant AI and SaaS tools matching your search for "${searchQuery}".`
             : "Access our curated directory of premium AI and SaaS tools. Filter by category, pricing, and ratings to find your next favorite software.",
-        noindex: isSearchMode || !!searchQuery || page > 0, // Rule #34: Prevent indexing of deep pagination or search permutations
+        noindex: isSearchMode ? true : false, // Rule #34: Prevent indexing of search permutations only
         ogType: 'website',
         prev: page > 0 ? `/tools?page=${page}` : null,
         next: hasMore ? `/tools?page=${page + 2}` : null,
