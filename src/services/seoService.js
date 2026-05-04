@@ -24,7 +24,7 @@ export const seoService = {
                 .select('*')
                 .eq('entity_id', entityId)
                 .eq('entity_type', entityType)
-                .single();
+                .maybeSingle();
 
             if (error) {
                 // PGRST116 is 'not found', which is expected for new/unoptimized items
