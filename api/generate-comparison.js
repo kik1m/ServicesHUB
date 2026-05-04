@@ -121,22 +121,24 @@ export default async function handler(req, res) {
 
         YOUR GOAL: Analyze these tools deeply. Create a dynamic comparison matrix.
         
-        STRICT CONSISTENCY RULE (MUST FOLLOW):
+        STRICT RULES (MUST FOLLOW ALL):
+        - "scores" MUST be realistic integers between 60 and 100 (never below 60, never above 100).
+        - Both tools must receive a score that reflects their real-world quality and reputation.
         - The "winner" in verdict MUST be the tool with the HIGHER score in "scores".
-        - The winner's score MUST be strictly greater than the loser's score.
+        - The winner's score MUST be strictly greater than the loser's score by at least 2 points.
         - Never declare a winner that has a lower or equal score than the other tool.
         
         REQUIRED JSON SCHEMA:
         {
             "strategic_overview": "String",
             "verdict": {
-                "winner": "String",
+                "winner": "String (must match the name of the tool with the higher score)",
                 "reasoning": "String"
             },
-            "scores": { "tool1": 0, "tool2": 0 },
+            "scores": { "tool1": 75, "tool2": 85 },
             "why_buy": { "tool1": [], "tool2": [] },
             "comparison_matrix": [
-                { "feature": "String", "tool1_value": "String", "tool2_value": "String", "winner": 0, "insight": "String" }
+                { "feature": "String", "tool1_value": "String", "tool2_value": "String", "winner": 1, "insight": "String" }
             ],
             "pricing_analysis": "String"
         }
