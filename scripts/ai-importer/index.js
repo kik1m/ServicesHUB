@@ -9,7 +9,7 @@ const { generateAISeo } = require('./seoGenerator');
  */
 async function runDailyImport(urlsToProcess = []) {
     console.log("🚀 Starting Elite AI Agent (V4)...");
-    
+
     // Support comma-separated string if passed from GitHub Actions
     if (typeof urlsToProcess === 'string') {
         urlsToProcess = urlsToProcess.split(',').map(u => u.trim()).filter(u => u.startsWith('http'));
@@ -43,12 +43,12 @@ async function runDailyImport(urlsToProcess = []) {
     for (const url of urlsToProcess) {
         console.log(`\n-----------------------------------`);
         console.log(`⏳ Processing: ${url}`);
-        
+
         try {
             // 1. Check if tool already exists (Smart Check)
             let existingTool = null;
             const normalizedUrl = url.replace(/\/$/, ""); // Remove trailing slash
-            
+
             // Check by exact URL or Normalized URL
             const { data: existingByUrl } = await supabaseAdmin
                 .from('tools')
@@ -61,13 +61,13 @@ async function runDailyImport(urlsToProcess = []) {
                 console.log(`⚠️ Tool exists (URL Match). Preparing Upgrade...`);
             } else {
                 // Potential Name Match
-                const potentialName = url.split('.').slice(-2, -1)[0]; 
+                const potentialName = url.split('.').slice(-2, -1)[0];
                 const { data: existingByName } = await supabaseAdmin
                     .from('tools')
                     .select('*')
                     .ilike('name', `%${potentialName}%`)
                     .maybeSingle();
-                
+
                 if (existingByName) {
                     existingTool = existingByName;
                     console.log(`⚠️ Potential match found by Name: [${existingByName.name}]. Upgrading existing.`);
@@ -100,7 +100,7 @@ async function runDailyImport(urlsToProcess = []) {
                     .insert({ name: toolData.new_category_name, slug: toolData.new_category_slug || toolData.new_category_name.toLowerCase().replace(/ /g, '-') })
                     .select()
                     .single();
-                
+
                 if (newCat && !newCatErr) {
                     toolData.category_id = newCat.id;
                     activeCategories.push(newCat);
@@ -203,7 +203,7 @@ async function runDailyImport(urlsToProcess = []) {
         failed_count: stats.failed,
         details: logDetails
     };
-    
+
     const { error: logError } = await supabaseAdmin.from('ai_agent_logs').insert([logPayload]);
     if (logError) console.error("⚠️ Failed to save log to DB. (Is the table created?):", logError.message);
 
@@ -227,7 +227,7 @@ if (args.length > 0) {
     const fs = require('fs');
     const path = require('path');
     const urlsFile = path.join(__dirname, 'urls.txt');
-    
+
     if (fs.existsSync(urlsFile)) {
         const fileContent = fs.readFileSync(urlsFile, 'utf8');
         const urls = fileContent.split('\n').map(u => u.trim()).filter(u => u.startsWith('http'));

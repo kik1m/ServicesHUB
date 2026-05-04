@@ -48,15 +48,30 @@ const ToolDetailInfo = ({ tool, isLoading, error, onRetry, content }) => {
                     <h3 className={styles.sectionSubtitle}>
                         {content?.tabs?.overview} <span className={styles.highlight}>{tool?.name || content?.tabs?.thisTool}</span>
                     </h3>
+
+                    {/* 🔥 RESTORED OLD PARSING SYSTEM (FIXED COMPATIBILITY) */}
                     {(tool?.description || tool?.short_description || content?.tabs?.defaultDesc)
                         .split('\n\n')
                         .map((section, i) => {
-                            // Extract title and content using tags
-                            const titleMatch = section.match(/\[TITLE\](.*?)\[CONTENT\]/s);
-                            const contentMatch = section.split('[CONTENT]')[1];
+                            let title = null;
+                            let contentText = section.trim();
 
-                            const title = titleMatch ? titleMatch[1].trim() : null;
-                            const contentText = contentMatch ? contentMatch.trim() : section.replace(/\[TITLE\]|\[CONTENT\]/g, '').trim();
+                            // Case 1: old format [TITLE][CONTENT]
+                            const titleMatch = section.match(/\[TITLE\](.*?)\[CONTENT\]/s);
+                            if (titleMatch) {
+                                title = titleMatch[1].trim();
+                                contentText = section.split('[CONTENT]')[1]?.trim() || '';
+                            }
+
+                            // Case 2: new format (Overview:, Innovation:, Impact:)
+                            else {
+                                const newFormatMatch = section.match(/^(Overview|Innovation|Impact):\s*/i);
+
+                                if (newFormatMatch) {
+                                    title = newFormatMatch[1].trim();
+                                    contentText = section.replace(/^(Overview|Innovation|Impact):\s*/i, '').trim();
+                                }
+                            }
 
                             return (
                                 <div key={`desc-section-${i}`} className={styles.descriptionSection}>
@@ -72,7 +87,7 @@ const ToolDetailInfo = ({ tool, isLoading, error, onRetry, content }) => {
                             );
                         })}
                 </div>
-                
+
                 {tool?.use_cases?.length > 0 && (
                     <div className={styles.detailSection}>
                         <h3 className={styles.sectionSubtitle}>Best For / Use Cases</h3>
@@ -107,9 +122,4 @@ const ToolDetailInfo = ({ tool, isLoading, error, onRetry, content }) => {
     );
 };
 
-
 export default ToolDetailInfo;
-
-
-
-

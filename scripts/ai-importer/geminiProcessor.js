@@ -1,4 +1,4 @@
-ياrequire('dotenv').config();
+require('dotenv').config();
 const { GoogleGenAI } = require('@google/genai');
 
 const apiKey = process.env.GEMINI_API_KEY;
@@ -57,7 +57,7 @@ async function processToolData(markdownContent, categories, toolUrl, existingDat
         "name": "String (PURE BRAND NAME ONLY)",
         "slug": "String (URL-friendly)",
         "short_description": "String (Max 120 chars)",
-        "description": "String (3 sections: Overview, Innovation, Impact)",
+        "description": "Write a clean structured description with EXACTLY 3 sections.\n\nFormat STRICTLY like this:\n\nOverview:\n...\n\nInnovation:\n...\n\nImpact:\n...\n\nDo NOT use JSON. Do NOT use quotes. Do NOT include keys like {\"Overview\":}. Only plain text.",
         "pricing_type": "String",
         "pricing_details": "String (Max 8 words)",
         "use_cases": ["String", "String", "String"],
