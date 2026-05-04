@@ -12,9 +12,9 @@ export default async function handler(req, res) {
 
     // 1. Fetch Static Pages from Manifest
     const staticPages = Object.keys(SEO_CONFIG.pages).map(path => ({
-      url: `${baseUrl}${path === '/' ? '' : path}`,
+      url: path === 'home' ? `${baseUrl}/` : `${baseUrl}/${path}`,
       changefreq: 'weekly',
-      priority: path === '/' ? '1.0' : '0.8'
+      priority: path === 'home' ? '1.0' : '0.8'
     }));
 
     // 2. Fetch Dynamic Entities
