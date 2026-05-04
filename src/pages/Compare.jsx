@@ -69,7 +69,7 @@ const Compare = () => {
         entityType: 'comparison',
         title: seoTitle,
         description: `Detailed AI-powered comparison between ${tool1?.name || 'leading AI tools'} and ${tool2?.name || 'alternatives'}. Get structured analysis on pricing, features, and performance.`,
-        noindex: !tool1?.id || !tool2?.id, // Rule #34: Elite Indexing Control (Prevent ghost comparisons)
+        noindex: false, // Rule #34: Allow indexing of the main compare landing page
         ogType: 'website',
         schema: [
             {
