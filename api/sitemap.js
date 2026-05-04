@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
-import { SEO_MANIFEST } from '../src/constants/seoManifest.js';
+import { SEO_CONFIG } from '../src/constants/seoManifest.js';
 
 const supabase = createClient(
   process.env.VITE_SUPABASE_URL,
@@ -11,7 +11,7 @@ export default async function handler(req, res) {
     const baseUrl = 'https://www.hubly-tools.com';
 
     // 1. Fetch Static Pages from Manifest
-    const staticPages = Object.keys(SEO_MANIFEST).map(path => ({
+    const staticPages = Object.keys(SEO_CONFIG.pages).map(path => ({
       url: `${baseUrl}${path === '/' ? '' : path}`,
       changefreq: 'weekly',
       priority: path === '/' ? '1.0' : '0.8'
