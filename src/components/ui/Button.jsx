@@ -44,11 +44,27 @@ const Button = ({
         >
             {isLoading && <Loader2 size={18} className={styles.spinner} />}
             
-            {!isLoading && Icon && iconPosition === 'left' && <Icon size={iconSize} fill={iconFill} />}
+            {!isLoading && Icon && iconPosition === 'left' && (
+                <Icon 
+                    size={iconSize} 
+                    stroke="currentColor" 
+                    strokeWidth={2.5}
+                    className={styles.icon}
+                    {...(iconFill ? { fill: iconFill } : {})} 
+                />
+            )}
             
             {children}
             
-            {!isLoading && Icon && iconPosition === 'right' && <Icon size={iconSize} fill={iconFill} />}
+            {!isLoading && Icon && iconPosition === 'right' && (
+                <Icon 
+                    size={iconSize} 
+                    stroke="currentColor" 
+                    strokeWidth={2.5}
+                    className={styles.icon}
+                    {...(iconFill ? { fill: iconFill } : {})} 
+                />
+            )}
         </Component>
     );
 };

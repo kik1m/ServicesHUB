@@ -28,12 +28,36 @@ const Blog = () => {
         loadingMore,
         hasMore,
         loadMore,
+        page,
         error,
         refresh
     } = useBlogData();
 
-    // 1. SEO Hardening (v2.0)
-    useSEO({ pageKey: 'blog' });
+    // 1. Elite Dynamic SEO Hardening (v3.0)
+    useSEO({ 
+        title: selectedCategory !== 'All' 
+            ? `${selectedCategory} AI & SaaS Articles | Expert Insights` 
+            : searchQuery 
+            ? `Articles matching "${searchQuery}" | HUBly Search` 
+            : 'AI & SaaS Magazine - Expert Guides, News & Insights',
+        description: selectedCategory !== 'All'
+            ? `Explore the latest ${selectedCategory} tutorials, guides, and expert perspectives for professionals.`
+            : 'Stay updated with the world of AI and SaaS through our handpicked collection of expert articles and news.',
+        noindex: !!searchQuery, // Prevent indexing search results
+        prev: page > 0 ? `/blog?page=${page}` : null,
+        next: hasMore ? `/blog?page=${page + 2}` : null, // +2 because sitemap/links often expect 1-based or offset
+        schema: {
+            "@context": "https://schema.org",
+            "@type": "Blog",
+            "name": "HUBly Magazine",
+            "url": "https://hubly-tools.com/blog",
+            "description": "Premium AI & SaaS insights, news, and expert tutorials for the modern creator.",
+            "publisher": {
+                "@type": "Organization",
+                "name": "HUBly"
+            }
+        }
+    });
 
     return (
         <div className={styles.blogPage}>

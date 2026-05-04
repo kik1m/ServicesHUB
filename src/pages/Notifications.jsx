@@ -34,14 +34,22 @@ const Notifications = () => {
 
     const labels = NOTIFICATIONS_UI_CONSTANTS;
 
-    // 1. SEO Hardening (v2.0)
-    useSEO({ pageKey: 'notifications' });
+    // 1. Elite Private Data Security (v3.0)
+    // Rule #34: User Notifications MUST be invisible to all search engines
+    useSEO({ 
+        title: 'Notifications | HUBly',
+        description: 'View your private notifications and activity updates on HUBly.',
+        noindex: true, // Critical Security: Total invisibility for private data
+        robots: "noindex, nofollow, noarchive", // Prevent caching and link tracking
+        ogType: 'website',
+        schema: null // Privacy: No structured data for notification views
+    });
 
     // Handle Unauthenticated State - Rule #14
     if (!user && !loading) {
         const authLabels = labels.auth;
         return (
-            <div className={`page-wrapper ${styles.authRequired} fade-in`}>
+            <main className={`page-wrapper ${styles.authRequired} fade-in`}>
                 <div className={styles.authContent}>
                     <div className={styles.authIconCircle}>
                         <Bell size={48} />
@@ -52,7 +60,7 @@ const Notifications = () => {
                         <Button variant="primary" size="large">{authLabels.button}</Button>
                     </Link>
                 </div>
-            </div>
+            </main>
         );
     }
 
@@ -63,7 +71,7 @@ const Notifications = () => {
     };
 
     return (
-        <div className={`page-wrapper ${styles.notificationsView} fade-in`}>
+        <main className={`page-wrapper ${styles.notificationsView} fade-in`}>
             <NotificationsHeader 
                 isLoading={loading && notifications.length === 0}
             />
@@ -78,7 +86,11 @@ const Notifications = () => {
                         />
                     )}
 
-                    <div className={styles.notificationsList}>
+                    <div 
+                        className={styles.notificationsList} 
+                        role="list" 
+                        aria-live="polite"
+                    >
                         {loading && notifications.length === 0 ? (
                             [1, 2, 3, 4].map(i => (
                                 <NotificationCard key={i} isLoading={true} />
@@ -101,7 +113,7 @@ const Notifications = () => {
                         )}
                     </div>
             </div>
-        </div>
+        </main>
     );
 };
 

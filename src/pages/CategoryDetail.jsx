@@ -60,10 +60,36 @@ const CategoryDetail = () => {
 
     const banner = useBannerData();
 
-    // 3. SEO Hardening
+    // 3. Elite Dynamic SEO Hardening (v3.0)
     useSEO({
-        title: category?.name ? `${category.name} Tools` : 'Browse Categories',
-        description: category?.description || 'Explore the best tools in this category.',
+        entityId: category?.id || null,
+        entityType: category ? 'category' : null,
+        title: category?.name 
+            ? `Best ${category.name} Tools & Software (2026)` 
+            : 'Explore AI Categories',
+        description: category?.description 
+            ? `${category.description} Compare and discover the top ${category.name} tools for professionals.`
+            : 'Discover the best AI and SaaS tools in this specialized category.',
+        ogType: 'website',
+        schema: [
+            {
+                "@context": "https://schema.org",
+                "@type": "CollectionPage",
+                "name": `Top ${category?.name} Solutions`,
+                "description": category?.description,
+                "url": `https://hubly-tools.com/category/${slug}`
+            },
+            {
+                "@context": "https://schema.org",
+                "@type": "ItemList",
+                "name": `${category?.name} List`,
+                "itemListElement": (tools || []).slice(0, 15).map((tool, index) => ({
+                    "@type": "ListItem",
+                    "position": index + 1,
+                    "url": `https://hubly-tools.com/tool/${tool.slug}`
+                }))
+            }
+        ]
     });
 
     const breadcrumbs = useMemo(() => [

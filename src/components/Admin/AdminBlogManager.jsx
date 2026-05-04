@@ -23,6 +23,7 @@ const AdminBlogManager = memo(({
     submitting, 
     isLoading,
     error,
+    actionError,
     onRetry
 }) => {
     // 1. Guard for active tab (Matched with Orchestrator ID)
@@ -62,6 +63,8 @@ const AdminBlogManager = memo(({
 
     return (
         <Safeguard error={error} onRetry={onRetry}>
+            {/* Rule #22: Action Error Display (Non-destructive) */}
+            {actionError && !isLoading && <div className={styles.localError}>{actionError}</div>}
             <div className={styles.splitLayout}>
                 {/* Editor Column */}
                 <div className={styles.formCol}>

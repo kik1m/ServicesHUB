@@ -2,12 +2,13 @@ require('dotenv').config();
 const { supabaseAdmin } = require('./supabaseClient');
 const { scrapeUrlToMarkdown } = require('./scraper');
 const { processToolData } = require('./geminiProcessor');
+const { generateAISeo } = require('./seoGenerator');
 
 /**
- * 👑 Elite Orchestrator (V3 - Manual/API Trigger)
+ * 👑 Elite Orchestrator (V4 - Decoupled AI SEO Engine)
  */
 async function runDailyImport(urlsToProcess = []) {
-    console.log("🚀 Starting Elite AI Agent (V3)...");
+    console.log("🚀 Starting Elite AI Agent (V4)...");
     
     // Support comma-separated string if passed from GitHub Actions
     if (typeof urlsToProcess === 'string') {
@@ -57,7 +58,7 @@ async function runDailyImport(urlsToProcess = []) {
 
             if (existingByUrl) {
                 existingTool = existingByUrl;
-                console.log(`⚠️ Tool exists (URL Match). Preparing SEO Upgrade...`);
+                console.log(`⚠️ Tool exists (URL Match). Preparing Upgrade...`);
             } else {
                 // Potential Name Match
                 const potentialName = url.split('.').slice(-2, -1)[0]; 
@@ -69,7 +70,7 @@ async function runDailyImport(urlsToProcess = []) {
                 
                 if (existingByName) {
                     existingTool = existingByName;
-                    console.log(`⚠️ Potential match found by Name: [${existingByName.name}]. Upgrading existing instead of adding.`);
+                    console.log(`⚠️ Potential match found by Name: [${existingByName.name}]. Upgrading existing.`);
                 }
             }
 
@@ -82,10 +83,10 @@ async function runDailyImport(urlsToProcess = []) {
                 continue;
             }
 
-            // 3. AI Extraction
+            // 3. AI Extraction (CORE ONLY)
             const toolData = await processToolData(scrapedResult.markdown, activeCategories, url, existingTool);
             if (!toolData) {
-                console.log(`❌ FAILED: Gemini failed to process data.`);
+                console.log(`❌ FAILED: AI failed to process data.`);
                 stats.failed++;
                 logDetails.push({ url, status: 'FAILED', message: 'AI Parsing failed' });
                 continue;
@@ -106,7 +107,7 @@ async function runDailyImport(urlsToProcess = []) {
                 }
             }
 
-            // 5. Final Payload (Rule #21: Schema Alignment)
+            // 5. Final Payload
             const finalPayload = {
                 name: toolData.name,
                 slug: toolData.slug,
@@ -120,12 +121,11 @@ async function runDailyImport(urlsToProcess = []) {
                 image_url: scrapedResult.exactImageUrl || toolData.image_url || existingTool?.image_url,
                 is_approved: true,
                 is_verified: true,
-                user_id: existingTool?.user_id || systemBotId, // Preserve original owner if tool exists
+                user_id: existingTool?.user_id || systemBotId,
                 reviews_count: existingTool?.reviews_count || 0,
                 rating: existingTool?.rating || 0
             };
 
-            // Rule #32: Defensive Column Injection (Only add use_cases if supported or defined)
             if (toolData.use_cases) {
                 finalPayload.use_cases = toolData.use_cases;
             }
@@ -141,6 +141,36 @@ async function runDailyImport(urlsToProcess = []) {
             }
 
             if (error) throw error;
+
+            // 🚀 7. DECOUPLED AI SEO ENGINE: Run Independently
+            try {
+                console.log(`✨ Triggering Decoupled SEO Engine for ${data.name}...`);
+                const seoData = await generateAISeo({
+                    name: data.name,
+                    description: data.short_description
+                }, 'tool');
+
+                if (seoData) {
+                    await supabaseAdmin.from('seo_metadata').upsert({
+                        entity_id: data.id,
+                        entity_type: 'tool',
+                        title: seoData.title,
+                        description: seoData.description,
+                        keywords: seoData.keywords,
+                        search_intent: seoData.search_intent,
+                        schema_markup: {
+                            "@context": "https://schema.org",
+                            "@type": seoData.schema_type || "SoftwareApplication",
+                            "name": data.name,
+                            "description": data.short_description
+                        },
+                        ai_model: 'gemini-1.5-flash'
+                    }, { onConflict: 'entity_id,entity_type' });
+                    console.log(`✅ SEO Engine: Metadata optimized.`);
+                }
+            } catch (seoErr) {
+                console.warn(`⚠️ SEO Engine failed for ${data.name}:`, seoErr.message);
+            }
 
             if (existingTool) {
                 console.log(`🎉 SUCCESS: ${data.name} Upgraded!`);

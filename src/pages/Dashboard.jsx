@@ -39,11 +39,19 @@ const Dashboard = () => {
         user
     } = useDashboardData();
 
-    // 1. SEO Hardening (v2.0)
-    useSEO({ pageKey: 'dashboard' });
+    // 1. Elite Privacy-First SEO Hardening (v3.0)
+    // Rule #34: User Dashboards MUST be invisible to all search engines
+    useSEO({ 
+        title: 'User Analytics & Dashboard | HUBly',
+        description: 'Private area for managing your tools, analytics, and favorites on HUBly.',
+        noindex: true, // Critical Security: Total invisibility
+        robots: "noindex, nofollow, noarchive", // Prevent caching and link tracking
+        ogType: 'website',
+        schema: null // Privacy: No structured data for private views
+    });
 
     return (
-        <div className={styles.dashboardPage}>
+        <main className={styles.dashboardPage}>
             <DashboardHeader 
                 isCreator={isCreator} 
                 user={user}
@@ -99,7 +107,7 @@ const Dashboard = () => {
                     <DashboardWelcomeCTA content={DASHBOARD_CONSTANTS?.welcome} />
                 </div>
             )}
-        </div>
+        </main>
     );
 };
 

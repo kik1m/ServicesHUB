@@ -48,8 +48,16 @@ const Settings = () => {
         authUser
     } = useSettingsData();
 
-    // 2. SEO Hardening (v2.0)
-    useSEO({ pageKey: 'settings' });
+    // 2. Elite Private Data Security (v3.0)
+    // Rule #34: Account Settings MUST be invisible to all search engines
+    useSEO({ 
+        title: 'Account Settings | HUBly',
+        description: 'Manage your profile, security, and preferences on HUBly.',
+        noindex: true, // Critical Security: Total invisibility for private data
+        robots: "noindex, nofollow, noarchive", // Prevent caching and link tracking
+        ogType: 'website',
+        schema: null // Privacy: No structured data for account views
+    });
 
     const tabs = useMemo(() => [
         { id: 'profile', label: SETTINGS_UI_CONSTANTS.tabs[0].label, icon: <User size={18} /> },
@@ -107,7 +115,7 @@ const Settings = () => {
     };
 
     return (
-        <div className={styles.settingsView}>
+        <main className={styles.settingsView}>
             <PageHero 
                 title={SETTINGS_UI_CONSTANTS.header.title}
                 highlight={SETTINGS_UI_CONSTANTS.header.titleHighlight}
@@ -136,7 +144,7 @@ const Settings = () => {
                     </div>
                 </Safeguard>
             </div>
-        </div>
+        </main>
     );
 };
 

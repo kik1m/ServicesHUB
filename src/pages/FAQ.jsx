@@ -35,9 +35,15 @@ const FAQ = () => {
         scrollToCategory
     } = useFAQData();
 
-    // 1. SEO Hardening (v2.0)
+    // 1. Elite Knowledge Hub SEO (v3.0)
+    // Rule #41: Maximize visibility for high-value FAQ content
     useSEO({ 
-        pageKey: 'faq',
+        title: 'FAQ | Expert Answers about AI Tools & HUBly',
+        description: 'Find clear answers to frequently asked questions about AI tools, platform features, and professional listings on HUBly.',
+        noindex: false, // Intentional: High-value organic entry point
+        robots: "index, follow",
+        canonical: 'https://hubly-tools.com/faq',
+        ogType: 'website',
         schema: [
             {
                 "@context": "https://schema.org",
@@ -52,7 +58,7 @@ const FAQ = () => {
             {
                 "@context": "https://schema.org",
                 "@type": "FAQPage",
-                "mainEntity": filteredFaqs.slice(0, 10).map(faq => ({
+                "mainEntity": filteredFaqs.slice(0, 15).map(faq => ({ // Rich Snippet optimization
                     "@type": "Question",
                     "name": faq.question,
                     "acceptedAnswer": {
@@ -65,7 +71,7 @@ const FAQ = () => {
     });
 
     return (
-        <div className={styles.faqPage}>
+        <main className={styles.faqPage}>
             <PageHero 
                 title={FAQ_UI_CONSTANTS.hero.title}
                 highlight={FAQ_UI_CONSTANTS.hero.highlight}
@@ -82,6 +88,7 @@ const FAQ = () => {
                         onChange={(e) => setSearchQuery(e.target.value)}
                         variant="pill"
                         isLoading={loading}
+                        aria-label="Search frequently asked questions"
                     />
                 </div>
             </PageHero>
@@ -105,7 +112,7 @@ const FAQ = () => {
                         <FAQContactCTA content={FAQ_UI_CONSTANTS.cta} />
                 </div>
             </section>
-        </div>
+        </main>
     );
 };
 

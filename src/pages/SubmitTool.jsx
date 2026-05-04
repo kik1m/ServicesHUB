@@ -33,7 +33,16 @@ const SubmitTool = () => {
         handleSubmit, currentStep, nextStep, prevStep, goToStep, error, resetForm
     } = useToolForm({ mode: 'submit' });
 
-    useSEO({ pageKey: 'submit' });
+    // 1. Elite Submission Security & UX Hardening (v3.0)
+    // Rule #34: Submission forms MUST be invisible to search engines
+    useSEO({ 
+        title: 'Submit Tool | HUBly',
+        description: 'Publish and submit your AI tools to the HUBly platform.',
+        noindex: true, // Critical Security: Prevent indexing of form flows
+        robots: "noindex, nofollow, noarchive", 
+        ogType: 'website',
+        schema: null 
+    });
 
     if (isSuccess) return (
         <SubmitSuccess 
@@ -69,11 +78,11 @@ const SubmitTool = () => {
     ]);
 
     return (
-        <div className={styles.submitContainer}>
+        <main className={styles.submitContainer}>
             <PageHero 
                 title={SUBMIT_TOOL_CONSTANTS.hero.title} 
                 highlight={SUBMIT_TOOL_CONSTANTS.hero.highlight} 
-                isLoading={false}
+                isLoading={isFetchingInitialData}
                 breadcrumbs={SUBMIT_TOOL_CONSTANTS.hero.breadcrumbs}
                 subtitle={SUBMIT_TOOL_CONSTANTS.hero.subtitle}
             />
@@ -85,7 +94,7 @@ const SubmitTool = () => {
                     onStepClick={goToStep}
                 />
 
-                <Safeguard error={error} title="Submission Action Failed">
+                <Safeguard error={error} title="Submission Action Failed" onRetry={resetForm}>
                     <form 
                         onSubmit={handleSubmit} 
                         className={`${styles.submitForm} ${isLimitReached ? styles.limitReachedLock : ''}`}
@@ -108,7 +117,7 @@ const SubmitTool = () => {
                     </form>
                 </Safeguard>
             </div>
-        </div>
+        </main>
     );
 };
 

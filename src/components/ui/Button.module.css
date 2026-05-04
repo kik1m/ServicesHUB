@@ -123,3 +123,11 @@
 .fullWidth {
     width: 100%;
 }
+
+.icon {
+    color: inherit;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+

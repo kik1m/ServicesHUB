@@ -91,7 +91,8 @@
 }
 
 .verifiedIcon {
-    color: #3b82f6; /* Unified Premium Blue */
+    color: #3b82f6;
+    /* Unified Premium Blue */
     filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.4));
 }
 
@@ -102,7 +103,8 @@
     margin: 0;
     display: -webkit-box;
     -webkit-line-clamp: 2;
-    line-clamp: 2; /* Standard property to fix warning */
+    line-clamp: 2;
+    /* Standard property to fix warning */
     -webkit-box-orient: vertical;
     overflow: hidden;
 }

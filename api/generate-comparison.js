@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import { GoogleGenAI } from '@google/genai';
+import { generateAISeo } from './utils/seoGenerator';
 
 // Initialize Supabase Client
 const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL;
@@ -50,9 +51,7 @@ export default async function handler(req, res) {
         const idA = toolA.id;
         const idB = toolB.id;
 
-        // 2. Check DB cache FIRST — works regardless of API key availability
-        // We check BOTH permutations to find manually saved comparisons regardless of order
-        // Rule #24: Prefer existing strategic analysis over live generation
+        // 2. Check DB cache FIRST
         const { data: cachedComparison } = await supabase
             .from('tool_comparisons')
             .select('tool1_id, tool2_id, ai_report_json')
@@ -61,146 +60,117 @@ export default async function handler(req, res) {
 
         if (cachedComparison && cachedComparison.ai_report_json) {
             let report = cachedComparison.ai_report_json;
-
-            // Elite Standardization: If the cache was stored, we serve it.
-            // We only regenerate if explicitly forced or if the data is corrupted.
             console.log(`⚡ Serving cached comparison for ${slug1} vs ${slug2}`);
                 
-            // Smart Swapper: If cache was stored in reverse order, flip to match request
             if (cachedComparison.tool1_id === idB) {
-                console.log(`🔄 Swapping JSON data to match requested order (${slug1} vs ${slug2})`);
+                console.log(`🔄 Swapping JSON data to match requested order`);
                     
                 const newWhyBuy = {
                     tool1: report.why_buy?.tool2 || [],
                     tool2: report.why_buy?.tool1 || []
                 };
 
-                    const newMatrix = (report.comparison_matrix || []).map(row => {
-                        let newWinner = row.winner;
-                        if (row.winner === 1) newWinner = 2;
-                        else if (row.winner === 2) newWinner = 1;
+                const newMatrix = (report.comparison_matrix || []).map(row => {
+                    let newWinner = row.winner;
+                    if (row.winner === 1) newWinner = 2;
+                    else if (row.winner === 2) newWinner = 1;
 
-                        return {
-                            ...row,
-                            tool1_value: row.tool2_value,
-                            tool2_value: row.tool1_value,
-                            winner: newWinner
-                        };
-                    });
-
-                    // Swap scores too
-                    const newScores = report.scores ? {
-                        tool1: report.scores.tool2,
-                        tool2: report.scores.tool1
-                    } : undefined;
-
-                    report = {
-                        ...report,
-                        why_buy: newWhyBuy,
-                        comparison_matrix: newMatrix,
-                        ...(newScores && { scores: newScores })
+                    return {
+                        ...row,
+                        tool1_value: row.tool2_value,
+                        tool2_value: row.tool1_value,
+                        winner: newWinner
                     };
-                }
+                });
 
-                return res.status(200).json({ data: report, source: 'cache' });
+                const newScores = report.scores ? {
+                    tool1: report.scores.tool2,
+                    tool2: report.scores.tool1
+                } : undefined;
+
+                report = {
+                    ...report,
+                    why_buy: newWhyBuy,
+                    comparison_matrix: newMatrix,
+                    ...(newScores && { scores: newScores })
+                };
             }
 
-        // 3. No cache found — check API key before attempting AI generation
-        if (!process.env.GEMINI_API_KEY) {
-            console.error("[AI-API] No cache found and GEMINI_API_KEY is missing. Cannot generate new comparison.");
-            return res.status(503).json({ 
-                error: 'AI generation is not available for this pair yet. Please check back later or contact support.' 
-            });
+            return res.status(200).json({ data: report, source: 'cache' });
         }
 
-        // 3. If no cache exists, Generate the Live Comparison using Gemini
-        console.log(`🧠 Generating new AI comparison for ${slug1} vs ${slug2}...`);
+        // 3. No cache found
+        if (!process.env.GEMINI_API_KEY) {
+            console.error("[AI-API] No cache found and GEMINI_API_KEY is missing.");
+            return res.status(503).json({ error: 'AI generation is not available.' });
+        }
 
-        // Initialize Gemini securely inside the function to prevent 500 errors on server boot
+        // 3. Generate the Live Comparison
+        console.log(`🧠 Generating new AI analysis for ${slug1} vs ${slug2}...`);
         const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
         const prompt = `
         You are an elite, highly critical AI SaaS consultant and strategist.
-        I am providing you with the exact database records for two competing AI tools:
+        Analyze these tools deeply:
         
         --- TOOL 1: ${toolA.name} ---
-        Description: ${toolA.description}
-        Features: ${toolA.features?.join(', ')}
-        Pricing: ${toolA.pricing_type} - ${toolA.pricing_details}
+        ${toolA.description}
 
         --- TOOL 2: ${toolB.name} ---
-        Description: ${toolB.description}
-        Features: ${toolB.features?.join(', ')}
-        Pricing: ${toolB.pricing_type} - ${toolB.pricing_details}
+        ${toolB.description}
 
-        YOUR GOAL: Analyze these tools deeply. Do not just list features. Tell the user WHY they should pick one over the other. Create a dynamic comparison matrix of the top 5 comparative dimensions (e.g., Performance, Workflow Integration, Value for Money, etc.) based on these specific tools.
+        YOUR GOAL: Analyze these tools deeply. Create a dynamic comparison matrix.
         
         REQUIRED JSON SCHEMA:
         {
-            "strategic_overview": "String (A deep, analytical 3-sentence summary of the competition)",
+            "strategic_overview": "String",
             "verdict": {
-                "winner": "String ('${toolA.name}', '${toolB.name}', or 'Tie')",
-                "reasoning": "String (A brutal, honest 1-sentence justification)"
+                "winner": "String",
+                "reasoning": "String"
             },
-            "scores": {
-                "tool1": 0, // Integer 0-100: Overall strategic score for ${toolA.name} considering features, pricing, value, and market fit
-                "tool2": 0  // Integer 0-100: Overall strategic score for ${toolB.name} considering features, pricing, value, and market fit
-            },
-            "why_buy": {
-                "tool1": ["String", "String", "String"], // 3 strategic reasons to buy Tool 1
-                "tool2": ["String", "String", "String"]  // 3 strategic reasons to buy Tool 2
-            },
+            "scores": { "tool1": 0, "tool2": 0 },
+            "why_buy": { "tool1": [], "tool2": [] },
             "comparison_matrix": [
-                {
-                    "feature": "String (e.g., 'API Robustness')",
-                    "tool1_value": "String (e.g., 'Industry Standard')",
-                    "tool2_value": "String (e.g., 'Proprietary / Limited')",
-                    "winner": 1, // 1 for Tool1, 2 for Tool2, 0 for Tie
-                    "insight": "String (Short strategic insight for this feature)"
-                }
-            ], // Exactly 5 rows
-            "pricing_analysis": "String (A deep dive into which one scales better for users)"
+                { "feature": "String", "tool1_value": "String", "tool2_value": "String", "winner": 0, "insight": "String" }
+            ],
+            "pricing_analysis": "String"
         }
-        
-        RULES:
-        1. Output ONLY raw JSON.
-        2. Be decisive and strategic.
-        3. Scores must be integers between 0-100. The winner's score must always be higher than the loser's.
         `;
 
         const geminiResponse = await ai.models.generateContent({
-            model: 'gemini-2.5-flash',
+            model: 'gemini-1.5-flash',
             contents: prompt,
             config: { responseMimeType: "application/json" }
         });
 
-        const jsonString = geminiResponse.text;
-        const aiReport = JSON.parse(jsonString);
+        const aiReport = JSON.parse(geminiResponse.text);
 
-        // Sort IDs to ensure consistent unique checking in cache (id1 < id2) for future AI generations
-        const sortedIds = [idA, idB].sort();
-        const id1 = sortedIds[0];
-        const id2 = sortedIds[1];
-
-        // 4. Save the generated report to the cache database
-        const { error: insertError } = await supabase
-            .from('tool_comparisons')
-            .insert({
-                tool1_id: id1,
-                tool2_id: id2,
-                ai_report_json: aiReport
-            });
-
-        if (insertError) {
-            console.error("⚠️ Failed to cache comparison:", insertError);
-            // We don't throw here so we can still return the result to the user
+        // --- 🚀 ELITE AI SEO ENGINE (Decoupled & Self-Managed) ---
+        try {
+            const comparisonId = `${slug1}-vs-${slug2}`;
+            await generateAISeo(comparisonId, {
+                tool1: toolA,
+                tool2: toolB,
+                verdict: aiReport.verdict.winner,
+                strategic_overview: aiReport.strategic_overview
+            }, 'comparison');
+        } catch (seoErr) {
+            console.warn(`⚠️ SEO Engine background task failed:`, seoErr.message);
         }
+        // --------------------------------------------------------
 
-        console.log(`✅ Successfully generated and cached comparison for ${slug1} vs ${slug2}`);
+        // Save original analysis
+        const sortedIds = [idA, idB].sort();
+        await supabase.from('tool_comparisons').insert({
+            tool1_id: sortedIds[0],
+            tool2_id: sortedIds[1],
+            ai_report_json: aiReport
+        });
+
         return res.status(200).json({ data: aiReport, source: 'ai' });
 
     } catch (error) {
-        console.error('❌ Comparison Generation Error:', error);
-        return res.status(500).json({ error: error.message || 'Failed to generate comparison' });
+        console.error('❌ Comparison Error:', error);
+        return res.status(500).json({ error: error.message || 'Failed' });
     }
 }

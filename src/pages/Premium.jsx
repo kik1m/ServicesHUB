@@ -25,8 +25,31 @@ const Premium = () => {
     const { hero, trust } = PREMIUM_UI_CONSTANTS;
     const { user, loading, handleUpgrade, error } = usePremiumData();
 
-    // 1. SEO Hardening (v2.0)
-    useSEO({ pageKey: 'premium' });
+    // 1. Elite Commercial SEO Hardening (v3.0)
+    useSEO({ 
+        pageKey: 'premium',
+        entityId: 'premium',
+        entityType: 'page',
+        title: 'Upgrade to HUBly Premium | Unlock Advanced AI Features & Growth',
+        description: 'Take your AI discovery to the next level. Upgrade to HUBly Premium for boosted visibility, expert analytics, priority listing, and exclusive tool insights.',
+        ogType: 'website',
+        schema: {
+            "@context": "https://schema.org",
+            "@type": "Product",
+            "name": "HUBly Premium Membership",
+            "description": "Professional subscription plan for advanced AI tool discovery and platform growth features.",
+            "brand": {
+                "@type": "Brand",
+                "name": "HUBly"
+            },
+            "offers": {
+                "@type": "Offer",
+                "price": "9.99",
+                "priceCurrency": "USD",
+                "availability": "https://schema.org/InStock"
+            }
+        }
+    });
 
     return (
         <div className={styles.viewWrapper}>

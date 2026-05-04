@@ -55,15 +55,42 @@ const Compare = () => {
     const isComparisonReady = tool1?.id && tool2?.id && !isPageLoading;
     
     const seoTitle = useMemo(() => {
-        if (tool1?.name && tool2?.name) return `${tool1.name} vs ${tool2.name} | Professional Comparison`;
-        if (tool1?.name || tool2?.name) return `Compare ${tool1?.name || tool2?.name} with others`;
-        return "Compare AI Tools | Side-by-Side Analysis";
+        if (tool1?.name && tool2?.name) return `${tool1.name} vs ${tool2.name} - AI Comparison, Pricing & Features`;
+        if (tool1?.name || tool2?.name) return `Compare ${tool1?.name || tool2?.name} with Top AI Tools`;
+        return "Expert AI & SaaS Tool Comparison | HUBly Side-by-Side";
     }, [tool1?.name, tool2?.name]);
 
-    // 2. SEO Hardening (v2.0)
+    // 2. Elite Hybrid AI SEO Engine (v3.0)
+    // Rule #34: Fetch AI-optimized metadata if available for this specific pair
+    const comparisonId = tool1?.slug && tool2?.slug ? `${tool1.slug}-vs-${tool2.slug}` : null;
+
     useSEO({
+        entityId: comparisonId,
+        entityType: 'comparison',
         title: seoTitle,
-        description: `Side-by-side comparison of ${tool1?.name || 'top tools'} and ${tool2?.name || 'more'}. Make informed decisions with HUBly.`,
+        description: `Detailed AI-powered comparison between ${tool1?.name || 'leading AI tools'} and ${tool2?.name || 'alternatives'}. Get structured analysis on pricing, features, and performance.`,
+        noindex: !tool1?.id || !tool2?.id, // Rule #34: Elite Indexing Control (Prevent ghost comparisons)
+        ogType: 'website',
+        schema: [
+            {
+                "@context": "https://schema.org",
+                "@type": "WebPage",
+                "name": seoTitle,
+                "url": tool1 && tool2 ? `https://hubly-tools.com/compare/${tool1.slug}-vs-${tool2.slug}` : "https://hubly-tools.com/compare",
+                "description": "AI-powered structured comparison engine for software analysis."
+            },
+            {
+                "@context": "https://schema.org",
+                "@type": "WebApplication",
+                "name": "HUBly AI Comparison Engine",
+                "applicationCategory": "ComparisonTool",
+                "operatingSystem": "Web",
+                "description": "Structured AI analysis for comparing SaaS and AI tools using real-time data.",
+                "about": [
+                    { "@type": "Thing", "name": "AI Generated Software Analysis" }
+                ]
+            }
+        ]
     });
 
     // 3. Share Functionality
@@ -76,7 +103,7 @@ const Compare = () => {
     };
 
     return (
-        <div className={styles.compareView}>
+        <main className={styles.compareView}>
             <SmartBanner 
                 tools={banner.tools}
                 isLoading={banner.loading}
@@ -166,7 +193,7 @@ const Compare = () => {
                     onSwitchStep={setIsSelectingFor}
                 />
             )}
-        </div>
+        </main>
     );
 };
 

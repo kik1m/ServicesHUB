@@ -36,7 +36,7 @@ class Particle {
             let dx = mouse.x - this.x;
             let dy = mouse.y - this.y;
             let distance = Math.sqrt(dx * dx + dy * dy);
-            
+
             if (distance < mouse.radius) {
                 const forceDirectionX = dx / distance;
                 const forceDirectionY = dy / distance;
@@ -44,7 +44,7 @@ class Particle {
                 const force = (maxDistance - distance) / maxDistance;
                 const directionX = forceDirectionX * force * this.density * 0.5;
                 const directionY = forceDirectionY * force * this.density * 0.5;
-                
+
                 this.x -= directionX;
                 this.y -= directionY;
             }
@@ -61,7 +61,7 @@ const InteractiveParticles = () => {
     useEffect(() => {
         const canvas = canvasRef.current;
         if (!canvas) return;
-        
+
         const ctx = canvas.getContext('2d');
         let animationFrameId;
         let particles = [];
@@ -115,23 +115,23 @@ const InteractiveParticles = () => {
             if (!ctx) return;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             const globalOpacity = Math.max(0.15, 1 - (scrollY / 600));
-            
+
             for (let i = 0; i < particles.length; i++) {
                 particles[i].update(mouse);
                 particles[i].draw(ctx, globalOpacity);
             }
-            
+
             if (globalOpacity > 0.2) {
                 connect(globalOpacity);
             }
-            
+
             animationFrameId = requestAnimationFrame(animate);
         };
 
         window.addEventListener('resize', resize);
         window.addEventListener('scroll', handleScroll);
         window.addEventListener('mousemove', handleMouseMove);
-        
+
         resize();
         animate();
 

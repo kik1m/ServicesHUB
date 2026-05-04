@@ -31,7 +31,7 @@ const Contact = () => {
     } = useContactData();
 
     // 1. SEO Hardening (v2.0)
-    useSEO({ pageKey: 'contact' });
+    useSEO({ pageKey: 'contact', entityId: 'contact', entityType: 'page' });
 
     return (
         <div className={styles.contactView}>

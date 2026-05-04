@@ -24,7 +24,7 @@ export const usePromoteData = () => {
     const [selectedToolId, setSelectedToolId] = useState(toolId || '');
     const [loadingPlan, setLoadingPlan] = useState(null);
     const [loadingTools, setLoadingTools] = useState(false);
-    const [hasActivePlan, setHasActivePlan] = useState(false);
+    const [activePlan, setActivePlan] = useState(null);
     const [checkingPlan, setCheckingPlan] = useState(false);
 
     // Initial Auth Check
@@ -65,17 +65,18 @@ export const usePromoteData = () => {
     // Check active plan whenever selectedToolId changes
     useEffect(() => {
         if (!selectedToolId) {
-            setHasActivePlan(false);
+            setActivePlan(null);
             return;
         }
         const check = async () => {
             setCheckingPlan(true);
             try {
-                const active = await promotionService.fetchActivePlan(selectedToolId);
-                setHasActivePlan(active);
+                const planInfo = await promotionService.fetchActivePlan(selectedToolId);
+                console.log(`Active plan for tool ${selectedToolId}:`, planInfo);
+                setActivePlan(planInfo);
             } catch (err) {
                 console.error('Active plan check error:', err);
-                setHasActivePlan(false);
+                setActivePlan(null);
             } finally {
                 setCheckingPlan(false);
             }
@@ -92,8 +93,8 @@ export const usePromoteData = () => {
             return;
         }
 
-        if (hasActivePlan) {
-            showToast('هذه الأداة لديها خطة مفعلة بالفعل ولا يمكن ترقيتها مرة أخرى.', 'warning');
+        if (activePlan && activePlan.name === plan.name) {
+            showToast('هذه الخطة مفعلة بالفعل لهذه الأداة.', 'warning');
             return;
         }
 
@@ -133,7 +134,7 @@ export const usePromoteData = () => {
         setSelectedToolId,
         loadingPlan,
         loadingTools,
-        hasActivePlan,
+        activePlan,
         checkingPlan,
         handlePromote,
     };

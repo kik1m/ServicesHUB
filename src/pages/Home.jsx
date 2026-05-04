@@ -39,20 +39,51 @@ const Home = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const navigate = useNavigate();
 
-    // 1. Elite SEO Hardening (v2.0)
+    // 1. Elite Context-Aware SEO Hardening (v4.0)
     useSEO({
         pageKey: 'home',
-        schema: {
-            "@context": "https://schema.org",
-            "@type": "WebSite",
-            "name": "HUBly",
-            "url": window.location.origin,
-            "potentialAction": {
-                "@type": "SearchAction",
-                "target": `${window.location.origin}/search?q={search_term_string}`,
-                "query-input": "required name=search_term_string"
+        entityId: 'home',
+        entityType: 'page',
+        title: (stats.data?.tools && typeof stats.data.tools === 'number')
+            ? `${stats.data.tools}+ AI Tools, SaaS & Automation Discovery Hub | HUBly` 
+            : 'Ultimate AI & SaaS Discovery Hub | Discover, Compare & Scale',
+        description: 'Discover trending AI tools, premium SaaS platforms, and professional automation software. Explore expert picks, latest arrivals, and top-rated solutions on HUBly.',
+        ogType: 'website',
+        schema: [
+            {
+                "@context": "https://schema.org",
+                "@type": "WebSite",
+                "name": "HUBly",
+                "url": "https://www.hubly-tools.com",
+                "potentialAction": {
+                    "@type": "SearchAction",
+                    "target": "https://www.hubly-tools.com/search?q={search_term_string}",
+                    "query-input": "required name=search_term_string"
+                }
+            },
+            {
+                "@context": "https://schema.org",
+                "@type": "Organization",
+                "name": "HUBly Platform",
+                "url": "https://www.hubly-tools.com",
+                "logo": "https://www.hubly-tools.com/android-chrome-512x512.png",
+                "sameAs": [
+                    "https://twitter.com/hubly",
+                    "https://linkedin.com/company/hubly"
+                ]
+            },
+            {
+                "@context": "https://schema.org",
+                "@type": "ItemList",
+                "name": "Trending AI Tools",
+                "description": "The most popular AI and SaaS tools right now.",
+                "itemListElement": (trending.data || []).slice(0, 10).map((tool, index) => ({
+                    "@type": "ListItem",
+                    "position": index + 1,
+                    "url": `https://www.hubly-tools.com/tool/${tool.slug}`
+                }))
             }
-        }
+        ]
     });
 
     return (

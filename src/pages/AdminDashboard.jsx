@@ -49,162 +49,187 @@ const AdminDashboard = () => {
         init // For retry
     } = useAdminData();
 
-    // 1. SEO Hardening (v2.0)
-    useSEO({ pageKey: 'admin' });
+    // 1. Nuclear Privacy SEO Hardening (v3.0)
+    // Rule #34: Administrative areas MUST be invisible to all search engines
+    useSEO({ 
+        title: 'System Access | HUBly',
+        description: 'Secure administrative gateway.',
+        noindex: true, // Critical Security: Total invisibility
+        robots: "noindex, nofollow, noarchive", // Prevent caching and link tracking
+        ogType: 'website',
+        schema: null // Privacy: No structured data leakage
+    });
 
-    const TAB_RESOURCES = useMemo(() => ({
-        'ai-manager': (
-            <AdminAIManager activeTab={activeTab} />
-        ),
-        pending: (
-            <AdminQueue 
-                activeTab={activeTab}
-                pendingTools={pendingTools}
-                handleOpenReview={handleOpenReview}
-                handleReject={handleReject}
-                isLoading={loading}
-                error={error}
-                onRetry={init}
-            />
-        ),
-        'manage-tools': (
-            <AdminToolManager 
-                allTools={allTools}
-                totalTools={allToolsTotal}
-                currentPage={allToolsPage}
-                setPage={setAllToolsPage}
-                handleAdminSearch={handleAdminSearch}
-                adminSearchQuery={adminSearchQuery}
-                adminSearchResults={adminSearchResults}
-                isSearching={isSearchingTools}
-                handleOpenEdit={handleOpenEdit} 
-                handleDelete={handleReject}
-                isLoading={loading}
-                error={error}
-                onRetry={init}
-            />
-        ),
-        featured: (
-            <AdminQueue 
-                activeTab={activeTab}
-                featuredTools={featuredTools}
-                handleToggleFeatured={handleToggleFeatured}
-                adminSearchQuery={adminSearchQuery}
-                adminSearchResults={adminSearchResults}
-                handleAdminSearch={handleAdminSearch}
-                isLoading={loading}
-                error={error}
-                onRetry={init}
-            />
-        ),
-        blog: (
-            <AdminBlogManager 
-                activeTab={activeTab}
-                blogPosts={blogPosts}
-                newPost={newPost}
-                setNewPost={setNewPost}
-                handleCreateBlogPost={handleCreateBlogPost}
-                handleDeleteBlog={handleDeleteBlog}
-                blogCategories={blogCategories}
-                submitting={submitting}
-                isLoading={loading}
-                error={error}
-                onRetry={init}
-            />
-        ),
-        'add-tool': (
-            <AdminSettingsManager 
-                activeTab={activeTab}
-                newTool={newTool} 
-                setNewTool={setNewTool} 
-                handleDirectAddTool={handleDirectAddTool}
-                adminImagePreview={adminImagePreview} 
-                adminUseManualUrl={adminUseManualUrl} 
-                setAdminUseManualUrl={setAdminUseManualUrl}
-                handleAdminFileChange={handleAdminFileChange} 
-                addAdminFeature={addAdminFeature}
-                removeAdminFeature={removeAdminFeature} 
-                handleAdminFeatureChange={handleAdminFeatureChange}
-                submitting={submitting} 
-                uploading={uploading}
-                isLoading={loading}
-                categories={toolCategories}
-                error={error}
-                onRetry={init}
-            />
-        ),
-        categories: (
-            <AdminSettingsManager 
-                activeTab={activeTab}
-                newCategory={newCategory} 
-                setNewCategory={setNewCategory}
-                handleCreateCategory={(e) => handleCategoryAction('create', 'tool', newCategory)} 
-                handleDeleteCategory={(id) => handleCategoryAction('delete', 'tool', id)}
-                categories={toolCategories}
-                submitting={submitting}
-                isLoading={loading}
-                error={error}
-                onRetry={init}
-            />
-        ),
-        'blog-categories': (
-            <AdminSettingsManager 
-                activeTab={activeTab}
-                newCategory={newCategory} 
-                setNewCategory={setNewCategory}
-                handleCreateBlogCategory={(e) => handleCategoryAction('create', 'blog', { label: newCategory.name, slug: newCategory.slug })}
-                handleDeleteBlogCategory={(id) => handleCategoryAction('delete', 'blog', id)}
-                blogCategories={blogCategories}
-                submitting={submitting}
-                isLoading={loading}
-                error={error}
-                onRetry={init}
-            />
-        ),
-        users: (
-            <AdminUserManager 
-                activeTab={activeTab}
-                allUsers={allUsers}
-                isLoading={loading}
-                error={error}
-                onRetry={init}
-            />
-        ),
-        newsletter: (
-            <AdminUserManager 
-                activeTab={activeTab}
-                subscribers={subscribers}
-                isLoading={loading}
-                error={error}
-                onRetry={init}
-            />
-        ),
-        'newsletter-manager': (
-            <AdminNewsletterManager 
-                campaignData={campaignData}
-                setCampaignData={setCampaignData}
-                allTools={allTools}
-                handleBroadcast={handleBroadcast}
-                isSubmitting={submitting}
-            />
-        ),
-        lab: (
-            <NotificationLab />
-        )
-    }), [
+    // 2. Performance Refactor: Unified Error & Context Logic
+    const unifiedError = error || actionError;
+    const hasSidebar = ['pending', 'featured'].includes(activeTab);
+
+    // 3. Performance Refactor: Lazy Tab Execution (Replaces giant useMemo)
+    // Rule #18: Memoized Render for maximum efficiency
+    const renderTabContent = useCallback(() => {
+        switch (activeTab) {
+            case 'ai-manager': 
+                return <AdminAIManager activeTab={activeTab} />;
+            case 'pending':
+                return (
+                    <AdminQueue 
+                        activeTab={activeTab}
+                        pendingTools={pendingTools}
+                        handleOpenReview={handleOpenReview}
+                        handleReject={handleReject}
+                        isLoading={loading}
+                        error={error}
+                        onRetry={init}
+                    />
+                );
+            case 'manage-tools':
+                return (
+                    <AdminToolManager 
+                        allTools={allTools}
+                        totalTools={allToolsTotal}
+                        currentPage={allToolsPage}
+                        setPage={setAllToolsPage}
+                        handleAdminSearch={handleAdminSearch}
+                        adminSearchQuery={adminSearchQuery}
+                        adminSearchResults={adminSearchResults}
+                        isSearching={isSearchingTools}
+                        handleOpenEdit={handleOpenEdit} 
+                        handleDelete={handleReject}
+                        isLoading={loading}
+                        error={error}
+                        onRetry={init}
+                    />
+                );
+            case 'featured':
+                return (
+                    <AdminQueue 
+                        activeTab={activeTab}
+                        featuredTools={featuredTools}
+                        handleToggleFeatured={handleToggleFeatured}
+                        adminSearchQuery={adminSearchQuery}
+                        adminSearchResults={adminSearchResults}
+                        handleAdminSearch={handleAdminSearch}
+                        isLoading={loading}
+                        error={error}
+                        onRetry={init}
+                    />
+                );
+            case 'blog':
+                return (
+                    <AdminBlogManager 
+                        activeTab={activeTab}
+                        blogPosts={blogPosts}
+                        newPost={newPost}
+                        setNewPost={setNewPost}
+                        handleCreateBlogPost={handleCreateBlogPost}
+                        handleDeleteBlog={handleDeleteBlog}
+                        blogCategories={blogCategories}
+                        submitting={submitting}
+                        isLoading={loading}
+                        error={error}
+                        actionError={actionError}
+                        onRetry={init}
+                    />
+                );
+            case 'add-tool':
+                return (
+                    <AdminSettingsManager 
+                        activeTab={activeTab}
+                        newTool={newTool} 
+                        setNewTool={setNewTool} 
+                        handleDirectAddTool={handleDirectAddTool}
+                        adminImagePreview={adminImagePreview} 
+                        adminUseManualUrl={adminUseManualUrl} 
+                        setAdminUseManualUrl={setAdminUseManualUrl}
+                        handleAdminFileChange={handleAdminFileChange} 
+                        addAdminFeature={addAdminFeature}
+                        removeAdminFeature={removeAdminFeature} 
+                        handleAdminFeatureChange={handleAdminFeatureChange}
+                        submitting={submitting} 
+                        uploading={uploading}
+                        isLoading={loading}
+                        categories={toolCategories}
+                        error={actionError || error}
+                        onRetry={init}
+                    />
+                );
+            case 'categories':
+                return (
+                    <AdminSettingsManager 
+                        activeTab={activeTab}
+                        newCategory={newCategory} 
+                        setNewCategory={setNewCategory}
+                        handleCreateCategory={(e) => handleCategoryAction('create', 'tool', newCategory)} 
+                        handleDeleteCategory={(id) => handleCategoryAction('delete', 'tool', id)}
+                        categories={toolCategories}
+                        submitting={submitting}
+                        isLoading={loading}
+                        error={error}
+                        onRetry={init}
+                    />
+                );
+            case 'blog-categories':
+                return (
+                    <AdminSettingsManager 
+                        activeTab={activeTab}
+                        newCategory={newCategory} 
+                        setNewCategory={setNewCategory}
+                        handleCreateBlogCategory={(e) => handleCategoryAction('create', 'blog', { label: newCategory.name, slug: newCategory.slug })}
+                        handleDeleteBlogCategory={(id) => handleCategoryAction('delete', 'blog', id)}
+                        blogCategories={blogCategories}
+                        submitting={submitting}
+                        isLoading={loading}
+                        error={error}
+                        onRetry={init}
+                    />
+                );
+            case 'users':
+                return (
+                    <AdminUserManager 
+                        activeTab="users"
+                        allUsers={allUsers}
+                        isLoading={loading}
+                        error={error}
+                        onRetry={init}
+                    />
+                );
+            case 'newsletter':
+                return (
+                    <AdminUserManager 
+                        activeTab="newsletter"
+                        subscribers={subscribers}
+                        isLoading={loading}
+                        error={error}
+                        onRetry={init}
+                    />
+                );
+            case 'newsletter-manager':
+                return (
+                    <AdminNewsletterManager 
+                        campaignData={campaignData}
+                        setCampaignData={setCampaignData}
+                        allTools={allTools}
+                        handleBroadcast={handleBroadcast}
+                        isSubmitting={submitting}
+                    />
+                );
+            case 'lab':
+                return <NotificationLab />;
+            default:
+                return null;
+        }
+    }, [
         activeTab, pendingTools, featuredTools, allTools, allToolsTotal, allToolsPage, setAllToolsPage,
         blogPosts, newPost, blogCategories, 
         newTool, adminImagePreview, adminUseManualUrl, submitting, uploading, toolCategories, 
         newCategory, allUsers, subscribers, adminSearchQuery, adminSearchResults, isSearchingTools,
-        handleOpenReview, handleOpenEdit, handleCloseReview, handleApprove, handleReject, 
+        handleOpenReview, handleOpenEdit, handleApprove, handleReject, 
         handleToggleFeatured, handleAdminSearch, handleUpdateToolDirect,
         setNewPost, handleCreateBlogPost, handleDeleteBlog, setNewTool, 
         setAdminUseManualUrl, handleAdminFileChange, addAdminFeature, removeAdminFeature, 
         handleAdminFeatureChange, handleDirectAddTool, setNewCategory, handleCategoryAction, 
-        loading, error, init, campaignData, setCampaignData, handleBroadcast, submitting
+        loading, error, actionError, init, campaignData, setCampaignData, handleBroadcast
     ]);
-
-    const activeTabView = TAB_RESOURCES[activeTab] || null;
 
     if (!isAdmin && !loading) return null;
 
@@ -221,8 +246,8 @@ const AdminDashboard = () => {
             <div className={styles.adminWrapper}>
                 <Safeguard error={error} onRetry={init} fullPage title={ADMIN_UI_CONSTANTS.header?.title}>
                     <div className={styles.adminMainContent}>
-                        <AdminStats stats={stats} isLoading={loading} error={actionError} onRetry={() => setActionError(null)} />
-                        <AdminGrowthChart isLoading={loading} error={actionError} onRetry={() => setActionError(null)} />
+                        <AdminStats stats={stats} isLoading={loading} error={unifiedError} onRetry={() => setActionError(null)} />
+                        <AdminGrowthChart isLoading={loading} error={unifiedError} onRetry={() => setActionError(null)} />
 
                         <AdminTabs 
                             activeTab={activeTab} 
@@ -232,16 +257,18 @@ const AdminDashboard = () => {
                             userCount={allUsers?.length || 0}
                             newsCount={subscribers?.length || 0}
                             isLoading={loading}
-                            error={actionError}
+                            error={unifiedError}
                             onRetry={() => setActionError(null)}
                         />
 
-                        <div className={`${styles.contentGrid} ${(activeTab === 'pending' || activeTab === 'featured') ? styles.withSidebar : ''}`}>
+                        <div className={`${styles.contentGrid} ${hasSidebar ? styles.withSidebar : ''}`}>
                             <section className={styles.activeSection}>
-                                {activeTabView}
+                                <div className="fade-in">
+                                    {renderTabContent()}
+                                </div>
                             </section>
 
-                            <AdminSidebar activeTab={activeTab} isLoading={loading} error={actionError} onRetry={() => setActionError(null)} />
+                            <AdminSidebar activeTab={activeTab} isLoading={loading} error={unifiedError} onRetry={() => setActionError(null)} />
                         </div>
                     </div>
                 </Safeguard>

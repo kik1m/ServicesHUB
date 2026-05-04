@@ -9,7 +9,7 @@
 export const SEO_CONFIG = {
     global: {
         siteName: "HUBly",
-        titleSuffix: " | HUBly - Elite Premium Directory",
+        titleSuffix: " | HUBly - Ultimate AI & SaaS Discovery Hub",
         defaultDescription: "Discover, compare, and scale with the world's most innovative AI tools and SaaS solutions. Your gateway to productivity.",
         defaultKeywords: ["AI tools", "SaaS directory", "productivity tools", "machine learning", "software reviews", "premium resources"],
         defaultImage: "https://www.hubly-tools.com/android-chrome-512x512.png",
@@ -22,9 +22,9 @@ export const SEO_CONFIG = {
     },
     pages: {
         home: {
-            title: "Ultimate AI and SaaS Directory",
-            description: "The world's largest directory of AI and SaaS tools. Find the best resources to grow your business.",
-            keywords: ["AI directory", "SaaS ecosystem", "Top AI tools 2026"]
+            title: "Ultimate AI and SaaS Discovery Hub",
+            description: "The world's most advanced directory for discovering and comparing AI and SaaS tools. Find the perfect resource for your workflow.",
+            keywords: ["AI directory", "SaaS comparison", "Top AI tools 2026", "AI discovery"]
         },
         tools: {
             title: "Discover Premium Tools",

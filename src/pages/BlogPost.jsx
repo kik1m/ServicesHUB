@@ -29,21 +29,39 @@ const BlogPost = () => {
 
     // Rule #34/41: SEO and Article Schema Implementation
     useSEO({
-        title: post?.title ? `${post.title}${SEO.POST_TITLE_SUFFIX}` : 'Article Details',
+        entityId: post?.id,
+        entityType: 'blog',
+        title: post?.title ? `${post.title} - Guide, Tips & Insights | HUBly` : 'Article Details',
         description: post?.excerpt || post?.content?.substring(0, 160),
         image: post?.featured_image,
+        ogType: 'article',
+        noindex: !post, // Points 4: Protect against ghost indexing
         schema: post ? [
             {
                 "@context": "https://schema.org",
                 "@type": "Article",
+                "mainEntityOfPage": {
+                    "@type": "WebPage",
+                    "@id": `https://hubly-tools.com/blog/${post.slug || post.id}`
+                },
                 "headline": post.title,
-                "image": post.featured_image,
+                "image": [post.featured_image],
                 "author": {
                     "@type": "Person",
-                    "name": post.author_name || "HUBly Expert"
+                    "name": post.author_name || "HUBly Expert",
+                    "url": `https://hubly-tools.com/blog?author=${encodeURIComponent(post.author_name || 'Expert')}`
+                },
+                "publisher": {
+                    "@type": "Organization",
+                    "name": "HUBly",
+                    "logo": {
+                        "@type": "ImageObject",
+                        "url": "https://www.hubly-tools.com/android-chrome-512x512.png"
+                    }
                 },
                 "datePublished": post.created_at,
-                "description": post.excerpt
+                "dateModified": post.updated_at || post.created_at,
+                "description": post.excerpt || post.content?.substring(0, 160)
             },
             {
                 "@context": "https://schema.org",

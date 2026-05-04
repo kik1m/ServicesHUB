@@ -34,8 +34,23 @@ const Categories = () => {
 
     const banner = useBannerData();
 
-    // 1. SEO Hardening (v2.0)
-    useSEO({ pageKey: 'categories' });
+    // 1. Elite Dynamic SEO Hardening (v3.0)
+    useSEO({ 
+        title: searchQuery 
+            ? `Search "${searchQuery}" AI Categories | HUBly Discovery` 
+            : 'Browse Elite AI & SaaS Tool Categories | Find the Best Software',
+        description: searchQuery
+            ? `Discover specific AI and SaaS categories matching "${searchQuery}". Find specialized tools for your niche.`
+            : 'Explore our curated directory of AI and SaaS categories. From LLMs to Productivity, find the perfect tools for your workflow.',
+        noindex: !!searchQuery,
+        schema: {
+            "@context": "https://schema.org",
+            "@type": "CollectionPage",
+            "name": "Professional AI & SaaS Categories",
+            "description": "A comprehensive directory of specialized AI and SaaS software categories.",
+            "url": "https://hubly-tools.com/categories"
+        }
+    });
 
     return (
         <div className={styles.categoriesPage}>

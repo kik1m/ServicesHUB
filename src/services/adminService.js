@@ -107,8 +107,25 @@ export const adminService = {
     },
 
     async deleteBlogPost(postId) {
-        const { error } = await supabase.from('blog_posts').delete().eq('id', postId);
-        if (error) throw error;
+        // Step 1: Verify visibility (Rule #22)
+        const { data: checkData, error: checkError } = await supabase.from('blog_posts').select('id').eq('id', postId).single();
+        if (checkError) {
+            console.error('Visibility Check Failed:', checkError);
+            throw new Error(`Delete Failed: Post not visible or access denied. (${checkError.message})`);
+        }
+
+        // Step 2: Attempt Hardened Delete
+        const { data, error } = await supabase.from('blog_posts').delete().eq('id', postId).select();
+        
+        if (error) {
+            console.error('Supabase Delete Error:', error);
+            throw new Error(`Delete Failed: ${error.message} ${error.details || ''}`);
+        }
+        
+        if (!data || data.length === 0) {
+            // This happens if RLS allows SELECT but denies DELETE
+            throw new Error(`Critical: Delete command returned 0 affected rows. This is likely a Database Permission (RLS) restriction for the 'DELETE' operation.`);
+        }
         return true;
     },
 

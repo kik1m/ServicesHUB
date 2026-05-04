@@ -54,28 +54,40 @@ const ToolDetail = () => {
 
     // SEO Hardening
     useSEO({
-        title: tool?.name ? `${tool.name} ${TOOL_DETAIL_UI_CONSTANTS.seo.titleSuffix}` : 'Tool Details',
+        entityId: tool?.id,
+        entityType: 'tool',
+        title: tool?.name ? `${tool.name} Review, Pricing & Features | Official Info` : 'Tool Details',
         description: tool?.short_description || tool?.description,
         image: tool?.image_url,
         url: getCurrentUrl(),
+        ogType: 'product',
+        noindex: !tool || tool.is_approved === false, // Rule #34: Prevent indexing of drafts/unapproved
         schema: tool ? [
             {
                 "@context": "https://schema.org/",
-                "@type": "SoftwareApplication",
+                "@type": ["SoftwareApplication", "Product"],
+                "url": `https://hubly-tools.com/tool/${tool.slug}`,
                 "name": tool.name,
-                "applicationCategory": "MultimediaApplication",
-                "operatingSystem": "Web",
+                "applicationCategory": tool.categories?.name || "BusinessApplication",
+                "operatingSystem": "Web, Windows, macOS, iOS, Android",
                 "image": tool.image_url,
                 "description": tool.short_description || tool.description,
-                "brand": { "@type": "Brand", "name": tool.categories?.name || "AI Tool" },
+                "brand": { "@type": "Brand", "name": tool.publisher_name || "AI Tool" },
+                "sameAs": [
+                    tool.website_url,
+                    tool.twitter_url,
+                    tool.linkedin_url
+                ].filter(Boolean), // Points 5: Elite Authority Linking
                 "aggregateRating": tool.rating > 0 ? {
                     "@type": "AggregateRating",
                     "ratingValue": tool.rating,
+                    "bestRating": "5",
+                    "worstRating": "1",
                     "reviewCount": tool.reviews_count || 1
                 } : undefined,
                 "offers": {
                     "@type": "Offer",
-                    "price": tool.pricing_type === 'Free' ? "0" : "1",
+                    "price": tool.pricing_type === 'Free' ? "0" : (tool.starting_price || "0"),
                     "priceCurrency": "USD",
                     "availability": "https://schema.org/InStock"
                 }
@@ -87,7 +99,7 @@ const ToolDetail = () => {
                     "@type": "ListItem",
                     "position": index + 1,
                     "name": item.label,
-                    "item": item.path ? `https://hubly-tools.com${item.path}` : `https://hubly-tools.com/tool/${tool.slug}`
+                    "item": `https://hubly-tools.com${item.path || `/tool/${tool.slug}`}`
                 }))
             }
         ] : null

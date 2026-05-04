@@ -32,10 +32,15 @@ const EditTool = () => {
         handleFileChange, handleSubmit, currentStep, nextStep, prevStep, goToStep, error, refresh
     } = useToolForm({ mode: 'edit' });
 
-    // 1. SEO Hardening (v2.0)
+    // 1. Elite Editor Security Protocol (v3.0)
+    // Rule #34: Administrative editors MUST be invisible to search engines
     useSEO({ 
-        title: formData.name ? `Edit ${formData.name}` : 'Edit Tool',
-        description: 'Update your tool details on HUBly.' 
+        title: 'Tool Editor | HUBly',
+        description: 'Secure tool editing environment for platform contributors.',
+        noindex: true, // Critical Security: Total invisibility
+        robots: "noindex, nofollow, noarchive", // Prevent caching and history leakage
+        ogType: 'website',
+        schema: null // Privacy: No structured data for private editors
     });
 
     const STEPS_MAP = useMemo(() => ({
@@ -63,7 +68,7 @@ const EditTool = () => {
     ]);
 
     return (
-        <div className={styles.submitContainer}>
+        <main className={styles.submitContainer}>
             <PageHero 
                 title={EDIT_TOOL_CONSTANTS.hero.title} 
                 highlight={formData.name || EDIT_TOOL_CONSTANTS.hero.highlight} 
@@ -100,7 +105,7 @@ const EditTool = () => {
                     </form>
                 </Safeguard>
             </div>
-        </div>
+        </main>
     );
 };
 

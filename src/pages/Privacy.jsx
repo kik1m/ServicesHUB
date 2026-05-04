@@ -22,8 +22,25 @@ import styles from './Privacy.module.css';
 const Privacy = () => {
     const { loading } = useLegalData();
 
-    // 1. SEO Hardening (v2.0)
-    useSEO({ pageKey: 'privacy' });
+    // 1. Elite Legal SEO Hardening (v3.0)
+    useSEO({ 
+        pageKey: 'privacy',
+        entityId: 'privacy',
+        entityType: 'page',
+        title: 'Privacy Policy | How We Protect Your Data | HUBly',
+        description: 'Read the HUBly Privacy Policy to understand how we collect, use, and protect your personal information and data privacy.',
+        ogType: 'website',
+        schema: {
+            "@context": "https://schema.org",
+            "@type": "WebPage",
+            "name": "Privacy Policy",
+            "description": "Official privacy policy and data protection guidelines for HUBly users.",
+            "publisher": {
+                "@type": "Organization",
+                "name": "HUBly"
+            }
+        }
+    });
 
     return (
         <div className={styles.privacyView}>

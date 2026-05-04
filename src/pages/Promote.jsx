@@ -31,15 +31,34 @@ const Promote = () => {
         loadingPlan,
         loadingTools,
         handlePromote,
-        hasActivePlan,
+        activePlan,
+        checkingPlan,
         error,
         refresh
     } = usePromoteData();
 
     const { hero } = PROMOTE_UI_CONSTANTS;
 
-    // 2. SEO Hardening (v2.0)
-    useSEO({ pageKey: 'promote' });
+    // 2. Elite Service-Oriented SEO Hardening (v3.0)
+    useSEO({ 
+        pageKey: 'promote',
+        entityId: 'promote',
+        entityType: 'page',
+        title: 'Promote Your AI Tool | Boost Visibility & Reach More Users | HUBly',
+        description: 'Maximize your AI tool reach. Promote your software on HUBly to get featured listings, increased traffic, and targeted visibility within the AI community.',
+        ogType: 'website',
+        schema: {
+            "@context": "https://schema.org",
+            "@type": "Service",
+            "name": "Elite AI Tool Promotion Service",
+            "provider": {
+                "@type": "Organization",
+                "name": "HUBly"
+            },
+            "areaServed": "Worldwide",
+            "serviceType": "Digital Growth & Visibility Promotion"
+        }
+    });
 
     return (
         <div className={styles.viewWrapper}>
@@ -74,7 +93,7 @@ const Promote = () => {
                                 handlePromote={handlePromote}
                                 loadingPlan={loadingPlan}
                                 selectedToolId={selectedToolId}
-                                hasActivePlan={hasActivePlan}
+                                activePlan={activePlan}
                                 checkingPlan={checkingPlan}
                                 isLoading={loadingTools}
                                 content={PROMOTE_UI_CONSTANTS.plans}

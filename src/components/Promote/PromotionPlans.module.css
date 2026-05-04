@@ -48,25 +48,44 @@
 
 /* --- SKELETON LAYOUTS (Rule #81) --- */
 .skeletonCard {
-    padding: 2rem;
-    background: rgba(255, 255, 255, 0.02);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    border-radius: 24px;
+    padding: 1.5rem 1.2rem;
+    background: linear-gradient(135deg, rgba(0, 210, 255, 0.04) 0%, rgba(0, 136, 204, 0.01) 100%);
+    border: 1px solid rgba(0, 210, 255, 0.1);
+    border-radius: 20px;
     display: flex;
     flex-direction: column;
-    min-height: 480px;
+    min-height: 440px;
+    position: relative;
+    overflow: hidden;
+}
+
+.skeletonCard::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, rgba(0, 210, 255, 0.3), transparent);
+    animation: skeletonScanning 3s linear infinite;
+}
+
+@keyframes skeletonScanning {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
 }
 
 .skeletonHeader {
-    margin-bottom: 2rem;
+    margin-bottom: 1.2rem;
 }
 
 .skeletonDivider {
     height: 1px;
-    background: rgba(255, 255, 255, 0.05);
-    margin: 0 0 1.5rem 0;
+    background: linear-gradient(90deg, rgba(0, 210, 255, 0.1), transparent);
+    margin: 0 0 1.2rem 0;
 }
 
 .skeletonBody {
     flex-grow: 1;
 }
+

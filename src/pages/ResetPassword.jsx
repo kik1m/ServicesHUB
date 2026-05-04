@@ -25,12 +25,20 @@ const ResetPassword = () => {
 
     const content = AUTH_UI_CONSTANTS.resetPassword;
 
-    // 1. SEO Hardening (v2.0)
-    useSEO({ pageKey: 'auth' });
+    // 1. Elite Account Recovery Security (v3.0)
+    // Rule #34: Recovery flows MUST be invisible to search engines
+    useSEO({ 
+        title: 'Reset Password | HUBly',
+        description: 'Securely reset your HUBly account password.',
+        noindex: true, // Critical Security: Prevent indexing of recovery tokens
+        robots: "noindex, nofollow, noarchive", 
+        ogType: 'website',
+        schema: null 
+    });
 
     if (success) {
         return (
-            <div className={styles.authWrapper}>
+            <main className={styles.authWrapper}>
                 <div className={styles.authCard}>
                     <ResetPasswordSuccess 
                         content={content?.success} 
@@ -39,12 +47,12 @@ const ResetPassword = () => {
                         onRetry={() => window.location.reload()}
                     />
                 </div>
-            </div>
+            </main>
         );
     }
 
     return (
-        <div className={styles.authWrapper}>
+        <main className={styles.authWrapper}>
             <Safeguard error={error} onRetry={handleReset} title={content?.header?.title}>
                 <div className={styles.authCard}>
                     <ResetPasswordHero 
@@ -68,7 +76,7 @@ const ResetPassword = () => {
                     />
                 </div>
             </Safeguard>
-        </div>
+        </main>
     );
 };
 

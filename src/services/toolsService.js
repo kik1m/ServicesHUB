@@ -1,4 +1,5 @@
 import { supabase } from '../lib/supabaseClient';
+import { seoService } from './seoService';
 
 /**
  * Service for handling tool-related database queries
@@ -55,9 +56,17 @@ export const toolsService = {
                 slug: toolData.name.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-')
             };
 
-            return await supabase
+            const { data, error } = await supabase
                 .from('tools')
-                .insert([sanitizedData]);
+                .insert([sanitizedData])
+                .select()
+                .single();
+
+            if (data && !error) {
+                seoService.triggerGeneration(data.id, 'tool');
+            }
+
+            return { data, error };
         } catch (err) {
             console.error('toolsService.createTool Error:', err);
             return { data: null, error: err.message };
@@ -380,10 +389,18 @@ export const toolsService = {
                 ? { pending_changes: sanitizedData }
                 : { ...sanitizedData, is_approved: false };
 
-            return await supabase
+            const { data, error } = await supabase
                 .from('tools')
                 .update(payload)
-                .eq('id', id);
+                .eq('id', id)
+                .select()
+                .single();
+
+            if (data && !error) {
+                seoService.triggerGeneration(id, 'tool');
+            }
+
+            return { data, error };
         } catch (err) {
             console.error('toolsService.updateTool Error:', err);
             return { data: null, error: err.message };

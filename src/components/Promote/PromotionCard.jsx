@@ -9,16 +9,17 @@ import styles from './PromotionCard.module.css';
  * Rule #112: Zero Inline Styles
  * Rule #19: Atomic Design Standard
  */
-const PromotionCard = ({ plan, onSelect, isLoading, error, onRetry, disabled, hasActivePlan, content }) => {
+const PromotionCard = ({ plan, onSelect, isLoading, error, onRetry, disabled, activePlan, content }) => {
+    const isCurrentPlanActive = activePlan && activePlan.name === plan.name;
     return (
         <Safeguard error={error} onRetry={onRetry}>
-            <div className={`${styles.card} ${plan?.recommended ? styles.recommended : ''} ${hasActivePlan ? styles.locked : ''}`}>
-                {plan?.recommended && !hasActivePlan && (
+            <div className={`${styles.card} ${plan?.recommended ? styles.recommended : ''} ${isCurrentPlanActive ? styles.locked : ''}`}>
+                {plan?.recommended && !isCurrentPlanActive && (
                     <div className={styles.popularBadge}>
                         {content?.featured}
                     </div>
                 )}
-                {hasActivePlan && (
+                {isCurrentPlanActive && (
                     <div className={styles.lockedBadge}>✓ Plan Active</div>
                 )}
 
@@ -55,11 +56,12 @@ const PromotionCard = ({ plan, onSelect, isLoading, error, onRetry, disabled, ha
                     isLoading={isLoading}
                     disabled={disabled}
                     className={`${styles.ctaBtn} ${styles['btn_' + plan?.id]}`}
-                    icon={hasActivePlan ? null : ArrowRight}
+                    icon={isCurrentPlanActive ? null : ArrowRight}
                     iconPosition="right"
-                    variant={hasActivePlan ? 'secondary' : (plan?.recommended ? 'primary' : 'secondary')}
+                    iconSize={20}
+                    variant={isCurrentPlanActive ? 'secondary' : (plan?.recommended ? 'primary' : 'secondary')}
                 >
-                    {hasActivePlan ? 'Already Active' : content?.cta}
+                    {isCurrentPlanActive ? 'Already Active' : content?.cta}
                 </Button>
             </div>
         </Safeguard>

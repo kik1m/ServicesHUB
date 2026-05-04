@@ -1,6 +1,6 @@
 export const TOOL_DETAIL_UI_CONSTANTS = {
     seo: {
-        titleSuffix: "| Best AI & SaaS Tools",
+        titleSuffix: "| Official Review & Info",
         descriptionPrefix: "Check out"
     },
     actions: {

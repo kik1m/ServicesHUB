@@ -22,8 +22,25 @@ import styles from './Terms.module.css';
 const Terms = () => {
     const { loading } = useLegalData();
 
-    // 1. SEO Hardening (v2.0)
-    useSEO({ pageKey: 'terms' });
+    // 1. Elite Legal SEO Hardening (v3.0)
+    useSEO({ 
+        pageKey: 'terms',
+        entityId: 'terms',
+        entityType: 'page',
+        title: 'Terms of Service | Platform Usage Rules & Agreement | HUBly',
+        description: 'Read the HUBly Terms of Service to understand your rights, responsibilities, and the rules for using our AI discovery platform.',
+        ogType: 'website',
+        schema: {
+            "@context": "https://schema.org",
+            "@type": "WebPage",
+            "name": "Terms of Service",
+            "description": "Legal agreement and usage rules for the HUBly platform.",
+            "publisher": {
+                "@type": "Organization",
+                "name": "HUBly"
+            }
+        }
+    });
 
     return (
         <div className={styles.termsView}>

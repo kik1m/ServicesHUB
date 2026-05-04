@@ -35,21 +35,40 @@ const Auth = () => {
         toggleAuthMode
     } = useAuthLogic();
 
-    // 1. SEO Hardening (v2.0)
-    useSEO({ pageKey: 'auth' });
+    // 1. Elite Auth Security & UX Hardening (v3.0)
+    // Rule #34: Auth flows must be invisible to search engines
+    useSEO({ 
+        pageKey: 'auth',
+        entityId: 'auth',
+        entityType: 'page',
+        title: forgotPasswordMode 
+            ? 'Reset Password | HUBly' 
+            : isLogin 
+            ? 'Login | Access Your HUBly Account' 
+            : 'Sign Up | Join the HUBly Community',
+        description: 'Secure access to the HUBly platform. Manage your AI tools, collections, and professional profile.',
+        noindex: true, // Critical: Prevent indexing of sensitive flows
+        robots: "noindex, nofollow", 
+        ogType: 'website',
+        schema: null
+    });
 
-    const footerText = isLogin ? AUTH_UI_CONSTANTS.login.footer : AUTH_UI_CONSTANTS.signup.footer;
+    const authMode = isLogin ? 'login' : 'signup';
+    const footerText = AUTH_UI_CONSTANTS[authMode].footer;
 
     return (
         <div className={styles.authWrapper}>
-            <Safeguard title="Authentication Service Interrupted">
-                <div className={styles.authCard}>
+            <Safeguard 
+                title="Authentication Service Interrupted" 
+                onRetry={() => window.location.reload()}
+            >
+                <main className={styles.authCard}>
                     <AuthHeader 
                         isLogin={isLogin} 
                         forgotPasswordMode={forgotPasswordMode} 
                         isLoading={isInitialLoading} 
                         error={error}
-                        onRetry={() => toggleAuthMode()}
+                        onRetry={toggleAuthMode}
                     />
 
                     {forgotPasswordMode ? (
@@ -70,7 +89,7 @@ const Auth = () => {
                                     loading={loading}
                                     isInitialLoading={isInitialLoading}
                                     error={error}
-                                    onRetry={() => handleLogin()}
+                                    onRetry={handleLogin}
                                 />
                             ) : (
                                 <SignUpForm 
@@ -78,7 +97,7 @@ const Auth = () => {
                                     loading={loading}
                                     isInitialLoading={isInitialLoading}
                                     error={error}
-                                    onRetry={() => handleSignUp()}
+                                    onRetry={handleSignUp}
                                 />
                             )}
 
@@ -86,7 +105,7 @@ const Auth = () => {
                                 onSocialAction={handleSocialLogin} 
                                 isLoading={isInitialLoading} 
                                 error={error}
-                                onRetry={() => handleSocialLogin()}
+                                onRetry={() => window.location.reload()} // Reset state via reload on social failure
                             />
 
                             <p className={styles.authFooter}>
@@ -94,13 +113,14 @@ const Auth = () => {
                                 <button 
                                     onClick={toggleAuthMode} 
                                     className={styles.switchBtn}
+                                    aria-label="Switch between login and sign up modes"
                                 >
                                     {footerText.action}
                                 </button>
                             </p>
                         </div>
                     )}
-                </div>
+                </main>
             </Safeguard>
         </div>
     );

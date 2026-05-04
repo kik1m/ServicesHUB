@@ -1,8 +1,15 @@
 User-agent: *
 Allow: /
 Allow: /compare/*
-Allow: /tools/*
+Allow: /tool/*
 Allow: /category/*
 Allow: /blog/*
+Disallow: /admin
+Disallow: /settings
+Disallow: /dashboard
+Disallow: /notifications
+Disallow: /api
+Disallow: /auth/reset-password
+Disallow: /search?*
 
 Sitemap: https://www.hubly-tools.com/sitemap.xml

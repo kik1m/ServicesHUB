@@ -1,4 +1,4 @@
-require('dotenv').config();
+ياrequire('dotenv').config();
 const { GoogleGenAI } = require('@google/genai');
 
 const apiKey = process.env.GEMINI_API_KEY;
@@ -18,7 +18,7 @@ async function processToolData(markdownContent, categories, toolUrl, existingDat
     console.log(`🤖 Sending data to Gemini 2.5 Flash for processing...`);
 
     const categoriesList = categories.map(c => `ID: ${c.id} | Name: ${c.name}`).join('\n');
-    
+
     let contextAddition = "";
     if (existingData) {
         contextAddition = `
@@ -54,18 +54,18 @@ async function processToolData(markdownContent, categories, toolUrl, existingDat
     REQUIRED JSON SCHEMA:
     Return a STRICT JSON object with these exact keys. DO NOT LEAVE ANY NULL:
     {
-        "name": "String (PURE BRAND NAME ONLY. Example: 'Runway' instead of 'RunwayML', 'Framer' instead of 'Framer AI'. Remove suffixes like '.io', '.ai', 'ML' unless they are part of the core logo/identity)",
-        "slug": "String (URL-friendly, lowercase, hyphens)",
-        "short_description": "String (Max 120 chars, high-impact SEO hook)",
-        "description": "String (3 distinct sections. Each MUST follow this exact format: '[TITLE] Section Name [CONTENT] Detailed explanation...'. Sections: 1. Overview, 2. Innovation, 3. Impact. Use double newlines \\n\\n between sections.)",
-        "pricing_type": "String ('Free', 'Freemium', 'Paid', or 'Contact for Pricing')",
-        "pricing_details": "String (ULTRA-STRICT: MAX 8 WORDS. Use format: '$X/mo' or '$X/yr'. This field triggers the calculation engine, so be precise with the number and period.)",
-        "use_cases": ["String", "String", "String"], // 3 practical use cases (e.g. 'Social Media Content', 'Code Debugging', 'Business Strategy')
-        "features": ["String", "String", "String", "String", "String"], // Minimum 5 punchy features (Max 10 words each)
-        "category_action": "String ('USE_EXISTING' or 'CREATE_NEW')",
-        "category_id": "String (UUID if USE_EXISTING, else null)",
-        "new_category_name": "String (if CREATE_NEW, else null)",
-        "new_category_slug": "String (if CREATE_NEW, else null)"
+        "name": "String (PURE BRAND NAME ONLY)",
+        "slug": "String (URL-friendly)",
+        "short_description": "String (Max 120 chars)",
+        "description": "String (3 sections: Overview, Innovation, Impact)",
+        "pricing_type": "String",
+        "pricing_details": "String (Max 8 words)",
+        "use_cases": ["String", "String", "String"],
+        "features": ["String", "String", "String", "String", "String"],
+        "category_action": "String",
+        "category_id": "String",
+        "new_category_name": "String",
+        "new_category_slug": "String"
     }
     
     FINAL RULE: Your output will be used in a premium production platform. Quality, accuracy, and completeness are your only metrics for success.
@@ -88,7 +88,7 @@ async function processToolData(markdownContent, categories, toolUrl, existingDat
             });
 
             const jsonString = response.text;
-            
+
             try {
                 const parsedData = JSON.parse(jsonString);
                 console.log(`✅ Gemini successfully processed data for: ${parsedData.name}`);

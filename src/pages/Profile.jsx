@@ -36,8 +36,15 @@ const Profile = () => {
         refetch
     } = useProfileData();
 
-    // 1. SEO Hardening (v2.0)
-    useSEO({ pageKey: 'profile' });
+    // 1. Elite Privacy-First SEO Hardening (v3.0)
+    // Rule #34: Private Dashboards MUST be hidden from all search engines
+    useSEO({ 
+        title: 'User Dashboard | HUBly',
+        description: 'Private member area for managing tools, favorites and account settings.',
+        noindex: true, // Critical Security: Hide from Google
+        ogType: 'website',
+        schema: null // Privacy: No structured data for private profiles
+    });
 
     const isReviewsTab = activeTab === 'reviews';
 

@@ -19,10 +19,7 @@ export const useBlogData = () => {
     
     const { ITEMS_PER_PAGE } = BLOG_CONSTANTS.GRID;
 
-    // Rule #30: Unified SEO management
-    useSEO({
-        title: BLOG_CONSTANTS.SEO.LIST_TITLE
-    });
+
 
     // Fetch Categories once
     useEffect(() => {
@@ -98,6 +95,7 @@ export const useBlogData = () => {
         loading,
         loadingMore,
         hasMore,
-        loadMore
+        loadMore,
+        page // Export page for SEO pagination
     };
 };

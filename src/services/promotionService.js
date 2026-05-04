@@ -23,19 +23,46 @@ export const promotionService = {
      * Falls back to false if the table doesn't exist yet (PGRST205).
      */
     async fetchActivePlan(toolId) {
+        // 1. Check tool_promotions table
         const { data, error } = await supabase
             .from('tool_promotions')
-            .select('id')
+            .select('status, plan_name')
             .eq('tool_id', toolId)
             .eq('status', 'active')
+            .limit(1);
+
+        if (error && error.code !== 'PGRST205') {
+            console.error('fetchActivePlan error:', error);
+        }
+
+        if (data && data.length > 0) {
+            console.log('Found active promotion:', data[0]);
+            return {
+                name: data[0].plan_name,
+                status: data[0].status
+            };
+        }
+
+        // 2. Fallback: check is_featured in tools table
+        const { data: toolData, error: toolError } = await supabase
+            .from('tools')
+            .select('is_featured')
+            .eq('id', toolId)
             .single();
 
-        // PGRST116 = no rows returned → tool has no active plan (normal case)
-        // PGRST205 = table not found → treat as no active plan until table is created
-        if (error && error.code !== 'PGRST116' && error.code !== 'PGRST205') {
-            throw error;
+        if (toolError) {
+            console.error('fetchActivePlan tool check error:', toolError);
         }
-        return !!data;
+
+        if (toolData?.is_featured) {
+            console.log('Tool is flagged as featured, assuming "Featured" plan.');
+            return {
+                name: 'Featured',
+                status: 'active'
+            };
+        }
+
+        return null;
     },
 
     /**

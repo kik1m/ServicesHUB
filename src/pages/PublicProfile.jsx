@@ -40,11 +40,32 @@ const PublicProfile = () => {
         refetch
     } = usePublicProfileData(id);
 
-    // 1. SEO Hardening (v2.0)
+    // 1. Elite Public Profile SEO (v3.0)
     useSEO({
-        title: profile?.full_name ? `${profile.full_name}'s Profile` : 'Member Profile',
-        description: profile?.bio || `View ${profile?.full_name || 'this member'}'s curated tools and contributions on HUBly.`,
-        image: profile?.avatar_url
+        title: profile?.full_name 
+            ? `${profile.full_name} - AI Portfolio, Favorites & Activity | HUBly` 
+            : 'Member Profile | HUBly Community',
+        description: profile?.bio 
+            ? `${profile.bio} Explore curated AI tools, favorites and contributions by ${profile.full_name}.`
+            : `View user profile, published tools and curated AI favorites on HUBly.`,
+        image: profile?.avatar_url,
+        ogType: 'profile',
+        noindex: notFound || (!profile && !isLoading), // Rule #34: Prevent indexing of missing identities
+        schema: profile ? {
+            "@context": "https://schema.org",
+            "@type": "ProfilePage",
+            "mainEntity": {
+                "@type": "Person",
+                "name": profile.full_name,
+                "description": profile.bio,
+                "image": profile.avatar_url,
+                "sameAs": [
+                    profile.website_url,
+                    profile.twitter_url,
+                    profile.linkedin_url
+                ].filter(Boolean)
+            }
+        } : null
     });
 
     if (notFound && !isLoading) {
