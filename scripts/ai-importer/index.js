@@ -164,7 +164,7 @@ async function runDailyImport(urlsToProcess = []) {
                             "name": data.name,
                             "description": data.short_description
                         },
-                        ai_model: 'gemini-1.5-flash'
+                        ai_model: 'gemini-2.5-flash'
                     }, { onConflict: 'entity_id,entity_type' });
                     console.log(`✅ SEO Engine: Metadata optimized.`);
                 }

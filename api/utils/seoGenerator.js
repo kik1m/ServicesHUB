@@ -24,16 +24,16 @@ export const generateAISeo = async (entityId, data, type = 'tool') => {
     // 0. INPUT PROTECTION (Last Line of Defense)
     if (!entityId || typeof entityId !== 'string') {
         console.error('[SEO ENGINE] Rejected: Invalid Entity ID');
-        return fallbackResponse; 
+        return fallbackResponse;
     }
 
     // 1. ELITE HASH MONITORING (Full Data Coverage)
-    const rawDataString = JSON.stringify({ 
-        name: data.name || '', 
+    const rawDataString = JSON.stringify({
+        name: data.name || '',
         desc: data.description || data.short_description || '',
         features: data.features || [],
         pricing: data.pricing_type || '',
-        type 
+        type
     });
     const currentHash = crypto.createHash('md5').update(rawDataString).digest('hex');
 
@@ -128,15 +128,15 @@ export const generateAISeo = async (entityId, data, type = 'tool') => {
         }
 
         // 4. SMART KEYWORD INJECTION & SCORE CHECK
-        const baseKeywords = type === 'tool' ? [`${data.name} review`, `${data.name} pricing`, `${data.name} features`] : 
-                           type === 'category' ? [`best ${data.name} ai tools`, `top ${data.name} software`, `ai ${data.name} tools list`] : [];
+        const baseKeywords = type === 'tool' ? [`${data.name} review`, `${data.name} pricing`, `${data.name} features`] :
+            type === 'category' ? [`best ${data.name} ai tools`, `top ${data.name} software`, `ai ${data.name} tools list`] : [];
         const finalKeywords = [...new Set([...baseKeywords, ...(seoResult.keywords || [])])].slice(0, 6);
 
         // Quality Check (Rule #7): If title is too weak, use fallback or better pattern
         let finalTitle = seoResult.title || fallbackTitle;
         if (finalTitle.length < 40 && (data.name || data.title)) {
             const name = data.name || data.title;
-            finalTitle = type === 'category' 
+            finalTitle = type === 'category'
                 ? `Best ${name} AI Tools (${new Date().getFullYear()}) | HUBly`
                 : `${name}: Everything You Need to Know | HUBly`;
         }
@@ -183,7 +183,7 @@ export const generateAISeo = async (entityId, data, type = 'tool') => {
             schema_markup: schema,
             ai_model: 'gemini-2.5-flash'
         }, { onConflict: 'entity_id,entity_type' });
-        
+
         return normalizedSeo;
 
     } catch (error) {
