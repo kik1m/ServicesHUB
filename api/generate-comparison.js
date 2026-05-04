@@ -121,6 +121,11 @@ export default async function handler(req, res) {
 
         YOUR GOAL: Analyze these tools deeply. Create a dynamic comparison matrix.
         
+        STRICT CONSISTENCY RULE (MUST FOLLOW):
+        - The "winner" in verdict MUST be the tool with the HIGHER score in "scores".
+        - The winner's score MUST be strictly greater than the loser's score.
+        - Never declare a winner that has a lower or equal score than the other tool.
+        
         REQUIRED JSON SCHEMA:
         {
             "strategic_overview": "String",
