@@ -67,17 +67,29 @@ const AuthSkeleton = () => (
 );
 
 import InteractiveParticles from './components/Home/InteractiveParticles';
+import { initGA } from './services/analyticsService';
+import { useAnalytics } from './hooks/useAnalytics';
+
+/**
+ * Analytics Wrapper - Rule #12: Pure Logic Isolation
+ */
+const AnalyticsHandler = () => {
+  useAnalytics();
+  return null;
+};
 
 function App() {
   const [isMounted, setIsMounted] = React.useState(false);
 
   React.useEffect(() => {
     setIsMounted(true);
+    initGA(); // Initialize Google Analytics 4 (Elite Standard)
   }, []);
 
   return (
     <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <div className={`app-container ${isMounted ? 'is-ready' : ''}`}>
+        <AnalyticsHandler />
         <InteractiveParticles />
         <ScrollToTop />
         <Navbar />

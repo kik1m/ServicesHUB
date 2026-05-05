@@ -3,6 +3,7 @@ import { toolsService } from '../services/toolsService';
 import { categoriesService } from '../services/categoriesService';
 import { blogService } from '../services/blogService';
 import { profilesService } from '../services/profilesService';
+import { logEvent } from '../services/analyticsService';
 
 /**
  * Custom hook to manage all data fetching logic for the Home page
@@ -78,10 +79,13 @@ export const useHomeData = () => {
         };
     }, []);
 
-    const trackClick = async (id, currentClicks) => {
+    const trackClick = async (id, currentClicks, toolName) => {
         if (!id) return;
         try {
+            // Track in DB
             await toolsService.incrementClickCount(id, currentClicks);
+            // Track in GA4 (Elite Intelligence)
+            logEvent('external_link_click', 'outbound', toolName || id);
         } catch (err) {
             console.error('Failed to track click:', err);
         }
