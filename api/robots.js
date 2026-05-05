@@ -11,7 +11,7 @@ Disallow: /profile
 Disallow: /auth
 Disallow: /reset-password
 
-Sitemap: https://hubly-tools.com/sitemap.xml
+Sitemap: https://www.hubly-tools.com/sitemap.xml
 `;
 
     res.setHeader('Content-Type', 'text/plain');

@@ -73,9 +73,10 @@ export const useSEO = ({
             element.href = href;
         };
 
-        // --- 1. Canonical URL ---
-        const currentFullUrl = url || (typeof window !== 'undefined' ? window.location.href : '');
-        const cleanUrl = currentFullUrl.split('?')[0].split('#')[0];
+        // --- 1. Canonical URL Hardening (Rule #34: Single Source of Truth)
+        const baseUrl = 'https://www.hubly-tools.com';
+        const currentPath = typeof window !== 'undefined' ? window.location.pathname : '';
+        const cleanUrl = `${baseUrl}${currentPath}`;
 
         // --- 2. Title Management ---
         const shouldAppendSuffix = activeTitle && !activeTitle.includes('HUBly') && !activeTitle.includes(global.siteName);

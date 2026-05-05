@@ -76,7 +76,7 @@ const Compare = () => {
                 "@context": "https://schema.org",
                 "@type": "WebPage",
                 "name": seoTitle,
-                "url": tool1 && tool2 ? `https://hubly-tools.com/compare/${tool1.slug}-vs-${tool2.slug}` : "https://hubly-tools.com/compare",
+                "url": tool1 && tool2 ? `https://www.hubly-tools.com/compare/${tool1.slug}-vs-${tool2.slug}` : "https://www.hubly-tools.com/compare",
                 "description": "AI-powered structured comparison engine for software analysis."
             },
             {

@@ -97,10 +97,10 @@ const Tools = () => {
                 "@context": "https://schema.org",
                 "@type": "WebSite",
                 "name": "HUBly",
-                "url": "https://hubly-tools.com",
+                "url": "https://www.hubly-tools.com",
                 "potentialAction": {
                     "@type": "SearchAction",
-                    "target": "https://hubly-tools.com/search?q={search_term_string}",
+                    "target": "https://www.hubly-tools.com/search?q={search_term_string}",
                     "query-input": "required name=search_term_string"
                 }
             },
@@ -112,7 +112,7 @@ const Tools = () => {
                         "@type": "ListItem",
                         "position": 1,
                         "name": "AI Tools",
-                        "item": "https://hubly-tools.com/tools"
+                        "item": "https://www.hubly-tools.com/tools"
                     }
                 ]
             },
@@ -121,7 +121,7 @@ const Tools = () => {
                 "@type": "CollectionPage",
                 "name": isSearchMode ? "AI Tool Search Results" : "HUBly AI & SaaS Directory",
                 "description": "Discover and compare the world's best AI and SaaS software.",
-                "url": isSearchMode ? "https://hubly-tools.com/search" : "https://hubly-tools.com/tools"
+                "url": isSearchMode ? "https://www.hubly-tools.com/search" : "https://www.hubly-tools.com/tools"
             }
         ]
     });

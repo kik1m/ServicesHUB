@@ -77,7 +77,7 @@ const CategoryDetail = () => {
                 "@type": "CollectionPage",
                 "name": `Top ${category?.name} Solutions`,
                 "description": category?.description,
-                "url": `https://hubly-tools.com/category/${slug}`
+                "url": `https://www.hubly-tools.com/category/${slug}`
             },
             {
                 "@context": "https://schema.org",
@@ -86,7 +86,7 @@ const CategoryDetail = () => {
                 "itemListElement": (tools || []).slice(0, 15).map((tool, index) => ({
                     "@type": "ListItem",
                     "position": index + 1,
-                    "url": `https://hubly-tools.com/tool/${tool.slug}`
+                    "url": `https://www.hubly-tools.com/tool/${tool.slug}`
                 }))
             }
         ]

@@ -42,7 +42,7 @@ const FAQ = () => {
         description: 'Find clear answers to frequently asked questions about AI tools, platform features, and professional listings on HUBly.',
         noindex: false, // Intentional: High-value organic entry point
         robots: "index, follow",
-        canonical: 'https://hubly-tools.com/faq',
+        canonical: 'https://www.hubly-tools.com/faq',
         ogType: 'website',
         schema: [
             {
@@ -52,7 +52,7 @@ const FAQ = () => {
                     "@type": "ListItem",
                     "position": index + 1,
                     "name": item.label,
-                    "item": item.path ? `https://hubly-tools.com${item.path}` : `https://hubly-tools.com/faq`
+                    "item": item.path ? `https://www.hubly-tools.com${item.path}` : `https://www.hubly-tools.com/faq`
                 }))
             },
             {

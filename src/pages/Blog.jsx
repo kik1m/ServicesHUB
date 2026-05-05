@@ -50,7 +50,7 @@ const Blog = () => {
             "@context": "https://schema.org",
             "@type": "Blog",
             "name": "HUBly Magazine",
-            "url": "https://hubly-tools.com/blog",
+            "url": "https://www.hubly-tools.com/blog",
             "description": "Premium AI & SaaS insights, news, and expert tutorials for the modern creator.",
             "publisher": {
                 "@type": "Organization",

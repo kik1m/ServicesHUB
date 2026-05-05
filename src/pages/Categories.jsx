@@ -48,7 +48,7 @@ const Categories = () => {
             "@type": "CollectionPage",
             "name": "Professional AI & SaaS Categories",
             "description": "A comprehensive directory of specialized AI and SaaS software categories.",
-            "url": "https://hubly-tools.com/categories"
+            "url": "https://www.hubly-tools.com/categories"
         }
     });
 

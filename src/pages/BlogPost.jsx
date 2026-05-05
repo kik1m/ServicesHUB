@@ -42,14 +42,14 @@ const BlogPost = () => {
                 "@type": "Article",
                 "mainEntityOfPage": {
                     "@type": "WebPage",
-                    "@id": `https://hubly-tools.com/blog/${post.slug || post.id}`
+                    "@id": `https://www.hubly-tools.com/blog/${post.slug || post.id}`
                 },
                 "headline": post.title,
                 "image": [post.featured_image],
                 "author": {
                     "@type": "Person",
                     "name": post.author_name || "HUBly Expert",
-                    "url": `https://hubly-tools.com/blog?author=${encodeURIComponent(post.author_name || 'Expert')}`
+                    "url": `https://www.hubly-tools.com/blog?author=${encodeURIComponent(post.author_name || 'Expert')}`
                 },
                 "publisher": {
                     "@type": "Organization",
@@ -70,7 +70,7 @@ const BlogPost = () => {
                     "@type": "ListItem",
                     "position": index + 1,
                     "name": item.label,
-                    "item": `https://hubly-tools.com${item.path}`
+                    "item": `https://www.hubly-tools.com${item.path}`
                 }))
             }
         ] : null
