@@ -37,6 +37,19 @@ export const useCompareData = () => {
     const [aiResults, setAiResults] = useState(null);
     const [isAiLoading, setIsAiLoading] = useState(false);
     const [aiError, setAiError] = useState(null);
+    const [recentComparisons, setRecentComparisons] = useState([]);
+    const [isRecentLoading, setIsRecentLoading] = useState(false);
+    
+    // Fetch recent comparisons on mount
+    useEffect(() => {
+        const fetchRecent = async () => {
+            setIsRecentLoading(true);
+            const { data } = await compareService.getRecentComparisons();
+            setRecentComparisons(data || []);
+            setIsRecentLoading(false);
+        };
+        fetchRecent();
+    }, []);
 
     // 🧠 Elite Parallel Hydration (V4)
     // Rule #17: Progressive Rendering - Fetch tools and AI in parallel if slugs exist
@@ -251,6 +264,8 @@ export const useCompareData = () => {
         results: null,
         aiResults,
         isAiLoading,
-        aiError
+        aiError,
+        recentComparisons,
+        isRecentLoading
     };
 };

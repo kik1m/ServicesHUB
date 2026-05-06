@@ -135,7 +135,8 @@ const ToolFormMedia = memo(({
                     onChange={(e) => setFormData({...formData, description: e.target.value})} 
                     placeholder={media?.fields?.desc?.placeholder}
                     error={fieldErrors?.description}
-                    className={styles.textareaField}
+                    fieldClassName={styles.textareaField}
+                    wrapperClassName={styles.textareaWrapper}
                 />
             </div>
         </Safeguard>

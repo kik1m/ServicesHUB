@@ -12,6 +12,7 @@ import Safeguard from '../components/ui/Safeguard';
 import ToolCompareColumn from '../components/Compare/ToolCompareColumn';
 import ComparisonMatrix from '../components/Compare/ComparisonMatrix';
 import CompareBuilder from '../components/Compare/CompareBuilder';
+import RecentComparisons from '../components/Compare/RecentComparisons';
 import Button from '../components/ui/Button';
 
 // Import Modular CSS
@@ -43,7 +44,9 @@ const Compare = () => {
         results,
         aiResults,
         isAiLoading,
-        aiError
+        aiError,
+        recentComparisons,
+        isRecentLoading
     } = useCompareData();
 
     const handleClearTool1 = useCallback(() => clearTool('tool1'), [clearTool]);
@@ -147,6 +150,14 @@ const Compare = () => {
                         onRetry={resetComparison}
                     />
                 </div>
+                
+                {/* 🕒 Recent AI Battles - Elite Inspiration Section */}
+                {(!tool1 || !tool2) && (
+                    <RecentComparisons 
+                        comparisons={recentComparisons} 
+                        isLoading={isRecentLoading} 
+                    />
+                )}
 
                 <ComparisonMatrix 
                     tool1={tool1} 

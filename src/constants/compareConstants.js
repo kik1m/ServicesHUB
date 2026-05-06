@@ -63,6 +63,12 @@ export const COMPARE_UI_CONSTANTS = {
         searchA: "Search for any tool...",
         searchB: "Search competitors for",
         cancel: "Cancel Selection"
+    },
+    recent: {
+        title: "Recent AI Battles",
+        badge: "Live Updates",
+        view: "View Analysis",
+        empty: "Be the first to create a comparison!"
     }
 };
 

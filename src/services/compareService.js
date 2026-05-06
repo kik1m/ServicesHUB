@@ -98,5 +98,27 @@ export const compareService = {
             console.error('Error fetching competitors:', error);
             return { data: [], error };
         }
+    },
+
+    async getRecentComparisons() {
+        try {
+            const { data, error } = await supabase
+                .from('tool_comparisons')
+                .select(`
+                    id,
+                    created_at,
+                    tool1:tools!tool1_id(id, name, slug, image_url),
+                    tool2:tools!tool2_id(id, name, slug, image_url),
+                    ai_report_json
+                `)
+                .order('created_at', { ascending: false })
+                .limit(3);
+
+            if (error) throw error;
+            return { data: data || [], error: null };
+        } catch (error) {
+            console.error('Error fetching recent comparisons:', error);
+            return { data: [], error };
+        }
     }
 };

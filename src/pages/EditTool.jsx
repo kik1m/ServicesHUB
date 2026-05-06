@@ -29,6 +29,7 @@ const EditTool = () => {
         formData, setFormData, categories, isFetchingInitialData,
         isSubmitting, isUploading, fieldErrors, imagePreview, setImagePreview,
         useManualUrl, setUseManualUrl, addFeature, removeFeature, handleFeatureChange,
+        addUseCase, removeUseCase, handleUseCaseChange,
         handleFileChange, handleSubmit, currentStep, nextStep, prevStep, goToStep, error, refresh
     } = useToolForm({ mode: 'edit' });
 
@@ -59,12 +60,14 @@ const EditTool = () => {
         3: <ToolFormFeatures 
                 formData={formData} addFeature={addFeature} removeFeature={removeFeature}
                 handleFeatureChange={handleFeatureChange} isFetchingInitialData={isFetchingInitialData}
+                addUseCase={addUseCase} removeUseCase={removeUseCase} handleUseCaseChange={handleUseCaseChange}
                 content={SUBMIT_TOOL_CONSTANTS}
             />
     }), [
         formData, setFormData, categories, fieldErrors, isFetchingInitialData,
-        imagePreview, setImagePreview, isUploading, useManualUrl, setUseManualUrl,
-        handleFileChange, addFeature, removeFeature, handleFeatureChange
+        imagePreview, setImagePreview, isFetchingInitialData, useManualUrl, error,
+        handleFileChange, addFeature, removeFeature, handleFeatureChange,
+        addUseCase, removeUseCase, handleUseCaseChange
     ]);
 
     return (
@@ -86,7 +89,7 @@ const EditTool = () => {
                 />
 
                 <Safeguard error={error} onRetry={refresh} title="Update Operation Failed">
-                    <form onSubmit={handleSubmit} className={styles.submitForm}>
+                    <form onSubmit={(e) => e.preventDefault()} className={styles.submitForm}>
                         {STEPS_MAP[currentStep]}
 
                         <div className={styles.actionContainer}>

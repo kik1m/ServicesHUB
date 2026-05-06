@@ -11,7 +11,12 @@ import styles from './ToolFormFeatures.module.css';
  * Rule #25: Memoized dynamic interaction
  * Rule #14: Centralized Constants Pattern
  */
-const ToolFormFeatures = memo(({ formData, addFeature, removeFeature, handleFeatureChange, isFetchingInitialData, error, onRetry, content }) => {
+const ToolFormFeatures = memo(({ 
+    formData, 
+    addFeature, removeFeature, handleFeatureChange, 
+    addUseCase, removeUseCase, handleUseCaseChange,
+    isFetchingInitialData, error, onRetry, content 
+}) => {
     const sectionContent = content?.sections?.features;
 
     if (isFetchingInitialData) {
@@ -29,6 +34,7 @@ const ToolFormFeatures = memo(({ formData, addFeature, removeFeature, handleFeat
     }
 
     const features = formData?.features || [];
+    const useCases = formData?.use_cases || [];
 
     return (
         <Safeguard error={error} onRetry={onRetry}>
@@ -92,6 +98,42 @@ const ToolFormFeatures = memo(({ formData, addFeature, removeFeature, handleFeat
                             ))}
                         </div>
                     )}
+                </div>
+
+                {/* Best For / Use Cases */}
+                <div className={styles.featuresDynamicList} style={{ marginTop: '3rem' }}>
+                    <div className={styles.headerRow}>
+                        <p className={styles.slimHeaderLabel} style={{ color: 'var(--secondary)' }}>{sectionContent?.useCasesLabel || "BEST FOR / USE CASES"}</p>
+                        <Button 
+                            variant="ghost" 
+                            onClick={addUseCase} 
+                            icon={Plus}
+                            iconSize={18}
+                        >
+                            {content?.labels?.addUseCase}
+                        </Button>
+                    </div>
+
+                    <div className={styles.dynamicListWrapper}>
+                        {useCases.map((useCase, index) => (
+                            <div key={index} className={styles.dynamicInputRow}>
+                                <div className={styles.rowNumber} style={{ color: 'var(--secondary)', borderColor: 'rgba(0, 210, 255, 0.3)' }}>•</div>
+                                <Input 
+                                    placeholder={content?.labels?.useCasePlaceholder} 
+                                    value={useCase}
+                                    onChange={(e) => handleUseCaseChange(index, e.target.value)}
+                                    className={styles.featureInput}
+                                />
+                                <Button 
+                                    variant="ghost" 
+                                    onClick={() => removeUseCase(index)} 
+                                    className={styles.premiumRemoveBtn}
+                                    icon={Trash2}
+                                    iconSize={20}
+                                />
+                            </div>
+                        ))}
+                    </div>
                 </div>
             </div>
         </Safeguard>

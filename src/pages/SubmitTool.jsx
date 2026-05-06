@@ -29,8 +29,9 @@ const SubmitTool = () => {
         formData, setFormData, categories, isFetchingInitialData,
         isSubmitting, isUploading, isSuccess, isLimitReached, fieldErrors,
         imagePreview, setImagePreview, useManualUrl, setUseManualUrl,
-        addFeature, removeFeature, handleFeatureChange, handleFileChange,
-        handleSubmit, currentStep, nextStep, prevStep, goToStep, error, resetForm
+        addFeature, removeFeature, handleFeatureChange,
+        addUseCase, removeUseCase, handleUseCaseChange,
+        handleFileChange, handleSubmit, currentStep, nextStep, prevStep, goToStep, error, resetForm
     } = useToolForm({ mode: 'submit' });
 
     // 1. Elite Submission Security & UX Hardening (v3.0)
@@ -69,12 +70,14 @@ const SubmitTool = () => {
         3: <ToolFormFeatures 
                 formData={formData} addFeature={addFeature} removeFeature={removeFeature}
                 handleFeatureChange={handleFeatureChange} isFetchingInitialData={isFetchingInitialData}
+                addUseCase={addUseCase} removeUseCase={removeUseCase} handleUseCaseChange={handleUseCaseChange}
                 content={SUBMIT_TOOL_CONSTANTS}
             />
     }), [
         formData, setFormData, categories, fieldErrors, isFetchingInitialData,
         imagePreview, setImagePreview, isUploading, useManualUrl, setUseManualUrl,
-        handleFileChange, addFeature, removeFeature, handleFeatureChange
+        handleFileChange, addFeature, removeFeature, handleFeatureChange,
+        addUseCase, removeUseCase, handleUseCaseChange
     ]);
 
     return (
@@ -96,7 +99,7 @@ const SubmitTool = () => {
 
                 <Safeguard error={error} title="Submission Action Failed" onRetry={resetForm}>
                     <form 
-                        onSubmit={handleSubmit} 
+                        onSubmit={(e) => e.preventDefault()} 
                         className={`${styles.submitForm} ${isLimitReached ? styles.limitReachedLock : ''}`}
                     >
                         {STEPS_MAP[currentStep]}

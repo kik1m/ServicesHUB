@@ -50,9 +50,10 @@ export const SUBMIT_TOOL_CONSTANTS = {
                 desc: { label: "FULL DESCRIPTION", placeholder: "Detailed breakdown of features and value proposition..." }
             }
         },
-        features: {
-            title: "Features & Highlights",
+            features: {
+            title: "Features & Use Cases",
             label: "KEY CAPABILITIES",
+            useCasesLabel: "BEST FOR / USE CASES",
             empty: {
                 title: "List your best features",
                 text: "What makes your tool stand out from the competition?"
@@ -96,7 +97,9 @@ export const SUBMIT_TOOL_CONSTANTS = {
         changeImage: "Change Image",
         addFeature: "Add Feature",
         addFirstFeature: "Add Your First Feature",
-        featurePlaceholder: "e.g. Real-time collaboration"
+        featurePlaceholder: "e.g. Real-time collaboration",
+        addUseCase: "Add Use Case",
+        useCasePlaceholder: "e.g. Graphic Design & Digital Art"
     }
 };
 

@@ -124,15 +124,53 @@ const AdminReviewModal = ({
                                                 placeholder="Choose Model"
                                             />
                                         </div>
+                                        <div className={styles.fieldWrapper}>
+                                            <label className={styles.fieldLabel}>Verified Status</label>
+                                            <Select 
+                                                options={[{ value: 'true', label: 'Verified (Blue Badge)' }, { value: 'false', label: 'Not Verified' }]}
+                                                value={editData?.is_verified ? 'true' : 'false'}
+                                                onChange={(val) => setEditData({ ...editData, is_verified: val === 'true' })}
+                                                placeholder="Verified?"
+                                            />
+                                        </div>
+                                        <Input type="number" step="0.1" min="1" max="5" label="Admin Rating (1-5)" value={editData?.rating || 5} onChange={e => setEditData({...editData, rating: parseFloat(e.target.value)})} />
                                     </div>
+                                    <Input label="Direct Image URL (Thumbnail)" value={editData?.image_url || ''} onChange={e => setEditData({...editData, image_url: e.target.value})} style={{marginTop: '1rem'}} />
                                 </div>
 
                                 <div className={styles.editSection}>
                                     <h4 className={styles.sectionTitle}><Zap size={16} /> Content & Narrative</h4>
                                     <div className={styles.fullGrid}>
                                         <Input label="Short Pitch (Tagline)" value={editData?.short_description || ''} onChange={e => setEditData({...editData, short_description: e.target.value})} />
-                                        <Input label="Full Description" multiline rows={5} value={editData?.description || ''} onChange={e => setEditData({...editData, description: e.target.value})} />
+                                        <Input label="Full Description" multiline rows={4} value={editData?.description || ''} onChange={e => setEditData({...editData, description: e.target.value})} />
+                                        
                                         <Input label="Pricing Details / Notes" value={editData?.pricing_details || ''} onChange={e => setEditData({...editData, pricing_details: e.target.value})} />
+                                    </div>
+                                </div>
+
+                                <div className={styles.editSection}>
+                                    <h4 className={styles.sectionTitle}><PlusCircle size={16} /> Features & Use Cases</h4>
+                                    <div className={styles.fullGrid}>
+                                        <div className={styles.fieldWrapper}>
+                                            <label className={styles.fieldLabel}>Key Features (One per line)</label>
+                                            <textarea 
+                                                className={styles.arrayTextarea} 
+                                                rows={4}
+                                                placeholder="Feature 1&#10;Feature 2&#10;Feature 3"
+                                                value={(editData?.features || []).join('\n')}
+                                                onChange={e => setEditData({...editData, features: e.target.value.split('\n').filter(Boolean)})}
+                                            />
+                                        </div>
+                                        <div className={styles.fieldWrapper}>
+                                            <label className={styles.fieldLabel} style={{color: 'var(--secondary)'}}>Best For / Use Cases (One per line)</label>
+                                            <textarea 
+                                                className={styles.arrayTextarea} 
+                                                rows={4}
+                                                placeholder="Graphic Design&#10;Content Creation"
+                                                value={(editData?.use_cases || []).join('\n')}
+                                                onChange={e => setEditData({...editData, use_cases: e.target.value.split('\n').filter(Boolean)})}
+                                            />
+                                        </div>
                                     </div>
                                 </div>
                             </div>

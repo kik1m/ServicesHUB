@@ -152,6 +152,42 @@
   opacity: 0.5;
 }
 
-.textareaField {
-    min-height: 180px;
+.textareaWrapper {
+    overflow: hidden; /* Clips the textarea scrollbar nicely */
 }
+
+.textareaField {
+    min-height: 180px !important;
+    padding: 16px 16px 20px 16px !important;
+    line-height: 1.6;
+    border-radius: inherit;
+}
+
+/* Elite Custom Scrollbar for the Description Textarea */
+.textareaField::-webkit-scrollbar {
+    width: 8px;
+}
+
+.textareaField::-webkit-scrollbar-track {
+    background: transparent;
+    border-radius: 0 14px 14px 0;
+}
+
+.textareaField::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    border: 2px solid #141b22;
+}
+
+.textareaField::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.textareaField::-webkit-resizer {
+    display: none;
+}
+
+.textareaField::-webkit-scrollbar-corner {
+    background: transparent;
+}
+

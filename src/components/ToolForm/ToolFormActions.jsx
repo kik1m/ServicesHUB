@@ -25,8 +25,10 @@ const ToolFormActions = ({
     if (isLoading) {
         return (
             <div className={styles.formActionBar}>
-                <Skeleton width="180px" height="54px" borderRadius="14px" />
-                <Skeleton width="110px" height="24px" className={styles.skeletonAuto} />
+                <div className={styles.mainActions}>
+                    <Skeleton width="240px" height="54px" borderRadius="14px" />
+                </div>
+                <Skeleton width="120px" height="40px" borderRadius="12px" />
             </div>
         );
     }
@@ -44,7 +46,11 @@ const ToolFormActions = ({
                 <div className={styles.mainActions}>
                     {isLastStep ? (
                         <Button 
-                            type="submit"
+                            type="button"
+                            onClick={(e) => {
+                                e.preventDefault();
+                                onSubmit(e);
+                            }}
                             isLoading={saving || uploading} 
                             className={styles.premiumSubmitBtn}
                             icon={Save}
@@ -54,7 +60,11 @@ const ToolFormActions = ({
                         </Button>
                     ) : (
                         <Button 
-                            onClick={onNext}
+                            type="button"
+                            onClick={(e) => {
+                                e.preventDefault();
+                                onNext();
+                            }}
                             className={styles.premiumSubmitBtn}
                             icon={ArrowRight}
                             iconPosition="right"
@@ -66,6 +76,7 @@ const ToolFormActions = ({
                 </div>
 
                 <Button 
+                    type="button"
                     variant="ghost" 
                     onClick={onCancel} 
                     className={styles.premiumCancelBtn}

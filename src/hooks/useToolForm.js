@@ -22,7 +22,7 @@ export const useToolForm = ({ mode = 'submit' } = {}) => {
     const navigate = useNavigate();
     const { user, loading: authLoading } = useAuth();
     const { showToast } = useToast();
-    
+
     // UI States
     const [currentStep, setCurrentStep] = useState(1);
     const [isSuccess, setIsSuccess] = useState(false);
@@ -31,26 +31,26 @@ export const useToolForm = ({ mode = 'submit' } = {}) => {
     const [isUploading, setIsUploading] = useState(false);
     const [error, setError] = useState(null);
     const [fieldErrors, setFieldErrors] = useState({});
-    
+
     // Data States
     const [categories, setCategories] = useState([]);
     const [isLimitReached, setIsLimitReached] = useState(false);
     const [imagePreview, setImagePreview] = useState(null);
     const [useManualUrl, setUseManualUrl] = useState(false);
-    
+
     const [formData, setFormData] = useState(() => {
         if (mode === 'submit') {
             const saved = localStorage.getItem(STORAGE_KEY);
             return saved ? JSON.parse(saved) : {
                 name: '', url: '', short_description: '', description: '',
                 category_id: '', pricing_type: 'Free', pricing_details: '',
-                image_url: '', features: []
+                image_url: '', features: [], use_cases: []
             };
         }
         return {
             name: '', url: '', short_description: '', description: '',
             category_id: '', pricing_type: 'Free', pricing_details: '',
-            image_url: '', features: [], is_approved: false
+            image_url: '', features: [], use_cases: [], is_approved: false
         };
     });
 
@@ -96,6 +96,7 @@ export const useToolForm = ({ mode = 'submit' } = {}) => {
                         pricing_type: tool.pricing_type,
                         pricing_details: tool.pricing_details || '',
                         features: tool.features || [],
+                        use_cases: tool.use_cases || [],
                         image_url: tool.image_url,
                         is_approved: tool.is_approved
                     });
@@ -137,7 +138,7 @@ export const useToolForm = ({ mode = 'submit' } = {}) => {
             if (!formData.description || formData.description.length < rules.fullDesc.min) errors.description = rules.fullDesc.error;
             if (!formData.image_url) errors.image_url = rules.image.error;
         }
-        
+
         setFieldErrors(errors);
         return Object.keys(errors).length === 0;
     };
@@ -178,6 +179,23 @@ export const useToolForm = ({ mode = 'submit' } = {}) => {
 
     const removeFeature = useCallback((index) => {
         setFormData(prev => ({ ...prev, features: prev.features.filter((_, i) => i !== index) }));
+    }, []);
+
+    // 5.1 Use Cases Logic
+    const handleUseCaseChange = useCallback((index, value) => {
+        setFormData(prev => {
+            const newUseCases = [...(prev.use_cases || [])];
+            newUseCases[index] = value;
+            return { ...prev, use_cases: newUseCases };
+        });
+    }, []);
+
+    const addUseCase = useCallback(() => {
+        setFormData(prev => ({ ...prev, use_cases: [...(prev.use_cases || []), ''] }));
+    }, []);
+
+    const removeUseCase = useCallback((index) => {
+        setFormData(prev => ({ ...prev, use_cases: (prev.use_cases || []).filter((_, i) => i !== index) }));
     }, []);
 
     // 6. Media Upload Logic
@@ -222,9 +240,9 @@ export const useToolForm = ({ mode = 'submit' } = {}) => {
                 if (submitErr) throw submitErr;
 
                 await sendNotification(
-                    user.id, 
-                    'Submission Successfully Logged!', 
-                    `We've received your request for "${formData.name}". Our curators will review it for elite quality standards within 24-48 hours.`, 
+                    user.id,
+                    'Submission Successfully Logged!',
+                    `We've received your request for "${formData.name}". Our curators will review it for elite quality standards within 24-48 hours.`,
                     'info'
                 );
                 localStorage.removeItem(STORAGE_KEY);
@@ -235,9 +253,9 @@ export const useToolForm = ({ mode = 'submit' } = {}) => {
                 if (updateErr) throw updateErr;
 
                 await sendNotification(
-                    user.id, 
-                    'Modifications Received', 
-                    `The updates for "${formData.name}" have been submitted for review. They will appear live once verified.`, 
+                    user.id,
+                    'Modifications Received',
+                    `The updates for "${formData.name}" have been submitted for review. They will appear live once verified.`,
                     'info'
                 );
                 showToast(isApproved ? 'Submitted for review!' : 'Updated successfully!', 'success');
@@ -257,7 +275,7 @@ export const useToolForm = ({ mode = 'submit' } = {}) => {
         setFormData({
             name: '', url: '', short_description: '', description: '',
             category_id: categories[0]?.id || '', pricing_type: 'Free',
-            pricing_details: '', image_url: '', features: []
+            pricing_details: '', image_url: '', features: [], use_cases: []
         });
         setImagePreview(null);
         setCurrentStep(1);
@@ -268,7 +286,8 @@ export const useToolForm = ({ mode = 'submit' } = {}) => {
         formData, setFormData, categories, isFetchingInitialData, isSubmitting,
         isUploading, isSuccess, isLimitReached, fieldErrors, imagePreview,
         useManualUrl, setUseManualUrl, addFeature, removeFeature,
-        handleFeatureChange, handleFileChange, handleSubmit, setImagePreview,
+        handleFeatureChange, handleUseCaseChange, addUseCase, removeUseCase,
+        handleFileChange, handleSubmit, setImagePreview,
         currentStep, nextStep, prevStep, goToStep, error, resetForm
     };
 };
