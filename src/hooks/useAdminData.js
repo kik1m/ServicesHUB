@@ -313,8 +313,17 @@ export const useAdminData = () => {
             }
             
             setPendingTools(prev => prev.filter(t => t.id !== tool.id));
-            setAllTools(prev => prev.filter(t => t.id !== tool.id));
-            setFeaturedTools(prev => prev.filter(t => t.id !== tool.id));
+            
+            if (isUpdate) {
+                // If it's an update, just remove the pending_changes from local state, don't delete the tool
+                const updater = (t) => t.id === tool.id ? { ...t, pending_changes: null } : t;
+                setAllTools(prev => prev.map(updater));
+                setFeaturedTools(prev => prev.map(updater));
+            } else {
+                // If it's a new submission, remove it from all lists
+                setAllTools(prev => prev.filter(t => t.id !== tool.id));
+                setFeaturedTools(prev => prev.filter(t => t.id !== tool.id));
+            }
             
             showToast('Action completed.', 'info');
             handleCloseReview();
