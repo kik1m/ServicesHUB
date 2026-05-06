@@ -57,10 +57,6 @@ export default async function handler(req, res) {
         }));
 
         // 3. AI SEMANTIC ANALYSIS (Multi-Key Resilience)
-        const { getKeys } = await import('./utils/keyManager.js');
-        const apiKeys = getKeys();
-        if (apiKeys.length === 0) throw new Error('GEMINI_API_KEY_MISSING');
-
         const prompt = `
         You are the Elite AI Curator for ServicesHUB. 
         USER REQUEST: "${query}"
@@ -80,31 +76,64 @@ export default async function handler(req, res) {
         }
         `;
 
+        // --- 🛡️ ROBUST KEY ROTATION ENGINE ---
+        const rawKeys = process.env.GEMINI_API_KEY || '';
+        const apiKeys = rawKeys.split(',').map(k => k.trim()).filter(k => k.startsWith('AIza'));
+        
         let analysis = null;
         let lastError = null;
+        const targetModels = ['gemini-flash-latest', 'gemini-2.5-flash'];
 
-        for (let i = 0; i < apiKeys.length; i++) {
-            try {
-                const ai = new GoogleGenAI({ apiKey: apiKeys[i] });
-                const geminiResponse = await ai.models.generateContent({
-                    model: 'gemini-2.5-flash',
-                    contents: prompt,
-                    config: { responseMimeType: "application/json" }
-                });
+        for (let k = 0; k < apiKeys.length; k++) {
+            const currentKey = apiKeys[k];
+            let keySuccess = false;
 
-                if (geminiResponse && geminiResponse.text) {
-                    analysis = JSON.parse(geminiResponse.text);
-                    console.log(`  ✅ Search Analysis successful with Key ${i + 1}`);
+            for (const currentModel of targetModels) {
+                try {
+                    const ai = new GoogleGenAI({ apiKey: currentKey });
+                    const result = await ai.models.generateContent({
+                        model: currentModel,
+                        contents: prompt,
+                        generationConfig: { 
+                            responseMimeType: "application/json",
+                            temperature: 0.1
+                        }
+                    });
+
+                    // --- 🛡️ HARDENED EXTRACTION LAYER ---
+                    let responseText = "";
+                    try {
+                        responseText = typeof result.text === 'function' ? result.text() : 
+                                       (result.response?.text ? result.response.text() : (result.text || ""));
+                    } catch (e) {
+                        responseText = result.response?.candidates?.[0]?.content?.parts?.[0]?.text || "";
+                    }
+
+                    if (!responseText) throw new Error('EMPTY_AI_RESPONSE');
+
+                    const startIdx = responseText.indexOf('{');
+                    const endIdx = responseText.lastIndexOf('}');
+                    if (startIdx === -1 || endIdx === -1) throw new Error('NO_JSON_FOUND');
+
+                    analysis = JSON.parse(responseText.substring(startIdx, endIdx + 1));
+                    console.log(`  ✅ Search Analysis successful with ${currentModel} (Key ${k + 1})`);
+                    keySuccess = true;
+                    break;
+                } catch (err) {
+                    lastError = err;
+                    const errStr = JSON.stringify(err);
+                    const isQuota = errStr.includes('429') || errStr.includes('RESOURCE_EXHAUSTED') || errStr.includes('quota');
+
+                    if (isQuota) {
+                        console.warn(`  ⚠️ Search Key ${k + 1} (${currentModel}) Quota Exhausted.`);
+                        continue; 
+                    }
                     break;
                 }
-            } catch (err) {
-                lastError = err;
-                if (JSON.stringify(err).includes('429') && i < apiKeys.length - 1) {
-                    console.warn(`  ⚠️ Key ${i + 1} exhausted. Trying next...`);
-                    continue;
-                }
-                throw err;
             }
+
+            if (keySuccess) break;
+            if (k < apiKeys.length - 1) await new Promise(r => setTimeout(r, 1000));
         }
 
         if (!analysis) throw lastError || new Error('AI_GENERATION_FAILED');
@@ -131,10 +160,10 @@ export default async function handler(req, res) {
         console.error('[AI-Search-API] Error:', error);
 
         // Elite Error Shield: Never show raw technical errors to the user
-        let friendlyMessage = 'Our AI assistant is currently busy processing other requests. Please try again in a moment.';
+        let friendlyMessage = 'Our AI search assistant is currently processing many requests. Please try again in a few seconds for an optimized search experience!';
 
         if (error.message?.includes('quota') || error.message?.includes('429')) {
-            friendlyMessage = 'We have reached our temporary AI search limit. Please try again in a few seconds or upgrade to Premium for instant access!';
+            friendlyMessage = 'We have reached our temporary AI search limit. Please try again in a few seconds!';
         }
 
         return res.status(200).json({

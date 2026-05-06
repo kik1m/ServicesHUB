@@ -81,7 +81,7 @@ async function runUltimateSeoFix() {
                             "name": tool.name,
                             "description": tool.short_description || tool.description
                         },
-                        ai_model: 'gemini-1.5-flash'
+                        ai_model: 'gemini-2.5-flash'
                     }, { onConflict: 'entity_id,entity_type' });
 
                 if (upsertErr) throw upsertErr;

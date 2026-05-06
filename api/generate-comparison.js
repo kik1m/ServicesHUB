@@ -31,8 +31,36 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: 'Cannot compare a tool with itself. Please select two different tools.' });
     }
 
+    const { userId } = req.query; // Expecting userId from frontend call
+
     try {
-        // 1. Fetch both tools from the database
+        let isPremium = false;
+        let profileData = null;
+
+        // --- 🛡️ ELITE USER QUOTA PROTECTION ---
+        if (userId) {
+            const { data: profile } = await supabase.from('profiles').select('*').eq('id', userId).single();
+            if (profile) {
+                profileData = profile;
+                isPremium = !!profile.is_premium;
+                if (!isPremium) {
+                    const now = new Date();
+                    const lastComp = profile.last_ai_comparison_at ? new Date(profile.last_ai_comparison_at) : null;
+                    const count = profile.ai_comparison_count || 0;
+                    
+                    // Reset count if 24h passed
+                    const isNewDay = !lastComp || (now - lastComp > 86400000);
+                    const currentCount = isNewDay ? 0 : count;
+
+                    if (currentCount >= 3) {
+                        return res.status(429).json({ 
+                            error: 'Limit Reached', 
+                            message: 'Daily AI Comparison limit reached (3). Upgrade to Premium for unlimited access!' 
+                        });
+                    }
+                }
+            }
+        }
         const { data: tools, error: toolsError } = await supabase
             .from('tools')
             .select('id, name, slug, short_description, description, features, pricing_type, pricing_details, rating, reviews_count')
@@ -100,13 +128,6 @@ export default async function handler(req, res) {
         }
 
         // 3. No cache found
-        // 3. AI GENERATION LAYER (Multi-Key Resilience)
-        const { getKeys } = await import('./utils/keyManager.js');
-        const apiKeys = getKeys();
-        if (apiKeys.length === 0) return res.status(503).json({ error: 'AI generation is not available (No Keys).' });
-
-        console.log(`🧠 Generating new AI analysis for ${slug1} vs ${slug2}...`);
-
         const prompt = `
         You are an elite, highly critical AI SaaS consultant and strategic analyst.
         Analyze these tools deeply, focusing on their architecture, market positioning, and functional edge:
@@ -155,30 +176,75 @@ export default async function handler(req, res) {
         }
         `;
 
-        let aiReport = null;
+        // 3. AI GENERATION LAYER (Multi-Key & Multi-Model Resilience)
+        const rawKeys = process.env.GEMINI_API_KEY || '';
+        const apiKeys = rawKeys.split(',').map(k => k.trim()).filter(k => k.startsWith('AIza'));
+        
+        if (apiKeys.length === 0) return res.status(503).json({ error: 'AI generation is not available (No Keys).' });
+
+        console.log(`🧠 Generating new AI analysis for ${slug1} vs ${slug2} using ${apiKeys.length} keys...`);
+
+        const targetModels = ['gemini-flash-latest', 'gemini-2.5-flash'];
         let lastError = null;
+        let aiReport = null;
 
-        for (let i = 0; i < apiKeys.length; i++) {
-            try {
-                const ai = new GoogleGenAI({ apiKey: apiKeys[i] });
-                const geminiResponse = await ai.models.generateContent({
-                    model: 'gemini-2.5-flash',
-                    contents: prompt,
-                    config: { responseMimeType: "application/json" }
-                });
+        for (let k = 0; k < apiKeys.length; k++) {
+            const currentKey = apiKeys[k];
+            let keySuccess = false;
 
-                if (geminiResponse && geminiResponse.text) {
-                    aiReport = JSON.parse(geminiResponse.text);
-                    console.log(`  ✅ AI Analysis successful with Key ${i + 1}`);
+            for (const currentModel of targetModels) {
+                try {
+                    const ai = new GoogleGenAI({ apiKey: currentKey });
+                    const result = await ai.models.generateContent({
+                        model: currentModel,
+                        contents: prompt,
+                        generationConfig: { 
+                            responseMimeType: "application/json",
+                            temperature: 0.2
+                        }
+                    });
+
+                    // --- 🛡️ HARDENED EXTRACTION LAYER ---
+                    let responseText = "";
+                    try {
+                        responseText = typeof result.text === 'function' ? result.text() : 
+                                       (result.response?.text ? result.response.text() : (result.text || ""));
+                    } catch (e) {
+                        responseText = result.response?.candidates?.[0]?.content?.parts?.[0]?.text || "";
+                    }
+
+                    if (!responseText) throw new Error('EMPTY_AI_RESPONSE');
+
+                    const startIdx = responseText.indexOf('{');
+                    const endIdx = responseText.lastIndexOf('}');
+                    if (startIdx === -1 || endIdx === -1) throw new Error('NO_JSON_FOUND');
+
+                    aiReport = JSON.parse(responseText.substring(startIdx, endIdx + 1));
+                    console.log(`  ✅ Success: Key ${k + 1} delivered analysis using ${currentModel}.`);
+                    keySuccess = true;
+                    break; // Exit model loop
+
+                } catch (err) {
+                    lastError = err;
+                    const errStr = JSON.stringify(err);
+                    const isQuota = errStr.includes('429') || errStr.includes('RESOURCE_EXHAUSTED') || errStr.includes('quota');
+                    
+                    if (isQuota) {
+                        console.warn(`  ⚠️ Key ${k + 1} (${currentModel}) Quota Exhausted.`);
+                        // If 2.5 fails, inner loop will try 1.5 with SAME key
+                        continue; 
+                    }
+                    
+                    // If not quota, might be a fatal error for this key
                     break;
                 }
-            } catch (err) {
-                lastError = err;
-                if (JSON.stringify(err).includes('429') && i < apiKeys.length - 1) {
-                    console.warn(`  ⚠️ Key ${i + 1} exhausted. Trying next...`);
-                    continue;
-                }
-                throw err;
+            }
+
+            if (keySuccess) break; // Exit key loop
+
+            // Small wait before trying next key to be safe
+            if (k < apiKeys.length - 1) {
+                await new Promise(r => setTimeout(r, 1000));
             }
         }
 
@@ -198,18 +264,36 @@ export default async function handler(req, res) {
         }
         // --------------------------------------------------------
 
-        // Save original analysis
-        const sortedIds = [idA, idB].sort();
-        await supabase.from('tool_comparisons').insert({
-            tool1_id: sortedIds[0],
-            tool2_id: sortedIds[1],
-            ai_report_json: aiReport
-        });
+        // --- 💾 CACHE FOR FUTURE USERS ---
+        try {
+            const sortedIds = [idA, idB].sort();
+            await supabase.from('tool_comparisons').insert({
+                tool1_id: sortedIds[0],
+                tool2_id: sortedIds[1],
+                ai_report_json: aiReport
+            });
+        } catch (dbErr) {
+            console.warn(`⚠️ Failed to cache comparison:`, dbErr.message);
+        }
+
+        // Update Usage for non-premium users
+        if (userId && !isPremium) {
+            const now = new Date();
+            const lastComp = profileData?.last_ai_comparison_at ? new Date(profileData.last_ai_comparison_at) : null;
+            const isNewDay = !lastComp || (now - lastComp > 86400000);
+            
+            let newCount = isNewDay ? 1 : (profileData?.ai_comparison_count || 0) + 1;
+            
+            await supabase.from('profiles').update({ 
+                ai_comparison_count: newCount, 
+                last_ai_comparison_at: now.toISOString() 
+            }).eq('id', userId);
+        }
 
         return res.status(200).json({ data: aiReport, source: 'ai' });
 
     } catch (error) {
         console.error('❌ Comparison Error:', error);
-        return res.status(500).json({ error: error.message || 'Failed' });
+        return res.status(error.status || 500).json({ error: error.message || 'Failed' });
     }
 }

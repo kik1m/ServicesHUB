@@ -344,6 +344,32 @@ export const useAdminData = () => {
         }
     }, [showToast, handleCloseReview]);
 
+    const handleDeleteTool = useCallback(async (tool) => {
+        if (!window.confirm(`⚠️ PERMANENT DELETE: Are you sure you want to remove "${tool.name}" from the entire platform? This cannot be undone.`)) return;
+
+        setSubmitting(true);
+        try {
+            setActionError(null);
+            showToast(`Deleting ${tool.name}...`, 'info');
+            
+            await adminService.deleteTool(tool.id);
+            
+            // Remove from all local lists
+            setAllTools(prev => prev.filter(t => t.id !== tool.id));
+            setFeaturedTools(prev => prev.filter(t => t.id !== tool.id));
+            setPendingTools(prev => prev.filter(t => t.id !== tool.id));
+            setAdminSearchResults(prev => prev.filter(t => t.id !== tool.id));
+            
+            showToast('Tool deleted forever.', 'success');
+        } catch (err) {
+            console.error('Delete Error:', err);
+            showToast(`Delete Failed: ${err.message}`, 'error');
+            setActionError(`Delete Failed: ${err.message}`);
+        } finally {
+            setSubmitting(false);
+        }
+    }, [showToast]);
+
     const handleAdminSearch = useCallback(async (e) => {
         const query = e.target.value;
         setAdminSearchQuery(query);
@@ -527,7 +553,7 @@ export const useAdminData = () => {
         handleApprove, handleReject, handleAdminSearch, handleToggleFeatured,
         handleCreateBlogPost, handleDeleteBlog, handleCategoryAction,
         handleAdminFileChange, handleDirectAddTool, handleUpdateToolDirect,
-        handleOpenReview, handleOpenEdit, handleCloseReview,
+        handleOpenReview, handleOpenEdit, handleCloseReview, handleDeleteTool,
         addAdminFeature, removeAdminFeature, handleAdminFeatureChange,
         handleBroadcast, setCampaignData, campaignData
     };

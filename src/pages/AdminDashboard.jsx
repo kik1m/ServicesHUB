@@ -44,7 +44,7 @@ const AdminDashboard = () => {
         adminImagePreview, adminUseManualUrl, setAdminUseManualUrl,
         newPost, setNewPost, newCategory, setNewCategory, newTool, setNewTool,
         selectedReview, showReviewModal, editMode,
-        handleOpenReview, handleOpenEdit, handleCloseReview,
+        handleOpenReview, handleOpenEdit, handleCloseReview, handleDeleteTool,
         campaignData, setCampaignData, handleBroadcast,
         init // For retry
     } = useAdminData();
@@ -94,7 +94,7 @@ const AdminDashboard = () => {
                         adminSearchResults={adminSearchResults}
                         isSearching={isSearchingTools}
                         handleOpenEdit={handleOpenEdit} 
-                        handleDelete={handleReject}
+                        handleDelete={handleDeleteTool}
                         isLoading={loading}
                         error={error}
                         onRetry={init}
@@ -232,7 +232,7 @@ const AdminDashboard = () => {
         setNewPost, handleCreateBlogPost, handleDeleteBlog, setNewTool, 
         setAdminUseManualUrl, handleAdminFileChange, addAdminFeature, removeAdminFeature, 
         handleAdminFeatureChange, handleDirectAddTool, setNewCategory, handleCategoryAction, 
-        loading, error, actionError, init, campaignData, setCampaignData, handleBroadcast
+        handleDeleteTool, loading, error, actionError, init, campaignData, setCampaignData, handleBroadcast
     ]);
 
     if (!isAdmin && !loading) return null;

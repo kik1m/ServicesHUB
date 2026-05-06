@@ -88,12 +88,40 @@ export const adminService = {
     async rejectTool(tool) {
         const isUpdate = !!tool.pending_changes;
         if (isUpdate) {
+            // If it's an update rejection, we just clear the pending changes
             const { error } = await supabase.from('tools').update({ pending_changes: null }).eq('id', tool.id);
             if (error) throw error;
         } else {
-            const { error } = await supabase.from('tools').delete().eq('id', tool.id);
-            if (error) throw error;
+            // If it's a rejection of a new submission, we delete everything
+            return this.deleteTool(tool.id);
         }
+        return true;
+    },
+
+    /**
+     * Deep delete a tool and all its dependencies
+     * Rule #31: Transactional integrity via sequential cleanup
+     */
+    async deleteTool(toolId) {
+        if (!toolId) throw new Error('Tool ID is required for deletion');
+
+        // 1. Delete Dependencies (Parallel for speed)
+        const cleanup = [
+            supabase.from('seo_metadata').delete().eq('entity_id', toolId).eq('entity_type', 'tool'),
+            supabase.from('reviews').delete().eq('tool_id', toolId),
+            supabase.from('favorites').delete().eq('tool_id', toolId)
+        ];
+
+        await Promise.all(cleanup);
+
+        // 2. Delete the Tool itself
+        const { error } = await supabase.from('tools').delete().eq('id', toolId);
+        
+        if (error) {
+            console.error('[ADMIN DELETE FAILED]:', error);
+            throw error;
+        }
+
         return true;
     },
 

@@ -29,11 +29,11 @@ const ComparisonMatrix = ({ tool1, tool2, isLoading, isTool1Loading, isTool2Load
         return Math.min(score, 100);
     };
 
-    // Prefer AI scores (contextual & strategic) — fall back to local scores during loading
+    // Prefer AI scores (contextual & strategic) — fall back to a neutral 80 during AI loading for visual balance
     const aiScore1 = aiResults?.scores?.tool1;
     const aiScore2 = aiResults?.scores?.tool2;
-    const score1 = (aiScore1 != null) ? aiScore1 : calculateDisplayScore(tool1);
-    const score2 = (aiScore2 != null) ? aiScore2 : calculateDisplayScore(tool2);
+    const score1 = isAiLoading ? 80 : ((aiScore1 != null) ? aiScore1 : calculateDisplayScore(tool1));
+    const score2 = isAiLoading ? 80 : ((aiScore2 != null) ? aiScore2 : calculateDisplayScore(tool2));
 
     // Winner: AI verdict takes priority, then score comparison
     const displayWinner = tool1IsWinner ? 1 : tool2IsWinner ? 2 : (score1 > score2 ? 1 : score1 < score2 ? 2 : 0);
@@ -127,7 +127,7 @@ const ComparisonMatrix = ({ tool1, tool2, isLoading, isTool1Loading, isTool2Load
                             ) : aiError ? (
                                 <div className={styles.aiError}>
                                     <Info size={16} color="var(--error)" />
-                                    <span>AI Analysis Failed: {aiError}</span>
+                                    <span>We're sorry! The AI expert is currently overwhelmed. Please try again in a few seconds for a fresh analysis.</span>
                                 </div>
                             ) : aiResults ? (
                                 <div className={styles.aiInsights}>

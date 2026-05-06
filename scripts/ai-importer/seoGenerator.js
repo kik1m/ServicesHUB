@@ -24,11 +24,12 @@ Output ONLY a valid JSON object with these exact keys:
         try {
             // Re-initialize client with current key (essential after rotation)
             const ai = new GoogleGenAI({ apiKey: keyManager.getCurrentKey() });
-            
+            const models = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-flash-latest'];
+
             const result = await ai.models.generateContent({
-                model: 'gemini-2.5-flash',
+                model: models[Math.floor(Math.random() * models.length)],
                 contents: prompt,
-                generationConfig: { 
+                generationConfig: {
                     responseMimeType: "application/json",
                     temperature: 0.1
                 }
@@ -54,7 +55,7 @@ Output ONLY a valid JSON object with these exact keys:
 
             if (isQuota || isServiceBusy) {
                 if (isServiceBusy) console.warn(`  ⚠️ Model busy (503). Trying another key...`);
-                
+
                 // Try to rotate to a new key
                 const hasNewKey = keyManager.rotateKey();
                 if (hasNewKey) {
