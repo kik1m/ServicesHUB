@@ -61,10 +61,10 @@ export default async function handler(req, res) {
         if (cachedComparison && cachedComparison.ai_report_json) {
             let report = cachedComparison.ai_report_json;
             console.log(`⚡ Serving cached comparison for ${slug1} vs ${slug2}`);
-                
+
             if (cachedComparison.tool1_id === idB) {
                 console.log(`🔄 Swapping JSON data to match requested order`);
-                    
+
                 const newWhyBuy = {
                     tool1: report.why_buy?.tool2 || [],
                     tool2: report.why_buy?.tool1 || []
@@ -100,14 +100,12 @@ export default async function handler(req, res) {
         }
 
         // 3. No cache found
-        if (!process.env.GEMINI_API_KEY) {
-            console.error("[AI-API] No cache found and GEMINI_API_KEY is missing.");
-            return res.status(503).json({ error: 'AI generation is not available.' });
-        }
+        // 3. AI GENERATION LAYER (Multi-Key Resilience)
+        const { getKeys } = await import('./utils/keyManager.js');
+        const apiKeys = getKeys();
+        if (apiKeys.length === 0) return res.status(503).json({ error: 'AI generation is not available (No Keys).' });
 
-        // 3. Generate the Live Comparison
         console.log(`🧠 Generating new AI analysis for ${slug1} vs ${slug2}...`);
-        const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
         const prompt = `
         You are an elite, highly critical AI SaaS consultant and strategic analyst.
@@ -157,13 +155,34 @@ export default async function handler(req, res) {
         }
         `;
 
-        const geminiResponse = await ai.models.generateContent({
-            model: 'gemini-2.5-flash',
-            contents: prompt,
-            config: { responseMimeType: "application/json" }
-        });
+        let aiReport = null;
+        let lastError = null;
 
-        const aiReport = JSON.parse(geminiResponse.text);
+        for (let i = 0; i < apiKeys.length; i++) {
+            try {
+                const ai = new GoogleGenAI({ apiKey: apiKeys[i] });
+                const geminiResponse = await ai.models.generateContent({
+                    model: 'gemini-2.5-flash',
+                    contents: prompt,
+                    config: { responseMimeType: "application/json" }
+                });
+
+                if (geminiResponse && geminiResponse.text) {
+                    aiReport = JSON.parse(geminiResponse.text);
+                    console.log(`  ✅ AI Analysis successful with Key ${i + 1}`);
+                    break;
+                }
+            } catch (err) {
+                lastError = err;
+                if (JSON.stringify(err).includes('429') && i < apiKeys.length - 1) {
+                    console.warn(`  ⚠️ Key ${i + 1} exhausted. Trying next...`);
+                    continue;
+                }
+                throw err;
+            }
+        }
+
+        if (!aiReport) throw lastError || new Error('AI_GENERATION_FAILED');
 
         // --- 🚀 ELITE AI SEO ENGINE (Decoupled & Self-Managed) ---
         try {

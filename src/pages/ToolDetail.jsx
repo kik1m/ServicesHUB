@@ -53,60 +53,30 @@ const ToolDetail = () => {
         { label: tool?.name || 'Tool' }
     ], [tool?.name]);
 
-    // SEO Hardening
+    // SEO Hardening (Rule #34: Priority to AI Metadata)
     useSEO({
         entityId: tool?.id,
         entityType: 'tool',
-        title: tool?.name ? `${tool.name} Review, Pricing & Features | Official Info` : 'Tool Details',
-        description: tool?.short_description || tool?.description,
+        title: tool?.seo?.title || (tool?.name ? `${tool.name} Review, Pricing & Features | HUBly` : 'Tool Details'),
+        description: tool?.seo?.description || tool?.short_description || tool?.description,
+        keywords: tool?.seo?.keywords || [],
         image: tool?.image_url,
         url: getCurrentUrl(),
         ogType: 'product',
-        noindex: !tool || tool.is_approved === false, // Rule #34: Prevent indexing of drafts/unapproved
+        noindex: !tool || tool.is_approved === false,
         schema: tool ? [
-            {
-                "@context": "https://schema.org/",
-                "@type": ["SoftwareApplication", "Product"],
-                "url": `https://www.hubly-tools.com/tool/${tool.slug}`,
-                "name": tool.name,
-                "applicationCategory": tool.categories?.name || "BusinessApplication",
-                "operatingSystem": "Web, Windows, macOS, iOS, Android",
-                "image": tool.image_url,
-                "description": tool.short_description || tool.description,
-                "brand": { "@type": "Brand", "name": tool.publisher_name || "AI Tool" },
-                "sameAs": [
-                    tool.website_url,
-                    tool.twitter_url,
-                    tool.linkedin_url
-                ].filter(Boolean),
-                "aggregateRating": {
-                    "@type": "AggregateRating",
-                    "ratingValue": tool.rating > 0 ? tool.rating : "4.8",
-                    "bestRating": "5",
-                    "worstRating": "1",
-                    "reviewCount": tool.reviews_count > 0 ? tool.reviews_count : "1"
-                },
-                "review": [
-                    {
-                        "@type": "Review",
-                        "author": { "@type": "Person", "name": "HUBly Verified" },
-                        "datePublished": tool.created_at || new Date().toISOString(),
-                        "reviewBody": `Excellent tool for ${tool.categories?.name || 'AI professionals'}. Highly recommended by the HUBly community.`,
-                        "reviewRating": {
-                            "@type": "Rating",
-                            "ratingValue": tool.rating > 0 ? tool.rating : "5",
-                            "bestRating": "5",
-                            "worstRating": "1"
-                        }
-                    }
-                ],
-                "offers": {
-                    "@type": "Offer",
-                    "price": tool.pricing_type === 'Free' ? "0" : (tool.starting_price || "0"),
-                    "priceCurrency": "USD",
-                    "availability": "https://schema.org/InStock"
-                }
-            },
+            ...(tool?.seo?.schema_markup 
+                ? (Array.isArray(tool.seo.schema_markup) ? tool.seo.schema_markup : [tool.seo.schema_markup])
+                : [{
+                    "@context": "https://schema.org/",
+                    "@type": ["SoftwareApplication", "Product"],
+                    "url": `https://www.hubly-tools.com/tool/${tool.slug}`,
+                    "name": tool.name,
+                    "applicationCategory": tool.categories?.name || "BusinessApplication",
+                    "image": tool.image_url,
+                    "description": tool.short_description || tool.description
+                }]
+            ),
             {
                 "@context": "https://schema.org",
                 "@type": "BreadcrumbList",

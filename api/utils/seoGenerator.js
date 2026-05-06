@@ -56,11 +56,10 @@ export const generateAISeo = async (entityId, data, type = 'tool') => {
             };
         }
 
-        // 3. AI GENERATION LAYER (With Context Expansion)
-        const apiKey = process.env.GEMINI_API_KEY;
-        if (!apiKey) throw new Error('GEMINI_API_KEY_MISSING');
-
-        const ai = new GoogleGenAI({ apiKey });
+        // 3. AI GENERATION LAYER (Multi-Key Resilience)
+        const { getKeys } = await import('./keyManager.js');
+        const apiKeys = getKeys();
+        if (apiKeys.length === 0) throw new Error('GEMINI_API_KEY_MISSING');
 
         let context = '';
         if (type === 'tool') {
@@ -96,27 +95,31 @@ export const generateAISeo = async (entityId, data, type = 'tool') => {
         }
         `;
 
-        // 3.1 RETRY LOGIC (Max 2 attempts)
+        // 3.1 AI GENERATION WITH ROTATION
         let responseText;
-        let attempts = 0;
-        while (attempts < 2) {
+        let lastError = null;
+
+        for (let i = 0; i < apiKeys.length; i++) {
             try {
+                const ai = new GoogleGenAI({ apiKey: apiKeys[i] });
                 const response = await ai.models.generateContent({
-                    model: 'gemini-pro-latest',
+                    model: 'gemini-2.5-flash', // Updated to stable 2.5-flash
                     contents: prompt,
-                    config: {
-                        responseMimeType: "application/json",
-                    }
+                    config: { responseMimeType: "application/json" }
                 });
-                responseText = response.text; // Property, not function in this SDK
+                responseText = response.text;
                 if (responseText) break;
             } catch (err) {
-                attempts++;
-                if (attempts === 2) throw err;
-                console.warn(`[SEO ENGINE] AI Attempt ${attempts} failed, retrying...`);
-                await new Promise(r => setTimeout(r, 2000));
+                lastError = err;
+                if (JSON.stringify(err).includes('429') && i < apiKeys.length - 1) {
+                    console.warn(`[SEO ENGINE] Key ${i+1} exhausted. Rotating...`);
+                    continue;
+                }
+                throw err;
             }
         }
+
+        if (!responseText) throw lastError || new Error('AI_GENERATION_FAILED');
 
         // 3.2 ROBUST JSON VALIDATION
         let seoResult;

@@ -17,20 +17,27 @@ export default async function handler(req, res) {
       priority: path === 'home' ? '1.0' : '0.8'
     }));
 
-    // 2. Fetch Dynamic Entities
+    // 2. Fetch Dynamic Entities (Including SEO metadata for lastmod accuracy)
     const [tools, categories, blogs] = await Promise.all([
-      supabase.from('tools').select('slug, updated_at'),
+      supabase.from('tools').select('slug, updated_at, seo:seo_metadata!entity_id(updated_at)').eq('is_approved', true),
       supabase.from('categories').select('slug'),
-      supabase.from('blog_posts').select('slug, updated_at')
+      supabase.from('blog_posts').select('slug, updated_at').eq('is_published', true)
     ]);
-
+    
     const dynamicPages = [
-      ...(tools.data || []).map(t => ({
-        url: `${baseUrl}/tool/${t.slug}`,
-        changefreq: 'weekly',
-        priority: '0.7',
-        lastmod: t.updated_at
-      })),
+      ...(tools.data || []).map(t => {
+        // Use the latest date between the tool update and the SEO update
+        const toolDate = new Date(t.updated_at);
+        const seoDate = t.seo?.[0]?.updated_at ? new Date(t.seo[0].updated_at) : null;
+        const lastMod = seoDate && seoDate > toolDate ? seoDate : toolDate;
+
+        return {
+          url: `${baseUrl}/tool/${t.slug}`,
+          changefreq: 'weekly',
+          priority: '0.8',
+          lastmod: lastMod.toISOString()
+        };
+      }),
       ...(categories.data || []).map(c => ({
         url: `${baseUrl}/category/${c.slug}`,
         changefreq: 'monthly',
@@ -38,8 +45,8 @@ export default async function handler(req, res) {
       })),
       ...(blogs.data || []).map(b => ({
         url: `${baseUrl}/blog/${b.slug}`,
-        changefreq: 'monthly',
-        priority: '0.6',
+        changefreq: 'weekly',
+        priority: '0.7',
         lastmod: b.updated_at
       }))
     ];

@@ -56,9 +56,11 @@ export default async function handler(req, res) {
             category: t.categories?.name
         }));
 
-        // 3. SEMANTIC ANALYSIS VIA GEMINI
-        const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-        
+        // 3. AI SEMANTIC ANALYSIS (Multi-Key Resilience)
+        const { getKeys } = await import('./utils/keyManager.js');
+        const apiKeys = getKeys();
+        if (apiKeys.length === 0) throw new Error('GEMINI_API_KEY_MISSING');
+
         const prompt = `
         You are the Elite AI Curator for ServicesHUB. 
         USER REQUEST: "${query}"
@@ -78,13 +80,34 @@ export default async function handler(req, res) {
         }
         `;
 
-        const geminiResponse = await ai.models.generateContent({
-            model: 'gemini-2.5-flash',
-            contents: prompt,
-            config: { responseMimeType: "application/json" }
-        });
+        let analysis = null;
+        let lastError = null;
 
-        const analysis = JSON.parse(geminiResponse.text);
+        for (let i = 0; i < apiKeys.length; i++) {
+            try {
+                const ai = new GoogleGenAI({ apiKey: apiKeys[i] });
+                const geminiResponse = await ai.models.generateContent({
+                    model: 'gemini-2.5-flash',
+                    contents: prompt,
+                    config: { responseMimeType: "application/json" }
+                });
+
+                if (geminiResponse && geminiResponse.text) {
+                    analysis = JSON.parse(geminiResponse.text);
+                    console.log(`  ✅ Search Analysis successful with Key ${i + 1}`);
+                    break;
+                }
+            } catch (err) {
+                lastError = err;
+                if (JSON.stringify(err).includes('429') && i < apiKeys.length - 1) {
+                    console.warn(`  ⚠️ Key ${i + 1} exhausted. Trying next...`);
+                    continue;
+                }
+                throw err;
+            }
+        }
+
+        if (!analysis) throw lastError || new Error('AI_GENERATION_FAILED');
         const { selected_slugs, message } = analysis;
 
         // 4. FETCH THE FULL DATA FOR SELECTED TOOLS
@@ -106,18 +129,18 @@ export default async function handler(req, res) {
 
     } catch (error) {
         console.error('[AI-Search-API] Error:', error);
-        
+
         // Elite Error Shield: Never show raw technical errors to the user
         let friendlyMessage = 'Our AI assistant is currently busy processing other requests. Please try again in a moment.';
-        
+
         if (error.message?.includes('quota') || error.message?.includes('429')) {
             friendlyMessage = 'We have reached our temporary AI search limit. Please try again in a few seconds or upgrade to Premium for instant access!';
         }
 
-        return res.status(200).json({ 
-            tools: [], 
+        return res.status(200).json({
+            tools: [],
             message: friendlyMessage,
-            isError: true 
+            isError: true
         });
     }
 }
