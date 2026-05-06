@@ -37,6 +37,7 @@ export const authService = {
             await supabase.from('profiles').upsert({
                 id: data.user.id,
                 full_name: fullName,
+                email: email, // Store email for admin notifications & cross-referencing
                 role: 'user',
                 updated_at: new Date().toISOString()
             });

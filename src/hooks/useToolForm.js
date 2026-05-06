@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
@@ -31,6 +31,9 @@ export const useToolForm = ({ mode = 'submit' } = {}) => {
     const [isUploading, setIsUploading] = useState(false);
     const [error, setError] = useState(null);
     const [fieldErrors, setFieldErrors] = useState({});
+
+    // Dirty Check: Track original data to detect real changes
+    const originalDataRef = useRef(null);
 
     // Data States
     const [categories, setCategories] = useState([]);
@@ -87,7 +90,7 @@ export const useToolForm = ({ mode = 'submit' } = {}) => {
                         throw new Error('Unauthorized access to this tool');
                     }
 
-                    setFormData({
+                    const toolSnapshot = {
                         name: tool.name,
                         url: tool.url,
                         short_description: tool.short_description,
@@ -99,7 +102,10 @@ export const useToolForm = ({ mode = 'submit' } = {}) => {
                         use_cases: tool.use_cases || [],
                         image_url: tool.image_url,
                         is_approved: tool.is_approved
-                    });
+                    };
+                    // Store a deep copy of the original data for dirty checking
+                    originalDataRef.current = JSON.parse(JSON.stringify(toolSnapshot));
+                    setFormData(toolSnapshot);
                     setImagePreview(tool.image_url);
                     if (tool.image_url && !tool.image_url.includes('supabase.co')) {
                         setUseManualUrl(true);
@@ -248,6 +254,19 @@ export const useToolForm = ({ mode = 'submit' } = {}) => {
                 localStorage.removeItem(STORAGE_KEY);
                 setIsSuccess(true);
             } else {
+                // Dirty Check: Compare current form data with original snapshot
+                const orig = originalDataRef.current;
+                const COMPARABLE_FIELDS = ['name', 'url', 'short_description', 'description', 'category_id', 'pricing_type', 'pricing_details', 'image_url'];
+                const hasFieldChanges = orig && COMPARABLE_FIELDS.some(k => (formData[k] || '').toString().trim() !== (orig[k] || '').toString().trim());
+                const hasFeaturesChanges = orig && JSON.stringify(formData.features || []) !== JSON.stringify(orig.features || []);
+                const hasUseCasesChanges = orig && JSON.stringify(formData.use_cases || []) !== JSON.stringify(orig.use_cases || []);
+
+                if (orig && !hasFieldChanges && !hasFeaturesChanges && !hasUseCasesChanges) {
+                    showToast('No changes detected. Your tool data is already up to date.', 'info');
+                    navigate('/dashboard');
+                    return;
+                }
+
                 const isApproved = formData.is_approved;
                 const { error: updateErr } = await toolsService.updateTool(id, formData, isApproved);
                 if (updateErr) throw updateErr;

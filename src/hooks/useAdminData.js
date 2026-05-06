@@ -256,15 +256,19 @@ export const useAdminData = () => {
                 'approval'
             );
 
-            // 2. Elite Email Notification
-            if (tool.profiles?.email) {
-                await emailTriggers.sendToolStatus(
-                    tool.profiles.email,
-                    tool.name,
-                    'approved',
-                    tool.slug,
-                    feedback || (isUpdate ? 'Your tool update has been reviewed and approved.' : 'Your tool submission is now live on our platform.')
-                ).catch(err => console.warn('Email failed:', err));
+            // 2. Elite Email Notification — fetch email directly from auth
+            if (tool.user_id) {
+                const { data: userData } = await supabase.from('profiles').select('email').eq('id', tool.user_id).maybeSingle();
+                const recipientEmail = userData?.email;
+                if (recipientEmail) {
+                    await emailTriggers.sendToolStatus(
+                        recipientEmail,
+                        tool.name,
+                        'approved',
+                        tool.slug,
+                        feedback || (isUpdate ? 'Your tool update has been reviewed and approved.' : 'Your tool submission is now live on our platform.')
+                    ).catch(err => console.warn('Email failed:', err));
+                }
             }
             
             setPendingTools(prev => prev.filter(t => t.id !== tool.id));
@@ -301,15 +305,19 @@ export const useAdminData = () => {
                 'rejection'
             );
 
-            // 2. Elite Email Notification (With Dynamic Feedback)
-            if (tool.profiles?.email) {
-                await emailTriggers.sendToolStatus(
-                    tool.profiles.email,
-                    tool.name,
-                    'rejected',
-                    tool.slug,
-                    feedback || 'Unfortunately, your submission does not meet our current quality standards or editorial guidelines.'
-                ).catch(err => console.warn('Email failed:', err));
+            // 2. Elite Email Notification — fetch email directly from auth
+            if (tool.user_id) {
+                const { data: userData } = await supabase.from('profiles').select('email').eq('id', tool.user_id).maybeSingle();
+                const recipientEmail = userData?.email;
+                if (recipientEmail) {
+                    await emailTriggers.sendToolStatus(
+                        recipientEmail,
+                        tool.name,
+                        'rejected',
+                        tool.slug,
+                        feedback || 'Unfortunately, your submission does not meet our current quality standards or editorial guidelines.'
+                    ).catch(err => console.warn('Email failed:', err));
+                }
             }
             
             setPendingTools(prev => prev.filter(t => t.id !== tool.id));
