@@ -19,7 +19,7 @@ export const adminService = {
             counts
         ] = await Promise.all([
             // 1. Pending Tools & Updates (Enriched with Publisher Profile Data)
-            supabase.from('tools').select('*, categories(name), profiles:user_id(id, full_name)').or('is_approved.eq.false,pending_changes.not.is.null').order('updated_at', { ascending: false }),
+            supabase.from('tools').select('*, categories(name), profiles:user_id(id, full_name, email)').or('is_approved.eq.false,pending_changes.not.is.null').order('updated_at', { ascending: false }),
             
             // 2. Featured Tools
             supabase.from('tools').select('*, categories(name)').eq('is_featured', true).order('featured_until', { ascending: true }),
