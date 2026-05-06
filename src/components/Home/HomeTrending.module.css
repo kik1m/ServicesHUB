@@ -3,6 +3,7 @@
 .redGradientText {
   background: linear-gradient(135deg, #ff3333 0%, #ff8888 100%) !important;
   -webkit-background-clip: text !important;
+  background-clip: text !important;
   -webkit-text-fill-color: transparent !important;
   text-shadow: 0 0 10px rgba(255, 51, 51, 0.4) !important;
 }
