@@ -1,6 +1,6 @@
 .categoryCard {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: linear-gradient(135deg, rgba(var(--primary-rgb), 0.03) 0%, rgba(var(--primary-rgb), 0.01) 100%);
+  border: 1px solid rgba(var(--primary-rgb), 0.15);
   border-radius: 20px;
   padding: 2rem;
   text-decoration: none;
@@ -12,6 +12,23 @@
   align-items: center;
   text-align: center;
   backdrop-filter: blur(10px);
+  box-shadow: 0 0 15px rgba(var(--primary-rgb), 0.02);
+}
+
+.categoryCard::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--primary), transparent);
+  animation: catGridScanning 3s linear infinite;
+}
+
+@keyframes catGridScanning {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
 }
 
 .categoryCard::before {
@@ -28,9 +45,9 @@
 
 .categoryCard:hover {
   transform: translateY(-5px);
-  background: rgba(255, 255, 255, 0.06);
-  border-color: rgba(0, 163, 255, 0.3);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  background: rgba(var(--primary-rgb), 0.06);
+  border-color: rgba(var(--primary-rgb), 0.3);
+  box-shadow: 0 15px 35px rgba(var(--primary-rgb), 0.15);
 }
 
 .categoryCard:hover::before {

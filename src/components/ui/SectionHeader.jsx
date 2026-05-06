@@ -11,7 +11,8 @@ const SectionHeader = ({
     description, 
     align = 'left', 
     children, 
-    className = '' 
+    className = '',
+    subtitleClassName = ''
 }) => {
     const containerClasses = `
         ${styles.headerRow} 
@@ -23,7 +24,7 @@ const SectionHeader = ({
         <div className={containerClasses}>
             <div className={styles.textGroup}>
                 <h2 className={styles.title}>
-                    {title} {subtitle && <span className={styles.gradientText}>{subtitle}</span>}
+                    {title} {subtitle && <span className={`${styles.gradientText} ${subtitleClassName}`.trim()}>{subtitle}</span>}
                 </h2>
                 {description && <p className={styles.description}>{description}</p>}
             </div>

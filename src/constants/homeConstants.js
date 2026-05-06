@@ -124,9 +124,9 @@ export const VIDEO_GUIDE_CONTENT = {
 };
 
 export const SECTION_LIMITS = {
-    TRENDING: 6,
-    LATEST: 6,
-    FEATURED: 3,
+    TRENDING: 9,
+    LATEST: 8,
+    FEATURED: 6,
     BLOG: 3,
     CATEGORIES: 8,
     BANNER: 5

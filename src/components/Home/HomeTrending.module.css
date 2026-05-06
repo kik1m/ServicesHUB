@@ -1,5 +1,12 @@
 /* HomeTrending.module.css */
 
+.redGradientText {
+  background: linear-gradient(135deg, #ff3333 0%, #ff8888 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  text-shadow: 0 0 10px rgba(255, 51, 51, 0.4) !important;
+}
+
 .trendingSection {
   padding: 80px 1.5rem;
   max-width: 1400px;
@@ -50,16 +57,36 @@
   padding: 1.2rem 1.5rem;
   text-decoration: none;
   color: inherit;
-  border: 1px solid var(--border);
+  border: 1px solid rgba(255, 60, 60, 0.2);
   transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   border-radius: 20px;
-  background: var(--bg-card);
+  background: linear-gradient(135deg, rgba(255, 60, 60, 0.04) 0%, rgba(200, 20, 20, 0.01) 100%);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 0 20px rgba(255, 60, 60, 0.05);
+}
+
+.trendingItem::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(255, 60, 60, 0.8), transparent);
+  animation: trendingScanning 3s linear infinite;
+}
+
+@keyframes trendingScanning {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
 }
 
 .trendingItem:hover {
   transform: translateY(-5px) scale(1.02);
-  background: var(--bg-card-hover);
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+  background: rgba(255, 60, 60, 0.06);
+  box-shadow: 0 15px 35px rgba(255, 60, 60, 0.15);
+  border-color: rgba(255, 60, 60, 0.4);
 }
 
 .trendingToolIcon {
@@ -114,6 +141,8 @@
 .trendingItem:hover .trendingArrow {
   opacity: 1;
   transform: translateX(0);
+  color: #ff4444;
+  filter: drop-shadow(0 0 8px rgba(255, 68, 68, 0.5));
 }
 
 .skeletonIcon {

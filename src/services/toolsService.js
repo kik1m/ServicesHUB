@@ -77,7 +77,7 @@ export const toolsService = {
      * Fetch featured tools
      * @param {number} limit 
      */
-    async getFeaturedTools(limit = 6) {
+    async getFeaturedTools(limit = 8) {
         return supabase
             .from('tools')
             .select(`${BASE_SELECT}, click_count`)
@@ -119,7 +119,7 @@ export const toolsService = {
      * Fetch latest arrivals
      * @param {number} limit 
      */
-    async getLatestTools(limit = 6) {
+    async getLatestTools(limit = 8) {
         return supabase
             .from('tools')
             .select(`${BASE_SELECT}, click_count`)
@@ -132,7 +132,7 @@ export const toolsService = {
      * Fetch trending tools based on view count
      * @param {number} limit 
      */
-    async getTrendingTools(limit = 6) {
+    async getTrendingTools(limit = 12) {
         return supabase
             .from('tools')
             .select(`${BASE_SELECT}, view_count, click_count`)

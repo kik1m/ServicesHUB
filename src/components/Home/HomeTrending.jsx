@@ -28,6 +28,7 @@ const HomeTrending = ({ trendingTools = [], isLoading, error }) => {
                     title="Trending" 
                     subtitle="Now" 
                     description="Popular tools and AI solutions gaining traction today."
+                    subtitleClassName={styles.redGradientText}
                 >
                     <span className={styles.livePill}><span className={styles.dot}></span> LIVE DATA</span>
                 </SectionHeader>
