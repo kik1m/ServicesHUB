@@ -110,7 +110,7 @@ async function runDailyImport(urlsToProcess = []) {
             // 5. Final Payload
             const finalPayload = {
                 name: toolData.name,
-                slug: toolData.slug,
+                slug: toolData.slug || toolData.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''),
                 short_description: toolData.short_description,
                 description: toolData.description,
                 pricing_type: toolData.pricing_type,

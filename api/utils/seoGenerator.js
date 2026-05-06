@@ -98,25 +98,50 @@ export const generateAISeo = async (entityId, data, type = 'tool') => {
         // 3.1 AI GENERATION WITH ROTATION
         let responseText;
         let lastError = null;
+        const targetModels = ['gemini-2.5-flash', 'gemini-flash-latest', 'gemini-2.0-flash'];
+
+        const startIndex = Math.floor(Math.random() * apiKeys.length);
 
         for (let i = 0; i < apiKeys.length; i++) {
-            try {
-                const ai = new GoogleGenAI({ apiKey: apiKeys[i] });
-                const response = await ai.models.generateContent({
-                    model: 'gemini-2.5-flash', // Updated to stable 2.5-flash
-                    contents: prompt,
-                    config: { responseMimeType: "application/json" }
-                });
-                responseText = response.text;
-                if (responseText) break;
-            } catch (err) {
-                lastError = err;
-                if (JSON.stringify(err).includes('429') && i < apiKeys.length - 1) {
-                    console.warn(`[SEO ENGINE] Key ${i+1} exhausted. Rotating...`);
-                    continue;
+            const k = (startIndex + i) % apiKeys.length;
+            const currentKey = apiKeys[k];
+            let keySuccess = false;
+
+            for (const currentModel of targetModels) {
+                try {
+                    const ai = new GoogleGenAI({ apiKey: currentKey });
+                    const response = await ai.models.generateContent({
+                        model: currentModel,
+                        contents: prompt,
+                        config: { responseMimeType: "application/json" }
+                    });
+                    
+                    responseText = typeof response.text === 'function' ? response.text() : (response.text || "");
+                    if (responseText) {
+                        keySuccess = true;
+                        break; // Success! Break model loop
+                    }
+                } catch (err) {
+                    lastError = err;
+                    const errStr = JSON.stringify(err);
+                    const isQuota = errStr.includes('429') || errStr.includes('RESOURCE_EXHAUSTED');
+                    const isBusy = errStr.includes('503') || errStr.includes('UNAVAILABLE');
+
+                    if (isQuota) {
+                        console.warn(`[SEO ENGINE] Key ${k+1} exhausted. Switching Key...`);
+                        break; // Circuit breaker: go to next key
+                    }
+                    if (isBusy) {
+                        console.warn(`[SEO ENGINE] Model ${currentModel} busy. Trying next model...`);
+                        continue; // Try next model
+                    }
+                    
+                    // Unknown error
+                    break;
                 }
-                throw err;
             }
+            if (keySuccess) break; // Break key loop
+            if (i < apiKeys.length - 1) await new Promise(r => setTimeout(r, 800)); // Delay
         }
 
         if (!responseText) throw lastError || new Error('AI_GENERATION_FAILED');

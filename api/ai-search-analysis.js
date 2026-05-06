@@ -82,9 +82,14 @@ export default async function handler(req, res) {
         
         let analysis = null;
         let lastError = null;
-        const targetModels = ['gemini-flash-latest', 'gemini-2.5-flash'];
+        const targetModels = ['gemini-2.5-flash', 'gemini-flash-latest', 'gemini-2.0-flash'];
+        
+        // --- 🚀 ULTRA-ELITE LOAD BALANCER ---
+        // Start at a random key to distribute load evenly across all 5 keys
+        const startIndex = Math.floor(Math.random() * apiKeys.length);
 
-        for (let k = 0; k < apiKeys.length; k++) {
+        for (let i = 0; i < apiKeys.length; i++) {
+            const k = (startIndex + i) % apiKeys.length;
             const currentKey = apiKeys[k];
             let keySuccess = false;
 
@@ -118,22 +123,29 @@ export default async function handler(req, res) {
                     analysis = JSON.parse(responseText.substring(startIdx, endIdx + 1));
                     console.log(`  ✅ Search Analysis successful with ${currentModel} (Key ${k + 1})`);
                     keySuccess = true;
-                    break;
+                    break; // Success! Break model loop.
                 } catch (err) {
                     lastError = err;
                     const errStr = JSON.stringify(err);
                     const isQuota = errStr.includes('429') || errStr.includes('RESOURCE_EXHAUSTED') || errStr.includes('quota');
+                    const isBusy = errStr.includes('503') || errStr.includes('UNAVAILABLE') || errStr.includes('500');
 
                     if (isQuota) {
-                        console.warn(`  ⚠️ Search Key ${k + 1} (${currentModel}) Quota Exhausted.`);
-                        continue; 
+                        console.warn(`  ⚠️ Search Key ${k + 1} Quota Exhausted. Switching Key immediately...`);
+                        break; // Circuit Breaker: Key is dead. Break model loop, go to NEXT KEY.
                     }
+                    if (isBusy) {
+                        console.warn(`  ⚠️ Model ${currentModel} Busy. Trying next model on same key...`);
+                        continue; // Model busy. Try next model on SAME KEY.
+                    }
+                    
+                    // Unknown error, try next key
                     break;
                 }
             }
 
-            if (keySuccess) break;
-            if (k < apiKeys.length - 1) await new Promise(r => setTimeout(r, 1000));
+            if (keySuccess) break; // If we got a result, break the key loop
+            if (i < apiKeys.length - 1) await new Promise(r => setTimeout(r, 800)); // Small pause before next key
         }
 
         if (!analysis) throw lastError || new Error('AI_GENERATION_FAILED');

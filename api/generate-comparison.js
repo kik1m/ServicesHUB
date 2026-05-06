@@ -124,6 +124,26 @@ export default async function handler(req, res) {
                 };
             }
 
+            // --- 🛡️ ELITE CONSISTENCY GUARD (Cache Level) ---
+            if (report.scores && report.verdict?.winner) {
+                const s1 = Number(report.scores.tool1);
+                const s2 = Number(report.scores.tool2);
+                const winnerName = report.verdict.winner.toLowerCase();
+                const name1 = toolA.name.toLowerCase();
+                const name2 = toolB.name.toLowerCase();
+
+                if (winnerName.includes(name1) && s1 < s2) {
+                    const temp = report.scores.tool1;
+                    report.scores.tool1 = report.scores.tool2;
+                    report.scores.tool2 = temp;
+                } else if (winnerName.includes(name2) && s2 < s1) {
+                    const temp = report.scores.tool1;
+                    report.scores.tool1 = report.scores.tool2;
+                    report.scores.tool2 = temp;
+                }
+            }
+            // ------------------------------------------------
+
             return res.status(200).json({ data: report, source: 'cache' });
         }
 
@@ -184,11 +204,15 @@ export default async function handler(req, res) {
 
         console.log(`🧠 Generating new AI analysis for ${slug1} vs ${slug2} using ${apiKeys.length} keys...`);
 
-        const targetModels = ['gemini-flash-latest', 'gemini-2.5-flash'];
+        const targetModels = ['gemini-2.5-flash', 'gemini-flash-latest', 'gemini-2.0-flash'];
         let lastError = null;
         let aiReport = null;
 
-        for (let k = 0; k < apiKeys.length; k++) {
+        // --- 🚀 ULTRA-ELITE LOAD BALANCER ---
+        const startIndex = Math.floor(Math.random() * apiKeys.length);
+
+        for (let i = 0; i < apiKeys.length; i++) {
+            const k = (startIndex + i) % apiKeys.length;
             const currentKey = apiKeys[k];
             let keySuccess = false;
 
@@ -220,6 +244,33 @@ export default async function handler(req, res) {
                     if (startIdx === -1 || endIdx === -1) throw new Error('NO_JSON_FOUND');
 
                     aiReport = JSON.parse(responseText.substring(startIdx, endIdx + 1));
+
+                    // --- 🛡️ ELITE CONSISTENCY GUARD ---
+                    // Ensure scores match the winner logic to prevent AI "inversion" hallucinations
+                    if (aiReport.scores && aiReport.verdict?.winner) {
+                        const s1 = Number(aiReport.scores.tool1);
+                        const s2 = Number(aiReport.scores.tool2);
+                        const winnerName = aiReport.verdict.winner.toLowerCase();
+                        const name1 = toolA.name.toLowerCase();
+                        const name2 = toolB.name.toLowerCase();
+
+                        // If Tool 1 is mentioned as winner but has lower score, SWAP scores
+                        if (winnerName.includes(name1) && s1 < s2) {
+                            console.log("🔄 Auto-correcting inverted scores for Tool 1 winner");
+                            const temp = aiReport.scores.tool1;
+                            aiReport.scores.tool1 = aiReport.scores.tool2;
+                            aiReport.scores.tool2 = temp;
+                        } 
+                        // If Tool 2 is mentioned as winner but has lower score, SWAP scores
+                        else if (winnerName.includes(name2) && s2 < s1) {
+                            console.log("🔄 Auto-correcting inverted scores for Tool 2 winner");
+                            const temp = aiReport.scores.tool1;
+                            aiReport.scores.tool1 = aiReport.scores.tool2;
+                            aiReport.scores.tool2 = temp;
+                        }
+                    }
+                    // ----------------------------------
+
                     console.log(`  ✅ Success: Key ${k + 1} delivered analysis using ${currentModel}.`);
                     keySuccess = true;
                     break; // Exit model loop
@@ -228,14 +279,18 @@ export default async function handler(req, res) {
                     lastError = err;
                     const errStr = JSON.stringify(err);
                     const isQuota = errStr.includes('429') || errStr.includes('RESOURCE_EXHAUSTED') || errStr.includes('quota');
+                    const isBusy = errStr.includes('503') || errStr.includes('UNAVAILABLE') || errStr.includes('500');
                     
                     if (isQuota) {
-                        console.warn(`  ⚠️ Key ${k + 1} (${currentModel}) Quota Exhausted.`);
-                        // If 2.5 fails, inner loop will try 1.5 with SAME key
-                        continue; 
+                        console.warn(`  ⚠️ Key ${k + 1} Quota Exhausted. Switching Key immediately...`);
+                        break; // Circuit Breaker: Key is dead. Break model loop, go to NEXT KEY.
+                    }
+                    if (isBusy) {
+                        console.warn(`  ⚠️ Model ${currentModel} Busy. Trying next model on same key...`);
+                        continue; // Model busy. Try next model on SAME KEY.
                     }
                     
-                    // If not quota, might be a fatal error for this key
+                    // If not quota or busy, might be a fatal error for this key
                     break;
                 }
             }
@@ -243,7 +298,7 @@ export default async function handler(req, res) {
             if (keySuccess) break; // Exit key loop
 
             // Small wait before trying next key to be safe
-            if (k < apiKeys.length - 1) {
+            if (i < apiKeys.length - 1) {
                 await new Promise(r => setTimeout(r, 1000));
             }
         }

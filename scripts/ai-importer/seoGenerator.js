@@ -24,7 +24,7 @@ Output ONLY a valid JSON object with these exact keys:
         try {
             // Re-initialize client with current key (essential after rotation)
             const ai = new GoogleGenAI({ apiKey: keyManager.getCurrentKey() });
-            const models = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-flash-latest'];
+            const models = ['gemini-2.5-flash', 'gemini-flash-latest', 'gemini-2.0-flash'];
 
             const result = await ai.models.generateContent({
                 model: models[Math.floor(Math.random() * models.length)],

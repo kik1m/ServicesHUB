@@ -64,7 +64,7 @@ async function processToolData(markdownContent, categories, toolUrl, existingDat
     ${markdownContent.substring(0, 15000)}
     `;
 
-    const models = ['gemini-flash-latest', 'gemini-2.5-flash'];
+    const models = ['gemini-2.5-flash', 'gemini-flash-latest', 'gemini-2.0-flash'];
     let modelIndex = 0;
     let totalAttempts = 0;
     const maxTotalAttempts = 6; 
