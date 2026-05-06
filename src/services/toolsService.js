@@ -16,8 +16,7 @@ const BASE_DETAIL_SELECT = `
     url, pricing_type, pricing_details, rating, reviews_count, 
     is_featured, is_verified, is_approved, pending_changes, category_id, view_count, click_count, features, use_cases,
     user_id, 
-    categories(name, slug, icon_name),
-    seo:seo_metadata!entity_id(title, description, keywords, search_intent, schema_markup)
+    categories(name, slug, icon_name)
 `;
 
 export const toolsService = {
@@ -287,9 +286,18 @@ export const toolsService = {
 
             if (error || !data) return { data: null, error };
 
+            // Fetch SEO metadata separately to avoid relationship cache errors
+            const { data: seoData } = await supabase
+                .from('seo_metadata')
+                .select('title, description, keywords, search_intent, schema_markup')
+                .eq('entity_id', data.id)
+                .eq('entity_type', 'tool')
+                .maybeSingle();
+
             // Defensive Data Sanitization
             const sanitizedTool = {
                 ...data,
+                seo: seoData,
                 features: Array.isArray(data.features) ? data.features.filter(Boolean) : [],
                 use_cases: Array.isArray(data.use_cases) ? data.use_cases.filter(Boolean) : [],
                 rating: data.rating ?? 0,
@@ -360,7 +368,18 @@ export const toolsService = {
             ? supabase.from('tools').select(BASE_DETAIL_SELECT).eq('id', idOrSlug)
             : supabase.from('tools').select(BASE_DETAIL_SELECT).eq('slug', idOrSlug);
             
-        return query.single();
+        const { data, error } = await query.single();
+        if (error || !data) return { data, error };
+
+        // Fetch SEO separately
+        const { data: seoData } = await supabase
+            .from('seo_metadata')
+            .select('title, description, keywords, search_intent, schema_markup')
+            .eq('entity_id', data.id)
+            .eq('entity_type', 'tool')
+            .maybeSingle();
+
+        return { data: { ...data, seo: seoData }, error: null };
     },
 
     /**
