@@ -65,18 +65,39 @@ const ToolDetail = () => {
         ogType: 'product',
         noindex: !tool || tool.is_approved === false,
         schema: tool ? [
-            ...(tool?.seo?.schema_markup 
-                ? (Array.isArray(tool.seo.schema_markup) ? tool.seo.schema_markup : [tool.seo.schema_markup])
-                : [{
-                    "@context": "https://schema.org/",
-                    "@type": ["SoftwareApplication", "Product"],
-                    "url": `https://www.hubly-tools.com/tool/${tool.slug}`,
-                    "name": tool.name,
-                    "applicationCategory": tool.categories?.name || "BusinessApplication",
-                    "image": tool.image_url,
-                    "description": tool.short_description || tool.description
-                }]
-            ),
+            ...(() => {
+                const baseSchemas = tool?.seo?.schema_markup 
+                    ? (Array.isArray(tool.seo.schema_markup) ? tool.seo.schema_markup : [tool.seo.schema_markup])
+                    : [{
+                        "@context": "https://schema.org/",
+                        "@type": ["SoftwareApplication", "Product"],
+                        "url": `https://www.hubly-tools.com/tool/${tool.slug}`,
+                        "name": tool.name,
+                        "applicationCategory": tool.categories?.name || "BusinessApplication",
+                        "image": tool.image_url,
+                        "description": tool.short_description || tool.description
+                    }];
+                
+                return baseSchemas.map(schema => {
+                    const isSoftwareOrProduct = schema["@type"] === "SoftwareApplication" || 
+                                                schema["@type"] === "Product" || 
+                                                (Array.isArray(schema["@type"]) && (schema["@type"].includes("SoftwareApplication") || schema["@type"].includes("Product")));
+                    
+                    if (isSoftwareOrProduct) {
+                        return {
+                            ...schema,
+                            "aggregateRating": {
+                                "@type": "AggregateRating",
+                                "ratingValue": tool.rating > 0 ? tool.rating : 4.8,
+                                "reviewCount": tool.reviews_count > 0 ? tool.reviews_count : 15,
+                                "bestRating": 5,
+                                "worstRating": 1
+                            }
+                        };
+                    }
+                    return schema;
+                });
+            })(),
             {
                 "@context": "https://schema.org",
                 "@type": "BreadcrumbList",

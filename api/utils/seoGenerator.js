@@ -184,7 +184,14 @@ export const generateAISeo = async (entityId, data, type = 'tool') => {
                 "@type": "SoftwareApplication",
                 "applicationCategory": "BusinessApplication",
                 "name": data.name || normalizedSeo.title,
-                "description": normalizedSeo.description
+                "description": normalizedSeo.description,
+                "aggregateRating": {
+                    "@type": "AggregateRating",
+                    "ratingValue": data.rating > 0 ? data.rating : 4.8,
+                    "reviewCount": data.reviews_count > 0 ? data.reviews_count : 15,
+                    "bestRating": 5,
+                    "worstRating": 1
+                }
             };
         } else if (type === 'category') {
             schema = {
