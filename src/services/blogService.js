@@ -27,7 +27,7 @@ export const blogService = {
   async getPosts({ searchQuery, selectedCategory, page = 0, itemsPerPage = 6 }) {
     let query = supabase
       .from('blog_posts')
-      .select('id, title, excerpt, image_url, category, author_name, created_at');
+      .select('id, title, excerpt, image_url, category, author_name, created_at, slug');
 
     if (searchQuery) {
       query = query.or(`title.ilike.%${searchQuery}%,excerpt.ilike.%${searchQuery}%`);
@@ -56,7 +56,7 @@ export const blogService = {
   async getLatestPosts(limit = 3) {
     const { data, error } = await supabase
       .from('blog_posts')
-      .select('id, title, image_url, category, created_at')
+      .select('id, title, image_url, category, created_at, slug')
       .order('created_at', { ascending: false })
       .limit(limit);
 

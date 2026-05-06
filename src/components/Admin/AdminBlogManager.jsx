@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
 import { ADMIN_UI_CONSTANTS } from '../../constants/adminConstants';
-import { Trash2, PenTool, BookOpen, Eye, Plus, Search, Image as ImageIcon, Link as LinkIcon, Type } from 'lucide-react';
+import { Trash2, PenTool, BookOpen, Eye, Plus, Search, Image as ImageIcon, Link as LinkIcon, Type, GitCompare } from 'lucide-react';
 import Skeleton from '../ui/Skeleton';
 import Button from '../ui/Button';
 import Select from '../ui/Select';
@@ -128,6 +128,22 @@ const AdminBlogManager = memo(({
                                     <ImageIcon size={18} />
                                 </button>
                                 <button type="button" onClick={() => setShowToolPicker(!showToolPicker)} title="Insert Tool Card" className={styles.specialBtn}><Plus size={16} /> Tool Card</button>
+                                <button 
+                                    type="button" 
+                                    onClick={() => {
+                                        const slug1 = window.prompt('Enter first tool slug (e.g. heygen):');
+                                        if (slug1) {
+                                            const slug2 = window.prompt('Enter second tool slug (e.g. devin-pro):');
+                                            if (slug2) {
+                                                insertShortcode(`[compare slug1="${slug1}" slug2="${slug2}"]`);
+                                            }
+                                        }
+                                    }} 
+                                    title="Insert Comparison Card"
+                                    className={styles.compareToolBtn}
+                                >
+                                    <GitCompare size={16} /> Comparison
+                                </button>
                             </div>
                         )}
                     </div>
@@ -201,17 +217,24 @@ const AdminBlogManager = memo(({
                                 <div 
                                     className={styles.previewContent} 
                                     dangerouslySetInnerHTML={{ 
-                                        __html: newPost?.content?.replace(/\[tool id="([^"]+)"\]/g, (match, id) => {
-                                            const tool = allTools.find(t => t.id === id);
-                                            const toolName = tool ? tool.name : `Tool ID: ${id.slice(0,8)}...`;
-                                            return `<div style="padding:25px; background:linear-gradient(135deg, rgba(0,210,255,0.1) 0%, rgba(0,210,255,0.05) 100%); border:1px solid var(--primary); border-radius:20px; margin:30px 0; display:flex; justify-content:space-between; align-items:center;">
-                                                <div style="display:flex; flex-direction:column; gap:5px;">
-                                                    <span style="font-size:0.8rem; color:var(--primary); font-weight:800; text-transform:uppercase; letter-spacing:1px;">Featured Tool</span>
-                                                    <span style="font-size:1.3rem; font-weight:800; color:white;">${toolName}</span>
-                                                </div>
-                                                <div style="background:var(--primary); padding:10px 20px; border-radius:12px; font-weight:bold; color:white; font-size:0.9rem;">View in Article</div>
-                                            </div>`;
-                                        }) 
+                                        __html: (newPost?.content || '')
+                                            .replace(/\[tool id="([^"]+)"\]/g, (match, id) => {
+                                                const tool = allTools.find(t => t.id === id);
+                                                const toolName = tool ? tool.name : `Tool ID: ${id.slice(0,8)}...`;
+                                                return `<div style="padding:25px; background:linear-gradient(135deg, rgba(0,210,255,0.1) 0%, rgba(0,210,255,0.05) 100%); border:1px solid var(--primary); border-radius:20px; margin:30px 0; display:flex; justify-content:space-between; align-items:center;">
+                                                    <div style="display:flex; flex-direction:column; gap:5px;">
+                                                        <span style="font-size:0.8rem; color:var(--primary); font-weight:800; text-transform:uppercase; letter-spacing:1px;">Featured Tool</span>
+                                                        <span style="font-size:1.3rem; font-weight:800; color:white;">${toolName}</span>
+                                                    </div>
+                                                    <div style="background:var(--primary); padding:10px 20px; border-radius:12px; font-weight:bold; color:white; font-size:0.9rem;">View in Article</div>
+                                                </div>`;
+                                            })
+                                            .replace(/\[compare slug1="([^"]+)" slug2="([^"]+)"\]/g, (match, s1, s2) => {
+                                                return `<div style="padding:25px; background:linear-gradient(135deg, rgba(255,71,87,0.1) 0%, rgba(255,71,87,0.05) 100%); border:1px solid var(--secondary); border-radius:20px; margin:30px 0; text-align:center;">
+                                                    <div style="background:var(--secondary); color:white; display:inline-block; padding:4px 12px; border-radius:100px; font-size:0.7rem; font-weight:900; margin-bottom:10px;">VS COMPARISON</div>
+                                                    <div style="font-size:1.2rem; font-weight:900; color:white; text-transform:capitalize;">${s1.replace(/-/g, ' ')} vs ${s2.replace(/-/g, ' ')}</div>
+                                                </div>`;
+                                            })
                                     }} 
                                 />
                             </div>

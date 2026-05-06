@@ -70,12 +70,13 @@ const BlogPostContent = ({ post, isLoading, error, onRetry, readingTime }) => {
     const renderContent = () => {
         if (!post?.content) return null;
 
-        // 1. Identify shortcodes [tool id="uuid"]
-        const parts = post.content.split(/(\[tool id="[^"]+"\]|\[image url="[^"]+"(?:\s+caption="[^"]+")?\])/g);
+        // 1. Identify shortcodes [tool id="uuid"] | [image url="..."] | [compare slug1="..." slug2="..."]
+        const parts = post.content.split(/(\[tool id="[^"]+"\]|\[image url="[^"]+"(?:\s+caption="[^"]+")?\]|\[compare slug1="[^"]+" slug2="[^"]+"\])/g);
 
         return parts.map((part, index) => {
             const toolMatch = part.match(/\[tool id="([^"]+)"\]/);
             const imageMatch = part.match(/\[image url="([^"]+)"(?:\s+caption="([^"]+)")?\]/);
+            const compareMatch = part.match(/\[compare slug1="([^"]+)" slug2="([^"]+)"\]/);
             
             if (toolMatch) {
                 const toolId = toolMatch[1];
@@ -121,6 +122,28 @@ const BlogPostContent = ({ post, isLoading, error, onRetry, readingTime }) => {
                                     </a>
                                 )}
                             </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            if (compareMatch) {
+                const slug1 = compareMatch[1];
+                const slug2 = compareMatch[2];
+                return (
+                    <div key={index} className={styles.compareEmbedCard}>
+                        <div className={styles.compareContent}>
+                            <div className={styles.vsBadge}>VS</div>
+                            <div className={styles.compareTools}>
+                                <span className={styles.toolName}>{slug1.replace(/-/g, ' ')}</span>
+                                <span className={styles.vsText}>Against</span>
+                                <span className={styles.toolName}>{slug2.replace(/-/g, ' ')}</span>
+                            </div>
+                            <p className={styles.compareDesc}>Deep AI-Powered technical comparison and feature analysis.</p>
+                            <Link to={`/compare/${slug1}-vs-${slug2}`} className={styles.compareActionBtn}>
+                                <span>View Comparison</span>
+                                <ArrowRight size={16} />
+                            </Link>
                         </div>
                     </div>
                 );

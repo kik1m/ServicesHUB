@@ -2,14 +2,25 @@
 
 .heroSection {
     position: relative;
-    padding: 30px 5% 25px;
+    padding: 30px 5% 40px; /* Increased bottom padding for better fade space */
     background: transparent !important;
-    /* Force Transparency Globally */
     display: flex;
     justify-content: center;
     align-items: center;
     overflow: hidden;
     min-height: 180px;
+    
+    /* 🎭 Elite Fade Mask: Smoothens the transition to the next section */
+    mask-image: linear-gradient(to bottom, 
+        black 0%, 
+        black 85%, 
+        transparent 100%
+    );
+    -webkit-mask-image: linear-gradient(to bottom, 
+        black 0%, 
+        black 85%, 
+        transparent 100%
+    );
 }
 
 .heroSection::before {

@@ -110,37 +110,50 @@ export default async function handler(req, res) {
         const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
         const prompt = `
-        You are an elite, highly critical AI SaaS consultant and strategist.
-        Analyze these tools deeply:
+        You are an elite, highly critical AI SaaS consultant and strategic analyst.
+        Analyze these tools deeply, focusing on their architecture, market positioning, and functional edge:
         
         --- TOOL 1: ${toolA.name} ---
-        ${toolA.description}
+        Description: ${toolA.description}
+        Features: ${toolA.features?.join(', ')}
+        Pricing: ${toolA.pricing_type} - ${toolA.pricing_details}
 
         --- TOOL 2: ${toolB.name} ---
-        ${toolB.description}
+        Description: ${toolB.description}
+        Features: ${toolB.features?.join(', ')}
+        Pricing: ${toolB.pricing_type} - ${toolB.pricing_details}
 
-        YOUR GOAL: Analyze these tools deeply. Create a dynamic comparison matrix.
+        YOUR GOAL: Create a dynamic, honest, and high-fidelity comparison matrix.
         
-        STRICT RULES (MUST FOLLOW ALL):
-        - "scores" MUST be realistic integers between 60 and 100 (never below 60, never above 100).
-        - Both tools must receive a score that reflects their real-world quality and reputation.
-        - The "winner" in verdict MUST be the tool with the HIGHER score in "scores".
-        - The winner's score MUST be strictly greater than the loser's score by at least 2 points.
-        - Never declare a winner that has a lower or equal score than the other tool.
+        STRICT RULES (CRITICAL):
+        1. "scores": Values MUST be realistic integers between 65 and 98. They MUST NOT be identical. 
+        2. "verdict": The "winner" MUST match the name of the tool with the HIGHER score. The score gap should reflect the margin of victory described in your reasoning.
+        3. "comparison_matrix": 
+           - For EACH feature row, you MUST objectively decide which tool wins THAT SPECIFIC FEATURE (winner: 1 or 2).
+           - Do NOT give all feature wins to the overall winner. Distribute wins based on real strengths (e.g., Tool A might win on "User Interface" while Tool B wins on "API Complexity").
+           - If a feature is truly identical, use "winner: 0", but try to find a differentiator.
+        4. "insight": Provide a technical or strategic insight for each row that explains WHY that tool won or what the trade-off is.
+        5. "why_buy": Provide 3 distinct, high-value reasons for each tool.
         
         REQUIRED JSON SCHEMA:
         {
-            "strategic_overview": "String",
+            "strategic_overview": "A high-level 2-sentence summary of the battle.",
             "verdict": {
-                "winner": "String (must match the name of the tool with the higher score)",
-                "reasoning": "String"
+                "winner": "Exact tool name",
+                "reasoning": "A professional, critical comparison of why one beats the other."
             },
-            "scores": { "tool1": 75, "tool2": 85 },
-            "why_buy": { "tool1": [], "tool2": [] },
+            "scores": { "tool1": 82, "tool2": 89 },
+            "why_buy": { "tool1": ["reason1", "reason2", "reason3"], "tool2": ["reason1", "reason2", "reason3"] },
             "comparison_matrix": [
-                { "feature": "String", "tool1_value": "String", "tool2_value": "String", "winner": 1, "insight": "String" }
+                { 
+                    "feature": "Name of the dimension", 
+                    "tool1_value": "Short description of Tool 1 performance", 
+                    "tool2_value": "Short description of Tool 2 performance", 
+                    "winner": 1, 
+                    "insight": "Strategic trade-off or technical differentiator" 
+                }
             ],
-            "pricing_analysis": "String"
+            "pricing_analysis": "A critical look at the TCO (Total Cost of Ownership) for both tools."
         }
         `;
 

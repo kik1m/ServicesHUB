@@ -7,7 +7,6 @@ import { useToast } from '../context/ToastContext';
 import { useAuth } from '../context/AuthContext';
 import { sendNotification } from '../utils/notifications';
 import { TOOL_DETAIL_CONSTANTS } from '../constants/toolDetailConstants';
-
 import { getCurrentUrl } from '../utils/getCurrentUrl';
 
 /**
@@ -15,8 +14,8 @@ import { getCurrentUrl } from '../utils/getCurrentUrl';
  * Follows Rule #21 (Data Contract) and #27 (Hook Responsibility)
  */
 export const useToolDetailData = () => {
-    const { id: slug } = useParams();
     const navigate = useNavigate();
+    const { id: slug } = useParams();
     const { user } = useAuth();
     const { showToast } = useToast();
 
@@ -92,7 +91,6 @@ export const useToolDetailData = () => {
             const TWELVE_HOURS = 12 * 60 * 60 * 1000;
 
             if (lastView && (now - parseInt(lastView)) < TWELVE_HOURS) {
-                // Too soon, don't increment
                 return;
             }
 
@@ -108,10 +106,7 @@ export const useToolDetailData = () => {
     }, [tool?.id]);
 
     const toggleFavorite = async () => {
-        if (!user) {
-            return { error: 'auth_required' };
-        }
-
+        if (!user) return { error: 'auth_required' };
         if (!tool?.id) return { error: 'invalid_tool' };
 
         try {
@@ -151,7 +146,6 @@ export const useToolDetailData = () => {
 
     const handleShare = useCallback(async () => {
         if (!tool) return;
-
         const currentUrl = getCurrentUrl();
 
         if (navigator.share) {
@@ -161,16 +155,12 @@ export const useToolDetailData = () => {
                     text: tool.short_description || tool.description,
                     url: currentUrl,
                 });
-            } catch (err) {
-                console.error('Share failed:', err);
-            }
+            } catch (err) { console.error('Share failed:', err); }
         } else {
             try {
                 await navigator.clipboard.writeText(currentUrl);
                 showToast(TOOL_DETAIL_CONSTANTS.SHARE_SUCCESS, 'success');
-            } catch (err) {
-                console.error('Clipboard failed:', err);
-            }
+            } catch (err) { console.error('Clipboard failed:', err); }
         }
     }, [tool, showToast]);
 
@@ -187,9 +177,7 @@ export const useToolDetailData = () => {
         try {
             await toolsService.incrementClickCount(tool.id, tool.click_count);
             localStorage.setItem(STORAGE_KEY, now.toString());
-        } catch (err) {
-            console.error('Failed to track click:', err);
-        }
+        } catch (err) { console.error('Failed to track click:', err); }
     }, [tool?.id, tool?.click_count]);
 
     const openReportModal = useCallback(() => setIsReportModalOpen(true), []);

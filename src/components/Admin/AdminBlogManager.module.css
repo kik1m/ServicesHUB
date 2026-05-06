@@ -282,6 +282,24 @@
     gap: 6px;
 }
 
+.compareToolBtn {
+    width: auto !important;
+    padding: 0 12px !important;
+    font-size: 0.85rem;
+    font-weight: 700;
+    gap: 6px;
+    background: rgba(255, 71, 87, 0.1) !important;
+    border-color: rgba(255, 71, 87, 0.2) !important;
+    color: #ff4757 !important;
+}
+
+.compareToolBtn:hover {
+    background: #ff4757 !important;
+    color: white !important;
+    border-color: #ff4757 !important;
+    box-shadow: 0 0 15px rgba(255, 71, 87, 0.3);
+}
+
 .toolPicker {
     margin-bottom: 1.5rem;
     background: rgba(255, 255, 255, 0.03);
