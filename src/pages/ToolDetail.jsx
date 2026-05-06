@@ -39,6 +39,7 @@ const ToolDetail = () => {
         isReportModalOpen,
         toggleFavorite,
         handleShare,
+        handleCompare,
         handleExternalClick,
         openReportModal,
         closeReportModal,
@@ -155,6 +156,7 @@ const ToolDetail = () => {
                                 tool={tool}
                                 isFavorited={isFavorited}
                                 toggleFavorite={() => handleAuthAction(toggleFavorite)}
+                                onCompare={handleCompare}
                                 onExternalClick={handleExternalClick}
                                 isLoading={loading && !tool}
                                 content={TOOL_DETAIL_UI_CONSTANTS}

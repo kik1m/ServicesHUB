@@ -1,5 +1,5 @@
 import React from 'react';
-import { ExternalLink, Heart, Star, CheckCircle2, HelpCircle } from 'lucide-react';
+import { ExternalLink, Heart, Star, CheckCircle2, HelpCircle, GitCompare } from 'lucide-react';
 import { getIcon } from '../../utils/iconMap.jsx';
 import Button from '../ui/Button';
 import SmartImage from '../ui/SmartImage';
@@ -14,6 +14,7 @@ const ToolDetailMasterCard = ({
     tool, 
     isFavorited, 
     toggleFavorite,
+    onCompare,
     onExternalClick,
     isLoading,
     error,
@@ -81,6 +82,14 @@ const ToolDetailMasterCard = ({
                             onClick={onExternalClick}
                         >
                             {content?.actions?.visit}
+                        </Button>
+                        <Button 
+                            variant="secondary"
+                            className={styles.iconicActionBtn} 
+                            onClick={onCompare}
+                            title="Compare Tool"
+                        >
+                            <GitCompare size={20} />
                         </Button>
                         <Button 
                             variant="secondary"

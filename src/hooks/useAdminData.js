@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { adminService } from '../services/adminService';
+import { seoService } from '../services/seoService';
 import { supabase } from '../lib/supabaseClient';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
@@ -375,6 +376,12 @@ export const useAdminData = () => {
             const authorName = user?.full_name || 'Admin';
             
             const post = await adminService.createBlogPost(dataWithCat, authorName);
+            
+            // Rule #14: Automated AI SEO Generation for Blog Posts
+            if (post?.id) {
+                seoService.triggerGeneration(post.id, 'blog');
+            }
+
             setBlogPosts(prev => [post, ...prev]);
             setNewPost({ title: '', category: '', excerpt: '', content: '' });
             showToast('Blog Published!', 'success');

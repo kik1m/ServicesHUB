@@ -149,6 +149,79 @@
   border: 1px solid rgba(0, 210, 255, 0.2);
 }
 
+/* Embedded Tool Card Styles */
+.embeddedToolCard {
+  margin: 3rem 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 24px;
+  overflow: hidden;
+  position: relative;
+  transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.embeddedToolCard:hover {
+  border-color: var(--primary);
+  transform: translateY(-5px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+}
+
+.toolInner {
+  padding: 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2rem;
+}
+
+.toolInfo {
+  flex: 1;
+}
+
+.toolTitle {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: white;
+  margin-bottom: 0.5rem;
+  background: linear-gradient(90deg, #fff 0%, var(--primary) 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.toolMeta {
+  font-size: 0.95rem;
+  color: var(--text-muted);
+}
+
+.exploreBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 0.8rem 1.8rem;
+  background: var(--primary);
+  color: white !important;
+  border-radius: 14px;
+  font-weight: 800;
+  text-decoration: none !important;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  min-width: fit-content;
+  box-shadow: 0 4px 15px rgba(0, 210, 255, 0.3);
+}
+
+.exploreBtn:hover {
+  background: white;
+  color: var(--primary) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(255, 255, 255, 0.2);
+}
+
+.exploreBtn span {
+  display: inline-block;
+}
+
 @media (max-width: 768px) {
   .articleBody {
     padding: 2.5rem 1.5rem;
@@ -166,4 +239,166 @@
     flex-direction: column;
     align-items: flex-start;
   }
+  
+  .toolInner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.5rem;
+  }
+  
+  .toolActions {
+    width: 100%;
+  }
+}
+
+.toolImageWrapper {
+    width: 64px;
+    height: 64px;
+    border-radius: 12px;
+    overflow: hidden;
+    flex-shrink: 0;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.toolImage {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Inline Images */
+.inlineImageWrapper {
+    margin: 3rem 0;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.inlineImage {
+    max-width: 100%;
+    height: auto;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+}
+
+.imageCaption {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    font-style: italic;
+    text-align: center;
+}
+
+/* Enhanced Tool Card UI */
+.toolHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.8rem;
+}
+
+.toolRating {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(255, 193, 7, 0.1);
+    padding: 4px 10px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 193, 7, 0.2);
+}
+
+.ratingValue {
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: #ffc107;
+}
+
+.starIcon {
+    color: #ffc107;
+    font-size: 0.9rem;
+}
+
+.toolBadges {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 1rem;
+}
+
+.priceBadge {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 4px 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    color: var(--text-muted);
+}
+
+.toolActions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 140px;
+}
+
+.visitBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 0.8rem 1.5rem;
+    background: rgba(255, 255, 255, 0.05);
+    color: white !important;
+    border-radius: 14px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    text-decoration: none !important;
+    transition: all 0.3s ease;
+}
+
+.visitBtn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--primary);
+    transform: translateY(-2px);
+}
+ /* Progress Bar & Reading Time */
+.progressBar {
+    position: fixed;
+    top: 68px;
+    left: 0;
+    width: 100%;
+    height: 5px;
+    background: #00d2ff;
+    box-shadow: 0 0 15px rgba(0, 210, 255, 0.7);
+    transform-origin: 0% 50%;
+    z-index: 10000;
+}
+
+.metaRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2.5rem;
+}
+
+.readingTime {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.readingTime::before {
+    content: '';
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    background: var(--primary);
+    border-radius: 50%;
 }

@@ -162,7 +162,7 @@ const AdminSettingsManager = memo(({
                                         {(activeTab === 'blog-categories' ? blogCategories : categories)?.map(cat => (
                                             <div key={cat.id} className={styles.itemRow}>
                                                 <div className={styles.itemInfo}>
-                                                    <h5>{activeTab === 'blog-categories' ? cat?.label : cat?.name}</h5>
+                                                    <h5>{cat?.name || cat?.label}</h5>
                                                     <p>{cat?.slug}</p>
                                                 </div>
                                                 <button type="button" onClick={() => (activeTab === 'blog-categories' ? handleDeleteBlogCategory(cat.id) : handleDeleteCategory(cat.id))} className={styles.deleteBtn}>

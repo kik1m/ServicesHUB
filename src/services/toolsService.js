@@ -362,6 +362,18 @@ export const toolsService = {
     },
 
     /**
+     * Fetch multiple tools by their IDs (Bulk Fetch)
+     * @param {string[]} ids - Array of UUIDs
+     */
+    async getToolsByIds(ids) {
+        if (!ids || ids.length === 0) return { data: [], error: null };
+        return supabase
+            .from('tools')
+            .select('id, name, slug, image_url, short_description, url, rating, pricing_type')
+            .in('id', ids);
+    },
+
+    /**
      * Update an existing tool with mandatory sanitization
      * Rule #24.3: Defensive Layer for data integrity
      * @param {string} id - Tool ID

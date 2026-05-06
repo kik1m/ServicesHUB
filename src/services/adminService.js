@@ -101,7 +101,35 @@ export const adminService = {
      * Blog Management
      */
     async createBlogPost(postData, authorName) {
-        const { data, error } = await supabase.from('blog_posts').insert([{ ...postData, author_name: authorName }]).select();
+        // Generate SEO-friendly slug
+        const slug = postData.title
+            .toLowerCase()
+            .replace(/[^\w\s-]/g, '') // Remove special chars
+            .replace(/[\s_-]+/g, '-') // Replace spaces/underscores with hyphens
+            .replace(/^-+|-+$/g, ''); // Trim hyphens
+
+        const { data, error } = await supabase
+            .from('blog_posts')
+            .insert([{ ...postData, slug, author_name: authorName }])
+            .select();
+            
+        if (error) throw error;
+        return data[0];
+    },
+
+    async updateBlogPost(postId, postData) {
+        const slug = postData.title
+            .toLowerCase()
+            .replace(/[^\w\s-]/g, '')
+            .replace(/[\s_-]+/g, '-')
+            .replace(/^-+|-+$/g, '');
+
+        const { data, error } = await supabase
+            .from('blog_posts')
+            .update({ ...postData, slug, updated_at: new Date().toISOString() })
+            .eq('id', postId)
+            .select();
+            
         if (error) throw error;
         return data[0];
     },

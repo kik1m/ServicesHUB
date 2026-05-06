@@ -57,7 +57,7 @@ async function processToolData(markdownContent, categories, toolUrl, existingDat
         "name": "String (PURE BRAND NAME ONLY)",
         "slug": "String (URL-friendly)",
         "short_description": "String (Max 120 chars)",
-        "description": "Write a clean structured description with EXACTLY 3 sections.\n\nFormat STRICTLY like this:\n\nOverview:\n...\n\nInnovation:\n...\n\nImpact:\n...\n\nDo NOT use JSON. Do NOT use quotes. Do NOT include keys like {\"Overview\":}. Only plain text.",
+        "description": "Write a clean structured description with EXACTLY 3 sections: Overview, Innovation, and Impact.\n\nSTRICT FORMATTING RULE:\nUse plain text only. Start each section with the word followed by a colon and a newline. Example:\nOverview:\n[Your text here]\n\nInnovation:\n[Your text here]\n\nImpact:\n[Your text here]\n\nCRITICAL: Do NOT wrap the description in another JSON object. Do NOT use braces {}. It must be a single string.",
         "pricing_type": "String",
         "pricing_details": "String (Max 8 words)",
         "use_cases": ["String", "String", "String"],

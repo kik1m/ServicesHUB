@@ -1,5 +1,6 @@
 import React from 'react';
-import { Twitter, Facebook, Linkedin } from 'lucide-react';
+import { Twitter, Facebook, Linkedin, ExternalLink, ArrowRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import Skeleton from '../ui/Skeleton';
 import { BLOG_CONSTANTS } from '../../constants/blogConstants';
 import styles from './BlogPostContent.module.css';
@@ -10,8 +11,38 @@ import Safeguard from '../ui/Safeguard';
  * BlogPostContent - Main article body for the blog post detail page
  * Rule #12: Pure UI Content Rendering
  */
-const BlogPostContent = ({ post, isLoading, error, onRetry }) => {
+const BlogPostContent = ({ post, isLoading, error, onRetry, readingTime }) => {
+    const [scrollProgress, setScrollProgress] = React.useState(0);
+    const articleRef = React.useRef(null);
     const { POST } = BLOG_CONSTANTS;
+
+    React.useEffect(() => {
+        const updateScroll = () => {
+            if (!articleRef.current) return;
+            
+            const element = articleRef.current;
+            const rect = element.getBoundingClientRect();
+            const windowHeight = window.innerHeight;
+            
+            // The article starts being read when rect.top is 0
+            // The article is finished when rect.bottom is windowHeight
+            
+            const articleHeight = rect.height;
+            const scrolled = -rect.top;
+            const maxScroll = articleHeight - windowHeight;
+            
+            if (maxScroll <= 0) {
+                setScrollProgress(100);
+                return;
+            }
+
+            const progress = (scrolled / maxScroll) * 100;
+            setScrollProgress(Math.min(100, Math.max(0, progress)));
+        };
+
+        window.addEventListener('scroll', updateScroll);
+        return () => window.removeEventListener('scroll', updateScroll);
+    }, []);
 
     if (isLoading) {
         return (
@@ -31,12 +62,104 @@ const BlogPostContent = ({ post, isLoading, error, onRetry }) => {
     }
 
     const shareUrl = typeof window !== 'undefined' ? window.location.href : '';
+
+    /**
+     * 🧠 Elite Content Parser (v3.0)
+     * Rule #12: Transform shortcodes into rich UI components
+     */
+    const renderContent = () => {
+        if (!post?.content) return null;
+
+        // 1. Identify shortcodes [tool id="uuid"]
+        const parts = post.content.split(/(\[tool id="[^"]+"\]|\[image url="[^"]+"(?:\s+caption="[^"]+")?\])/g);
+
+        return parts.map((part, index) => {
+            const toolMatch = part.match(/\[tool id="([^"]+)"\]/);
+            const imageMatch = part.match(/\[image url="([^"]+)"(?:\s+caption="([^"]+)")?\]/);
+            
+            if (toolMatch) {
+                const toolId = toolMatch[1];
+                const toolData = post?.embeddedTools?.find(t => t.id === toolId);
+
+                return (
+                    <div key={index} className={styles.embeddedToolCard}>
+                        <div className={styles.toolInner}>
+                            {toolData?.image_url && (
+                                <div className={styles.toolImageWrapper}>
+                                    <img src={toolData.image_url} alt={toolData.name} className={styles.toolImage} />
+                                </div>
+                            )}
+                            <div className={styles.toolInfo}>
+                                <div className={styles.toolHeader}>
+                                    <h4 className={styles.toolTitle}>{toolData?.name || 'Featured AI Tool'}</h4>
+                                    {toolData?.rating > 0 && (
+                                        <div className={styles.toolRating}>
+                                            <span className={styles.ratingValue}>{toolData.rating}</span>
+                                            <span className={styles.starIcon}>★</span>
+                                        </div>
+                                    )}
+                                </div>
+                                <div className={styles.toolBadges}>
+                                    <span className={styles.priceBadge}>{toolData?.pricing_type || 'Free'}</span>
+                                </div>
+                                <p className={styles.toolMeta}>{toolData?.short_description || 'Discover more about this tool in our directory'}</p>
+                            </div>
+                            <div className={styles.toolActions}>
+                                <Link to={`/tool/${toolData?.slug || toolId}`} className={styles.exploreBtn}>
+                                    <span>Details</span>
+                                    <ArrowRight size={14} />
+                                </Link>
+                                {toolData?.url && (
+                                    <a 
+                                        href={toolData.url} 
+                                        target="_blank" 
+                                        rel="noopener noreferrer" 
+                                        className={styles.visitBtn}
+                                    >
+                                        <span>Visit Website</span>
+                                        <ExternalLink size={14} />
+                                    </a>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            if (imageMatch) {
+                const imageUrl = imageMatch[1];
+                const caption = imageMatch[2];
+                return (
+                    <div key={index} className={styles.inlineImageWrapper}>
+                        <img src={imageUrl} alt={caption || 'Article Image'} className={styles.inlineImage} />
+                        {caption && <p className={styles.imageCaption}>{caption}</p>}
+                    </div>
+                );
+            }
+
+            return <div key={index} dangerouslySetInnerHTML={{ __html: part }} />;
+        });
+    };
     
     return (
         <Safeguard error={error} onRetry={onRetry}>
             <div className={styles.postContainer}>
-                <div className={styles.articleBody}>
-                    <div className={styles.proseContent} dangerouslySetInnerHTML={{ __html: post?.content }} />
+                {/* Reading Progress Bar - Rule #34: Elite UX */}
+                <div className={styles.progressBar} style={{ transform: `scaleX(${scrollProgress / 100})` }} />
+
+                {/* Reading Progress Bar - Rule #34: Elite UX */}
+                <div className={styles.progressBar} style={{ transform: `scaleX(${scrollProgress / 100})` }} />
+
+                <article ref={articleRef} className={styles.articleBody}>
+                    {/* Meta Info: Category + Reading Time */}
+                    <div className={styles.metaRow}>
+                        <span className={styles.catTag}>{post.category || 'AI NEWS'}</span>
+                        <span className={styles.readingTime}>{readingTime || 3} min read</span>
+                    </div>
+
+                    <div className={styles.proseContent}>
+                        {renderContent()}
+                    </div>
 
                     <div className={styles.articleFooter}>
                         <div className={styles.shareBox}>
@@ -80,7 +203,7 @@ const BlogPostContent = ({ post, isLoading, error, onRetry }) => {
                             </span>
                         </div>
                     </div>
-                </div>
+                </article>
             </div>
         </Safeguard>
     );

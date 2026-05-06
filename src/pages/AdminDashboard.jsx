@@ -129,6 +129,10 @@ const AdminDashboard = () => {
                         error={error}
                         actionError={actionError}
                         onRetry={init}
+                        allTools={allTools}
+                        handleAdminSearch={handleAdminSearch}
+                        adminSearchResults={adminSearchResults}
+                        isSearchingTools={isSearchingTools}
                     />
                 );
             case 'add-tool':
@@ -159,7 +163,7 @@ const AdminDashboard = () => {
                         activeTab={activeTab}
                         newCategory={newCategory} 
                         setNewCategory={setNewCategory}
-                        handleCreateCategory={(e) => handleCategoryAction('create', 'tool', newCategory)} 
+                        handleCreateCategory={(e) => { e.preventDefault(); handleCategoryAction('create', 'tool', newCategory); }} 
                         handleDeleteCategory={(id) => handleCategoryAction('delete', 'tool', id)}
                         categories={toolCategories}
                         submitting={submitting}
@@ -174,7 +178,7 @@ const AdminDashboard = () => {
                         activeTab={activeTab}
                         newCategory={newCategory} 
                         setNewCategory={setNewCategory}
-                        handleCreateBlogCategory={(e) => handleCategoryAction('create', 'blog', { label: newCategory.name, slug: newCategory.slug })}
+                        handleCreateBlogCategory={(e) => { e.preventDefault(); handleCategoryAction('create', 'blog', { name: newCategory.name, slug: newCategory.slug }); }}
                         handleDeleteBlogCategory={(id) => handleCategoryAction('delete', 'blog', id)}
                         blogCategories={blogCategories}
                         submitting={submitting}

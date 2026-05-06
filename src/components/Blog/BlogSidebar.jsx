@@ -70,7 +70,7 @@ const BlogSidebar = ({ relatedPosts, isLoading, error, onRetry }) => {
                         <h4>{SIDEBAR?.RELATED?.TITLE}</h4>
                         <div className={styles.relatedList}>
                             {relatedPosts?.map(p => (
-                                <Link key={p?.id} to={`/blog/${p?.id}`} className={styles.relatedItem}>
+                                <Link key={p?.id} to={`/blog/${p?.slug || p?.id}`} className={styles.relatedItem}>
                                     <div className={styles.thumbWrapper}>
                                         <SmartImage 
                                             src={p?.image_url} 

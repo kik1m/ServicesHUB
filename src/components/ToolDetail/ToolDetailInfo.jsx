@@ -45,47 +45,68 @@ const ToolDetailInfo = ({ tool, isLoading, error, onRetry, content }) => {
         <Safeguard error={error} onRetry={onRetry}>
             <div className={styles.toolMainInfo}>
                 <div className={styles.detailSection}>
-                    <h3 className={styles.sectionSubtitle}>
+                    <h3 className={`${styles.sectionSubtitle} ${styles.mainSectionTitle}`}>
                         {content?.tabs?.overview} <span className={styles.highlight}>{tool?.name || content?.tabs?.thisTool}</span>
                     </h3>
 
-                    {/* 🔥 RESTORED OLD PARSING SYSTEM (FIXED COMPATIBILITY) */}
-                    {(tool?.description || tool?.short_description || content?.tabs?.defaultDesc)
-                        .split('\n\n')
-                        .map((section, i) => {
-                            let title = null;
-                            let contentText = section.trim();
+                    {(() => {
+                        const rawDescription = tool?.description || tool?.short_description || content?.tabs?.defaultDesc || '';
+                        let sections = [];
 
-                            // Case 1: old format [TITLE][CONTENT]
-                            const titleMatch = section.match(/\[TITLE\](.*?)\[CONTENT\]/s);
-                            if (titleMatch) {
-                                title = titleMatch[1].trim();
-                                contentText = section.split('[CONTENT]')[1]?.trim() || '';
-                            }
-
-                            // Case 2: new format (Overview:, Innovation:, Impact:)
+                        // 🧠 SMART PARSER (V2) - Rule #32: Defensive & Resilient
+                        try {
+                            // Case 1: Is it a JSON string? (Happens with some AI imports like CrewAI)
+                            if (rawDescription.trim().startsWith('{')) {
+                                const parsed = JSON.parse(rawDescription);
+                                sections = Object.entries(parsed).map(([title, text]) => ({
+                                    title: title.charAt(0).toUpperCase() + title.slice(1),
+                                    contentText: text
+                                }));
+                            } 
+                            // Case 2: Standard Text with Headers or [TITLE] tags
                             else {
-                                const newFormatMatch = section.match(/^(Overview|Innovation|Impact):\s*/i);
+                                const rawSections = rawDescription.split('\n\n');
+                                sections = rawSections.map(section => {
+                                    // Sub-case: [TITLE] format
+                                    const titleMatch = section.match(/\[TITLE\](.*?)\[CONTENT\]/s);
+                                    if (titleMatch) {
+                                        return {
+                                            title: titleMatch[1].trim(),
+                                            contentText: section.split('[CONTENT]')[1]?.trim() || ''
+                                        };
+                                    }
 
-                                if (newFormatMatch) {
-                                    title = newFormatMatch[1].trim();
-                                    contentText = section.replace(/^(Overview|Innovation|Impact):\s*/i, '').trim();
-                                }
+                                    // Sub-case: Header: format (Overview:, Innovation:, etc.)
+                                    const headerMatch = section.match(/^(Overview|Innovation|Impact|Description|Features|About|Goal):\s*/i);
+                                    if (headerMatch) {
+                                        return {
+                                            title: headerMatch[1].trim(),
+                                            contentText: section.replace(/^(Overview|Innovation|Impact|Description|Features|About|Goal):\s*/i, '').trim()
+                                        };
+                                    }
+
+                                    // Sub-case: Plain paragraph
+                                    return { title: null, contentText: section.trim() };
+                                }).filter(s => s.contentText);
                             }
+                        } catch (err) {
+                            console.warn('Description Parsing Failed:', err);
+                            sections = [{ title: null, contentText: rawDescription }];
+                        }
 
-                            return (
-                                <div key={`desc-section-${i}`} className={styles.descriptionSection}>
-                                    {title ? (
-                                        <>
-                                            <h4 className={styles.sectionEntryTitle}>{title}</h4>
-                                            <p className={styles.sectionText}>{contentText}</p>
-                                        </>
-                                    ) : (
-                                        <p className={styles.sectionText}>{contentText}</p>
-                                    )}
-                                </div>
-                            );
-                        })}
+                        return sections.map((sec, i) => (
+                            <div key={`desc-section-${i}`} className={styles.descriptionSection}>
+                                {sec.title ? (
+                                    <>
+                                        <h4 className={styles.sectionEntryTitle}>{sec.title}</h4>
+                                        <p className={styles.sectionText}>{sec.contentText}</p>
+                                    </>
+                                ) : (
+                                    <p className={styles.sectionText}>{sec.contentText}</p>
+                                )}
+                            </div>
+                        ));
+                    })()}
                 </div>
 
                 {tool?.use_cases?.length > 0 && (

@@ -38,7 +38,7 @@ const BlogCard = ({ post, isLoading, error, onRetry }) => {
 
     return (
         <Safeguard error={error} onRetry={onRetry}>
-            <Link to={`/blog/${post?.id}`} className={styles.blogCard}>
+            <Link to={`/blog/${post?.slug || post?.id}`} className={styles.blogCard}>
                 <div className={styles.imageWrapper}>
                     <SmartImage 
                         src={post?.image_url} 

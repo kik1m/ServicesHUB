@@ -157,6 +157,13 @@ export const useCompareData = () => {
         hydrateAll();
     }, [t1Slug, t2Slug]);
 
+    // Rule #48: Auto-Selector UX (Open slot 2 if slot 1 is pre-hydrated via URL)
+    useEffect(() => {
+        if (t1Slug && !t2Slug && !isSelectingFor) {
+            setIsSelectingFor('tool2');
+        }
+    }, []); // Only on mount
+
     // Tool selection and URL sync logic below
 
     const navigate = useNavigate();

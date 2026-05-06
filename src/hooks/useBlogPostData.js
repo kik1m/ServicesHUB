@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { blogService } from '../services/blogService';
+import { toolsService } from '../services/toolsService';
 import { BLOG_CONSTANTS } from '../constants/blogConstants';
 import { useSEO } from './useSEO';
 
@@ -30,14 +31,25 @@ export const useBlogPostData = () => {
             setLoading(true);
             try {
                 // Fetch Post
-                const { data: postData, error: postError } = await blogService.getPostById(id);
+                const { data: postData, error: postError } = await blogService.getPostByIdOrSlug(id);
                 if (postError) throw postError;
                 if (mounted) setPost(postData);
 
                 // Fetch Related
                 if (postData && mounted) {
                     const { data: related } = await blogService.getRelatedPosts(postData.category, postData.id);
-                    if (mounted) setRelatedPosts(related || []);
+                    
+                    // Rule #44: Fetch embedded tool details
+                    const toolIds = [...postData.content.matchAll(/\[tool id="([^"]+)"\]/g)].map(m => m[1]);
+                    if (toolIds.length > 0) {
+                        const { data: embeddedTools } = await toolsService.getToolsByIds(toolIds);
+                        postData.embeddedTools = embeddedTools || [];
+                    }
+
+                    if (mounted) {
+                        setPost(postData);
+                        setRelatedPosts(related || []);
+                    }
                 }
             } catch (err) {
                 console.error('Fetch post error:', err);
@@ -51,10 +63,19 @@ export const useBlogPostData = () => {
         return () => { mounted = false; };
     }, [id]);
 
+    const calculateReadingTime = (content) => {
+        if (!content) return 0;
+        const wordsPerMinute = 200;
+        const text = content.replace(/<[^>]*>/g, ''); // Remove HTML
+        const words = text.trim().split(/\s+/).length;
+        return Math.ceil(words / wordsPerMinute);
+    };
+
     return {
         post,
         relatedPosts,
         loading,
-        error
+        error,
+        readingTime: calculateReadingTime(post?.content)
     };
 };

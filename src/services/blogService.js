@@ -67,14 +67,16 @@ export const blogService = {
   },
 
   /**
-   * Fetch a single blog post by its ID
+   * Fetch a single blog post by its ID or Slug
    */
-  async getPostById(id) {
-    const { data, error } = await supabase
-      .from('blog_posts')
-      .select('*')
-      .eq('id', id)
-      .single();
+  async getPostByIdOrSlug(idOrSlug) {
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(idOrSlug);
+    
+    const query = isUuid 
+      ? supabase.from('blog_posts').select('*').eq('id', idOrSlug)
+      : supabase.from('blog_posts').select('*').eq('slug', idOrSlug);
+
+    const { data, error } = await query.maybeSingle();
 
     return {
       data: normalizePost(data),

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { toolsService } from '../services/toolsService';
 import { profilesService } from '../services/profilesService';
 import { favoritesService } from '../services/favoritesService';
@@ -16,6 +16,7 @@ import { getCurrentUrl } from '../utils/getCurrentUrl';
  */
 export const useToolDetailData = () => {
     const { id: slug } = useParams();
+    const navigate = useNavigate();
     const { user } = useAuth();
     const { showToast } = useToast();
 
@@ -54,10 +55,8 @@ export const useToolDetailData = () => {
             setLoading(false); // Tool is ready, page can show structure
 
             // 2. Parallel Fetching for secondary data (Rule #17: Progressive)
-            // These don't block the main tool display
             const promises = [
                 toolsService.getRelatedTools(toolData.category_id, toolData.id),
-                toolsService.incrementViewCount(toolData.id, toolData.view_count),
                 profilesService.getProfileById(toolData.user_id)
             ];
 
@@ -65,11 +64,9 @@ export const useToolDetailData = () => {
                 promises.push(favoritesService.isToolFavorited(user.id, toolData.id));
             }
 
-            const [relatedRes, _, profileRes, favRes] = await Promise.all(promises.map(p => p.catch(e => ({ error: e }))));
+            const [relatedRes, profileRes, favRes] = await Promise.all(promises.map(p => p.catch(e => ({ error: e }))));
             
-            // Rule #32: Defensive Rendering
             setRelatedTools(relatedRes?.data?.filter(Boolean) ?? []);
-            
             if (profileRes?.data) setPublisher(profileRes.data);
             if (user && favRes?.data) setIsFavorited(true);
 
@@ -83,6 +80,32 @@ export const useToolDetailData = () => {
     useEffect(() => {
         fetchData();
     }, [fetchData]);
+
+    // Rule #47: Smart View Throttling (12h window)
+    useEffect(() => {
+        if (!tool?.id) return;
+
+        const handleViewIncrement = async () => {
+            const STORAGE_KEY = `tool_view_${tool.id}`;
+            const lastView = localStorage.getItem(STORAGE_KEY);
+            const now = Date.now();
+            const TWELVE_HOURS = 12 * 60 * 60 * 1000;
+
+            if (lastView && (now - parseInt(lastView)) < TWELVE_HOURS) {
+                // Too soon, don't increment
+                return;
+            }
+
+            try {
+                await toolsService.incrementViewCount(tool.id, tool.view_count);
+                localStorage.setItem(STORAGE_KEY, now.toString());
+            } catch (err) {
+                console.warn('View count update failed:', err);
+            }
+        };
+
+        handleViewIncrement();
+    }, [tool?.id]);
 
     const toggleFavorite = async () => {
         if (!user) {
@@ -121,6 +144,11 @@ export const useToolDetailData = () => {
         }
     };
 
+    const handleCompare = useCallback(() => {
+        if (!tool?.slug) return;
+        navigate(`/compare?t1=${tool.slug}`);
+    }, [tool?.slug, navigate]);
+
     const handleShare = useCallback(async () => {
         if (!tool) return;
 
@@ -148,8 +176,17 @@ export const useToolDetailData = () => {
 
     const handleExternalClick = useCallback(async () => {
         if (!tool?.id) return;
+
+        const STORAGE_KEY = `tool_click_${tool.id}`;
+        const lastClick = localStorage.getItem(STORAGE_KEY);
+        const now = Date.now();
+        const ONE_HOUR = 60 * 60 * 1000;
+
+        if (lastClick && (now - parseInt(lastClick)) < ONE_HOUR) return;
+
         try {
             await toolsService.incrementClickCount(tool.id, tool.click_count);
+            localStorage.setItem(STORAGE_KEY, now.toString());
         } catch (err) {
             console.error('Failed to track click:', err);
         }
@@ -169,6 +206,7 @@ export const useToolDetailData = () => {
         isReportModalOpen,
         toggleFavorite,
         handleShare,
+        handleCompare,
         handleExternalClick,
         openReportModal,
         closeReportModal,
@@ -184,6 +222,7 @@ export const useToolDetailData = () => {
         isReportModalOpen, 
         toggleFavorite, 
         handleShare, 
+        handleCompare,
         handleExternalClick, 
         openReportModal, 
         closeReportModal, 
@@ -193,4 +232,3 @@ export const useToolDetailData = () => {
 
     return memoizedValue;
 };
-
