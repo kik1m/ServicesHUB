@@ -14,7 +14,7 @@ const BASE_SELECT = `
 const BASE_DETAIL_SELECT = `
     id, name, slug, description, short_description, image_url, icon_name, 
     url, pricing_type, pricing_details, rating, reviews_count, 
-    is_featured, is_verified, category_id, view_count, click_count, features, use_cases,
+    is_featured, is_verified, is_approved, pending_changes, category_id, view_count, click_count, features, use_cases,
     user_id, categories(name, slug, icon_name)
 `;
 
