@@ -37,7 +37,7 @@ export const useCompareData = ({
             const { data } = await compareService.getRecentComparisons();
             return data || [];
         },
-        initialData: initialRecentComparisons,
+        initialData: initialRecentComparisons?.length > 0 ? initialRecentComparisons : undefined,
         staleTime: 1000 * 60 * 10 
     });
 
@@ -49,7 +49,7 @@ export const useCompareData = ({
             if (error) throw error;
             return data;
         },
-        initialData: t1Slug === initialTool1?.slug ? initialTool1 : undefined,
+        initialData: (t1Slug === initialTool1?.slug && initialTool1) ? initialTool1 : undefined,
         enabled: !!t1Slug,
         staleTime: 1000 * 60 * 60 * 24
     });
@@ -62,7 +62,7 @@ export const useCompareData = ({
             if (error) throw error;
             return data;
         },
-        initialData: t2Slug === initialTool2?.slug ? initialTool2 : undefined,
+        initialData: (t2Slug === initialTool2?.slug && initialTool2) ? initialTool2 : undefined,
         enabled: !!t2Slug,
         staleTime: 1000 * 60 * 60 * 24
     });
@@ -92,7 +92,7 @@ export const useCompareData = ({
                 source: aiData.source
             };
         },
-        initialData: initialAiResults,
+        initialData: initialAiResults || undefined,
         enabled: !!t1Slug && !!t2Slug,
         staleTime: 1000 * 60 * 60 * 24
     });
