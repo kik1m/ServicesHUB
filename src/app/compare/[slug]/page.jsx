@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import { notFound } from 'next/navigation';
 import { compareService } from '../../../services/compareService';
 import { toolsService } from '../../../services/toolsService';
@@ -99,13 +99,15 @@ export default async function ComparisonDetailPage(props) {
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
             />
-            <CompareClient 
-                initialTool1={tool1}
-                initialTool2={tool2}
-                initialRecentComparisons={recentRes.data || []}
-                bannerTools={bannerRes.data || []}
-                initialAiResults={cachedComp}
-            />
+            <Suspense fallback={null}>
+                <CompareClient 
+                    initialTool1={tool1}
+                    initialTool2={tool2}
+                    initialRecentComparisons={recentRes.data || []}
+                    bannerTools={bannerRes.data || []}
+                    initialAiResults={cachedComp}
+                />
+            </Suspense>
         </>
     );
 }

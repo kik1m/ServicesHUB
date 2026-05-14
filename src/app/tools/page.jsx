@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import ToolsClient from './ToolsClient';
 import { toolsService } from '../../services/toolsService';
 import { TOOLS_UI_CONSTANTS } from '../../constants/toolsConstants';
@@ -49,8 +49,10 @@ export default async function ToolsPage() {
     // by useSearchEngine on the client to preserve the dynamic interactive experience.
     
     return (
-        <ToolsClient 
-            bannerTools={bannerRes.data || []}
-        />
+        <Suspense fallback={null}>
+            <ToolsClient 
+                bannerTools={bannerRes.data || []}
+            />
+        </Suspense>
     );
 }
