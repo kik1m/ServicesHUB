@@ -88,6 +88,7 @@ const ToolDetailMasterCard = ({
                             className={styles.iconicActionBtn} 
                             onClick={onCompare}
                             title="Compare Tool"
+                            aria-label="Compare Tool"
                         >
                             <GitCompare size={20} />
                         </Button>
@@ -95,6 +96,7 @@ const ToolDetailMasterCard = ({
                             variant="secondary"
                             className={`${styles.iconicFavBtn} ${isFavorited ? styles.isActive : ''}`} 
                             onClick={toggleFavorite}
+                            aria-label={isFavorited ? "Remove from favorites" : "Add to favorites"}
                         >
                             <Heart 
                                 size={20} 

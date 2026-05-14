@@ -27,7 +27,7 @@ const Breadcrumbs = ({ items, isLoading }) => {
     return (
         <div className={styles.wrapper}>
             <nav className={styles.nav}>
-                <Link href="/" className={styles.homeLink}>
+                <Link href="/" className={styles.homeLink} aria-label="Home">
                     <Home size={14} />
                 </Link>
                 

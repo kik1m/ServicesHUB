@@ -68,9 +68,9 @@ const ToolDetailInfo = ({ tool, isLoading, error, onRetry, content }) => {
         <Safeguard error={error} onRetry={onRetry}>
             <div className={styles.toolMainInfo}>
                 <div className={styles.detailSection}>
-                    <h3 className={`${styles.sectionSubtitle} ${styles.mainSectionTitle}`}>
+                    <h2 className={`${styles.sectionSubtitle} ${styles.mainSectionTitle}`}>
                         {content?.tabs?.overview} <span className={styles.highlight}>{tool?.name || content?.tabs?.thisTool}</span>
-                    </h3>
+                    </h2>
 
                     {(() => {
                         const rawDescription = tool?.description || tool?.short_description || content?.tabs?.defaultDesc || '';
@@ -119,7 +119,7 @@ const ToolDetailInfo = ({ tool, isLoading, error, onRetry, content }) => {
 
                         return sections.map((sec, i) => (
                             <div key={`desc-section-${i}`} className={styles.descriptionSection}>
-                                {sec.title && <h4 className={styles.sectionEntryTitle}>{sec.title}</h4>}
+                                {sec.title && <h3 className={styles.sectionEntryTitle}>{sec.title}</h3>}
                                 {renderScannableContent(sec.contentText)}
                             </div>
                         ));

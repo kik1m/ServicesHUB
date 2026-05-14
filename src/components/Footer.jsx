@@ -79,9 +79,9 @@ const Footer = () => {
                             The most trusted directory for finding and submitting the world&apos;s most innovative AI and SaaS tools. Join thousands of creators today.
                         </p>
                         <div className={styles.footerSocials}>
-                            <a href="#"><Twitter size={18} /></a>
-                            <a href="#"><Github size={18} /></a>
-                            <a href="#"><Linkedin size={18} /></a>
+                            <a href="#" aria-label="Twitter"><Twitter size={18} /></a>
+                            <a href="#" aria-label="GitHub"><Github size={18} /></a>
+                            <a href="#" aria-label="LinkedIn"><Linkedin size={18} /></a>
                         </div>
                     </div>
 

@@ -20,7 +20,7 @@ const Logo = ({ size = 32, className = '', onClick, hideText = false }) => {
         >
             <Image 
                 src="/logo.png" 
-                alt="HUBly" 
+                alt=""
                 width={size}
                 height={size}
                 className={styles.image}
