@@ -101,6 +101,7 @@
     color: var(--text-muted);
     line-height: 1.4;
     margin: 0;
+    min-height: 2.8em; /* Reserve exactly 2 lines of vertical space */
     display: -webkit-box;
     -webkit-line-clamp: 2;
     line-clamp: 2;
