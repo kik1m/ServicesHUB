@@ -119,6 +119,8 @@ export const useAdminData = () => {
         }));
     }, [allToolsData?.data]);
 
+    const allToolsTotal = allToolsData?.total || 0;
+
     const stats = useMemo(() => {
         if (!dashboardData?.counts) return [];
         const { counts } = dashboardData;
