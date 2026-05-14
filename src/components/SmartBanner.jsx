@@ -82,7 +82,7 @@ const SmartBanner = memo((props) => {
                     </div>
 
                     <div className={styles.bannerNavMinimal}>
-                        <button className={styles.navBtnMin} onClick={prev} disabled={isLoading || tools.length <= 1}>
+                        <button className={styles.navBtnMin} onClick={prev} disabled={isLoading || tools.length <= 1} aria-label="Previous Tool">
                             <ChevronLeft size={20} />
                         </button>
                         <span className={styles.countLabel}>
@@ -92,7 +92,7 @@ const SmartBanner = memo((props) => {
                                 `${currentIndex + 1} / ${tools.length}`
                             )}
                         </span>
-                        <button className={styles.navBtnMin} onClick={next} disabled={isLoading || tools.length <= 1}>
+                        <button className={styles.navBtnMin} onClick={next} disabled={isLoading || tools.length <= 1} aria-label="Next Tool">
                             <ChevronRight size={20} />
                         </button>
                     </div>

@@ -43,6 +43,7 @@ const Input = ({
                         type="button" 
                         onClick={onRightIconClick}
                         className={`${styles.rightIconBtn} ${onRightIconClick ? styles.clickable : ''}`}
+                        aria-label="Input Action"
                     >
                         <RightIcon size={18} />
                     </button>

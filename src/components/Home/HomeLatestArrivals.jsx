@@ -79,7 +79,7 @@ const HomeLatestArrivals = ({ latestTools = [], isLoading, error }) => {
                                             />
                                         </div>
                                         <div className={styles.latestToolInfoMini}>
-                                            <h4>{tool.name}</h4>
+                                            <h3>{tool.name}</h3>
                                             <p>{tool.categories?.name}</p>
                                         </div>
                                     </Link>

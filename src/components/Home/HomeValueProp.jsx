@@ -31,7 +31,7 @@ const HomeValueProp = ({ content, error }) => {
                         return (
                             <div key={prop.id} className={styles.propCardPremium}>
                                 <div className={styles.propIconBg}><Icon size={28} /></div>
-                                <h4>{prop.title}</h4>
+                                <h3>{prop.title}</h3>
                                 <p>{prop.desc}</p>
                             </div>
                         );

@@ -71,7 +71,7 @@ const HomeTrending = ({ trendingTools = [], isLoading, error }) => {
                                             />
                                         </div>
                                         <div className={styles.trendingToolInfo}>
-                                            <h4>{tool.name}</h4>
+                                            <h3>{tool.name}</h3>
                                             <div className={styles.trendingStats}>
                                                 <TrendingUp size={12} /> {(tool.view_count || 0).toLocaleString()} views
                                             </div>
