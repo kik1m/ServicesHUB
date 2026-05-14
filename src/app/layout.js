@@ -4,6 +4,7 @@ import Providers from "../components/Providers";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import InteractiveParticles from "../components/InteractiveParticles";
+import PageTransition from "../components/PageTransition";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -29,7 +30,9 @@ export default function RootLayout({ children }) {
           <div className="app-container is-ready">
             <Navbar />
             <main className="content">
-              {children}
+              <PageTransition>
+                {children}
+              </PageTransition>
             </main>
             <Footer />
           </div>
