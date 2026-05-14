@@ -31,7 +31,7 @@ const SmartBanner = memo((props) => {
     if (error) return <Safeguard error={error} onRetry={onRetry} />;
 
     return (
-        <div className={`${styles.smartBannerNew} fade-in`} id="smart-banner-node">
+        <div className={styles.smartBannerNew} id="smart-banner-node">
             <div className={styles.bannerInner}>
                 {/* 1. Visual Section */}
                 <div className={styles.bannerVisual}>
