@@ -1,0 +1,87 @@
+.toastContainer {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    pointer-events: none;
+}
+
+.toastItem {
+    pointer-events: auto;
+    background: rgba(15, 15, 18, 0.85);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    padding: 14px 22px;
+    border-radius: 18px;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+    animation: slideInRight 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    min-width: 300px;
+}
+
+.toastItem.success {
+    border-left: 4px solid #00c853;
+    border-color: rgba(0, 200, 83, 0.2);
+}
+
+.toastItem.error {
+    border-left: 4px solid #ff5252;
+    border-color: rgba(255, 82, 82, 0.2);
+}
+
+.toastItem.info {
+    border-left: 4px solid var(--primary);
+    border-color: rgba(0, 136, 204, 0.2);
+}
+
+.message {
+    font-size: 0.95rem;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    flex: 1;
+}
+
+.closeButton {
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.25);
+    cursor: pointer;
+    display: flex;
+    padding: 4px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.closeButton:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(40px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+    }
+}
+
+@media (max-width: 600px) {
+    .toastContainer {
+        bottom: 20px;
+        right: 20px;
+        left: 20px;
+    }
+    .toastItem {
+        min-width: unset;
+    }
+}

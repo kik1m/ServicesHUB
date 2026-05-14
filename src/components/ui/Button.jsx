@@ -1,0 +1,74 @@
+import React from 'react';
+import { Loader2 } from 'lucide-react';
+import styles from './Button.module.css';
+
+/**
+ * Global UI Atom: Button
+ * Supports variants: primary, secondary, outline, text, ghost, danger
+ */
+const Button = ({ 
+    children, 
+    variant = 'primary', 
+    size = 'md', 
+    isLoading = false, 
+    disabled = false, 
+    fullWidth = false,
+    icon: Icon,
+    iconPosition = 'left',
+    iconSize = 18,
+    className = '',
+    as: Component = 'button',
+    iconFill,
+    onClick,
+    ...props 
+}) => {
+    const buttonClasses = `
+        ${styles.btn} 
+        ${styles[variant]} 
+        ${styles[size]} 
+        ${fullWidth ? styles.fullWidth : ''}
+        ${className}
+    `.trim();
+
+    const isButton = Component === 'button';
+
+    return (
+        <Component
+            className={buttonClasses}
+            disabled={disabled || isLoading}
+            onClick={onClick}
+            {...(isButton ? { type: props.type || 'button' } : {})}
+            {...props}
+        >
+            {isLoading && <Loader2 size={18} className={styles.spinner} />}
+            
+            {!isLoading && Icon && iconPosition === 'left' && (
+                <Icon 
+                    size={iconSize} 
+                    stroke="currentColor" 
+                    strokeWidth={2.5}
+                    className={styles.icon}
+                    {...(iconFill ? { fill: iconFill } : {})} 
+                />
+            )}
+            
+            {children}
+            
+            {!isLoading && Icon && iconPosition === 'right' && (
+                <Icon 
+                    size={iconSize} 
+                    stroke="currentColor" 
+                    strokeWidth={2.5}
+                    className={styles.icon}
+                    {...(iconFill ? { fill: iconFill } : {})} 
+                />
+            )}
+        </Component>
+    );
+};
+
+export default Button;
+
+
+
+

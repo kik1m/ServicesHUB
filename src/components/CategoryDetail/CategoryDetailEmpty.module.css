@@ -1,0 +1,58 @@
+/* CategoryDetailEmpty.module.css */
+
+.emptySection {
+  padding: 6rem 0;
+  text-align: center;
+}
+
+.submitCtaCard {
+  padding: 5rem 2rem;
+  background: rgba(255, 255, 255, 0.01);
+  border: 1px dashed var(--border);
+  border-radius: 40px;
+  max-width: 800px;
+  margin: 0 auto !important;
+  transition: 0.4s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.submitCtaCard:hover {
+  border-color: var(--primary);
+  background: rgba(255, 255, 255, 0.02);
+  transform: translateY(-5px);
+}
+
+.iconBox {
+  margin-bottom: 2rem;
+  color: var(--primary);
+  opacity: 0.8;
+}
+
+.title {
+  font-size: 2.2rem;
+  font-weight: 900;
+  margin-bottom: 1.2rem;
+  letter-spacing: -1px;
+  color: white;
+}
+
+.description {
+  color: var(--text-muted);
+  font-size: 1.1rem;
+  line-height: 1.6;
+  max-width: 600px;
+  margin: 0 auto 2.5rem;
+}
+
+.submitBtn {
+  font-weight: 800;
+  padding: 1.2rem 3.5rem;
+}
+
+@media (max-width: 768px) {
+  .title {
+    font-size: 1.6rem;
+  }
+}

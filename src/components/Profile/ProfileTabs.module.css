@@ -1,0 +1,51 @@
+/* ProfileTabs.module.css */
+
+.tabsNav {
+  display: flex;
+  gap: 2rem;
+}
+
+.tabBtn {
+  color: var(--text-muted) !important;
+  font-size: 1rem !important;
+  font-weight: 700 !important;
+  padding: 0.5rem 0 !important;
+  transition: 0.3s;
+}
+
+.tabBtn:hover {
+  color: white !important;
+}
+
+.tabBtn.active {
+  color: var(--primary) !important;
+}
+
+.tabBtn.active::after {
+  content: '';
+  position: absolute;
+  bottom: -1rem;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: var(--primary);
+  box-shadow: 0 0 10px var(--primary);
+}
+
+@media (max-width: 480px) {
+  .tabsNav {
+    gap: 1rem;
+  }
+  
+  .tabBtn {
+    font-size: 0.9rem;
+  }
+}
+
+/* Skeleton Loading Styles - Rule #81: No Inline Dimensions */
+.skeletonTabCount {
+  display: inline-block;
+  vertical-align: middle;
+  width: 20px;
+  height: 14px;
+}

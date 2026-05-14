@@ -1,0 +1,49 @@
+.adminPage {
+    min-height: 100vh;
+    background-color: #050505;
+    color: white;
+}
+
+.adminWrapper {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem 5%;
+}
+
+.adminMainContent {
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+}
+
+.contentGrid {
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+}
+
+.contentGrid.withSidebar {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 3rem;
+}
+
+.activeSection {
+    min-height: 700px;
+}
+
+@media (max-width: 1200px) {
+    .contentGrid.withSidebar {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .adminWrapper {
+        padding: 1.5rem 1rem;
+    }
+    
+    .adminMainContent {
+        gap: 2rem;
+    }
+}

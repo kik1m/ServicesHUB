@@ -1,0 +1,88 @@
+.statsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.statCard {
+    background: #0f0f11;
+    border: 1px solid #1f1f23;
+    border-radius: 20px;
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+    transition: all 0.3s ease;
+}
+
+.statCard:hover {
+    border-color: var(--primary);
+    transform: translateY(-4px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.iconWrapper {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    background: #18181b;
+    border: 1px solid #27272a;
+}
+
+.info {
+    display: flex;
+    flex-direction: column;
+}
+
+.label {
+    font-size: 0.75rem;
+    color: #71717a;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+}
+
+.value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0;
+}
+
+/* Skeleton Styles */
+.skeletonIcon {
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+}
+
+.skeletonLabel {
+    width: 60px;
+    height: 12px;
+    margin-bottom: 8px;
+}
+
+.skeletonValue {
+    width: 100px;
+    height: 24px;
+}
+
+/* Color Variants */
+.iconPrimary { color: #00a3ff; background: rgba(0, 163, 255, 0.1); border-color: rgba(0, 163, 255, 0.2); }
+.iconSecondary { color: #00e676; background: rgba(0, 230, 118, 0.1); border-color: rgba(0, 230, 118, 0.2); }
+.iconWarning { color: #ffa500; background: rgba(255, 165, 0, 0.1); border-color: rgba(255, 165, 0, 0.2); }
+.iconDanger { color: #ff4757; background: rgba(255, 71, 87, 0.1); border-color: rgba(255, 71, 87, 0.2); }
+.iconPremium { color: #ffd700; background: rgba(255, 215, 0, 0.1); border-color: rgba(255, 215, 0, 0.2); }
+
+@media (max-width: 768px) {
+    .statsGrid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+}

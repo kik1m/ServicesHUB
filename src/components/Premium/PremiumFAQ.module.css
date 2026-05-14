@@ -1,0 +1,98 @@
+/* PremiumFAQ.module.css - Elite Standard */
+.faqSection {
+    margin-top: 6rem;
+    padding-bottom: 4rem;
+}
+
+.faqHeader {
+    text-align: center;
+    margin-bottom: 4rem;
+}
+
+.faqHeader h2 {
+    font-size: 2.2rem;
+    font-weight: 900;
+    margin: 0;
+    color: white;
+}
+
+.goldGradient {
+    background: linear-gradient(135deg, #FFD700 0%, #FFB800 50%, #FF8A00 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: inline-block;
+}
+
+.faqGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 2rem;
+}
+
+.faqCard {
+    padding: 2.25rem;
+    border-radius: 28px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    background: rgba(255, 255, 255, 0.02);
+    transition: all 0.3s ease;
+}
+
+.faqCard:hover {
+    border-color: rgba(var(--primary-rgb), 0.2);
+    background: rgba(var(--primary-rgb), 0.02);
+}
+
+.faqContent {
+    display: flex;
+    gap: 1.5rem;
+}
+
+/* --- SKELETON LAYOUTS (Rule #81) --- */
+.skeletonHeader {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 3rem;
+}
+
+.skeletonContent {
+    flex: 1;
+}
+
+.skeletonQ {
+    margin-bottom: 10px;
+}
+
+.skeletonA {
+    margin-top: 6px;
+}
+
+.faqIcon {
+    flex-shrink: 0;
+}
+
+.faqContent h4 {
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: white;
+    margin: 0;
+}
+
+.faqContent p {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin-top: 10px;
+}
+
+.skeletonHeader {
+    margin-bottom: 4rem;
+    display: flex;
+    justify-content: center;
+}
+
+@media (max-width: 768px) {
+  .faqGrid {
+    grid-template-columns: 1fr;
+  }
+}

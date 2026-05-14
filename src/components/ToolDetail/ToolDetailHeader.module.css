@@ -1,0 +1,144 @@
+/* ToolDetailHeader.module.css - Isolated Elite Architecture (Slim Version) */
+
+.isolatedHeroSection {
+    position: relative;
+    padding: 40px 5% 30px; /* Slimmer vertical padding */
+    background: transparent;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    width: 100%;
+}
+
+/* Custom Blue Soul Glow for Tool Detail Only */
+.isolatedHeroSection::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at 50% -20%, rgba(0, 136, 204, 0.15) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 1;
+}
+
+.heroContainer {
+    max-width: 1400px;
+    width: 100%;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+}
+
+.breadcrumbLayer {
+    width: 100%;
+    margin-bottom: 0.2rem;
+}
+
+.heroLayoutWrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.2rem;
+    width: 100%;
+    animation: fadeInDown 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.heroCategoryBadge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 16px;
+    background: rgba(0, 210, 255, 0.1);
+    border: 1px solid rgba(0, 210, 255, 0.2);
+    border-radius: 100px;
+    backdrop-filter: blur(8px);
+}
+
+.badgeIconWrapper {
+    display: flex;
+    align-items: center;
+    color: #00d2ff;
+}
+
+.badgeText {
+    color: #00d2ff;
+    font-size: 0.8rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+}
+
+.mainTitleGroup {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.8rem;
+}
+
+.eliteHeadingText {
+    font-size: 2.3rem; /* Reduced from 2.8rem for better long-name support */
+    font-weight: 900;
+    color: white; /* Prefix is White */
+    letter-spacing: -1px;
+    line-height: 1.2;
+    text-align: center;
+}
+
+.toolNameHighlight {
+    background: linear-gradient(135deg, #00d2ff 0%, #3a7bd5 100%); /* Tool Name is Blue Gradient */
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 0 10px rgba(0, 210, 255, 0.2));
+}
+
+.heroSubTagline {
+    font-size: 1.15rem;
+    color: #ffffff;
+    opacity: 0.8;
+    max-width: 850px;
+    margin: 0;
+    font-weight: 500;
+    text-align: center;
+    line-height: 1.4;
+}
+
+.sidebarMatchedRating {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.2rem;
+    font-weight: 800;
+}
+
+.starIconSidebar {
+    color: #FFB800;
+    filter: drop-shadow(0 0 8px rgba(255, 184, 0, 0.4));
+}
+
+.ratingValueTextGold {
+    color: #FFB800;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.reviewCountTextGold {
+    color: #FFB800;
+    opacity: 0.8;
+    font-size: 1rem;
+}
+
+@keyframes fadeInDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 768px) {
+    .eliteHeadingText { font-size: 2.2rem; }
+    .heroSubTagline { font-size: 1rem; padding: 0 10px; }
+}

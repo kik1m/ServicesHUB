@@ -1,0 +1,28 @@
+.dashboardHero {
+  margin-bottom: 2rem;
+}
+
+.headerActions {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.btnAction {
+  height: 48px !important;
+  padding: 0 1.5rem !important;
+  border-radius: 12px !important;
+  font-weight: 800 !important;
+  font-size: 0.9rem !important;
+}
+
+@media (max-width: 768px) {
+  .headerActions {
+    width: 100%;
+    flex-direction: column;
+  }
+  
+  .btnAction {
+    width: 100%;
+  }
+}

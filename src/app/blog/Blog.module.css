@@ -1,0 +1,21 @@
+/* Blog.module.css */
+
+.blogPage {
+  min-height: 100vh;
+  background: transparent !important;
+  /* Unified transparency */
+}
+
+.mainContent {
+  width: 100%;
+  padding-bottom: 5rem;
+}
+
+/* Fix for lint error in BlogCard.module.css if needed, 
+   but this file is for the page layout */
+
+@media (max-width: 768px) {
+  .mainContent {
+    padding: 0 1rem 4rem;
+  }
+}

@@ -1,0 +1,55 @@
+.dashboardPage {
+  min-height: 100vh;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 5% 60px;
+}
+
+.errorWrapper {
+  margin-bottom: 2rem;
+  animation: fadeIn 0.4s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.creatorGrid {
+  display: block;
+}
+
+.discoveryGrid {
+  display: grid;
+  grid-template-columns: 2.2fr 1fr;
+  gap: 3rem;
+  align-items: flex-start;
+}
+
+.sectionHeader {
+  margin-bottom: 1.5rem;
+  margin-top: 3rem;
+}
+
+.sectionTitle {
+  font-size: 1.4rem;
+  font-weight: 900;
+  color: white;
+}
+
+@media (max-width: 992px) {
+  .dashboardPage {
+    padding: 20px 1.5rem 40px; /* Adjusted for Next.js layout */
+  }
+
+  .discoveryGrid {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+}

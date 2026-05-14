@@ -1,0 +1,109 @@
+.skeleton {
+    background: rgba(255, 255, 255, 0.05);
+    background: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0.05) 25%,
+        rgba(255, 255, 255, 0.1) 50%,
+        rgba(255, 255, 255, 0.05) 75%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite linear;
+    border-radius: 8px;
+    position: relative;
+    overflow: hidden;
+}
+
+@keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* Compound Layouts */
+.skeletonCard {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 24px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.cardHead {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 1.5rem;
+}
+
+.cardBody {
+    flex-grow: 1;
+}
+
+.cardFooter {
+    display: flex;
+    justify-content: space-between;
+    margin-top: auto;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+}
+
+.statItem {
+    padding: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+}
+
+.categoryItem {
+    padding: 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    height: 80px;
+    border-radius: 200px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+}
+
+.trendingItem {
+    padding: 1.2rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+    border-radius: 20px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+}
+
+.blogCard {
+    padding: 0;
+    border-radius: 20px;
+    overflow: hidden;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+}
+
+.blogContent {
+    padding: 1.5rem;
+}
+
+.blogMeta {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+/* Utils */
+.flexCol {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.mb8 { margin-bottom: 8px; }
+.mb15 { margin-bottom: 15px; }
+.mb20 { margin-bottom: 20px; }
+.shrink0 { flex-shrink: 0; }

@@ -1,0 +1,17 @@
+/* ==========================================================================
+   HUBLY CSS MANIFEST
+   ========================================================================== */
+
+/* 1. Base Styles & Global Utilities */
+@import './styles/Base/Base.css';
+@import './styles/Base/Global.css';
+
+/* 2. Layout Components - Now Modularized in @/components/ */
+
+/* 3. Page Specific Styles - All refactored to CSS Modules */
+
+/* 4. Global Animations */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}

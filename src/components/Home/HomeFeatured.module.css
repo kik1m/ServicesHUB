@@ -1,0 +1,49 @@
+/* HomeFeatured.module.css */
+
+.featuredSection {
+  padding: 80px 1.5rem;
+  max-width: 1400px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.featuredToolsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.errorMessageContainer {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 5rem;
+}
+
+.errorMessageContainer p {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.errorMessageContainer button {
+  margin-top: 1rem;
+}
+
+.emptyState {
+  grid-column: 1 / -1;
+  padding: 4rem;
+  text-align: center;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+}
+
+.emptyStateText {
+  color: var(--text-muted);
+}
+
+.emptyStateIcon {
+  opacity: 0.1;
+  margin-bottom: 1.5rem;
+  margin: 0 auto;
+}

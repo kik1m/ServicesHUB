@@ -1,0 +1,235 @@
+/* ToolDetailSidebar.module.css */
+
+.toolSidebar {
+  width: 100%;
+}
+
+.sidebarInner {
+  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  position: sticky;
+  top: 100px;
+  box-shadow: var(--shadow-lg);
+}
+
+.sidebarTitleSlim {
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 1.5rem;
+}
+
+.infoListRows {
+  display: flex;
+  flex-direction: column;
+}
+
+.infoRowItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.infoRowItem:last-child {
+  border-bottom: none;
+}
+
+.infoLabel {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.infoValue {
+  color: white;
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-align: right;
+}
+
+.publisherLinkPremium {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-primary);
+    font-weight: 600;
+    transition: all 0.3s;
+    text-decoration: none;
+}
+
+.publisherLinkPremium:hover {
+    color: var(--accent-primary);
+    transform: translateX(4px);
+}
+
+.publisherNameWrapper {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.teamVerifiedBadge {
+    color: #3b82f6; /* Premium Blue Verification */
+    filter: drop-shadow(0 0 5px rgba(59, 130, 246, 0.4));
+}
+
+.teamHubly {
+    color: #3b82f6 !important;
+}
+
+.ratingValue {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 700;
+  color: #ffc107;
+}
+
+.statusValue {
+  background: rgba(var(--primary-rgb), 0.1);
+  color: var(--primary);
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.safetyBadgeGreen {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #3b82f6; /* Unified Premium Blue */
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+.divider {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 1.5rem 0;
+}
+
+.shareSection {
+  margin-bottom: 2rem;
+}
+
+.shareSectionTitle {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+}
+
+.shareGroupRow {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 1rem;
+}
+
+.shareActionBtn {
+  flex: 1;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.isActive {
+  color: #ff4757;
+  border-color: rgba(255, 71, 87, 0.2);
+  background: rgba(255, 71, 87, 0.05);
+}
+
+.reportToolBtnContainer {
+  display: flex;
+  justify-content: center;
+}
+
+.reportToolBtn {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  opacity: 0.7;
+}
+
+.reportToolBtn:hover {
+  color: #ff4757;
+  transform: translateY(-1px);
+}
+
+.reportToolBtnContainer {
+  width: 100%;
+}
+
+.claimCardDashed {
+  margin-top: 2rem;
+  padding: 1.8rem;
+  text-align: center;
+  border: 1px dashed var(--primary);
+  background: rgba(0, 136, 204, 0.02);
+  border-radius: 20px;
+}
+
+.claimIcon {
+  margin-bottom: 1rem;
+  color: var(--primary);
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.claimTitle {
+  font-weight: 800;
+  margin-bottom: 0.5rem;
+  font-size: 1.1rem;
+  color: white;
+}
+
+.claimDesc {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: 1.2rem;
+  line-height: 1.5;
+}
+
+.claimLink {
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+/* Skeleton Styles */
+.skeletonRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.skeletonActionsGroup {
+  margin-top: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.skeletonRowFlex {
+  display: flex;
+  gap: 8px;
+}
+
+.skeletonClaimCard {
+  margin-top: 2rem;
+  padding: 1.8rem;
+  text-align: center;
+  border: 1px dashed var(--border);
+  border-radius: 20px;
+}
+
+.mb1_5rem { margin-bottom: 1.5rem; }
+.mb1rem { margin-bottom: 1rem; }
+.mb0_5rem { margin-bottom: 0.5rem; }
+

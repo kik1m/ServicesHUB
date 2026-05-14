@@ -1,0 +1,68 @@
+.sectionCard {
+    position: relative;
+    z-index: 50;
+    background: rgba(13, 17, 23, 0.6);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--border);
+    padding: 2.5rem;
+    border-radius: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.sectionCard:hover {
+    border-color: rgba(0, 210, 255, 0.2);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+}
+
+.sectionTitleRow {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.titleIconBg {
+    width: 52px;
+    height: 52px;
+    background: rgba(0, 210, 255, 0.1);
+    border: 1px solid rgba(0, 210, 255, 0.2);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary);
+}
+
+.sectionTitleRow h3 {
+    font-size: 1.6rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: white;
+}
+
+.inputGrid2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2.5rem; /* Increased gap */
+}
+
+.inputGrid3 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 2rem;
+    align-items: stretch;
+}
+
+@media (max-width: 992px) {
+    .inputGrid3, .inputGrid2 {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 640px) {
+    .sectionCard {
+        padding: 1.5rem;
+    }
+}

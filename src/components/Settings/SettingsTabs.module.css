@@ -1,0 +1,78 @@
+.settingsSidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.settingsTabBtn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 18px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    color: #a1a1aa;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.settingsTabBtn:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: white;
+    transform: translateX(4px);
+}
+
+.settingsTabBtn.active {
+    background: linear-gradient(135deg, rgba(0, 210, 255, 0.1) 0%, rgba(0, 163, 255, 0.1) 100%);
+    border-color: rgba(0, 163, 255, 0.3);
+    color: #00a3ff;
+}
+
+.settingsTabBtnContent {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.tabIcon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.tabLabel {
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+
+.chevron {
+    opacity: 0.3;
+    transition: 0.3s;
+}
+
+.settingsTabBtn:hover .chevron,
+.settingsTabBtn.active .chevron {
+    opacity: 1;
+    transform: translateX(2px);
+}
+
+.tabSkeleton {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 18px;
+}
+
+.skeletonIcon {
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+}
+
+.skeletonLabel {
+    width: 100px;
+    height: 16px;
+    border-radius: 4px;
+}

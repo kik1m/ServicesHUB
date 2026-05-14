@@ -1,0 +1,77 @@
+.dividerContainer {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    margin: 2rem 0;
+}
+
+.line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, 
+        transparent 0%, 
+        rgba(255, 255, 255, 0.08) 50%, 
+        transparent 100%
+    );
+}
+
+.dividerText {
+    font-size: 0.7rem;
+    font-weight: 800;
+    color: #52525b;
+    letter-spacing: 0.1em;
+    white-space: nowrap;
+    text-transform: uppercase;
+}
+
+.socialGrid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.2rem;
+}
+
+.googleIcon {
+    filter: drop-shadow(0 0 5px rgba(66, 133, 244, 0.3));
+}
+
+.githubIcon {
+    filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.2));
+}
+
+.socialBtn {
+    background: rgba(255, 255, 255, 0.02) !important;
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+    font-weight: 700 !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.socialBtn:hover {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px -10px rgba(0, 0, 0, 0.5);
+}
+
+/* 🎨 Premium Icon Styling */
+.googleIcon {
+    /* No forced color for multi-colored SVG */
+    filter: drop-shadow(0 0 5px rgba(66, 133, 244, 0.3));
+}
+
+.githubIcon {
+    color: #ffffff;
+    filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.2));
+}
+
+.googleBtn:hover .googleIcon {
+    filter: drop-shadow(0 0 8px rgba(66, 133, 244, 0.6));
+}
+
+.githubBtn:hover .githubIcon {
+    filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.5));
+}
+
+.skeletonSocial {
+    height: 48px;
+    border-radius: 12px;
+}

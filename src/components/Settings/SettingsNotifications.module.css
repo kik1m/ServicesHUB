@@ -1,0 +1,69 @@
+.settingsCard {
+    background: rgba(255, 255, 255, 0.02);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 24px;
+    padding: 2.5rem;
+}
+
+.settingsSectionTitle {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: white;
+    margin-bottom: 4px;
+}
+
+.settingsSectionSubtitle {
+    font-size: 0.9rem;
+    color: #71717a;
+    margin-bottom: 2rem;
+}
+
+.notifPreferencesList {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.notifItem {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.25rem;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    transition: 0.3s;
+}
+
+.notifItem:hover {
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.notifItemInfo h4 {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 4px;
+}
+
+.notifItemInfo p {
+    font-size: 0.85rem;
+    color: #71717a;
+}
+
+.fadeIn {
+    animation: fadeIn 0.5s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Skeletons */
+.skeletonTitle { width: 180px; height: 24px; margin-bottom: 8px; border-radius: 4px; }
+.skeletonSubtitle { width: 280px; height: 16px; margin-bottom: 2rem; border-radius: 4px; }
+.skeletonNotifLabel { width: 120px; height: 18px; margin-bottom: 6px; border-radius: 4px; }
+.skeletonNotifDesc { width: 200px; height: 14px; border-radius: 4px; }
+.skeletonToggle { width: 44px; height: 24px; border-radius: 100px; }

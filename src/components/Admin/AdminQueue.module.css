@@ -1,0 +1,234 @@
+.wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.sectionHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+}
+
+.headerInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.title {
+    font-size: 1.6rem;
+    font-weight: 900;
+    margin: 0;
+    color: white;
+}
+
+.badge {
+    display: inline-flex;
+    padding: 4px 12px;
+    background: rgba(0, 163, 255, 0.1);
+    color: #00a3ff;
+    border-radius: 100px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    width: fit-content;
+}
+
+.searchWrapper {
+    max-width: 300px;
+    width: 100%;
+}
+
+.listContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.itemRow {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid #1f1f23;
+    border-radius: 18px;
+    padding: 1rem 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.itemRow:hover {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(255, 255, 255, 0.1);
+    transform: translateX(5px);
+}
+
+.itemContent {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.itemThumb {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #00d2ff 0%, #00a3ff 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 900;
+    color: white;
+    font-size: 1.2rem;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.itemInfo {
+    flex: 1;
+}
+
+.itemInfo h4 {
+    font-size: 1.05rem;
+    font-weight: 800;
+    margin: 0 0 4px 0;
+    color: white;
+}
+
+.itemInfo p {
+    font-size: 0.85rem;
+    color: #71717a;
+    margin: 0;
+}
+
+.actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.featuredActive {
+    background: rgba(255, 215, 0, 0.1) !important;
+    color: #FFD700 !important;
+    border-color: rgba(255, 215, 0, 0.3) !important;
+}
+
+.featureTrigger:hover {
+    background: rgba(255, 215, 0, 0.1) !important;
+    color: #FFD700 !important;
+    border-color: #FFD700 !important;
+}
+
+.newMode {
+    background: #00ff88 !important;
+    color: #000 !important;
+    border: none !important;
+}
+
+.updateMode {
+    background: rgba(56, 189, 248, 0.1) !important;
+    color: #38bdf8 !important;
+    border: 1px solid #38bdf8 !important;
+}
+
+.rejectBtn {
+    padding: 10px;
+    border-radius: 12px;
+    background: rgba(255, 80, 80, 0.1);
+    color: #ff4757;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.rejectBtn:hover {
+    background: #ff4757;
+    color: white;
+}
+
+.searchResultsSection {
+    background: rgba(0, 163, 255, 0.03);
+    border: 1px solid rgba(0, 163, 255, 0.1);
+    padding: 1.5rem;
+    border-radius: 20px;
+    margin-bottom: 1rem;
+}
+
+.searchHeader {
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #00a3ff;
+    margin: 0 0 1rem 0;
+}
+
+.emptyState {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: #71717a;
+}
+
+/* Skeleton Styles */
+.itemRowSkeleton {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 1rem 1.5rem;
+    border: 1px solid #1f1f23;
+    border-radius: 18px;
+}
+
+.skeletonText {
+    flex: 1;
+}
+
+.skeletonSectionTitle {
+    width: 220px;
+    height: 32px;
+}
+
+.skeletonThumb {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+}
+
+.skeletonRowTitle {
+    width: 200px;
+    height: 18px;
+    margin-bottom: 8px;
+}
+
+.skeletonRowMeta {
+    width: 140px;
+    height: 14px;
+}
+
+.skeletonActionBtn {
+    width: 120px;
+    height: 40px;
+    border-radius: 12px;
+}
+
+@media (max-width: 1024px) {
+    .sectionHeader {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .searchWrapper {
+        max-width: 100%;
+    }
+}
+
+@media (max-width: 768px) {
+    .itemContent {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    .actions {
+        width: 100%;
+        justify-content: flex-end;
+    }
+}

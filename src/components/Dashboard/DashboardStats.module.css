@@ -1,0 +1,91 @@
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+  margin-bottom: 3rem;
+}
+
+.metricCard {
+  padding: 1.5rem !important;
+  background: #0f0f11 !important;
+  border: 1px solid #1f1f23 !important;
+  border-radius: 16px !important;
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.metricHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.metricLabel {
+  color: #71717a;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.metricValue {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: -1px;
+  line-height: 1;
+}
+
+.iconWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: #18181b;
+  border: 1px solid #27272a;
+}
+
+/* Subtle Color Accents */
+.iconSubmissions { color: #3b82f6; }
+.iconViews { color: #10b981; }
+.iconClicks { color: #8b5cf6; } /* Added Clicks color */
+.iconTier { color: #6366f1; }
+.iconFavorites { color: #ef4444; }
+.iconAccount { color: #6366f1; }
+
+.premiumCard {
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.05), rgba(255, 165, 0, 0.05)) !important;
+  border-color: rgba(255, 215, 0, 0.2) !important;
+}
+
+.premiumValue {
+  color: #FFD700;
+}
+
+.premiumCard .iconTier {
+  color: #FFD700 !important;
+  background: rgba(255, 215, 0, 0.1) !important;
+  border-color: rgba(255, 215, 0, 0.2) !important;
+}
+
+@media (max-width: 1200px) {
+  .metricValue {
+    font-size: 1.8rem;
+  }
+}
+
+@media (max-width: 992px) {
+  .statsGrid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
+
+.skeletonValue {
+  margin-top: 0.8rem;
+}

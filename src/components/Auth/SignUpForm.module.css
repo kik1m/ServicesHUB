@@ -1,0 +1,42 @@
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.inputGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.fieldLabel {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #a1a1aa;
+}
+
+.submitBtn {
+    margin-top: 1rem;
+    width: 100%;
+}
+
+.formSkeleton {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.skeletonInput {
+    height: 78px;
+    border-radius: 14px;
+}
+
+.skeletonBtn {
+    height: 56px;
+    border-radius: 14px;
+    margin-top: 1rem;
+}

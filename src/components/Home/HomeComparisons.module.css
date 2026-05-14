@@ -1,0 +1,261 @@
+/* HomeComparisons.module.css */
+
+.blueGradientText {
+  background: linear-gradient(135deg, #4f8ef7 0%, #a78bfa 100%) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  text-shadow: none !important;
+}
+
+.comparisonsSection {
+  padding: 80px 1.5rem;
+  max-width: 1400px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* Live Pill - same pattern as HomeTrending */
+.livePill {
+  background: rgba(79, 142, 247, 0.08);
+  color: #4f8ef7;
+  padding: 6px 14px;
+  border-radius: 100px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid rgba(79, 142, 247, 0.2);
+  letter-spacing: 1px;
+}
+
+.dot {
+  width: 7px;
+  height: 7px;
+  background: #4f8ef7;
+  border-radius: 50%;
+  box-shadow: 0 0 12px #4f8ef7;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0%   { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(79, 142, 247, 0.7); }
+  70%  { transform: scale(1);    box-shadow: 0 0 0 10px rgba(79, 142, 247, 0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(79, 142, 247, 0); }
+}
+
+/* Grid */
+.comparisonsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+/* Card */
+.comparisonCard {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.4rem 1.5rem;
+  text-decoration: none;
+  color: inherit;
+  border: 1px solid rgba(79, 142, 247, 0.15);
+  border-radius: 20px;
+  background: linear-gradient(135deg, rgba(79, 142, 247, 0.04) 0%, rgba(167, 139, 250, 0.02) 100%);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 0 0 20px rgba(79, 142, 247, 0.05);
+}
+
+/* Animated scan line - same concept as HomeTrending */
+.comparisonCard::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(79, 142, 247, 0.8), rgba(167, 139, 250, 0.8), transparent);
+  animation: scanLine 3s linear infinite;
+}
+
+@keyframes scanLine {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.comparisonCard:hover {
+  transform: translateY(-5px) scale(1.02);
+  background: rgba(79, 142, 247, 0.07);
+  box-shadow: 0 15px 35px rgba(79, 142, 247, 0.15);
+  border-color: rgba(79, 142, 247, 0.35);
+}
+
+/* Battle Track */
+.battleTrack {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.toolSlot {
+  position: relative;
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  overflow: visible;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.03);
+  flex-shrink: 0;
+  transition: transform 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.toolSlot img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 14px;
+}
+
+.comparisonCard:hover .toolSlot:first-child {
+  transform: rotate(-5deg) scale(1.05);
+}
+.comparisonCard:hover .toolSlot:last-child {
+  transform: rotate(5deg) scale(1.05);
+}
+
+.winnerGlow {
+  border-color: rgba(250, 204, 21, 0.5) !important;
+  box-shadow: 0 0 18px rgba(250, 204, 21, 0.3);
+}
+
+.trophyBadge {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: linear-gradient(135deg, #f59e0b, #fbbf24);
+  color: #fff;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.5);
+  z-index: 1;
+}
+
+.vsChip {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(79, 142, 247, 0.1);
+  border: 1px solid rgba(79, 142, 247, 0.25);
+  color: #4f8ef7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: 0.3s;
+}
+
+.comparisonCard:hover .vsChip {
+  background: rgba(79, 142, 247, 0.2);
+  transform: rotate(180deg);
+}
+
+/* Card Info */
+.cardInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.toolNames {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-main);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.vsText {
+  color: var(--text-muted);
+  font-weight: 400;
+  font-size: 0.85rem;
+  margin: 0 4px;
+}
+
+.viewLink {
+  font-size: 0.78rem;
+  color: #4f8ef7;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  opacity: 0;
+  transform: translateX(-8px);
+  transition: all 0.3s;
+}
+
+.comparisonCard:hover .viewLink {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* CTA */
+.ctaWrapper {
+  display: flex;
+  justify-content: center;
+  margin-top: 2.5rem;
+}
+
+.viewAllBtn {
+  color: #4f8ef7 !important;
+}
+
+/* Skeleton */
+.skeletonBattle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.skeletonIcon {
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+}
+
+.skeletonVs {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+}
+
+.skeletonLabel {
+  width: 140px;
+  height: 14px;
+  border-radius: 8px;
+  margin: 0 auto;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .comparisonsSection {
+    padding: 60px 1rem;
+  }
+
+  .comparisonsGrid {
+    grid-template-columns: 1fr;
+  }
+}

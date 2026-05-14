@@ -1,0 +1,153 @@
+/* SearchSidebar.module.css */
+
+.searchSidebar {
+  position: sticky;
+  top: 120px;
+}
+
+.sidebarCard {
+  padding: 1.25rem; /* Restored */
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 20px; /* Restored */
+}
+
+.sidebarFilterHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 1.5rem; /* Restored */
+  color: var(--primary);
+}
+
+.sidebarFilterHeader h3 {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: white;
+  margin: 0;
+}
+
+.filterGroup {
+  margin-bottom: 1.5rem; /* Restored */
+}
+
+.filterGroup:last-child {
+  margin-bottom: 0;
+}
+
+.filterLabel {
+  display: block;
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: rgba(255, 255, 255, 0.4);
+  letter-spacing: 1.5px;
+  margin-bottom: 0.8rem;
+}
+
+.categorySearchWrapper {
+  margin-bottom: 1rem;
+}
+
+/* 📋 List Formatting */
+.filterOptionsVertical {
+  display: flex;
+  flex-direction: column;
+  gap: 4px; /* Restored */
+  /* Removed max-height and overflow to show all categories */
+  padding-right: 4px;
+}
+
+.filterOptionsVertical::-webkit-scrollbar {
+  width: 3px;
+}
+.filterOptionsVertical::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+
+.filterBtn {
+  width: 100%;
+  padding: 8px 10px; /* Restored */
+  text-align: left;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  color: var(--text-muted);
+  font-size: 0.85rem; /* Restored */
+  font-weight: 500;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: 0.2s ease;
+  cursor: pointer;
+}
+
+.filterBtn:hover {
+  background: rgba(255, 255, 255, 0.04);
+  color: white;
+}
+
+.filterBtn.active {
+  background: rgba(0, 210, 255, 0.08);
+  color: var(--primary);
+  font-weight: 700;
+}
+
+.showMoreBtn {
+  margin-top: 6px;
+  color: var(--primary);
+  font-weight: 700;
+  font-size: 0.8rem;
+  padding: 8px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: transparent;
+  border: 1px dashed rgba(0, 210, 255, 0.15);
+  border-radius: 8px;
+  transition: 0.2s;
+}
+
+.showMoreBtn:hover {
+  background: rgba(0, 210, 255, 0.05);
+  border-color: rgba(0, 210, 255, 0.3);
+}
+
+.pricingFilterChips {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+.pricingChip {
+  width: 100%;
+  padding: 8px;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.pricingChip:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: white;
+  transform: translateY(-1px);
+}
+
+.pricingChip.active {
+  background: var(--primary);
+  color: white;
+  box-shadow: 0 4px 15px rgba(0, 210, 255, 0.2);
+}
+
+.mb8 { margin-bottom: 4px; }

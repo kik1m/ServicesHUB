@@ -1,0 +1,23 @@
+.viewWrapper {
+  min-height: 100vh;
+  background: transparent;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 5% 100px;
+  position: relative;
+  z-index: 2;
+}
+
+.pricingSection {
+    margin-bottom: 5rem;
+}
+
+@media (max-width: 768px) {
+  .container {
+    margin-top: -2rem;
+    padding-bottom: 60px;
+  }
+}

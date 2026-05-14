@@ -1,0 +1,71 @@
+.settingsCard {
+    background: rgba(255, 255, 255, 0.02);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 24px;
+    padding: 2.5rem;
+    margin-bottom: 2rem;
+}
+
+.securityHeader {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    margin-bottom: 2.5rem;
+}
+
+.securityIcon {
+    color: #10b981;
+    filter: drop-shadow(0 0 10px rgba(16, 185, 129, 0.3));
+}
+
+.settingsSectionTitle {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: white;
+    margin-bottom: 4px;
+}
+
+.settingsSectionSubtitle {
+    font-size: 0.9rem;
+    color: #71717a;
+}
+
+.securityForm {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+}
+
+.settingsActions {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.btnSettingsSave {
+    min-width: 180px;
+}
+
+.fadeIn {
+    animation: fadeIn 0.5s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.skeletonTitle { width: 200px; height: 28px; margin-bottom: 8px; border-radius: 4px; }
+.skeletonSubtitle { width: 300px; height: 16px; margin-bottom: 2.5rem; border-radius: 4px; }
+.skeletonInput { height: 70px; border-radius: 12px; }
+
+@media (max-width: 768px) {
+    .securityForm {
+        grid-template-columns: 1fr;
+    }
+    .securityHeader {
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+    }
+}

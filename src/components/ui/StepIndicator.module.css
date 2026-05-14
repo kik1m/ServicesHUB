@@ -1,0 +1,86 @@
+.container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    width: 100%;
+    margin-bottom: 3rem;
+}
+
+.stepWrapper {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    user-select: none;
+}
+
+.circle {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    font-weight: 800;
+    color: var(--text-muted);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.label {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    white-space: nowrap;
+    transition: all 0.3s ease;
+}
+
+.line {
+    flex: 0 1 60px;
+    height: 2px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 2px;
+    transition: all 0.4s ease;
+}
+
+/* Active State */
+.active .circle {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: #000;
+    box-shadow: 0 0 20px rgba(0, 210, 255, 0.3);
+    transform: scale(1.1);
+}
+
+.active .label {
+    color: white;
+}
+
+/* Completed State */
+.completed .circle {
+    background: rgba(0, 255, 170, 0.15);
+    border-color: var(--secondary);
+    color: var(--secondary);
+}
+
+.completed .label {
+    color: var(--secondary);
+}
+
+.lineCompleted {
+    background: var(--secondary);
+    box-shadow: 0 0 10px rgba(0, 255, 170, 0.2);
+}
+
+@media (max-width: 640px) {
+    .label {
+        display: none;
+    }
+    .line {
+        flex: 1;
+    }
+}

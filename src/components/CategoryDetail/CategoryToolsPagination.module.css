@@ -1,0 +1,11 @@
+.paginationRow {
+  text-align: center;
+  margin-top: 4rem;
+}
+
+.loadMoreBtn {
+  padding: 1.2rem 4rem;
+  font-weight: 800;
+  font-size: 1rem;
+  border-radius: 16px;
+}

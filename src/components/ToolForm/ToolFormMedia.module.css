@@ -1,0 +1,193 @@
+.sectionCard {
+    background: rgba(13, 17, 23, 0.6);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--border);
+    padding: 2.5rem;
+    border-radius: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+    transition: all 0.4s ease;
+}
+
+.sectionTitleRow {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.titleIconBg {
+    width: 52px;
+    height: 52px;
+    background: rgba(0, 210, 255, 0.1);
+    border: 1px solid rgba(0, 210, 255, 0.2);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary);
+}
+
+.sectionTitleRow h3 {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: white;
+}
+
+.uploadWrapperSlim {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.uploadHeaderRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.slimHeaderLabel {
+    font-size: 0.85rem;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+}
+
+.premiumInfoBanner {
+    background: rgba(0, 210, 255, 0.05);
+    border: 1px solid rgba(0, 210, 255, 0.1);
+    padding: 1.2rem;
+    border-radius: 16px;
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.bannerIconBg {
+    color: var(--primary);
+}
+
+.bannerContent h4 {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 4px;
+}
+
+.bannerContent p {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.slimDropzone {
+    width: 100%;
+    min-height: 240px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 2px dashed var(--border);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.slimDropzone:hover {
+    background: rgba(0, 210, 255, 0.03);
+    border-color: var(--primary);
+}
+
+.dropzoneLabel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    cursor: pointer;
+}
+
+.dropzoneText {
+    font-weight: 700;
+    color: var(--text-muted);
+}
+
+.imagePreviewBox {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    border-radius: 18px;
+    overflow: hidden;
+}
+
+.imagePreviewBox img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.changeImgOverlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    color: white;
+    font-weight: 700;
+    opacity: 0;
+    transition: 0.3s;
+    cursor: pointer;
+}
+
+.imagePreviewBox:hover .changeImgOverlay {
+  opacity: 1;
+}
+
+.hiddenInput {
+  display: none;
+}
+
+.dropzoneIcon {
+  opacity: 0.5;
+}
+
+.textareaWrapper {
+    overflow: hidden; /* Clips the textarea scrollbar nicely */
+}
+
+.textareaField {
+    min-height: 180px !important;
+    padding: 16px 16px 20px 16px !important;
+    line-height: 1.6;
+    border-radius: inherit;
+}
+
+/* Elite Custom Scrollbar for the Description Textarea */
+.textareaField::-webkit-scrollbar {
+    width: 8px;
+}
+
+.textareaField::-webkit-scrollbar-track {
+    background: transparent;
+    border-radius: 0 14px 14px 0;
+}
+
+.textareaField::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    border: 2px solid #141b22;
+}
+
+.textareaField::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.textareaField::-webkit-resizer {
+    display: none;
+}
+
+.textareaField::-webkit-scrollbar-corner {
+    background: transparent;
+}
+

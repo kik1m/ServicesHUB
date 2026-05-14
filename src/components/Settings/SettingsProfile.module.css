@@ -1,0 +1,146 @@
+.settingsCard {
+    background: rgba(255, 255, 255, 0.02);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 24px;
+    padding: 2.5rem;
+    margin-bottom: 2rem;
+}
+
+.settingsSectionTitle {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: white;
+    margin-bottom: 1.5rem;
+    letter-spacing: -0.01em;
+}
+
+.settingsAvatarSection {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    margin-bottom: 2.5rem;
+    padding-bottom: 2.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.settingsAvatarWrapper {
+    position: relative;
+}
+
+.settingsAvatarDisplay {
+    width: 100px;
+    height: 100px;
+    border-radius: 100px;
+    overflow: hidden;
+    border: 3px solid rgba(0, 163, 255, 0.3);
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.avatarImg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.settingsAvatarUploadBtn {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 32px;
+    height: 32px;
+    background: #00a3ff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border: 2px solid #0d0d0f;
+    transition: 0.3s;
+}
+
+.settingsAvatarUploadBtn:hover {
+    transform: scale(1.1);
+    background: #0082cc;
+}
+
+.settingsAvatarInfo h4 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 4px;
+}
+
+.settingsAvatarInfo p {
+    font-size: 0.85rem;
+    color: #71717a;
+    margin-bottom: 12px;
+}
+
+.settingsAvatarChangeLink {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #00a3ff;
+    cursor: pointer;
+}
+
+.settingsAvatarChangeLink:hover {
+    text-decoration: underline;
+}
+
+.settingsFormGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.settingsPresenceGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+}
+
+.mb3rem {
+    margin-bottom: 3rem;
+}
+
+.settingsActions {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.btnSettingsSave {
+    min-width: 160px;
+}
+
+.fadeIn {
+    animation: fadeIn 0.5s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Skeletons */
+.skeletonTitle { width: 150px; height: 24px; margin-bottom: 1.5rem; border-radius: 4px; }
+.skeletonAvatar { width: 100px; height: 100px; border-radius: 100px; }
+.skeletonAvatarLabel { width: 120px; height: 18px; margin-bottom: 8px; border-radius: 4px; }
+.skeletonAvatarDesc { width: 180px; height: 14px; border-radius: 4px; }
+.skeletonInput { height: 70px; border-radius: 12px; }
+.skeletonTextArea { height: 120px; border-radius: 12px; margin-top: 1rem; }
+
+@media (max-width: 768px) {
+    .settingsFormGrid, .settingsPresenceGrid {
+        grid-template-columns: 1fr;
+    }
+    .settingsAvatarSection {
+        flex-direction: column;
+        text-align: center;
+        gap: 1.5rem;
+    }
+    .settingsCard {
+        padding: 1.5rem;
+    }
+}
