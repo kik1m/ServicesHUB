@@ -1,18 +1,13 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 
 export default function PageTransition({ children }) {
     const pathname = usePathname();
 
-    const [isAnimating, setIsAnimating] = useState(true);
-
     useEffect(() => {
-        setIsAnimating(true);
-        // Remove the animation class after it finishes (350ms) to restore backdrop-filter
-        const animTimer = setTimeout(() => setIsAnimating(false), 350);
-
+        // Force scroll to absolute top on every route change
         const scrollTimer = setTimeout(() => {
             requestAnimationFrame(() => {
                 window.scrollTo({
@@ -23,18 +18,33 @@ export default function PageTransition({ children }) {
             });
         }, 10);
 
-        return () => {
-            clearTimeout(animTimer);
-            clearTimeout(scrollTimer);
-        };
+        return () => clearTimeout(scrollTimer);
     }, [pathname]);
 
     return (
-        <div 
-            key={pathname} 
-            style={isAnimating ? { animation: 'fadeIn 0.35s ease-out forwards', width: '100%' } : { width: '100%' }}
-        >
-            {children}
-        </div>
+        <>
+            {/* The Veil: A full-screen overlay that fades out to reveal the new page.
+                Using key={pathname} forces it to remount on every route change.
+                This provides a smooth transition WITHOUT breaking backdrop-filter! */}
+            <div 
+                key={pathname + '-veil'} 
+                style={{
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    width: '100vw',
+                    height: '100vh',
+                    background: 'var(--background, #0f111a)', // Fallback to your dark background
+                    zIndex: 99999, // Above everything
+                    pointerEvents: 'none', // Allow clicks to pass through
+                    animation: 'veilFadeOut 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards'
+                }}
+            />
+            
+            {/* The actual page content is rendered completely normally, preserving all CSS contexts */}
+            <div style={{ width: '100%' }}>
+                {children}
+            </div>
+        </>
     );
 }
