@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import { compareService } from '../../services/compareService';
 import { toolsService } from '../../services/toolsService';
 import CompareClient from './CompareClient';
@@ -65,10 +65,12 @@ export default async function ComparePage() {
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
             />
-            <CompareClient 
-                initialRecentComparisons={recentRes.data || []}
-                bannerTools={bannerRes.data || []}
-            />
+            <Suspense fallback={null}>
+                <CompareClient 
+                    initialRecentComparisons={recentRes.data || []}
+                    bannerTools={bannerRes.data || []}
+                />
+            </Suspense>
         </>
     );
 }

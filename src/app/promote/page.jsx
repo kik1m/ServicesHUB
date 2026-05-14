@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import PromoteClient from './PromoteClient';
 import { PROMOTE_UI_CONSTANTS } from '@/constants/promoteConstants';
 
@@ -25,5 +25,9 @@ export async function generateMetadata() {
 export const revalidate = 3600;
 
 export default function PromotePage() {
-    return <PromoteClient />;
+    return (
+        <Suspense fallback={null}>
+            <PromoteClient />
+        </Suspense>
+    );
 }

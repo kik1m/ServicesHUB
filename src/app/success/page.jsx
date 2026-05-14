@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import SuccessClient from './SuccessClient';
 
 // Rule #34: Success pages must never be indexed or cached
@@ -18,5 +18,9 @@ export const metadata = {
 };
 
 export default function SuccessPage() {
-    return <SuccessClient />;
+    return (
+        <Suspense fallback={null}>
+            <SuccessClient />
+        </Suspense>
+    );
 }
