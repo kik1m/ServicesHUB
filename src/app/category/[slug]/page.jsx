@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import { notFound } from 'next/navigation';
 import { categoriesService } from '../../../services/categoriesService';
 import { toolsService } from '../../../services/toolsService';
@@ -53,9 +53,11 @@ export default async function CategoryPage({ params }) {
     }
 
     return (
-        <CategoryDetailClient 
-            category={category}
-            bannerTools={bannerTools}
-        />
+        <Suspense fallback={null}>
+            <CategoryDetailClient 
+                category={category}
+                bannerTools={bannerTools}
+            />
+        </Suspense>
     );
 }
