@@ -1,53 +1,31 @@
+.messageContent {
+    text-align: center;
+    width: 100%;
+}
+
 .successTitle {
-  font-size: 2.5rem;
-  font-weight: 900;
-  margin-bottom: 1rem;
+    font-size: 1.8rem; /* Matching .sectionTitle from PromotionPlans */
+    font-weight: 900;
+    color: white;
+    margin: 0.5rem 0;
+    letter-spacing: -0.5px;
 }
 
 .successMessageText {
-  color: var(--text-muted);
-  margin-bottom: 2.5rem;
-  font-size: 1.1rem;
-  line-height: 1.6;
+    font-size: 0.85rem; /* Matching .featureItem from PromotionCard */
+    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.8);
+    font-weight: 500;
+    margin-top: 0.2rem;
 }
 
-/* --- SKELETON LAYOUTS (Rule #81) --- */
-.skeletonHeader {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 1.25rem;
+.successMessageText b {
+    color: #00d2ff;
+    font-weight: 900;
 }
 
-.skeletonTitle {
-    width: 180px;
-    height: 36px;
-}
-
-.skeletonBody {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.5rem;
-    margin-bottom: 2.5rem;
-}
-
-.skeletonLine {
-    width: 80%;
-    height: 14px;
-}
-
-.skeletonLineSmall {
-    width: 60%;
-    height: 14px;
-}
-
-@media (max-width: 600px) {
-  .successTitle {
-    font-size: 1.8rem;
-  }
-
-  .successMessageText {
-    font-size: 1rem;
-    padding: 0 1rem;
-  }
+@media (max-width: 768px) {
+    .successTitle {
+        font-size: 1.4rem;
+    }
 }

@@ -1,21 +1,73 @@
-.successViewWrapper {
-  min-height: 80vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 100px 20px;
+.successPage {
+    min-height: 90vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 24px;
+    position: relative;
+    background: transparent;
 }
 
-.successGlassCard {
-  max-width: 500px;
-  text-align: center;
-  padding: 3rem !important;
-  border: 1px solid rgba(0, 210, 255, 0.3) !important;
-  border-radius: 30px !important;
+/* Blur Background to see platform */
+.successPage::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    backdrop-filter: blur(8px) brightness(0.4);
+    -webkit-backdrop-filter: blur(8px) brightness(0.4);
+    z-index: 0;
 }
 
-@media (max-width: 600px) {
-  .successGlassCard {
-    padding: 2rem !important;
-  }
+.contentWrapper {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 440px; /* Matching Promote Card width */
+    padding: 1.5rem 1.2rem; /* Exact Promote Card padding */
+    
+    /* 1:1 Parity with PromotionCard.module.css */
+    background: linear-gradient(135deg, rgba(0, 210, 255, 0.04) 0%, rgba(0, 136, 204, 0.01) 100%);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(0, 210, 255, 0.2);
+    border-radius: 20px;
+    box-shadow: 0 0 15px rgba(0, 136, 204, 0.04);
+    
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.2rem;
+    text-align: center;
+    overflow: hidden;
+    animation: cardFadeIn 0.5s ease-out forwards;
+}
+
+/* 1:1 Parity scanning animation */
+.contentWrapper::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #00d2ff, transparent);
+    animation: successScanning 4s linear infinite;
+    z-index: 10;
+}
+
+@keyframes successScanning {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+@keyframes cardFadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 768px) {
+    .contentWrapper {
+        max-width: 100%;
+        margin: 0 16px;
+    }
 }

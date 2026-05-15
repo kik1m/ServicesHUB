@@ -24,6 +24,7 @@ const Logo = ({ size = 32, className = '', onClick, hideText = false }) => {
                 width={size}
                 height={size}
                 className={styles.image}
+                style={{ width: 'auto' }}
                 priority
             />
             {!hideText && (

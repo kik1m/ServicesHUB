@@ -70,7 +70,8 @@
 
 @media (max-width: 1024px) {
   .glass-card:hover {
-    transform: none !important; /* Disable hover translation on touch devices */
+    transform: none !important;
+    /* Disable hover translation on touch devices */
   }
 }
 
@@ -354,7 +355,7 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  padding-top: 80px;
+  padding-top: 0; /* Removed global padding to allow background bleed */
   position: relative;
   z-index: 1;
   background: transparent !important;
@@ -364,7 +365,9 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  min-height: 100vh; /* Force content area to be at least one full screen height */
+  padding-top: 80px; /* Offset moved here to allow children to use negative margins */
+  min-height: 100vh;
+  /* Force content area to be at least one full screen height */
   width: 100%;
   max-width: 100%;
   overflow-x: hidden;
@@ -579,9 +582,10 @@ body {
     justify-content: center;
   }
 }
+
 /* ?? Elite Hydration Protection */
 .app-container:not(.is-ready) footer {
-    opacity: 0 !important;
-    pointer-events: none !important;
-    visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  visibility: hidden !important;
 }

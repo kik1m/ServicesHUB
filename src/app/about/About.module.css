@@ -22,8 +22,8 @@
   }
 }
 
+
 @media (max-width: 768px) {
-  .viewWrapper {
-    padding-top: 60px !important;
-  }
+  /* Removed redundant padding-top that caused black gap */
 }
+

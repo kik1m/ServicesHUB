@@ -34,7 +34,11 @@ const SuccessMessage = ({ type, toolName, isLoading, error, onRetry }) => {
                 <p className={styles.successMessageText}>
                     {isPremium 
                         ? content?.description 
-                        : content?.description?.replace('Your tool', `Your tool "${toolName || 'your tool'}"`)
+                        : (
+                            <span>
+                                Your tool <b>{toolName || 'your tool'}</b> is now successfully promoted. It will be featured on our platform according to your selected plan.
+                            </span>
+                        )
                     }
                 </p>
             </div>

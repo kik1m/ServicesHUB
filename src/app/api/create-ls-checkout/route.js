@@ -28,12 +28,15 @@ export async function POST(request) {
                     attributes: {
                         checkout_data: {
                             custom: {
-                                userId: userId,
-                                itemType: itemType,
-                                toolId: toolId || '',
-                                planName: planName
-                            },
+                                user_id: userId,
+                                item_type: itemType,
+                                tool_id: toolId || ''
+                            }
                         },
+                        product_options: {
+                            redirect_url: `${process.env.NEXT_PUBLIC_APP_URL}/success?type=${itemType}&toolId=${toolId || ''}&sync=true`,
+                        },
+                        test_mode: true,
                     },
                     relationships: {
                         store: {
@@ -56,8 +59,11 @@ export async function POST(request) {
         const data = await response.json();
 
         if (!response.ok) {
-            console.error('Lemon Squeezy API Error:', data);
-            return NextResponse.json({ error: 'Failed to create checkout' }, { status: 500 });
+            console.error('Lemon Squeezy API Error Detail:', JSON.stringify(data, null, 2));
+            return NextResponse.json({ 
+                error: 'Failed to create checkout', 
+                detail: data.errors?.[0]?.detail || JSON.stringify(data.errors) || 'Unknown LS Error' 
+            }, { status: response.status });
         }
 
         const checkoutUrl = data.data.attributes.url;

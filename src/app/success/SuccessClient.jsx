@@ -15,14 +15,13 @@ export default function SuccessClient() {
 
     return (
         <main className={styles.successPage} aria-live="polite">
-            <SuccessHero 
-                type={type} 
-                toolName={toolName}
-                isLoading={loading}
-            />
-            
             <div className={styles.contentWrapper}>
-                <SuccessMessage type={type} isLoading={loading} />
+                <SuccessHero 
+                    type={type} 
+                    toolName={toolName}
+                    isLoading={loading}
+                />
+                <SuccessMessage type={type} toolName={toolName} isLoading={loading} />
                 <SuccessActions type={type} isLoading={loading} />
             </div>
         </main>

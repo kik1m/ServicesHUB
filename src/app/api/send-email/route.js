@@ -111,6 +111,42 @@ export async function POST(request) {
                 `);
                 break;
 
+            case 'subscription_success':
+                htmlContent = getWrapper(`
+                    <span class="badge" style="background: rgba(0,210,255,0.1); color: #00d2ff;">PROMOTION ACTIVATED</span>
+                    <h1>Your Tool is now Featured! 🚀</h1>
+                    <p>Hello ${data.userName}, we've successfully activated the <strong>${data.planName}</strong> plan for <strong>${data.toolName}</strong>.</p>
+                    <div class="card">
+                        <ul style="list-style: none; padding: 0; margin: 0;">
+                            <li style="margin-bottom: 10px;">✅ <strong>Duration:</strong> 30 Days</li>
+                            <li style="margin-bottom: 10px;">✅ <strong>Visibility:</strong> ${data.planName === 'Featured' ? 'Homepage Featured' : 'Homepage + Category Authority'}</li>
+                            <li style="margin-bottom: 10px;">✅ <strong>Badge:</strong> Verified Status</li>
+                        </ul>
+                    </div>
+                    <div style="text-align: center;">
+                        <a href="https://hubly-tools.com/dashboard" class="button">Go to Dashboard</a>
+                    </div>
+                `);
+                break;
+
+            case 'premium_upgrade':
+                htmlContent = getWrapper(`
+                    <span class="badge" style="background: rgba(191,90,242,0.1); color: #bf5af2;">PREMIUM ACTIVATED</span>
+                    <h1>Welcome to HUBly Premium! 💎</h1>
+                    <p>Hello ${data.userName}, your account has been upgraded to lifetime Premium status.</p>
+                    <div class="card" style="border-left: 4px solid #bf5af2;">
+                        <ul style="list-style: none; padding: 0; margin: 0;">
+                            <li style="margin-bottom: 10px;">✨ <strong>Unlimited AI:</strong> Search, Comparisons & Analysis</li>
+                            <li style="margin-bottom: 10px;">✨ <strong>Priority Support:</strong> Direct access to our elite team</li>
+                            <li style="margin-bottom: 10px;">✨ <strong>Early Access:</strong> Be the first to try new features</li>
+                        </ul>
+                    </div>
+                    <div style="text-align: center;">
+                        <a href="https://hubly-tools.com" class="button" style="background: #bf5af2; color: white !important;">Explore Premium Features</a>
+                    </div>
+                `);
+                break;
+
             case 'newsletter_broadcast':
                 htmlContent = getWrapper(`
                     <span class="badge" style="background: rgba(0,210,255,0.1); color: #00d2ff;">WEEKLY SPOTLIGHT</span>

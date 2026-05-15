@@ -2,13 +2,13 @@
 
 .heroSection {
     position: relative;
-    padding: 30px 5% 40px;
-    /* Increased bottom padding for better fade space */
-    background: transparent !important;
+    margin-top: -80px; /* Pull into the parent's padding area */
+    padding: 110px 5% 40px; /* 80px offset + 30px content padding */
+    background: var(--bg-dark) !important;
     display: flex;
     justify-content: center;
     align-items: center;
-    overflow: hidden;
+    overflow: visible; /* CRITICAL: Allow background to bleed upwards */
     min-height: 180px;
 
     /* 🎭 Elite Fade Mask: Smoothens the transition to the next section */
@@ -24,7 +24,8 @@
 
 @media (max-width: 768px) {
     .heroSection {
-        padding: 20px 1rem 30px !important;
+        margin-top: -80px !important;
+        padding: 100px 1rem 30px !important; /* 80px offset + 20px padding */
         min-height: 140px !important;
     }
 }
@@ -32,12 +33,13 @@
 .heroSection::before {
     content: '';
     position: absolute;
-    top: 0;
+    top: -100px; /* Bleed background upwards by 100px to cover overscroll gaps */
     left: 0;
     right: 0;
     bottom: 0;
-    background: radial-gradient(circle at 50% -20%, rgba(0, 136, 204, 0.15) 0%, transparent 70%);
+    background: radial-gradient(circle at 50% 0%, rgba(0, 136, 204, 0.15) 0%, transparent 70%);
     pointer-events: none;
+    z-index: -1;
 }
 
 .heroContent {

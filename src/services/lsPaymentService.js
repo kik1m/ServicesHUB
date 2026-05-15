@@ -19,5 +19,17 @@ export const lsPaymentService = {
         });
         
         return data;
+    },
+
+    /**
+     * Synchronizes a payment manually (fallback for localhost/webhook delays).
+     */
+    async syncLocalPayment(params) {
+        const { data } = await axios.post('/api/sync-payment', {
+            userId: params.userId,
+            itemType: params.itemType,
+            toolId: params.toolId
+        });
+        return data;
     }
 };
