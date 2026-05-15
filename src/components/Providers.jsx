@@ -4,8 +4,12 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from '../lib/reactQuery';
 import { AuthProvider } from '../context/AuthContext';
 import { ToastProvider } from '../context/ToastContext';
+import { useAnalytics } from '../hooks/useAnalytics';
 
 export default function Providers({ children }) {
+  // 📊 Initialize Global Analytics Tracking (Internal & External)
+  useAnalytics();
+
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>

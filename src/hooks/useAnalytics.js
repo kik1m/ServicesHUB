@@ -11,6 +11,12 @@ export const useAnalytics = () => {
     const searchParams = useSearchParams();
 
     useEffect(() => {
+        // 🚀 Rule #102: Initialize GA only once
+        if (typeof window !== 'undefined' && !window.gtag) {
+            const { initGA } = require('../services/analyticsService');
+            initGA();
+        }
+
         const url = pathname + (searchParams.toString() ? `?${searchParams.toString()}` : '');
         
         // External Analytics (Google)
