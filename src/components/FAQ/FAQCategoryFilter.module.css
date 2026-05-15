@@ -27,6 +27,7 @@
 .pill.active {
   background: var(--primary);
   border-color: var(--primary);
+  color: #0f111a;
   box-shadow: 0 8px 20px rgba(0, 210, 255, 0.2);
 }
 

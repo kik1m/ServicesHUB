@@ -39,7 +39,7 @@ const BlogGrid = ({ posts, loading, loadingMore, hasMore, setPage, error, onRetr
                     ) : (
                         <div className={styles.noPostsFound}>
                             <BookOpen size={64} className={styles.noPostsIcon} />
-                            <h3>{GRID?.NO_POSTS_FOUND}</h3>
+                            <h2>{GRID?.NO_POSTS_FOUND}</h2>
                         </div>
                     )}
                 </div>

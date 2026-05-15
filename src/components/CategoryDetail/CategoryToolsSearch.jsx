@@ -70,6 +70,7 @@ const CategoryToolsSearch = (props) => {
                             onChange={onPriceChange}
                             placeholder="Pricing"
                             className={styles.premiumSelect}
+                            aria-label="Filter by pricing"
                         />
                     </div>
                     
@@ -80,6 +81,7 @@ const CategoryToolsSearch = (props) => {
                             onChange={onSortChange}
                             placeholder={strings?.SORT_LABEL}
                             className={styles.premiumSelect}
+                            aria-label="Sort tools by"
                         />
                     </div>
                 </div>

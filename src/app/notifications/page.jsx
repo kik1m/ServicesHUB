@@ -77,9 +77,8 @@ export default function NotificationsPage() {
                     />
                 )}
 
-                <div 
+                <ul 
                     className={styles.notificationsList} 
-                    role="list" 
                     aria-live="polite"
                 >
                     {loading && notifications.length === 0 ? (
@@ -102,7 +101,7 @@ export default function NotificationsPage() {
                             onRetry={refresh}
                         />
                     )}
-                </div>
+                </ul>
             </div>
         </main>
     );

@@ -50,7 +50,7 @@ const PremiumFAQ = memo(({ isLoading, error, onRetry }) => {
                                 <div className={styles.faqContent}>
                                     <HelpCircle size={24} className={styles.faqIcon} />
                                     <div>
-                                        <h4>{item?.q}</h4>
+                                        <h3>{item?.q}</h3>
                                         <p>{item?.a}</p>
                                     </div>
                                 </div>

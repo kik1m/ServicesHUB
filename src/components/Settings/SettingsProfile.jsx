@@ -49,7 +49,7 @@ const SettingsProfile = memo(({
         <Safeguard error={error} onRetry={onRetry}>
             <form onSubmit={handleProfileUpdate} className={styles.fadeIn}>
                 <div className={styles.settingsCard}>
-                    <h3 className={styles.settingsSectionTitle}>Profile Information</h3>
+                    <h2 className={styles.settingsSectionTitle}>Profile Information</h2>
                     
                     {/* Avatar Section */}
                     <div className={styles.settingsAvatarSection}>
@@ -80,7 +80,7 @@ const SettingsProfile = memo(({
                             </label>
                         </div>
                         <div className={styles.settingsAvatarInfo}>
-                            <h4>Profile Picture</h4>
+                            <h3>Profile Picture</h3>
                             <p>PNG, JPG or GIF. Max 2MB.</p>
                             <label htmlFor="avatar-upload" className={styles.settingsAvatarChangeLink}>
                                 Change Photo
@@ -117,7 +117,7 @@ const SettingsProfile = memo(({
                         className={styles.mb3rem}
                     />
 
-                    <h3 className={styles.settingsSectionTitle}>Social Presence</h3>
+                    <h2 className={styles.settingsSectionTitle}>Social Presence</h2>
                     <div className={styles.settingsPresenceGrid}>
                         <Input 
                             label="Website"

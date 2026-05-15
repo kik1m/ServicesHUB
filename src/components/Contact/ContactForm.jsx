@@ -67,6 +67,7 @@ const ContactForm = ({ handleSubmit, submitting, subject, setSubject, isLoading,
                             value={subject}
                             onChange={(val) => setSubject(val)}
                             placeholder={form?.fields?.subject?.placeholder}
+                            aria-label="Select message subject"
                         />
                     </div>
 

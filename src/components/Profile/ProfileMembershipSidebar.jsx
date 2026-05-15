@@ -31,7 +31,7 @@ const ProfileMembershipSidebar = memo(({ profile, isLoading, error, onRetry, con
                             </>
                         ) : (
                             <>
-                                <h5>{profile?.is_premium ? (content?.PREMIUM_LABEL || "Premium Member") : (content?.FREE_LABEL || "Free Member")}</h5>
+                                <div className={styles.membershipTitle}>{profile?.is_premium ? (content?.PREMIUM_LABEL || "Premium Member") : (content?.FREE_LABEL || "Free Member")}</div>
                                 <p>{profile?.is_premium ? "Active Subscription" : "Standard Access"}</p>
                             </>
                         )}

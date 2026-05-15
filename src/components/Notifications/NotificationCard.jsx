@@ -28,7 +28,7 @@ const NotificationCard = memo(({ notif, onMarkRead, isLoading, error, onRetry })
     return (
         <Safeguard error={error} onRetry={onRetry}>
             {isLoading ? (
-                <div className={styles.skeletonCard}>
+                <li className={styles.skeletonCard}>
                     <div className={styles.iconBox}>
                         <Skeleton className={styles.skeletonIcon} />
                     </div>
@@ -42,9 +42,9 @@ const NotificationCard = memo(({ notif, onMarkRead, isLoading, error, onRetry })
                             <Skeleton className={styles.skeletonLineShort} />
                         </div>
                     </div>
-                </div>
+                </li>
             ) : (
-                <div className={`${styles.card} ${notif?.is_unread ? styles.unread : styles.read}`}>
+                <li className={`${styles.card} ${notif?.is_unread ? styles.unread : styles.read}`}>
                     <div className={styles.iconBox}>
                         {(() => {
                             switch (notif?.type) {
@@ -83,7 +83,7 @@ const NotificationCard = memo(({ notif, onMarkRead, isLoading, error, onRetry })
                             )}
                         </div>
                     </div>
-                </div>
+                </li>
             )}
         </Safeguard>
     );

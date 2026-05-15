@@ -46,7 +46,7 @@ const SettingsSecurity = memo(({
                     <div className={styles.securityHeader}>
                         <ShieldCheck size={32} className={styles.securityIcon} />
                         <div>
-                            <h3 className={styles.settingsSectionTitle}>Account Security</h3>
+                            <h2 className={styles.settingsSectionTitle}>Account Security</h2>
                             <p className={styles.settingsSectionSubtitle}>Update your password to keep your account secure.</p>
                         </div>
                     </div>

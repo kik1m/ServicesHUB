@@ -37,7 +37,7 @@ const DirectorySidebar = memo((props) => {
                 {/* 1. Header */}
                 <div className={styles.sidebarFilterHeader}>
                     <Filter size={18} />
-                    <h3>{content?.title}</h3>
+                    <h2>{content?.title}</h2>
                 </div>
 
                 {/* 2. Categories Section */}

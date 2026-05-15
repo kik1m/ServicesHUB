@@ -33,7 +33,7 @@
 .active {
   background: var(--primary) !important;
   border-color: var(--primary) !important;
-  color: white !important;
+  color: #0f111a !important;
   box-shadow: 0 10px 20px rgba(0, 210, 255, 0.2);
 }
 

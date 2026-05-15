@@ -36,7 +36,7 @@ const FAQList = ({ faqs = [], activeIndex, toggleAccordion, isLoading, error, on
                         >
                             <div className={styles.groupHeader}>
                                 {group?.icon && <group.icon size={20} />}
-                                <h3>{group?.category}</h3>
+                                <h2>{group?.category}</h2>
                             </div>
 
                             {group?.questions?.map((faq, i) => {

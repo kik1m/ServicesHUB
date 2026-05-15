@@ -41,14 +41,14 @@ const SettingsNotifications = memo(({ profile, isLoading, error, onRetry }) => {
         <Safeguard error={error} onRetry={onRetry}>
             <div className={styles.fadeIn}>
                 <div className={styles.settingsCard}>
-                    <h3 className={styles.settingsSectionTitle}>Notification Preferences</h3>
+                    <h2 className={styles.settingsSectionTitle}>Notification Preferences</h2>
                     <p className={styles.settingsSectionSubtitle}>Manage how and when you receive updates from HUBly.</p>
                     
                     <div className={styles.notifPreferencesList}>
                         {items.map(item => (
                             <div key={item.id} className={styles.notifItem}>
                                 <div className={styles.notifItemInfo}>
-                                    <h4>{item.label}</h4>
+                                    <h3>{item.label}</h3>
                                     <p>{item.desc}</p>
                                 </div>
                                 <Toggle 

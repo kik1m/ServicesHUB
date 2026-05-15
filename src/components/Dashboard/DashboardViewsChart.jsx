@@ -47,7 +47,7 @@ const DashboardViewsChart = ({ chartData = [], isLoading, error, onRetry, conten
                 <div className={styles.chartContainer}>
                     <div className={styles.chartHeader}>
                         <div>
-                            <h3 className={styles.title}>{content?.title}</h3>
+                            <h2 className={styles.title}>{content?.title}</h2>
                             <p className={styles.subtitle}>{content?.trendingText}</p>
                         </div>
                         <div className={styles.liveBadge}>

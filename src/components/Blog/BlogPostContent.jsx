@@ -93,7 +93,7 @@ const BlogPostContent = ({ post, isLoading, error, onRetry, readingTime }) => {
                             )}
                             <div className={styles.toolInfo}>
                                 <div className={styles.toolHeader}>
-                                    <h4 className={styles.toolTitle}>{toolData?.name || 'Featured AI Tool'}</h4>
+                                    <h3 className={styles.toolTitle}>{toolData?.name || 'Featured AI Tool'}</h3>
                                     {toolData?.rating > 0 && (
                                         <div className={styles.toolRating}>
                                             <span className={styles.ratingValue}>{toolData.rating}</span>

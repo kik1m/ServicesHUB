@@ -72,6 +72,7 @@ const ToolFormBasicInfo = memo(({ formData, setFormData, categories, fieldErrors
                         value={formData?.category_id}
                         onChange={(val) => setFormData({ ...formData, category_id: val })}
                         error={fieldErrors?.category_id}
+                        aria-label="Select tool category"
                     />
 
                     <Select
@@ -80,6 +81,7 @@ const ToolFormBasicInfo = memo(({ formData, setFormData, categories, fieldErrors
                         options={basic?.fields?.pricing?.options}
                         value={formData?.pricing_type}
                         onChange={(val) => setFormData({ ...formData, pricing_type: val })}
+                        aria-label="Select pricing model"
                     />
 
                     <Input

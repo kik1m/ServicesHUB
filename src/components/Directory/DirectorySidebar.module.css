@@ -146,7 +146,7 @@
 
 .pricingChip.active {
   background: var(--primary);
-  color: white;
+  color: #0f111a;
   box-shadow: 0 4px 15px rgba(0, 210, 255, 0.2);
 }
 

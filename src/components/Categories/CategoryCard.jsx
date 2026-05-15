@@ -39,7 +39,6 @@ const CategoryCard = memo(({ category, isLoading, error, onRetry }) => {
             <Link 
                 href={`/category/${category?.slug}`} 
                 className={styles.categoryCard}
-                aria-label={`Browse tools in ${category?.name}`}
             >
                 <div className={styles.catCountBadge}>
                     <span>{category?.toolCount || 0}</span> {CATEGORY_STRINGS?.LIST?.CARD?.TOOLS}
@@ -47,7 +46,7 @@ const CategoryCard = memo(({ category, isLoading, error, onRetry }) => {
                 <div className={styles.catIconWrapper}>
                     {getIcon(category?.icon_name || 'LayoutGrid', 24)}
                 </div>
-                <h3 className={styles.catName}>{category?.name}</h3>
+                <h2 className={styles.catName}>{category?.name}</h2>
                 <div className={styles.browseLink}>
                     <span>{CATEGORY_STRINGS?.LIST?.CARD?.BROWSE}</span> <ChevronRight size={14} />
                 </div>

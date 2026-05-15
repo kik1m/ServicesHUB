@@ -47,9 +47,9 @@ const BlogSidebar = ({ relatedPosts, isLoading, error, onRetry }) => {
         <Safeguard error={error} onRetry={onRetry}>
             <aside className={styles.sidebar}>
                 <div className={styles.widget}>
-                    <h4>
+                    <h3>
                         <Share2 size={18} color="var(--primary)" /> {SIDEBAR?.NEWSLETTER?.TITLE}
-                    </h4>
+                    </h3>
                     <p>
                         {SIDEBAR?.NEWSLETTER?.SUBTITLE}
                     </p>
@@ -67,7 +67,7 @@ const BlogSidebar = ({ relatedPosts, isLoading, error, onRetry }) => {
 
                 {relatedPosts && relatedPosts?.length > 0 && (
                     <div className={styles.widget}>
-                        <h4>{SIDEBAR?.RELATED?.TITLE}</h4>
+                        <h3>{SIDEBAR?.RELATED?.TITLE}</h3>
                         <div className={styles.relatedList}>
                             {relatedPosts?.map(p => (
                                 <Link key={p?.id} href={`/blog/${p?.slug || p?.id}`} className={styles.relatedItem}>

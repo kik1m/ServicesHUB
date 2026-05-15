@@ -38,9 +38,9 @@ const SettingsBilling = memo(({ profile, isLoading, error, onRetry }) => {
                         </div>
 
                         <div className={styles.billingTextContent}>
-                            <h3>
+                            <h2>
                                 {isPremium ? "Premium Membership" : "Free Account"}
-                            </h3>
+                            </h2>
                             
                             <p className={styles.billingDescription}>
                                 {isPremium 

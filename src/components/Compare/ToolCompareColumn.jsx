@@ -56,7 +56,7 @@ const ToolCompareColumn = ({ tool, onClear, onSelect, isLoading, error, onRetry,
                         
                         {/* Info Header: Name + Verification */}
                         <div className={styles.toolHeader}>
-                            <h3 className={styles.toolName}>{tool?.name}</h3>
+                            <h2 className={styles.toolName}>{tool?.name}</h2>
                             {tool?.is_verified && (
                                 <CheckCircle2 size={18} className={styles.verifiedIcon} />
                             )}
@@ -94,7 +94,7 @@ const ToolCompareColumn = ({ tool, onClear, onSelect, isLoading, error, onRetry,
                         <div className={styles.placeholderIcon}>
                             <Plus size={32} />
                         </div>
-                        <h3 className={styles.placeholderTitle}>{content?.addTitle || "Add Tool"}</h3>
+                        <h2 className={styles.placeholderTitle}>{content?.addTitle || "Add Tool"}</h2>
                         <p className={styles.placeholderText}>{content?.addSubtitle || "Select a tool to compare"}</p>
                     </div>
                 )}

@@ -97,7 +97,7 @@ const BlogCard = ({ post, isLoading, error, onRetry }) => {
                         </div>
                     </div>
                     
-                    <h3 className={styles.cardTitle}>{post?.title}</h3>
+                    <h2 className={styles.cardTitle}>{post?.title}</h2>
                     <p className={styles.excerpt}>
                         {post?.excerpt}
                     </p>

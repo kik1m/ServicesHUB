@@ -87,7 +87,7 @@ const Footer = () => {
 
                     {/* Links Sections */}
                     <div className={styles.footerColumn}>
-                        <h4>Explore</h4>
+                        <h3>Explore</h3>
                         <ul className={styles.footerLinks}>
                             <li><Link href="/tools" onClick={() => window.scrollTo(0, 0)}>All Tools</Link></li>
                             <li><Link href="/blog" onClick={() => window.scrollTo(0, 0)}>Articles</Link></li>
@@ -97,7 +97,7 @@ const Footer = () => {
                     </div>
 
                     <div className={styles.footerColumn}>
-                        <h4>Platform</h4>
+                        <h3>Platform</h3>
                         <ul className={styles.footerLinks}>
                             <li><Link href="/submit">Submit Tool</Link></li>
                             <li><Link href="/about">About Us & FAQ</Link></li>
@@ -108,7 +108,7 @@ const Footer = () => {
                     </div>
 
                     <div className={styles.footerColumn}>
-                        <h4>Never miss an update</h4>
+                        <h3>Never miss an update</h3>
                         <p className={styles.newsletterDesc}>
                             Join 10,000+ creators. Get the latest AI tools and exclusive deals to your inbox.
                         </p>

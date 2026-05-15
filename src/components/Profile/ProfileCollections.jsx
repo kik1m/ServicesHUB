@@ -13,6 +13,9 @@ const ProfileCollections = memo(({ isLoading, favorites = [], error, onRetry, co
     return (
         <Safeguard error={error} onRetry={onRetry}>
             <div className={styles.collectionsSection}>
+                <h2 style={{ position: 'absolute', width: '1px', height: '1px', margin: '-1px', padding: '0', overflow: 'hidden', clip: 'rect(0, 0, 0, 0)', whiteSpace: 'nowrap', border: '0' }}>
+                    User Saved Tools Collection
+                </h2>
                 {isLoading ? (
                     <div className={styles.toolsGrid}>
                         {Array.from({ length: 3 }).map((_, i) => (

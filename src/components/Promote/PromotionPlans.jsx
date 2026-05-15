@@ -14,7 +14,7 @@ const PromotionPlans = ({ plans = [], handlePromote, loadingPlan, selectedToolId
             <div className={styles.plansContainer}>
                 <div className={styles.sectionHeader}>
                     <div className={styles.stepBadge}>STEP 2</div>
-                    <h3 className={styles.sectionTitle}>{content?.title}</h3>
+                    <h2 className={styles.sectionTitle}>{content?.title}</h2>
                 </div>
 
                 {(isLoading || checkingPlan || !plans?.length) ? (

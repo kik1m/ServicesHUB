@@ -15,7 +15,8 @@ const Select = ({
     icon: Icon,
     isSearchable = false,
     isMulti = false,
-    name
+    name,
+    'aria-label': ariaLabel
 }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
@@ -144,6 +145,7 @@ const Select = ({
                 role="combobox"
                 aria-expanded={isOpen}
                 aria-haspopup="listbox"
+                aria-label={ariaLabel || label || name || placeholder}
             >
                 <div className={styles.displayValue}>
                     {Icon && <Icon size={18} className={styles.triggerIcon} />}
@@ -174,7 +176,7 @@ const Select = ({
                     </div>
                 )}
 
-                <div className={styles.optionsList} role="listbox">
+                <div className={styles.optionsList} role="listbox" aria-label={`${ariaLabel || label || name || placeholder} options`}>
                     {filteredOptions.length > 0 ? (
                         filteredOptions.map((opt, index) => {
                             const optVal = opt.value || opt.id;

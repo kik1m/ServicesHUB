@@ -16,7 +16,7 @@ const ToolSelector = ({ toolName, loadingTools, userTools = [], selectedToolId, 
             <div className={styles.selectorWrapper}>
                 <div className={styles.sectionHeader}>
                     <div className={styles.stepBadge}>STEP 1</div>
-                    <h3 className={styles.sectionTitle}>{content?.title}</h3>
+                    <h2 className={styles.sectionTitle}>{content?.title}</h2>
                 </div>
 
                 {(isLoading || (loadingTools && !userTools?.length)) ? (
@@ -49,6 +49,7 @@ const ToolSelector = ({ toolName, loadingTools, userTools = [], selectedToolId, 
                                     placeholder={content?.placeholder}
                                     icon={Layout}
                                     className={styles.toolSelect}
+                                    aria-label={content?.placeholder}
                                 />
                             ) : (
                                 <Link href="/submit" className={styles.emptyLink}>
