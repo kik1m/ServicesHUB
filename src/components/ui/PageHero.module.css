@@ -2,25 +2,31 @@
 
 .heroSection {
     position: relative;
-    padding: 30px 5% 40px; /* Increased bottom padding for better fade space */
+    padding: 30px 5% 40px;
+    /* Increased bottom padding for better fade space */
     background: transparent !important;
     display: flex;
     justify-content: center;
     align-items: center;
     overflow: hidden;
     min-height: 180px;
-    
+
     /* 🎭 Elite Fade Mask: Smoothens the transition to the next section */
-    mask-image: linear-gradient(to bottom, 
-        black 0%, 
-        black 85%, 
-        transparent 100%
-    );
-    -webkit-mask-image: linear-gradient(to bottom, 
-        black 0%, 
-        black 85%, 
-        transparent 100%
-    );
+    mask-image: linear-gradient(to bottom,
+            black 0%,
+            black 85%,
+            transparent 100%);
+    -webkit-mask-image: linear-gradient(to bottom,
+            black 0%,
+            black 85%,
+            transparent 100%);
+}
+
+@media (max-width: 768px) {
+    .heroSection {
+        padding: 20px 1rem 30px !important;
+        min-height: 140px !important;
+    }
 }
 
 .heroSection::before {
@@ -128,6 +134,18 @@
     width: 100%;
 }
 
+@media (max-width: 768px) {
+    .title {
+        font-size: 1.85rem !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .title {
+        font-size: 1.6rem !important;
+    }
+}
+
 .subtitle {
     font-size: 1.1rem;
     color: var(--text-muted);
@@ -136,6 +154,13 @@
     line-height: 1.6;
     text-align: center;
     /* Center Subtitle text */
+}
+
+@media (max-width: 768px) {
+    .subtitle {
+        font-size: 0.95rem !important;
+        padding: 0 10px !important;
+    }
 }
 
 .heroActions {

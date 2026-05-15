@@ -8,10 +8,23 @@
   margin: 0 auto;
 }
 
+@media (max-width: 768px) {
+  .howItWorks {
+    padding: 60px 1rem !important;
+  }
+}
+
 .stepsGrid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 1.5rem;
+}
+
+@media (max-width: 768px) {
+  .stepsGrid {
+    grid-template-columns: 1fr !important;
+    gap: 1.25rem !important;
+  }
 }
 
 .stepCard {
@@ -25,6 +38,12 @@
   text-decoration: none;
   color: inherit;
   cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .stepCard {
+    padding: 1.5rem !important;
+  }
 }
 
 .stepCard:hover {

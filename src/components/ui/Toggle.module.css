@@ -1,15 +1,17 @@
 .toggle {
   position: relative;
-  width: 44px;
-  height: 24px;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  width: 48px; /* Slightly wider for elite feel */
+  height: 26px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1.5px solid rgba(255, 255, 255, 0.05);
   border-radius: 100px;
   cursor: pointer;
   padding: 0;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   align-items: center;
+  flex-shrink: 0; /* Never squeeze the toggle */
+  box-sizing: border-box;
 }
 
 .toggle:focus {
@@ -25,18 +27,21 @@
 .checked {
   background: var(--primary);
   border-color: var(--primary);
+  box-shadow: 0 0 15px rgba(0, 210, 255, 0.3);
 }
 
 .handle {
+  position: absolute;
+  left: 3px;
   width: 18px;
   height: 18px;
   background: white;
   border-radius: 50%;
-  margin: 0 3px;
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
 }
 
 .checked .handle {
-  transform: translateX(20px);
+  left: calc(100% - 21px); /* 18px handle + 3px margin */
+  transform: none;
 }

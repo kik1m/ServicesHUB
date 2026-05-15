@@ -41,6 +41,7 @@ export default function SettingsPage() {
         handleProfileUpdate,
         handleAvatarUpload,
         handlePasswordUpdate,
+        handleNotificationToggle,
         fetchSettings,
         authUser
     } = useSettingsData();
@@ -87,6 +88,7 @@ export default function SettingsPage() {
             notifications: (
                 <SettingsNotifications 
                     profile={profile} 
+                    onToggle={handleNotificationToggle}
                     isLoading={loading}
                 />
             )

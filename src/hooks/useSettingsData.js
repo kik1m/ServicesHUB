@@ -10,6 +10,8 @@ import { emailTriggers } from '../utils/emailService';
 
 /**
  * useSettingsData - Elite Hardened Hook for Next.js
+ * Rule #1: Business Logic Isolation
+ * Rule #13: Defensive Data Operations (Metadata Fallback)
  */
 export const useSettingsData = () => {
     const { user: authUser } = useAuth();
@@ -29,7 +31,10 @@ export const useSettingsData = () => {
         website: '',
         twitter: '',
         github: '',
-        linkedin: ''
+        linkedin: '',
+        email_notif: true,
+        review_notif: true,
+        promo_notif: true
     });
 
     const [passwords, setPasswords] = useState({ new: '', confirm: '' });
@@ -53,11 +58,22 @@ export const useSettingsData = () => {
 
     const error = queryError ? 'Failed to load settings.' : null;
 
+    // Synchronize profile state with server data AND auth metadata preferences
     useEffect(() => {
-        if (serverProfile) {
-            setProfile(prev => ({ ...prev, ...serverProfile }));
+        if (serverProfile || authUser) {
+            // Get preferences from Auth Metadata (Safest storage when schema is locked)
+            const prefs = authUser?.user_metadata?.preferences || {};
+            
+            setProfile(prev => ({ 
+                ...prev, 
+                ...(serverProfile || {}),
+                // Merge preferences from metadata
+                email_notif: prefs.email_notif !== undefined ? prefs.email_notif : prev.email_notif,
+                review_notif: prefs.review_notif !== undefined ? prefs.review_notif : prev.review_notif,
+                promo_notif: prefs.promo_notif !== undefined ? prefs.promo_notif : prev.promo_notif
+            }));
         }
-    }, [serverProfile]);
+    }, [serverProfile, authUser?.id]);
 
     const handleProfileUpdate = useCallback(async (e) => {
         e.preventDefault();
@@ -67,6 +83,7 @@ export const useSettingsData = () => {
             setSaving(true);
             setActionError(null);
 
+            // Only update columns that definitely exist in the profiles table
             const sanitizedProfile = {
                 full_name: profile.full_name,
                 role: profile.role,
@@ -151,7 +168,7 @@ export const useSettingsData = () => {
         } finally {
             setSaving(false);
         }
-    }, [passwords, showToast]);
+    }, [passwords, showToast, authUser, profile]);
 
     const handleAvatarUpload = useCallback(async (e) => {
         const file = e.target.files[0];
@@ -174,6 +191,38 @@ export const useSettingsData = () => {
         }
     }, [authUser, queryClient]);
 
+    /**
+     * handleNotificationToggle - Strategy Shift
+     * Since profiles table schema is restricted, we use Supabase Auth Metadata 
+     * to store preferences. This is non-destructive and doesn't require SQL migrations.
+     */
+    const handleNotificationToggle = useCallback(async (id, value) => {
+        if (!authUser) return;
+
+        // 1. Optimistic Update (UI stays responsive)
+        setProfile(prev => ({ ...prev, [id]: value }));
+
+        try {
+            // Get current preferences or empty object
+            const currentPrefs = authUser?.user_metadata?.preferences || {};
+            const newPrefs = { ...currentPrefs, [id]: value };
+
+            // Update Supabase Auth User Metadata (The "Elite" Fallback)
+            const { error: updateError } = await supabase.auth.updateUser({
+                data: { preferences: newPrefs }
+            });
+
+            if (updateError) throw updateError;
+            
+            showToast(`${id.replace('_', ' ')} updated.`, 'success');
+        } catch (err) {
+            console.error('Preference Update Error:', err);
+            // Revert on error
+            setProfile(prev => ({ ...prev, [id]: !value }));
+            showToast('Failed to update preference.', 'error');
+        }
+    }, [authUser, showToast]);
+
     return {
         activeTab, setActiveTab,
         loading, saving, uploading,
@@ -183,6 +232,7 @@ export const useSettingsData = () => {
         showNewPassword, setShowNewPassword,
         showConfirmPassword, setShowConfirmPassword,
         handleProfileUpdate, handleAvatarUpload, handlePasswordUpdate,
+        handleNotificationToggle,
         fetchSettings, authUser
     };
 };

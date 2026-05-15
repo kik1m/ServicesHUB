@@ -187,8 +187,29 @@
 
 @media (max-width: 1024px) {
     .bannerInner {
-        grid-template-columns: 150px 1fr;
-        padding: 20px;
+        grid-template-columns: 1fr !important;
+        padding: 20px !important;
+        gap: 15px !important;
+        text-align: center !important;
+    }
+
+    .bannerVisual {
+        order: -1;
+    }
+
+    .imageFixedBox {
+        width: 100px !important;
+        height: 100px !important;
+        border-radius: 20px !important;
+    }
+
+    .bannerDetails {
+        padding: 0 !important;
+        align-items: center !important;
+    }
+
+    .titleRow {
+        justify-content: center !important;
     }
 
     .bannerActionsRight {

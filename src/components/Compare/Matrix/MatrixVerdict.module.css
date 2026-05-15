@@ -1,0 +1,225 @@
+/* ============================================
+   MatrixVerdict.module.css
+   Styles for the AI Score Verdict Dashboard
+   ============================================ */
+
+/* — Wrapper — */
+.matrixScrollArea {
+    width: 100%;
+}
+
+/* — Three-column verdict layout — */
+.verdictContainer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 2.5rem;
+    margin-bottom: 3rem;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 32px;
+    gap: 2rem;
+}
+
+/* — Score box (left / right) — */
+.scoreBox {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+/* — Conic-gradient score ring — */
+.scoreRing {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: conic-gradient(var(--score-color) var(--score), rgba(255, 255, 255, 0.05) 0);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+    transition: all 1.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.winnerRing {
+    box-shadow: 0 0 35px var(--score-color);
+}
+
+.scoreInner {
+    width: 96px;
+    height: 96px;
+    background: #0a0c10;
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    z-index: 1;
+}
+
+.scoreNumber {
+    font-size: 2.2rem;
+    font-weight: 900;
+    color: white;
+    line-height: 1;
+}
+
+.scoreLabel {
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    letter-spacing: 1px;
+    margin-top: 2px;
+}
+
+/* — Winner badge inside the ring — */
+.matrixWinnerBadge {
+    position: absolute;
+    bottom: -14px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--success);
+    color: #050505;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 0.65rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    white-space: nowrap;
+    box-shadow: 0 4px 15px rgba(var(--success-rgb), 0.3);
+    z-index: 2;
+}
+
+.toolScoreName {
+    margin-top: 1.2rem;
+    font-size: 1.1rem;
+    font-weight: 900;
+    color: white;
+    text-align: center;
+}
+
+.aiScoreBadge {
+    display: inline-block;
+    margin-top: 6px;
+    font-size: 0.6rem;
+    font-weight: 900;
+    letter-spacing: 1.5px;
+    color: var(--secondary);
+    background: rgba(var(--secondary-rgb), 0.08);
+    border: 1px solid rgba(var(--secondary-rgb), 0.2);
+    border-radius: 100px;
+    padding: 3px 10px;
+    text-transform: uppercase;
+}
+
+/* — Center verdict text — */
+.verdictCenter {
+    text-align: center;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.matrixTitle {
+    font-size: 1.8rem;
+    font-weight: 900;
+    color: white;
+}
+
+.verdictText {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    line-height: 1.6;
+    max-width: 500px;
+}
+
+.winnerHighlight {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: rgba(255, 215, 0, 0.1);
+    color: #ffd700;
+    border-radius: 100px;
+    font-weight: 900;
+    font-size: 0.75rem;
+    border: 1px solid rgba(255, 215, 0, 0.2);
+}
+
+/* — AI Loading States — */
+.aiLoadingBadge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 16px;
+    background: rgba(var(--secondary-rgb), 0.1);
+    color: var(--secondary);
+    border-radius: 100px;
+    font-size: 0.7rem;
+    font-weight: 900;
+    letter-spacing: 2px;
+    border: 1px solid rgba(var(--secondary-rgb), 0.2);
+    animation: pulseBadge 2s infinite;
+}
+
+@keyframes pulseBadge {
+    0%   { opacity: 0.6; }
+    50%  { opacity: 1; }
+    100% { opacity: 0.6; }
+}
+
+.aiSkeletonStack {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+}
+
+/* ============================================
+   Responsive
+   ============================================ */
+@media (max-width: 992px) {
+    .verdictContainer {
+        flex-direction: column;
+        text-align: center;
+    }
+}
+
+@media (max-width: 768px) {
+    .verdictContainer {
+        padding: 1.5rem;
+        gap: 1.5rem;
+        border-radius: 20px;
+        margin-bottom: 2rem;
+    }
+
+    .scoreRing {
+        width: 100px;
+        height: 100px;
+    }
+
+    .scoreInner {
+        width: 80px;
+        height: 80px;
+    }
+
+    .scoreNumber {
+        font-size: 1.8rem;
+    }
+
+    .matrixTitle {
+        font-size: 1.3rem;
+    }
+
+    /* Mobile tab switcher visibility */
+    .hideOnMobile {
+        display: none !important;
+    }
+}

@@ -18,6 +18,7 @@ import DirectorySidebar from '../../components/Directory/DirectorySidebar';
 import DirectoryResults from '../../components/Directory/DirectoryResults';
 import DirectorySubmitCTA from '../../components/Directory/DirectorySubmitCTA';
 import AiSearchAssistant from '../../components/Directory/AiSearchAssistant';
+import DirectoryFilterToggle from '../../components/Directory/DirectoryFilterToggle.jsx';
 
 // Styles
 import styles from './Tools.module.css';
@@ -43,9 +44,10 @@ const ToolsClient = ({ bannerTools }) => {
         refresh,
         displayedCategories, hiddenCount,
         catSearchQuery, setCatSearchQuery,
-        showAllCats, setShowAllCats
-    } = useSearchEngine({ 
-        mode: 'full', 
+        showAllCats, setShowAllCats,
+        isMobileFiltersOpen, setIsMobileFiltersOpen
+    } = useSearchEngine({
+        mode: 'full',
         syncUrl: true,
         itemsPerPage: 20
     });
@@ -61,7 +63,7 @@ const ToolsClient = ({ bannerTools }) => {
 
     const { user } = useAuth();
 
-    const { processQuery, aiMessage, aiResults, isAiLoading, setAiMessage, error: aiError, setError: setAiError, resetAi } = useAiSearch({ 
+    const { processQuery, aiMessage, aiResults, isAiLoading, setAiMessage, error: aiError, setError: setAiError, resetAi } = useAiSearch({
         userId: user?.id
     });
 
@@ -75,15 +77,15 @@ const ToolsClient = ({ bannerTools }) => {
     return (
         <div className={styles.toolsDirectoryPage}>
             {/* Top Banner Discovery */}
-            <SmartBanner 
+            <SmartBanner
                 tools={bannerTools}
                 currentIndex={banner.currentIndex}
                 next={banner.next}
                 prev={banner.prev}
                 isLoading={false}
             />
-            
-            <PageHero 
+
+            <PageHero
                 title={TOOLS_UI_CONSTANTS.hero.title}
                 highlight={TOOLS_UI_CONSTANTS.hero.highlight}
                 subtitle={TOOLS_UI_CONSTANTS.hero.subtitle}
@@ -94,7 +96,9 @@ const ToolsClient = ({ bannerTools }) => {
             <div className={styles.searchContainer}>
                 <Safeguard error={error} onRetry={refresh} fullPage title="Discovery Engine Offline">
                     <div className={styles.searchGridLayout}>
-                        {/* 1. Powerful Side Filtering */}
+                        {/* 1. Side Filtering (Desktop: Sticky | Mobile: Drawer) */}
+                        <DirectoryFilterToggle onClick={() => setIsMobileFiltersOpen(true)} />
+                        
                         <DirectorySidebar 
                             categoryFilter={categoryFilter}
                             pricingFilter={pricingFilter}
@@ -108,23 +112,25 @@ const ToolsClient = ({ bannerTools }) => {
                             setCatSearchQuery={setCatSearchQuery}
                             showAllCats={showAllCats}
                             setShowAllCats={setShowAllCats}
+                            isOpen={isMobileFiltersOpen}
+                            onClose={() => setIsMobileFiltersOpen(false)}
                         />
 
                         {/* 2. Main Results Column */}
                         <div className={styles.resultsColumn}>
                             {/* Unified Smart Search Bar */}
                             <div className={styles.searchHeaderWrapper}>
-                                <AiSearchAssistant 
+                                <AiSearchAssistant
                                     standardQuery={searchQuery}
                                     setStandardQuery={setQuery}
-                                    onProcess={processQuery} 
+                                    onProcess={processQuery}
                                     onReset={handleAiReset}
-                                    message={aiMessage || aiError} 
+                                    message={aiMessage || aiError}
                                     isThinking={isAiLoading}
                                 />
                             </div>
 
-                            <DirectoryResults 
+                            <DirectoryResults
                                 results={aiResults !== null ? aiResults : results}
                                 totalResults={aiResults !== null ? aiResults.length : totalResults}
                                 isLoading={isAiLoading || isLoading}

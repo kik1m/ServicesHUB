@@ -74,10 +74,15 @@
 
 @media (max-width: 600px) {
   .title404 {
-    font-size: 4rem;
+    font-size: 3.5rem;
   }
   
   .title {
-    font-size: 1.5rem;
+    font-size: 1.4rem;
+  }
+
+  .subtitle {
+    font-size: 1rem;
+    padding: 0 1rem;
   }
 }

@@ -78,29 +78,47 @@ export const MOBILE_GROUPS = [
     {
         title: 'Explore',
         links: [
-            { label: 'Tools', path: '/tools', icon: LayoutGrid },
+            { label: 'Tools Directory', path: '/tools', icon: LayoutGrid },
+            { label: 'Compare Engine', path: '/compare', icon: RefreshCcw },
             { label: 'Categories', path: '/categories', icon: Zap },
-            { label: 'Promote', path: '/promote', icon: Sparkles },
-            { label: 'Blog', path: '/blog', icon: Rss },
-            { label: 'Premium', path: '/premium', icon: Star },
+            { label: 'Blog & Articles', path: '/blog', icon: Rss },
+            { label: 'Premium Upgrade', path: '/premium', icon: Star },
         ]
     },
     {
-        title: 'Account',
-        auth: true,
+        title: 'Creator Studio',
+        auth: true, // Only visible to logged-in users
         links: [
-            { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
+            { label: 'My Dashboard', path: '/dashboard', icon: LayoutDashboard },
             { label: 'Submit Tool', path: '/submit', icon: PlusCircle },
-            { label: 'Profile', path: '/profile', icon: User },
-            { label: 'Settings', path: '/settings', icon: Settings },
+            { label: 'Promote Tool', path: '/promote', icon: Sparkles },
+            { label: 'Notifications', path: '/notifications', icon: Bell },
         ]
     },
     {
-        title: 'Support',
+        title: 'Account Settings',
+        auth: true, // Only visible to logged-in users
         links: [
+            { label: 'General Settings', path: '/settings', icon: Settings },
+        ]
+    },
+    {
+        title: 'Join HUBly',
+        auth: false, // Only visible to guests
+        links: [
+            { label: 'Login / Register', path: '/auth', icon: User, variant: 'primary' },
+            { label: 'Submit Tool', path: '/submit', icon: PlusCircle },
+            { label: 'Promote Tool', path: '/promote', icon: Sparkles },
+        ]
+    },
+    {
+        title: 'Support & Legal',
+        links: [
+            { label: 'Help & FAQ', path: '/faq', icon: HelpCircle },
             { label: 'Contact Us', path: '/contact', icon: Mail },
-            { label: 'FAQ', path: '/faq', icon: HelpCircle },
-            { label: 'About', path: '/about', icon: Info },
+            { label: 'About Platform', path: '/about', icon: Info },
+            { label: 'Privacy Policy', path: '/privacy', icon: Shield },
+            { label: 'Terms of Service', path: '/terms', icon: FileText },
         ]
     }
 ];

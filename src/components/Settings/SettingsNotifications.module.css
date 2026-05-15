@@ -61,6 +61,26 @@
     to { opacity: 1; transform: translateY(0); }
 }
 
+@media (max-width: 768px) {
+    .settingsCard {
+        padding: 1.5rem !important;
+        border-radius: 20px;
+    }
+
+    .notifItem {
+        padding: 1rem !important;
+        gap: 1rem;
+    }
+
+    .notifItemInfo h3 {
+        font-size: 0.9rem;
+    }
+
+    .notifItemInfo p {
+        font-size: 0.75rem;
+    }
+}
+
 /* Skeletons */
 .skeletonTitle { width: 180px; height: 24px; margin-bottom: 8px; border-radius: 4px; }
 .skeletonSubtitle { width: 280px; height: 16px; margin-bottom: 2rem; border-radius: 4px; }

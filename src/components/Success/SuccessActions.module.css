@@ -18,3 +18,16 @@
     height: 48px;
     border-radius: 12px;
 }
+
+@media (max-width: 600px) {
+  .successActionsRow {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+  
+  .successActionsRow > * {
+    width: 100%;
+    justify-content: center;
+  }
+}

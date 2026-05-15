@@ -46,53 +46,55 @@ export default function DashboardClient() {
                 error={null}
             />
 
-            <DashboardStats 
-                isCreator={isCreator} 
-                isPremium={isPremium}
-                stats={stats}
-                isLoading={toolsLoading || favoritesLoading}
-                content={DASHBOARD_CONSTANTS?.stats}
-                error={toolsError || favoritesError}
-                onRetry={refreshData}
-            />
+            <div className={styles.dashboardContent}>
+                <DashboardStats 
+                    isCreator={isCreator} 
+                    isPremium={isPremium}
+                    stats={stats}
+                    isLoading={toolsLoading || favoritesLoading}
+                    content={DASHBOARD_CONSTANTS?.stats}
+                    error={toolsError || favoritesError}
+                    onRetry={refreshData}
+                />
 
-            {(toolsLoading || isCreator) ? (
-                <div className={styles.creatorGrid}>
-                    <DashboardViewsChart 
-                        chartData={chartData} 
-                        isLoading={toolsLoading}
-                        error={toolsError}
-                        onRetry={refreshData}
-                        content={DASHBOARD_CONSTANTS?.chart}
-                    />
-                    
-                    <div className={styles.sectionHeader}>
-                        <h2 className={styles.sectionTitle}>
-                            {DASHBOARD_CONSTANTS?.toolsTable?.title}
-                        </h2>
+                {(toolsLoading || isCreator) ? (
+                    <div className={styles.creatorGrid}>
+                        <DashboardViewsChart 
+                            chartData={chartData} 
+                            isLoading={toolsLoading}
+                            error={toolsError}
+                            onRetry={refreshData}
+                            content={DASHBOARD_CONSTANTS?.chart}
+                        />
+                        
+                        <div className={styles.sectionHeader}>
+                            <h2 className={styles.sectionTitle}>
+                                {DASHBOARD_CONSTANTS?.toolsTable?.title}
+                            </h2>
+                        </div>
+                        
+                        <DashboardToolsTable 
+                            userTools={userTools} 
+                            handleDeleteTool={handleDeleteTool} 
+                            isLoading={toolsLoading}
+                            error={toolsError}
+                            onRetry={refreshData}
+                            content={DASHBOARD_CONSTANTS?.toolsTable}
+                        />
                     </div>
-                    
-                    <DashboardToolsTable 
-                        userTools={userTools} 
-                        handleDeleteTool={handleDeleteTool} 
-                        isLoading={toolsLoading}
-                        error={toolsError}
-                        onRetry={refreshData}
-                        content={DASHBOARD_CONSTANTS?.toolsTable}
-                    />
-                </div>
-            ) : (
-                <div className={styles.discoveryGrid}>
-                    <DashboardFavorites 
-                        favorites={favorites} 
-                        isLoading={favoritesLoading}
-                        error={favoritesError}
-                        onRetry={refreshData}
-                        content={DASHBOARD_CONSTANTS?.favorites}
-                    />
-                    <DashboardWelcomeCTA content={DASHBOARD_CONSTANTS?.welcome} />
-                </div>
-            )}
+                ) : (
+                    <div className={styles.discoveryGrid}>
+                        <DashboardFavorites 
+                            favorites={favorites} 
+                            isLoading={favoritesLoading}
+                            error={favoritesError}
+                            onRetry={refreshData}
+                            content={DASHBOARD_CONSTANTS?.favorites}
+                        />
+                        <DashboardWelcomeCTA content={DASHBOARD_CONSTANTS?.welcome} />
+                    </div>
+                )}
+            </div>
         </main>
     );
 }

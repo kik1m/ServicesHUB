@@ -139,6 +139,25 @@
 }
 
 @media (max-width: 768px) {
-    .eliteHeadingText { font-size: 2.2rem; }
-    .heroSubTagline { font-size: 1rem; padding: 0 10px; }
+    .isolatedHeroSection {
+        padding: 30px 1rem 20px;
+    }
+
+    .eliteHeadingText { 
+        font-size: 1.8rem; 
+        letter-spacing: -0.5px;
+    }
+    
+    .heroSubTagline { 
+        font-size: 0.95rem; 
+        padding: 0 5px; 
+    }
+
+    .heroCategoryBadge {
+        padding: 4px 12px;
+    }
+
+    .badgeText {
+        font-size: 0.7rem;
+    }
 }

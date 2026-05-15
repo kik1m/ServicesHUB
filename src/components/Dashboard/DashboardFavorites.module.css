@@ -1,5 +1,7 @@
 .favoritesSection {
     margin-bottom: 3rem;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .title {

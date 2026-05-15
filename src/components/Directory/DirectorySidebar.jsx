@@ -22,7 +22,9 @@ const DirectorySidebar = memo((props) => {
         catSearchQuery,
         setCatSearchQuery,
         showAllCats,
-        setShowAllCats
+        setShowAllCats,
+        isOpen,
+        onClose
     } = props;
 
     const { selectedCategory, setSelectedCategory } = categoryFilter;
@@ -32,7 +34,8 @@ const DirectorySidebar = memo((props) => {
     if (error) return <Safeguard error={error} onRetry={refetch} />;
 
     return (
-        <aside className={styles.searchSidebar}>
+        <aside className={`${styles.searchSidebar} ${isOpen ? styles.isOpen : ''}`}>
+            <div className={styles.sidebarBackdrop} onClick={onClose} />
             <div className={styles.sidebarCard}>
                 {/* 1. Header */}
                 <div className={styles.sidebarFilterHeader}>
@@ -114,6 +117,11 @@ const DirectorySidebar = memo((props) => {
                         )}
                     </div>
                 </div>
+
+                {/* Mobile Close Button */}
+                <button className={styles.mobileCloseBtn} onClick={onClose}>
+                    Close Filters
+                </button>
             </div>
         </aside>
     );

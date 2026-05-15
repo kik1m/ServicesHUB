@@ -7,10 +7,23 @@
   margin: 0 auto;
 }
 
+@media (max-width: 768px) {
+  .valuePropSection {
+    padding: 60px 1rem !important;
+  }
+}
+
 .propGridNew {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 2rem;
+}
+
+@media (max-width: 768px) {
+  .propGridNew {
+    grid-template-columns: 1fr !important;
+    gap: 1.25rem !important;
+  }
 }
 
 .propCardPremium {
@@ -20,6 +33,13 @@
   transition: all 0.4s ease;
   background: var(--bg-card);
   border: 1px solid var(--border);
+}
+
+@media (max-width: 768px) {
+  .propCardPremium {
+    padding: 2rem 1.5rem !important;
+    border-radius: 24px !important;
+  }
 }
 
 .propCardPremium:hover {

@@ -1,8 +1,15 @@
 .dashboardPage {
   min-height: 100vh;
+  width: 100%;
+  position: relative;
+}
+
+.dashboardContent {
   max-width: 1400px;
   margin: 0 auto;
   padding: 0 5% 60px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .errorWrapper {
@@ -45,7 +52,7 @@
 
 @media (max-width: 992px) {
   .dashboardPage {
-    padding: 20px 1.5rem 40px; /* Adjusted for Next.js layout */
+    padding: 0;
   }
 
   .discoveryGrid {

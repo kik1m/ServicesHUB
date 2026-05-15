@@ -106,16 +106,11 @@
 }
 
 .premiumItem {
-    background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%) !important;
-    color: #000 !important;
-    justify-content: center;
-    font-weight: 900;
-    box-shadow: 0 8px 20px rgba(255, 165, 0, 0.15);
-    margin-top: 12px;
+    color: #FFD700 !important;
 }
 
 .premiumItem svg {
-    color: #000 !important;
+    color: #FFD700 !important;
 }
 
 .authItem {

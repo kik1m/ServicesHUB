@@ -4,13 +4,17 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1rem;
-  padding-bottom: 0.75rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
   border-bottom: 1px solid var(--border);
-  gap: 1.5rem;
-  max-width: 820px; /* Matches 400*2 + 20 gap */
-  width: 100%;
-  margin: 0 auto 1rem auto; /* Center horizontally with reduced bottom margin */
+}
+
+@media (max-width: 768px) {
+  .resultsHeaderRow {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-start;
+  }
 }
 
 .headerExtra {
@@ -19,9 +23,16 @@
   justify-content: center;
 }
 
+@media (max-width: 768px) {
+  .headerExtra {
+    justify-content: flex-start;
+    width: 100%;
+  }
+}
+
 .resultCount {
   color: var(--text-muted);
-  font-size: 0.95rem;
+  font-size: 1rem;
 }
 
 .resultCountHighlight {
@@ -35,74 +46,42 @@
   gap: 12px;
 }
 
+@media (max-width: 768px) {
+  .sortContainer {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+
 .sortSelectBox {
   min-width: 180px;
 }
 
-.resultsGridContainer {
-  width: 100%;
+@media (max-width: 768px) {
+  .sortSelectBox {
+    min-width: 140px;
+    flex: 1;
+    max-width: 200px;
+  }
 }
 
 .resultsGrid {
   display: grid;
-  grid-template-columns: repeat(2, 400px); /* Closer group */
-  gap: 1.25rem;
-  min-height: 400px;
-  justify-content: center; /* Center horizontally in column */
-  align-items: start;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
 }
 
-.resultsGridLite {
-  display: grid;
-  grid-template-columns: repeat(2, 400px);
-  gap: 1.25rem;
-  justify-content: center;
-  align-items: start;
+@media (max-width: 900px) {
+  .resultsGrid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .searchResultsEmpty {
   grid-column: 1 / -1;
-  justify-self: stretch;
-  /* Stretch across all columns */
-  width: 100%;
   text-align: center;
   padding: 5rem 2rem;
   background: rgba(255, 255, 255, 0.02);
   border: 1px dashed var(--border);
   border-radius: 24px;
-}
-
-.emptyIcon {
-  margin-bottom: 1.5rem;
-  opacity: 0.3;
-}
-
-.emptyText {
-  color: var(--text-muted);
-  max-width: 300px;
-  margin: 0.5rem auto 0;
-}
-
-.observerTarget {
-  height: 2px;
-  width: 100%;
-  background: transparent;
-  pointer-events: none;
-}
-
-@media (max-width: 768px) {
-  .resultsHeaderRow {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 1.5rem;
-  }
-
-  .sortContainer,
-  .sortSelectBox {
-    width: 100%;
-  }
-
-  .resultsGrid {
-    grid-template-columns: 1fr;
-  }
 }

@@ -1,8 +1,8 @@
 /* HomeHero.module.css */
 
 .heroSectionSlim {
-  padding: 80px 1.5rem 40px;
-  min-height: 55vh;
+  padding: 100px 1.5rem 60px;
+  min-height: 60vh;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -12,6 +12,13 @@
   /* Completely transparent to let the page background shine */
   background: transparent !important;
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+@media (max-width: 768px) {
+  .heroSectionSlim {
+    padding: 120px 1rem 60px;
+    min-height: 50vh;
+  }
 }
 
 /* Neutral Vignette to protect text readability over the dynamic canvas */
@@ -64,11 +71,18 @@
 }
 
 .heroTitleSlim {
-  font-size: clamp(2rem, 4.5vw, 3rem);
+  font-size: clamp(2.2rem, 8vw, 3.5rem);
   font-weight: 900;
-  margin-bottom: 1rem;
+  margin-bottom: 1.2rem;
   line-height: 1.1;
   letter-spacing: -1.5px;
+}
+
+@media (max-width: 480px) {
+  .heroTitleSlim {
+    font-size: 2.1rem;
+    letter-spacing: -1px;
+  }
 }
 
 .gradientText {
@@ -80,11 +94,19 @@
 }
 
 .heroSubtitleSlim {
-  font-size: 1.1rem;
+  font-size: 1.15rem;
   color: rgba(255, 255, 255, 0.5);
   max-width: 650px;
-  margin: 0 auto 2.5rem;
+  margin: 0 auto 3rem;
   line-height: 1.6;
+}
+
+@media (max-width: 768px) {
+  .heroSubtitleSlim {
+    font-size: 1rem;
+    padding: 0 10px;
+    margin-bottom: 2rem;
+  }
 }
 
 .heroSearchContainer {
@@ -150,8 +172,18 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 3rem;
+  gap: 3.5rem;
   flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+  .logoRow {
+    gap: 1.5rem 2rem;
+  }
+  
+  .logoItem {
+    font-size: 0.85rem !important;
+  }
 }
 
 .logoItemWrapper {

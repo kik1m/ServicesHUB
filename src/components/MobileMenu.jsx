@@ -1,8 +1,8 @@
 'use client';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { X, LogOut } from 'lucide-react';
 import Logo from './Logo';
 import { MOBILE_GROUPS, NAV_LABELS } from '../constants/navbarConstants';
@@ -15,16 +15,16 @@ import styles from './MobileMenu.module.css';
  * Rule #3: Portal implementation for zero Z-index issues
  */
 const MobileMenu = ({ isOpen, onClose, user, handleLogout }) => {
-    const router = useRouter();
+    const pathname = usePathname();
+
+    // 🚀 Elite Solution: Auto-close menu when the route changes
+    useEffect(() => {
+        if (isOpen) {
+            onClose();
+        }
+    }, [pathname]); // Fires every time the URL changes
 
     if (!isOpen) return null;
-
-    const handleNavClick = (e, path) => {
-        e.preventDefault();
-        onClose();
-        // Small delay allows close animation before navigation
-        setTimeout(() => router.push(path), 50);
-    };
 
     const menuContent = (
         <>
@@ -32,7 +32,11 @@ const MobileMenu = ({ isOpen, onClose, user, handleLogout }) => {
             <div className={styles.overlay} onClick={onClose} />
 
             {/* Sidebar */}
-            <aside className={`${styles.sidebar} ${isOpen ? styles.active : ''}`}>
+            <aside
+                data-mobile-menu
+                className={`${styles.sidebar} ${isOpen ? styles.active : ''}`}
+                onClick={(e) => e.stopPropagation()}
+            >
                 <div className={styles.header}>
                     <Logo size={34} onClick={onClose} className={styles.logoLink} />
                     <button onClick={onClose} className={styles.closeBtn}>
@@ -50,15 +54,19 @@ const MobileMenu = ({ isOpen, onClose, user, handleLogout }) => {
                             <React.Fragment key={idx}>
                                 <div className={styles.groupLabel}>{group.title}</div>
                                 {group.links.map((link, lIdx) => {
+                                    // 🚀 Smart Routing: Don't show Premium upgrade to users who already have it
+                                    if ((link.label.includes('Premium') || link.label.includes('Upgrade')) && user?.is_premium) {
+                                        return null;
+                                    }
+
                                     const Icon = link.icon;
                                     const isPremium = link.label.includes('Premium') || link.label.includes('Upgrade');
                                     const isAuth = link.variant === 'primary';
 
                                     return (
-                                        <Link 
-                                            key={lIdx} 
-                                            href={link.path} 
-                                            onClick={(e) => handleNavClick(e, link.path)}
+                                        <Link
+                                            key={lIdx}
+                                            href={link.path}
                                             className={`
                                                 ${styles.navItem} 
                                                 ${isPremium ? styles.premiumItem : ''} 
@@ -75,7 +83,10 @@ const MobileMenu = ({ isOpen, onClose, user, handleLogout }) => {
                     })}
 
                     {user && (
-                        <button onClick={handleLogout} className={styles.logoutBtn}>
+                        <button 
+                            onClick={handleLogout} 
+                            className={styles.logoutBtn}
+                        >
                             <LogOut size={20} />
                             <span>{NAV_LABELS.SIGNOUT}</span>
                         </button>
@@ -93,4 +104,3 @@ const MobileMenu = ({ isOpen, onClose, user, handleLogout }) => {
 };
 
 export default MobileMenu;
-

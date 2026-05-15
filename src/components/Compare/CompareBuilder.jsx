@@ -153,17 +153,18 @@ const CompareBuilder = ({ isSelectingFor, tool1, tool2, onSelect, onClose, onCle
         <Safeguard error={toolsError} onRetry={refetchTools}>
             <div className={styles.builderOverlay}>
                 <div className={styles.builderContainer}>
-                    
+
+                    {/* ── Header ── */}
                     <div className={styles.builderHeader}>
                         <div className={styles.headerTitleGroup}>
                             <div className={styles.wizardStatus}>
                                 <Zap className={styles.wizardIcon} size={18} />
                                 <h2>{wizardTitle}</h2>
                             </div>
-                            
+
                             <div className={styles.headerSearchWrapper}>
-                                <Input 
-                                    type="text" 
+                                <Input
+                                    type="text"
                                     placeholder={isSelectingFor === 'tool1' ? COMPARE_UI_CONSTANTS?.wizard?.searchA : `${COMPARE_UI_CONSTANTS?.wizard?.searchB} ${tool1?.name || 'the selected tool'}...`}
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
@@ -172,10 +173,10 @@ const CompareBuilder = ({ isSelectingFor, tool1, tool2, onSelect, onClose, onCle
                                 />
                             </div>
                         </div>
-                        
-                        <Button 
-                            variant="ghost" 
-                            onClick={onClose} 
+
+                        <Button
+                            variant="ghost"
+                            onClick={onClose}
                             aria-label="Cancel Selection"
                             icon={X}
                             iconSize={20}
@@ -183,9 +184,31 @@ const CompareBuilder = ({ isSelectingFor, tool1, tool2, onSelect, onClose, onCle
                         />
                     </div>
 
+                    {/* ── Mobile: horizontal category filter chips ── */}
+                    {categories?.length > 0 && (
+                        <div className={styles.mobileFilterBar}>
+                            <button
+                                className={`${styles.mobileFilterChip} ${selectedCategory === 'All' ? styles.mobileFilterChipActive : ''}`}
+                                onClick={() => setSelectedCategory('All')}
+                            >
+                                All
+                            </button>
+                            {displayedCategories?.map(cat => (
+                                <button
+                                    key={cat.id || cat.name}
+                                    className={`${styles.mobileFilterChip} ${selectedCategory === cat.name ? styles.mobileFilterChipActive : ''}`}
+                                    onClick={() => setSelectedCategory(cat.name)}
+                                >
+                                    {cat.name}
+                                </button>
+                            ))}
+                        </div>
+                    )}
+
+                    {/* ── Body ── */}
                     <div className={styles.builderGrid}>
                         <div className={styles.builderGridSidebar}>
-                            <DirectorySidebar 
+                            <DirectorySidebar
                                 categoryFilter={categoryFilter}
                                 pricingFilter={pricingFilter}
                                 isLoading={isToolsLoading && categories?.length === 0}
@@ -203,7 +226,7 @@ const CompareBuilder = ({ isSelectingFor, tool1, tool2, onSelect, onClose, onCle
                         </div>
 
                         <div className={styles.builderGridMain}>
-                            <DirectoryResults 
+                            <DirectoryResults
                                 results={results}
                                 isLoading={isToolsLoading}
                                 loadingMore={loadingMore}

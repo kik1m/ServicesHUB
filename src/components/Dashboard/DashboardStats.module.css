@@ -3,6 +3,8 @@
   grid-template-columns: repeat(3, 1fr);
   gap: 1.25rem;
   margin-bottom: 3rem;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .metricCard {
@@ -81,8 +83,23 @@
 
 @media (max-width: 992px) {
   .statsGrid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
     gap: 1rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .statsGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  .metricValue {
+    font-size: 2rem;
+  }
+  
+  .metricCard {
+    padding: 1.25rem !important;
+    min-height: 100px;
   }
 }
 

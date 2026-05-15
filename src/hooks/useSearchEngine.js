@@ -62,6 +62,7 @@ export const useSearchEngine = ({
     const [categories, setCategories] = useState(categoriesCache || []);
     const [catSearchQuery, setCatSearchQuery] = useState('');
     const [showAllCats, setShowAllCats] = useState(false);
+    const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
 
     /**
      * State Dispatcher (Hybrid URL/Local)
@@ -280,6 +281,8 @@ export const useSearchEngine = ({
         sortBy, setSort,
         page, setPageNum,
         setFilters: updateParams,
+        isMobileFiltersOpen,
+        setIsMobileFiltersOpen,
         refresh: () => {
             refetch();
         }

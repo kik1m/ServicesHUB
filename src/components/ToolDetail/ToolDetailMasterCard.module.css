@@ -167,8 +167,61 @@
 @media (max-width: 1024px) {
     .premiumCardContainer {
         flex-direction: column;
-        align-items: flex-start;
-        padding: 30px;
+        align-items: center; /* Center on Tablet/Mobile */
+        padding: 35px 30px;
+        text-align: center;
+        gap: 2rem;
+    }
+
+    .identitySection {
+        flex-direction: column;
+        align-items: center;
+        gap: 1.5rem;
+    }
+
+    .identityDetails {
+        align-items: center;
+    }
+
+    .titleText {
+        font-size: 1.8rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .premiumCardContainer {
+        padding: 25px 20px;
+        border-radius: 24px;
+        width: 100%;
+        margin-bottom: 30px;
+    }
+
+    .pureAvatarAnchor, 
+    .pureAvatarAnchor div, 
+    .pureAvatarAnchor span {
+        width: 80px;
+        height: 80px;
+    }
+
+    .buttonStack {
+        flex-direction: column;
+        width: 100%;
+        gap: 1rem;
+    }
+
+    .primaryVisitBtn {
+        width: 100% !important;
+        justify-content: center !important;
+    }
+
+    .actionSection {
+        width: 100%;
+    }
+
+    .iconicActionBtn,
+    .iconicFavBtn {
+        width: 100%;
+        height: 48px;
     }
 }
 

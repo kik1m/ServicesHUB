@@ -9,11 +9,38 @@
   margin: 0 auto;
 }
 
+@media (max-width: 768px) {
+  .main-section {
+    padding: 60px 1rem !important;
+  }
+}
+
+.searchContainer {
+  width: 100% !important;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+  box-sizing: border-box !important;
+}
+
+@media (max-width: 768px) {
+  .searchContainer {
+    max-width: 100% !important;
+    padding: 0 1rem !important;
+  }
+}
+
 .container {
   max-width: 1240px;
   margin: 0 auto;
   width: 100%;
   padding: 0 2rem;
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 0 1rem !important;
+  }
 }
 
 .glass-card {
@@ -26,12 +53,25 @@
   z-index: 1;
 }
 
+@media (max-width: 768px) {
+  .glass-card {
+    padding: 20px !important;
+    border-radius: 20px !important;
+  }
+}
+
 .glass-card:hover {
   background: var(--bg-card-hover);
   border-color: var(--primary);
   transform: translateY(-12px);
   z-index: 10;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+}
+
+@media (max-width: 1024px) {
+  .glass-card:hover {
+    transform: none !important; /* Disable hover translation on touch devices */
+  }
 }
 
 /* 2. Global Button & Select Styles */
@@ -273,15 +313,37 @@
   margin-bottom: 4rem;
 }
 
+@media (max-width: 768px) {
+  .section-header-row {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    margin-bottom: 2.5rem;
+    gap: 1.5rem;
+  }
+}
+
 .section-title {
   font-size: 2.5rem;
   font-weight: 800;
   margin-bottom: 1rem;
 }
 
+@media (max-width: 768px) {
+  .section-title {
+    font-size: 1.75rem !important;
+  }
+}
+
 .section-desc {
   color: var(--text-muted);
   font-size: 1.1rem;
+}
+
+@media (max-width: 768px) {
+  .section-desc {
+    font-size: 0.95rem !important;
+  }
 }
 
 /* ==========================================================================
@@ -303,6 +365,17 @@
   display: flex;
   flex-direction: column;
   min-height: 100vh; /* Force content area to be at least one full screen height */
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+.page-content-transition {
+  width: 100%;
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
 }
 
 /* Compact Card System */

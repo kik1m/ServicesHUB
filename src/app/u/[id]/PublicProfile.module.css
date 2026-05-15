@@ -127,12 +127,40 @@
 }
 
 @media (max-width: 768px) {
+  .publicContainer {
+    padding: 80px 1rem 3rem;
+  }
+
+  .publicContentGrid {
+    margin-top: 2rem;
+  }
+
+  .tabsHeaderRow {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
   .tabsNav {
     width: 100%;
     overflow-x: auto;
     gap: 1.5rem;
+    scrollbar-width: none;
   }
+
+  .tabsNav::-webkit-scrollbar {
+    display: none;
+  }
+
   .tabBtn {
     font-size: 0.9rem;
+    white-space: nowrap;
+  }
+
+  .statsQuickLook {
+    width: 100%;
+    justify-content: flex-start;
+    gap: 1.5rem;
   }
 }

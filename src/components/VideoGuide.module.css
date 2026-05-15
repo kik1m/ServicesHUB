@@ -136,7 +136,19 @@
     }
 }
 
-@media (max-width: 640px) {
+@media (max-width: 768px) {
+    .videoGuideSection {
+        padding: 60px 1rem;
+    }
+
+    .title {
+        font-size: 1.8rem;
+    }
+
+    .description {
+        font-size: 1rem;
+    }
+
     .guideTabs {
         flex-direction: column;
         align-items: stretch;
@@ -144,6 +156,22 @@
     
     .guideTab {
         justify-content: center;
+    }
+
+    .guideContainer { 
+        padding: 1.5rem;
+        gap: 2rem;
+        border-radius: 20px;
+    }
+
+    .guideInfo h3 {
+        font-size: 1.5rem;
+        margin-bottom: 0.8rem;
+    }
+
+    .guideInfo p {
+        font-size: 1rem;
+        margin-bottom: 1.5rem;
     }
 }
 
@@ -186,4 +214,11 @@
     position: relative;
     z-index: 1;
     filter: drop-shadow(0 0 20px rgba(var(--primary-rgb), 0.2));
+}
+
+@media (max-width: 768px) {
+    .soonText {
+        font-size: 2.5rem;
+        letter-spacing: 6px;
+    }
 }

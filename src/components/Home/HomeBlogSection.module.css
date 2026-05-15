@@ -9,11 +9,25 @@
   margin: 0 auto;
 }
 
+@media (max-width: 768px) {
+  .latestBlogSection {
+    padding: 60px 1rem !important;
+    border-radius: 24px !important;
+  }
+}
+
 
 .blogPostsGrid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
   gap: 2.5rem;
+}
+
+@media (max-width: 768px) {
+  .blogPostsGrid {
+    grid-template-columns: 1fr !important;
+    gap: 1.5rem !important;
+  }
 }
 
 .blogCard {
@@ -26,6 +40,12 @@
   padding: 1.5rem;
   display: flex;
   flex-direction: column;
+}
+
+@media (max-width: 768px) {
+  .blogCard {
+    padding: 1rem !important;
+  }
 }
 
 .blogCard:hover {

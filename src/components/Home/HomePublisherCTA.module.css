@@ -7,6 +7,12 @@
   margin: 0 auto;
 }
 
+@media (max-width: 768px) {
+  .publisherCtaSection {
+    padding: 60px 1rem !important;
+  }
+}
+
 .publisherCtaContent {
   position: relative;
   background: linear-gradient(135deg, rgba(var(--primary-rgb), 0.1) 0%, rgba(0, 0, 0, 0.4) 100%);
@@ -63,6 +69,13 @@
   margin-right: auto;
 }
 
+@media (max-width: 768px) {
+  .title {
+    font-size: 1.75rem !important;
+    line-height: 1.2 !important;
+  }
+}
+
 .gradientText {
   background: var(--gradient);
   -webkit-background-clip: text;
@@ -76,6 +89,13 @@
   max-width: 650px;
   margin: 0 auto 3rem;
   line-height: 1.6;
+}
+
+@media (max-width: 768px) {
+  .publisherCtaDesc {
+    font-size: 0.95rem !important;
+    margin-bottom: 2rem !important;
+  }
 }
 
 .ctaActionsRow {

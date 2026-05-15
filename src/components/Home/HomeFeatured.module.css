@@ -7,11 +7,24 @@
   margin: 0 auto;
 }
 
+@media (max-width: 768px) {
+  .featuredSection {
+    padding: 60px 1rem !important;
+  }
+}
+
 .featuredToolsGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   gap: 1.5rem;
   margin-top: 1.5rem;
+}
+
+@media (max-width: 768px) {
+  .featuredToolsGrid {
+    grid-template-columns: 1fr !important;
+    gap: 1.25rem !important;
+  }
 }
 
 .errorMessageContainer {

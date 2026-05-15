@@ -12,6 +12,13 @@
   margin: 20px auto 0;
 }
 
+@media (max-width: 768px) {
+  .toolDetailMain {
+    width: 95%;
+    margin-top: 10px;
+  }
+}
+
 .toolGridLayout {
   display: grid;
   grid-template-columns: 1fr 350px;
@@ -53,19 +60,35 @@
 
 @media (max-width: 1024px) {
   .toolGridLayout {
+    display: flex !important;
+    flex-direction: column !important;
     grid-template-columns: 1fr;
     gap: 2.5rem;
   }
   
+  .infoCol {
+    order: 2; /* Move description/pricing below sidebar on mobile */
+  }
+
+  .sidebarCol {
+    order: 1; /* Move sidebar (Tool Info) to top on mobile */
+    max-width: 100% !important;
+  }
+
   .sidebarSticky {
-    max-width: 450px;
-    margin: 0 auto;
+    max-width: 100%;
+    margin: 0;
   }
 }
 
 @media (max-width: 768px) {
   .toolGridLayout {
     grid-template-columns: 1fr !important;
-    gap: 2rem !important;
+    gap: 1.5rem !important;
+  }
+
+  .reviewsSectionWrapper {
+    margin-top: 2rem;
+    padding-top: 2rem;
   }
 }

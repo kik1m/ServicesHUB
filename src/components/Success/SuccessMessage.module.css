@@ -43,6 +43,11 @@
 
 @media (max-width: 600px) {
   .successTitle {
-    font-size: 2rem;
+    font-size: 1.8rem;
+  }
+
+  .successMessageText {
+    font-size: 1rem;
+    padding: 0 1rem;
   }
 }

@@ -1,3 +1,10 @@
+/* ================================================================
+   CompareBuilder.module.css — Elite v3.1
+   Desktop : Sidebar + Results grid (unchanged)
+   Mobile  : Clean stacked layout, close btn absolute, no filter bar
+   ================================================================ */
+
+/* — Full-screen overlay — */
 .builderOverlay {
     position: fixed;
     inset: 0;
@@ -6,14 +13,15 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    animation: fadeIn 0.4s ease;
+    animation: fadeIn 0.3s ease;
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
 }
 
+/* — Inner container — */
 .builderContainer {
     width: 100%;
     max-width: 1440px;
@@ -21,24 +29,29 @@
     height: 100%;
     display: flex;
     flex-direction: column;
-    padding: 0.25rem 2rem; /* Minimum top padding */
+    padding: 0.5rem 2rem;
+    overflow: hidden;
 }
 
+/* ================================================================
+   HEADER
+   ================================================================ */
 .builderHeader {
     flex-shrink: 0;
-    padding: 0.3rem 0; /* Minimal padding */
+    padding: 0.5rem 0;
     display: flex;
     justify-content: space-between;
     align-items: center;
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    gap: 2rem;
+    gap: 1rem;
 }
 
-.headerTitleGroup { 
-    display: flex; 
-    align-items: center; 
-    gap: 2rem; 
+.headerTitleGroup {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
     flex: 1;
+    min-width: 0;
 }
 
 .headerSearchWrapper {
@@ -46,21 +59,121 @@
     max-width: 600px;
 }
 
-.wizardStatus { 
-    display: flex; 
-    align-items: center; 
-    gap: 8px; 
-    color: var(--secondary); 
+.wizardStatus {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--secondary);
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.wizardIcon {
+    filter: drop-shadow(0 0 10px rgba(0, 255, 170, 0.5));
+    flex-shrink: 0;
+}
+
+.wizardStatus h2 {
+    font-size: 1rem;
+    font-weight: 800;
+    color: white;
+    margin: 0;
+}
+
+.closeBtn {
+    padding: 4px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    transition: all 0.2s;
+}
+
+.closeBtn:hover {
+    transform: rotate(90deg);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+/* ================================================================
+   STEP INDICATOR
+   ================================================================ */
+.stepIndicator {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.stepItem {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    font-size: 0.8rem;
+}
+
+.stepNumber {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: 900;
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-muted);
+    flex-shrink: 0;
+}
+
+.stepItem.active .stepNumber,
+.stepItem.done .stepNumber {
+    background: var(--secondary);
+    color: #000;
+}
+
+.stepTextContent {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.stepLabel {
+    font-weight: 700;
+    color: var(--text-muted);
+    max-width: 100px;
+    overflow: hidden;
+    text-overflow: ellipsis;
     white-space: nowrap;
 }
 
-.wizardStatus h2 { 
-    font-size: 1rem; /* Slightly smaller for compactness */
-    font-weight: 800; 
-    color: white; 
-    margin: 0; 
+.stepItem.active .stepLabel { color: white; }
+.stepItem.done .stepLabel   { color: var(--secondary); }
+
+.stepRemoveBtn { padding: 2px; }
+
+.stepLinkLine {
+    height: 2px;
+    width: 32px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 2px;
+    overflow: hidden;
+    flex-shrink: 0;
 }
 
+.stepProgressFill {
+    height: 100%;
+    width: var(--progress-width, 0%);
+    background: var(--secondary);
+    transition: width 0.4s ease;
+    border-radius: 2px;
+}
+
+/* ================================================================
+   BODY GRID
+   ================================================================ */
 .builderGrid {
     display: grid;
     grid-template-columns: 280px 1fr;
@@ -68,7 +181,7 @@
     flex: 1;
     min-height: 0;
     overflow: hidden;
-    margin-top: 0.75rem; /* Small gap under the header */
+    margin-top: 0.75rem;
     padding-bottom: 1rem;
 }
 
@@ -104,26 +217,101 @@
     border-radius: 10px;
 }
 
-.closeBtn { padding: 4px; border-radius: 50%; }
+.builderSearchInput { width: 100%; }
 
+/* Mobile filter bar — fully hidden (reserved for future use) */
+.mobileFilterBar        { display: none !important; }
+.mobileFilterChip       { display: none !important; }
+.mobileFilterChipActive { display: none !important; }
+
+/* ================================================================
+   RESPONSIVE — Tablet (1024px)
+   ================================================================ */
 @media (max-width: 1024px) {
     .builderGrid { grid-template-columns: 240px 1fr; }
 }
 
+/* ================================================================
+   RESPONSIVE — Mobile (768px)
+   ================================================================ */
 @media (max-width: 768px) {
-    .builderContainer { padding: 0.5rem; }
-    .builderGrid { grid-template-columns: 1fr; }
-    .builderGridSidebar { display: none; }
-}
+    /* Container: remove horizontal padding on mobile */
+    .builderContainer {
+        padding: 0;
+        overflow: hidden;
+    }
 
-.wizardIcon { filter: drop-shadow(0 0 10px rgba(0, 255, 170, 0.5)); }
-.stepIndicator { display: flex; align-items: center; gap: 10px; }
-.stepItem { display: flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 20px; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.05); transition: all 0.3s ease; cursor: pointer; font-size: 0.8rem; }
-.stepNumber { width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 900; background: rgba(255, 255, 255, 0.05); color: var(--text-muted); }
-.stepItem.active .stepNumber, .stepItem.done .stepNumber { background: var(--secondary); color: #000; }
-.stepLabel { font-weight: 700; color: var(--text-muted); }
-.stepItem.active .stepLabel { color: white; }
-.stepItem.done .stepLabel { color: var(--secondary); }
-.builderSearchInput { width: 100%; }
-.closeBtn { padding: 4px; border-radius: 50%; transition: all 0.2s; }
-.closeBtn:hover { transform: rotate(90deg); background: rgba(255, 255, 255, 0.05); }
+    /* ── Header ── 
+       Use position:relative so the close button can be
+       placed absolute in the top-right without overlapping text. */
+    .builderHeader {
+        position: relative;
+        flex-direction: column;
+        align-items: flex-start;
+        /* Extra right padding leaves room for the absolute close btn */
+        padding: 0.85rem 3.25rem 0.85rem 1rem;
+        gap: 0.65rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    /* Title + search stack vertically, full width */
+    .headerTitleGroup {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.65rem;
+        width: 100%;
+    }
+
+    .wizardStatus h2 {
+        font-size: 0.95rem;
+        line-height: 1.3;
+        white-space: normal;
+    }
+
+    .headerSearchWrapper {
+        max-width: 100%;
+        width: 100%;
+    }
+
+    /* Close button: pinned top-right */
+    .closeBtn {
+        position: absolute;
+        top: 0.85rem;
+        right: 0.85rem;
+        padding: 6px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 50%;
+    }
+
+    /* ── Step indicator ── */
+    .stepIndicator {
+        overflow-x: auto;
+        scrollbar-width: none;
+        width: 100%;
+        flex-shrink: 0;
+        padding-bottom: 2px;
+    }
+    .stepIndicator::-webkit-scrollbar { display: none; }
+    .stepLabel { max-width: 80px; }
+
+    /* ── Body grid: single column, sidebar hidden ── */
+    .builderGrid {
+        grid-template-columns: 1fr;
+        margin-top: 0;
+        gap: 0;
+        overflow-y: auto;
+        padding-bottom: 3rem;
+        flex: 1;
+        min-height: 0;
+    }
+
+    .builderGridSidebar {
+        display: none;
+    }
+
+    .builderGridMain {
+        height: auto;
+        overflow-y: visible;
+        padding: 0.75rem 0.75rem 2rem;
+    }
+}

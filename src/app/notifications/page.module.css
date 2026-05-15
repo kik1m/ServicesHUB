@@ -1,11 +1,14 @@
 .notificationsView {
-    padding: 0 5% 60px;
+    width: 100%;
     min-height: 80vh;
 }
 
 .container {
     max-width: 800px;
     margin: 3rem auto 0;
+    padding: 0 5% 60px;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .notificationsList {
@@ -57,7 +60,12 @@
 
 @media (max-width: 768px) {
     .notificationsView {
-        padding: 80px 5% 40px;
+        padding: 0;
+    }
+    
+    .container {
+        padding: 0 1rem 40px;
+        margin-top: 2rem;
     }
     
     .authTitle {

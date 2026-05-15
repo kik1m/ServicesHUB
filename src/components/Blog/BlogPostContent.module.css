@@ -223,31 +223,118 @@
 }
 
 @media (max-width: 768px) {
+  .featuredImageContainer {
+    border-radius: 16px;
+  }
+
   .articleBody {
-    padding: 2.5rem 1.5rem;
+    padding: 1.5rem 1rem;
+    border-radius: 16px;
   }
-  
+
   .proseContent {
-    font-size: 1.05rem;
+    font-size: 1rem;
+    line-height: 1.75;
   }
-  
+
   .proseContent h2 {
-    font-size: 1.8rem;
+    font-size: 1.5rem;
+    margin: 2.5rem 0 1rem;
   }
-  
+
+  .proseContent h3 {
+    font-size: 1.25rem;
+    margin: 2rem 0 0.8rem;
+  }
+
+  .metaRow {
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: flex-start;
+    margin-bottom: 1.5rem;
+  }
+
   .articleFooter {
     flex-direction: column;
     align-items: flex-start;
+    padding: 1rem;
   }
-  
+
   .toolInner {
     flex-direction: column;
-    align-items: flex-start;
-    gap: 1.5rem;
+    align-items: center;
+    text-align: center;
+    gap: 1.25rem;
+    padding: 1.5rem;
   }
-  
+
+  .toolInfo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+  }
+
+  .toolHeader {
+    flex-direction: column;
+    align-items: center;
+    gap: 0.8rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .toolBadges {
+    justify-content: center;
+    margin-bottom: 1rem;
+    width: 100%;
+  }
+
+  .toolTitle {
+    font-size: 1.4rem;
+    text-align: center;
+  }
+
   .toolActions {
     width: 100%;
+    margin-top: 0.5rem;
+  }
+
+  .exploreBtn,
+  .visitBtn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* Compare embed card */
+  .compareEmbedCard {
+    padding: 1.5rem 1rem;
+    border-radius: 20px;
+    margin: 2rem 0;
+  }
+
+  .compareTools {
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    width: 100%;
+  }
+
+  .toolName {
+    font-size: 1.6rem;
+    text-align: center;
+  }
+
+  .vsText {
+    font-size: 1.1rem;
+    margin: 0.5rem 0;
+    display: block;
+    width: 100%;
+    text-align: center;
+  }
+
+  .compareActionBtn {
+    width: 100%;
+    justify-content: center;
+    padding: 0.9rem 1.5rem;
   }
 }
 

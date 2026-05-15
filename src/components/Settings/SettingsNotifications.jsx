@@ -3,13 +3,15 @@ import React, { memo } from 'react';
 import Skeleton from '../ui/Skeleton';
 import Toggle from '../ui/Toggle';
 import Safeguard from '../ui/Safeguard';
+import { SETTINGS_UI_CONSTANTS } from '../../constants/settingsConstants';
 import styles from './SettingsNotifications.module.css';
 
 /**
  * SettingsNotifications - Elite Hardened Card (Next.js Port)
  */
-const SettingsNotifications = memo(({ profile, isLoading, error, onRetry }) => {
+const SettingsNotifications = memo(({ profile, onToggle, isLoading, error, onRetry }) => {
     if (isLoading) {
+        // ... (skeletons remain the same)
         return (
             <div className={styles.fadeIn}>
                 <div className={styles.settingsCard}>
@@ -52,8 +54,8 @@ const SettingsNotifications = memo(({ profile, isLoading, error, onRetry }) => {
                                     <p>{item.desc}</p>
                                 </div>
                                 <Toggle 
-                                    checked={true}
-                                    onChange={(val) => console.log(`Toggle ${item.id}:`, val)} 
+                                    checked={!!profile?.[item.id]}
+                                    onChange={(val) => onToggle(item.id, val)} 
                                 />
                             </div>
                         ))}

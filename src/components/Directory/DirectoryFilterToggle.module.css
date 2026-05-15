@@ -1,0 +1,28 @@
+.mobileFilterToggle {
+    display: none;
+    width: 100%;
+    padding: 14px;
+    background: rgba(0, 210, 255, 0.1);
+    border: 1px solid rgba(0, 210, 255, 0.3);
+    border-radius: 16px;
+    color: var(--primary);
+    font-weight: 800;
+    font-size: 1rem;
+    gap: 10px;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+    cursor: pointer;
+    transition: 0.3s;
+    box-shadow: 0 4px 15px rgba(0, 210, 255, 0.1);
+}
+
+@media (max-width: 1024px) {
+    .mobileFilterToggle {
+        display: flex;
+    }
+}
+
+.mobileFilterToggle:active {
+    transform: scale(0.98);
+}

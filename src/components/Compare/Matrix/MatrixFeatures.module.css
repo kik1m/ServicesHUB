@@ -1,0 +1,238 @@
+/* ============================================
+   MatrixFeatures.module.css
+   Styles for the AI Comparative Dimensions Grid
+   ============================================ */
+
+/* — Section title header — */
+.matrixSectionHeader {
+    padding: 2.5rem 0 1.5rem;
+    text-align: center;
+    font-size: 0.8rem;
+    letter-spacing: 3px;
+    font-weight: 900;
+    color: var(--secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+}
+
+/* — Outer grid container — */
+.featuresGrid {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+/* — Base row: used for header and fallback rows — */
+.featureRow {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    padding: 1.5rem 2rem;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 20px;
+    align-items: center;
+    border: 1px solid rgba(255, 255, 255, 0.03);
+    transition: background 0.3s ease;
+    min-height: 70px;
+}
+
+/* — Highlighted header row — */
+.headerRowActive {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border-bottom: 2px solid var(--secondary);
+}
+
+/* — AI-data feature row: vertical stack layout — */
+.aiFeatureRow {
+    display: flex;
+    flex-direction: column;
+    padding: 1.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    transition: background 0.3s ease;
+    gap: 1rem;
+}
+
+.aiFeatureRow:hover {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+/* Values row: side by side below the label */
+.valuesRow {
+    display: flex;
+    gap: 1rem;
+}
+
+/* — Skeleton loading row — */
+.skeletonRow {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr 1fr;
+    padding: 1.5rem;
+    background: rgba(255, 255, 255, 0.01);
+    border-radius: 20px;
+    align-items: center;
+    border: 1px solid rgba(255, 255, 255, 0.02);
+    min-height: 70px;
+    gap: 1rem;
+}
+
+/* — Feature label column — */
+.featureLabel {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: white;
+    padding-right: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    margin-bottom: 0.25rem;
+}
+
+.aiLabelTitle {
+    font-weight: 700;
+    font-size: 1.05rem;
+    margin-bottom: 0.6rem;
+    background: linear-gradient(90deg, #60a5fa, #22d3ee);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: -0.01em;
+}
+
+.aiLabelInsight {
+    font-size: 0.88rem;
+    color: var(--text-muted);
+    line-height: 1.55;
+    padding-top: 0.1rem;
+}
+
+/* — Value cell — */
+.checkContainer {
+    display: flex;
+    flex: 1;
+    align-items: flex-start;
+    width: 100%;
+}
+
+.checkContainer > div {
+    width: 100%;
+}
+
+.aiValue {
+    font-size: 0.95rem;
+    font-weight: 600;
+    text-align: center;
+    color: white;
+    line-height: 1.5;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    width: 100%;
+}
+
+/* — Winner cell highlight — */
+.aiWinnerCell {
+    background: rgba(var(--success-rgb), 0.08);
+    border-radius: 20px;
+    position: relative;
+    padding: 0.75rem 1rem;
+    border: 1px solid rgba(var(--success-rgb), 0.15);
+    box-shadow: 0 0 20px rgba(var(--success-rgb), 0.05);
+    width: 100%;
+    box-sizing: border-box;
+    text-align: center;
+}
+
+.winnerCheck {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: var(--success);
+    color: #050505;
+    border-radius: 50%;
+    padding: 4px;
+    width: 24px;
+    height: 24px;
+    box-shadow: 0 0 15px var(--success-glow);
+    z-index: 2;
+}
+
+/* — Header name colours — */
+.winnerName {
+    color: var(--success);
+    font-size: 1.1rem;
+    text-shadow: 0 0 10px rgba(34, 197, 94, 0.2);
+}
+
+.otherName {
+    color: var(--secondary);
+    font-size: 1.1rem;
+}
+
+/* — Empty state — */
+.noAiData {
+    padding: 3rem 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    color: var(--text-muted);
+    text-align: center;
+}
+
+.noAiIcon {
+    opacity: 0.3;
+}
+
+/* ============================================
+   Responsive
+   ============================================ */
+@media (max-width: 992px) {
+    .featureRow,
+    .aiFeatureRow,
+    .skeletonRow {
+        grid-template-columns: 1fr 80px 80px;
+        padding: 1rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .matrixSectionHeader {
+        padding: 1.5rem 0 1rem;
+        font-size: 0.7rem;
+        letter-spacing: 2px;
+    }
+
+    .featuresGrid {
+        gap: 8px;
+    }
+
+    .featureRow,
+    .aiFeatureRow,
+    .skeletonRow {
+        grid-template-columns: 2fr 1fr 1fr;
+        padding: 1rem 1rem;
+        min-height: 60px;
+        gap: 0.5rem;
+    }
+
+    .featureLabel {
+        font-size: 0.9rem;
+        padding-right: 0.5rem;
+    }
+
+    .aiLabelTitle {
+        font-size: 0.9rem;
+    }
+
+    .aiLabelInsight {
+        font-size: 0.75rem;
+    }
+
+    .aiValue {
+        font-size: 0.85rem;
+    }
+
+    /* Mobile tab switcher visibility */
+    .hideOnMobile {
+        display: none !important;
+    }
+}

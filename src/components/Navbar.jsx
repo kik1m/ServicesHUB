@@ -2,7 +2,7 @@
 import React, { useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Search, ChevronDown, Bell, User, Star } from 'lucide-react';
+import { Search, ChevronDown, Bell, User, Star, Menu } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useNavbar } from '../hooks/useNavbar';
 import { useNotifications } from '../hooks/useNotifications';
@@ -51,6 +51,9 @@ const Navbar = () => {
     // Close on click outside
     useEffect(() => {
         const handleClickOutside = (event) => {
+            // 🚀 Fix: Don't close if clicking inside the Mobile Menu Portal
+            if (event.target.closest('[data-mobile-menu]')) return;
+            
             if (navRef.current && !navRef.current.contains(event.target)) {
                 closeAll();
             }
@@ -145,13 +148,15 @@ const Navbar = () => {
                                 </div>
                             )}
                             
-                            <Button 
-                                variant="primary" 
-                                size="sm" 
-                                onClick={() => router.push('/submit')}
-                            >
-                                {NAV_LABELS.SUBMIT}
-                            </Button>
+                            <div className={styles.hideOnMobile}>
+                                <Button 
+                                    variant="primary" 
+                                    size="sm" 
+                                    onClick={() => router.push('/submit')}
+                                >
+                                    {NAV_LABELS.SUBMIT}
+                                </Button>
+                            </div>
 
                             {!user ? (
                                 <Button 
@@ -209,9 +214,7 @@ const Navbar = () => {
                         onClick={() => setIsMobileMenuOpen(true)}
                         aria-label="Open Menu"
                     >
-                        <div className={styles.hamburgerBox}>
-                            <div className={styles.hamburgerInner}></div>
-                        </div>
+                        <Menu size={22} color="white" />
                     </button>
                 </div>
             </div>

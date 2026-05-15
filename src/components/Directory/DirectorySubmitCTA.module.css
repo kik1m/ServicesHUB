@@ -15,6 +15,14 @@
     overflow: hidden;
 }
 
+@media (max-width: 768px) {
+    .ctaCard {
+        padding: 2rem 1.5rem !important;
+        margin-top: 2rem !important;
+        border-radius: 24px !important;
+    }
+}
+
 .ctaCard::before {
     content: '';
     position: absolute;
@@ -47,11 +55,23 @@
     letter-spacing: -0.5px;
 }
 
+@media (max-width: 768px) {
+    .ctaTitle {
+        font-size: 1.5rem !important;
+    }
+}
+
 .ctaDescription {
     color: var(--text-muted);
     font-size: 1.1rem;
     line-height: 1.6;
     margin: 0;
+}
+
+@media (max-width: 768px) {
+    .ctaDescription {
+        font-size: 0.95rem !important;
+    }
 }
 
 .submitBtn {
