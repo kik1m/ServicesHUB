@@ -2,6 +2,7 @@
 import React from 'react';
 import { createPortal } from 'react-dom';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { X, LogOut } from 'lucide-react';
 import Logo from './Logo';
 import { MOBILE_GROUPS, NAV_LABELS } from '../constants/navbarConstants';
@@ -14,7 +15,16 @@ import styles from './MobileMenu.module.css';
  * Rule #3: Portal implementation for zero Z-index issues
  */
 const MobileMenu = ({ isOpen, onClose, user, handleLogout }) => {
+    const router = useRouter();
+
     if (!isOpen) return null;
+
+    const handleNavClick = (e, path) => {
+        e.preventDefault();
+        onClose();
+        // Small delay allows close animation before navigation
+        setTimeout(() => router.push(path), 50);
+    };
 
     const menuContent = (
         <>
@@ -48,7 +58,7 @@ const MobileMenu = ({ isOpen, onClose, user, handleLogout }) => {
                                         <Link 
                                             key={lIdx} 
                                             href={link.path} 
-                                            onClick={onClose} 
+                                            onClick={(e) => handleNavClick(e, link.path)}
                                             className={`
                                                 ${styles.navItem} 
                                                 ${isPremium ? styles.premiumItem : ''} 
@@ -83,3 +93,4 @@ const MobileMenu = ({ isOpen, onClose, user, handleLogout }) => {
 };
 
 export default MobileMenu;
+
