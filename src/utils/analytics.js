@@ -26,17 +26,15 @@ export const trackVisit = async (path) => {
       // Silently fail geo-lookups to not block analytics
     }
 
-    // 3. إرسال البيانات لـ Supabase
+    // 3. إرسال البيانات لـ Supabase (Simple Insert for maximum compatibility)
     const { error } = await supabase
       .from('analytics')
-      .upsert({
+      .insert([{
         visitor_id: visitorId,
         page_path: path || window.location.pathname,
         country: country,
         visit_date: new Date().toISOString().split('T')[0]
-      }, {
-        onConflict: 'visitor_id, page_path, visit_date'
-      });
+      }]);
 
     if (error && error.code !== '23505') {
       console.error('Analytics Error:', error.message);
