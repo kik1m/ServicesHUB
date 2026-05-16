@@ -67,8 +67,10 @@
 
 .resultsGrid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1.5rem;
+  grid-template-columns: repeat(2, minmax(280px, 380px));
+  gap: 2rem;
+  width: 100%;
+  justify-content: center; /* Center the grid for elite look */
 }
 
 @media (max-width: 900px) {

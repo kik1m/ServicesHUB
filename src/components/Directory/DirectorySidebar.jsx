@@ -102,7 +102,7 @@ const DirectorySidebar = memo((props) => {
                     <div className={styles.pricingFilterChips}>
                         {isLoading ? (
                             Array.from({ length: 4 }).map((_, i) => (
-                                <Skeleton key={`skeleton-price-${i}`} height="38px" borderRadius="8px" />
+                                <Skeleton key={`skeleton-price-${i}`} height="44px" borderRadius="12px" />
                             ))
                         ) : (
                             pricingModels.map(model => (

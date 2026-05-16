@@ -91,6 +91,7 @@ const ToolsClient = ({ bannerTools }) => {
                 subtitle={TOOLS_UI_CONSTANTS.hero.subtitle}
                 breadcrumbs={TOOLS_UI_CONSTANTS.hero.breadcrumbs}
                 icon={<Layers size={24} />}
+                isLoading={isLoading && results.length === 0}
             />
 
             <div className={styles.searchContainer}>

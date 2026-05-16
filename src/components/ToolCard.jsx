@@ -30,9 +30,13 @@ const ToolCard = ({ tool, isLoading = false, onClickOverride = null }) => {
                     <Skeleton className={styles.skeletonLogo} />
                 </div>
                 <div className={styles.cardContent}>
-                    <div className={`${styles.cardTitleRow} ${styles.cardTitleRowSkeleton}`}>
-                        <Skeleton className={styles.skeletonTitle} />
-                        <Skeleton className={styles.skeletonPill} />
+                    <div className={styles.cardTitleRow}>
+                        <div className={styles.nameContainer}>
+                            <Skeleton className={styles.skeletonTitle} />
+                        </div>
+                        <div className={styles.cardMetaGroup}>
+                            <Skeleton className={styles.skeletonPill} />
+                        </div>
                     </div>
                     <Skeleton className={styles.skeletonLineShort} />
                     <Skeleton className={styles.skeletonLineFull} />
