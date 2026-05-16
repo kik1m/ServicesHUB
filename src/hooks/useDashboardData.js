@@ -2,6 +2,7 @@ import { useMemo, useState, useEffect } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
+import { queryOptions } from '../lib/queryOptions';
 import { toolsService } from '../services/toolsService';
 import { favoritesService } from '../services/favoritesService';
 
@@ -18,39 +19,19 @@ export const useDashboardData = () => {
     const { 
         data: toolsData = [], 
         isLoading: toolsLoading, 
-        error: toolsQueryError,
+        error: toolsError,
         refetch: refetchTools
-    } = useQuery({
-        queryKey: ['dashboard_tools', user?.id],
-        queryFn: async () => {
-            const res = await toolsService.getUserTools(user.id);
-            if (res.error) throw new Error(res.error);
-            return res.data || [];
-        },
-        enabled: !!user?.id,
-        staleTime: 1000 * 60 * 5 // 5 minutes caching
-    });
-
-    const toolsError = toolsQueryError ? toolsQueryError.message : null;
+    } = useQuery(queryOptions.dashboardTools(user?.id));
 
     // 2. React Query: Favorites
     const { 
-        data: favoritesData = [], 
+        data: favoritesDataRaw = [], 
         isLoading: favoritesLoading, 
-        error: favsQueryError,
+        error: favoritesError,
         refetch: refetchFavorites
-    } = useQuery({
-        queryKey: ['dashboard_favorites', user?.id],
-        queryFn: async () => {
-            const res = await favoritesService.getUserFavorites(user.id);
-            if (res.error) throw new Error(res.error);
-            return res.data || [];
-        },
-        enabled: !!user?.id,
-        staleTime: 1000 * 60 * 5
-    });
-
-    const favoritesError = favsQueryError ? favsQueryError.message : null;
+    } = useQuery(queryOptions.favorites(user?.id));
+    
+    const favoritesData = useMemo(() => favoritesDataRaw.map(f => f.tools).filter(Boolean), [favoritesDataRaw]);
 
     // Pre-computation logic (Same as Vite)
     const safeUserTools = useMemo(() => {
@@ -122,12 +103,6 @@ export const useDashboardData = () => {
         }
     };
 
-    // Hydration fix
-    const [isMounted, setIsMounted] = useState(false);
-    useEffect(() => {
-        setIsMounted(true);
-    }, []);
-
     return {
         userTools: safeUserTools,
         favorites: safeFavorites,
@@ -136,9 +111,9 @@ export const useDashboardData = () => {
         isCreator,
         isPremium: user?.is_premium || false,
         user,
-        isLoading: !isMounted || toolsLoading || favoritesLoading || authLoading,
-        toolsLoading: !isMounted || toolsLoading,
-        favoritesLoading: !isMounted || favoritesLoading,
+        isLoading: toolsLoading || favoritesLoading || authLoading,
+        toolsLoading: toolsLoading,
+        favoritesLoading: favoritesLoading,
         toolsError,
         favoritesError,
         handleDeleteTool,

@@ -1,9 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
+import { queryOptions } from '../lib/queryOptions';
 import { toolsService } from '../services/toolsService';
-import { categoriesService } from '../services/categoriesService';
-import { blogService } from '../services/blogService';
-import { profilesService } from '../services/profilesService';
-import { compareService } from '../services/compareService';
 import { logEvent } from '../services/analyticsService';
 
 /**
@@ -11,92 +8,49 @@ import { logEvent } from '../services/analyticsService';
  * Implements Rule #14: Efficient Data Fetching & Caching
  * Implements Rule #18: Isolated Loading & Error States
  */
-export const useHomeData = () => {
+export const useHomeData = (initial = {}) => {
     
-    // 1. Helper to format query results into the original structure (Backward Compatibility)
-    const formatQuery = (query, dataKey = 'data') => ({
-        data: query.data || [],
-        loading: query.isLoading,
-        error: query.error ? "Load failed" : null
-    });
-
-    // 2. Atomic Data Queries
+    // 2. Atomic Data Queries with Initial Data Support
     const categoriesQuery = useQuery({
-        queryKey: ['home', 'categories'],
-        queryFn: async () => {
-            const res = await categoriesService.getHomeCategories();
-            if (res.error) throw res.error;
-            return res.data || [];
-        },
-        staleTime: 1000 * 60 * 60 * 24 // 24 hours
+        ...queryOptions.home.categories(),
+        initialData: initial.initialCategories,
+        initialDataUpdatedAt: initial.initialCategories ? Date.now() : undefined,
     });
 
     const featuredQuery = useQuery({
-        queryKey: ['home', 'featured'],
-        queryFn: async () => {
-            const res = await toolsService.getFeaturedTools();
-            if (res.error) throw res.error;
-            return res.data || [];
-        },
-        staleTime: 1000 * 60 * 60 // 1 hour
+        ...queryOptions.home.featured(),
+        initialData: initial.initialFeatured,
+        initialDataUpdatedAt: initial.initialFeatured ? Date.now() : undefined,
     });
 
     const latestQuery = useQuery({
-        queryKey: ['home', 'latest'],
-        queryFn: async () => {
-            const res = await toolsService.getLatestTools();
-            if (res.error) throw res.error;
-            return res.data || [];
-        },
-        staleTime: 1000 * 60 * 60 // 1 hour
+        ...queryOptions.home.latest(),
+        initialData: initial.initialLatest,
+        initialDataUpdatedAt: initial.initialLatest ? Date.now() : undefined,
     });
 
     const trendingQuery = useQuery({
-        queryKey: ['home', 'trending'],
-        queryFn: async () => {
-            const res = await toolsService.getTrendingTools();
-            if (res.error) throw res.error;
-            return res.data || [];
-        },
-        staleTime: 1000 * 60 * 10 // 10 minutes
+        ...queryOptions.home.trending(),
+        initialData: initial.initialTrending,
+        initialDataUpdatedAt: initial.initialTrending ? Date.now() : undefined,
     });
 
     const postsQuery = useQuery({
-        queryKey: ['home', 'posts'],
-        queryFn: async () => {
-            const res = await blogService.getLatestPosts();
-            if (res.error) throw res.error;
-            return res.data || [];
-        },
-        staleTime: 1000 * 60 * 60 // 1 hour
+        ...queryOptions.home.posts(),
+        initialData: initial.initialPosts,
+        initialDataUpdatedAt: initial.initialPosts ? Date.now() : undefined,
     });
 
     const comparisonsQuery = useQuery({
-        queryKey: ['home', 'comparisons'],
-        queryFn: async () => {
-            const res = await compareService.getRecentComparisons();
-            if (res.error) throw res.error;
-            return res.data || [];
-        },
-        staleTime: 1000 * 60 * 60 // 1 hour
+        ...queryOptions.home.comparisons(),
+        initialData: initial.initialComparisons,
+        initialDataUpdatedAt: initial.initialComparisons ? Date.now() : undefined,
     });
 
     const statsQuery = useQuery({
-        queryKey: ['home', 'stats'],
-        queryFn: async () => {
-            const [toolsRes, usersRes] = await Promise.all([
-                toolsService.getToolsStats(),
-                profilesService.getUsersCount()
-            ]);
-            if (toolsRes.error || usersRes.error) throw new Error("Stats error");
-            return {
-                tools: toolsRes.count || 0,
-                views: toolsRes.views || 0,
-                clicks: toolsRes.clicks || 0,
-                users: usersRes.count || 0
-            };
-        },
-        staleTime: 1000 * 60 * 10 // 10 minutes
+        ...queryOptions.home.stats(),
+        initialData: initial.initialStats,
+        initialDataUpdatedAt: initial.initialStats ? Date.now() : undefined,
     });
 
     // 3. Track Click Method (Remains similar)
@@ -110,19 +64,16 @@ export const useHomeData = () => {
         }
     };
 
-    // 4. Return unified state object
+    // 4. Return unified state object (Matching HomeClient expectations)
     return {
-        categories: formatQuery(categoriesQuery),
-        featured: formatQuery(featuredQuery),
-        latest: formatQuery(latestQuery),
-        trending: formatQuery(trendingQuery),
-        posts: formatQuery(postsQuery),
-        comparisons: formatQuery(comparisonsQuery),
-        stats: {
-            data: statsQuery.data || { tools: 0, users: 0, views: 0 },
-            loading: statsQuery.isLoading,
-            error: statsQuery.error ? "Stats error" : null
-        },
+        categories: categoriesQuery.data || [],
+        featuredTools: featuredQuery.data || [],
+        latestTools: latestQuery.data || [],
+        trendingTools: trendingQuery.data || [],
+        blogPosts: postsQuery.data || [],
+        comparisons: comparisonsQuery.data || [],
+        stats: statsQuery.data || { tools: 0, users: 0, views: 0 },
+        loading: categoriesQuery.isLoading || featuredQuery.isLoading || latestQuery.isLoading,
         trackClick
     };
 };

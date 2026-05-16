@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toolsService } from '../services/toolsService';
-import { profilesService } from '../services/profilesService';
+import { queryOptions } from '../lib/queryOptions';
 import { favoritesService } from '../services/favoritesService';
 import { useToast } from '../context/ToastContext';
 import { useAuth } from '../context/AuthContext';
@@ -32,32 +32,18 @@ export const useToolDetailData = ({ initialTool, initialPublisher, initialRelate
         error: toolError, 
         refetch: refetchTool 
     } = useQuery({
-        queryKey: ['tool', slug],
-        queryFn: async () => {
-            const { data, error } = await toolsService.getToolBySlug(slug);
-            if (error) throw error;
-            if (!data) throw new Error('Tool not found');
-            return data;
-        },
+        ...queryOptions.toolBySlug(slug),
         initialData: initialTool,
         initialDataUpdatedAt: initialTool ? Date.now() : undefined,
-        enabled: !!slug,
-        staleTime: 1000 * 60 * 10 // 10 minutes
     });
 
     const error = toolError ? (toolError.message || 'Tool not found') : null;
 
     // 2. React Query: Publisher Data (Dependent Query)
     const { data: publisher = null } = useQuery({
-        queryKey: ['profile', tool?.user_id],
-        queryFn: async () => {
-            const { data } = await profilesService.getProfileById(tool.user_id);
-            return data || null;
-        },
+        ...queryOptions.profile(tool?.user_id, initialPublisher),
         initialData: initialPublisher,
         initialDataUpdatedAt: initialPublisher ? Date.now() : undefined,
-        enabled: !!tool?.user_id,
-        staleTime: 1000 * 60 * 60 * 24 // 24 hours
     });
 
     // 3. React Query: Related Tools (Dependent Query)

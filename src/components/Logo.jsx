@@ -7,12 +7,13 @@ import styles from './Logo.module.css';
  * 💎 Elite Logo Atom
  * Rule #1: Modular Styles (Rule #81)
  */
-const Logo = ({ size = 32, className = '', onClick, hideText = false }) => {
+const Logo = ({ size = 32, className = '', onClick, hideText = false, ...props }) => {
     return (
         <Link 
             href="/" 
             className={`${styles.logo} ${className} ${hideText ? styles.iconOnly : ''}`} 
             onClick={onClick}
+            {...props}
             style={{ 
                 '--logo-size': `${size}px`, 
                 '--logo-font-size': `${size * 0.7}px` 

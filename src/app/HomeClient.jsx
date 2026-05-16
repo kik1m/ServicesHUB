@@ -1,6 +1,7 @@
 'use client';
 import React, { useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import { useHomeData } from '../hooks/useHomeData';
 import { useBannerState } from '../hooks/useBannerState';
 
 // Import Modular Home Components
@@ -37,7 +38,27 @@ export default function HomeClient({
     const [searchQuery, setSearchQuery] = useState('');
     const router = useRouter();
     
-    // Rule #1: Logic Isolation via custom hook
+    // 🚀 Elite: Use React Query to manage Home Data
+    // This allows prefetching from the Navbar to make this page instant!
+    const { 
+        categories, 
+        featuredTools, 
+        latestTools, 
+        trendingTools, 
+        blogPosts, 
+        stats, 
+        comparisons,
+        loading 
+    } = useHomeData({
+        initialCategories,
+        initialFeatured,
+        initialLatest,
+        initialTrending,
+        initialPosts,
+        initialStats,
+        initialComparisons
+    });
+
     const banner = useBannerState(initialBannerTools, false);
 
     const handleExternalClick = useCallback((id) => {
@@ -59,43 +80,43 @@ export default function HomeClient({
             <HomeHero 
                 searchQuery={searchQuery} 
                 setSearchQuery={setSearchQuery} 
-                statsCount={initialStats} 
-                isLoading={false}
+                statsCount={stats} 
+                isLoading={loading}
                 content={HOME_UI_CONSTANTS.hero}
-                popularCategories={initialCategories}
+                popularCategories={categories}
             />
 
             <HomeStatsBar 
-                statsCount={initialStats} 
-                categoriesCount={initialCategories?.length || 0} 
-                isLoading={false}
+                statsCount={stats} 
+                categoriesCount={categories?.length || 0} 
+                isLoading={loading}
             />
 
             <HomeHowItWorks content={HOME_UI_CONSTANTS.howItWorks} />
 
             <HomeCategories 
-                categories={initialCategories} 
-                isLoading={false} 
+                categories={categories} 
+                isLoading={loading} 
             />
 
             <HomeTrending 
-                trendingTools={initialTrending} 
-                isLoading={false} 
+                trendingTools={trendingTools} 
+                isLoading={loading} 
             />
 
             <HomeComparisons
-                comparisons={initialComparisons}
-                isLoading={false}
+                comparisons={comparisons}
+                isLoading={loading}
             />
 
             <HomeLatestArrivals 
-                latestTools={initialLatest} 
-                isLoading={false} 
+                latestTools={latestTools} 
+                isLoading={loading} 
             />
 
             <HomeFeatured 
-                tools={initialFeatured} 
-                isLoading={false} 
+                tools={featuredTools} 
+                isLoading={loading} 
             />
 
             <HomeValueProp content={HOME_UI_CONSTANTS.valueProp} />
@@ -103,8 +124,8 @@ export default function HomeClient({
             <HomePublisherCTA content={HOME_UI_CONSTANTS.publisherCTA} />
 
             <HomeBlogSection 
-                latestPosts={initialPosts} 
-                isLoading={false}
+                latestPosts={blogPosts} 
+                isLoading={loading}
             />
 
             <VideoGuide />

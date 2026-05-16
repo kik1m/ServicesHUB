@@ -158,12 +158,7 @@ export const usePublicProfileData = (id, initialData = {}) => {
         setTimeout(() => setCopied(false), 2000);
     }, [addToast]);
 
-    const [isMounted, setIsMounted] = useState(false);
-    useEffect(() => {
-        setIsMounted(true);
-    }, []);
-
-    const isLoading = !isMounted || loadingProfile || (!!targetId && (loadingTools || loadingFavorites));
+    const isLoading = loadingProfile || (!!targetId && (loadingTools || loadingFavorites));
     const error = profileError ? profileError.message : null;
 
     return {

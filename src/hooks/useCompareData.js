@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, useSearchParams, useRouter } from 'next/navigation';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { queryOptions } from '../lib/queryOptions';
 import { compareService } from '../services/compareService';
 
 export const useCompareData = ({ 
@@ -32,11 +33,7 @@ export const useCompareData = ({
 
     // 2. React Query: Recent Comparisons
     const { data: recentComparisons = initialRecentComparisons || [], isLoading: isRecentLoading } = useQuery({
-        queryKey: ['compare', 'recent'],
-        queryFn: async () => {
-            const { data } = await compareService.getRecentComparisons();
-            return data || [];
-        },
+        ...queryOptions.home.comparisons(),
         initialData: initialRecentComparisons?.length > 0 ? initialRecentComparisons : undefined,
         initialDataUpdatedAt: initialRecentComparisons?.length > 0 ? Date.now() : undefined,
         staleTime: 1000 * 60 * 10 
@@ -44,30 +41,16 @@ export const useCompareData = ({
 
     // 3. React Query: Tool 1
     const { data: tool1, isLoading: isTool1Loading, error: tool1Error } = useQuery({
-        queryKey: ['tool', t1Slug],
-        queryFn: async () => {
-            const { data, error } = await compareService.getToolBySlug(t1Slug);
-            if (error) throw error;
-            return data;
-        },
+        ...queryOptions.toolBySlug(t1Slug),
         initialData: (t1Slug === initialTool1?.slug && initialTool1) ? initialTool1 : undefined,
         initialDataUpdatedAt: (t1Slug === initialTool1?.slug && initialTool1) ? Date.now() : undefined,
-        enabled: !!t1Slug,
-        staleTime: 1000 * 60 * 60 * 24
     });
 
     // 4. React Query: Tool 2
     const { data: tool2, isLoading: isTool2Loading, error: tool2Error } = useQuery({
-        queryKey: ['tool', t2Slug],
-        queryFn: async () => {
-            const { data, error } = await compareService.getToolBySlug(t2Slug);
-            if (error) throw error;
-            return data;
-        },
+        ...queryOptions.toolBySlug(t2Slug),
         initialData: (t2Slug === initialTool2?.slug && initialTool2) ? initialTool2 : undefined,
         initialDataUpdatedAt: (t2Slug === initialTool2?.slug && initialTool2) ? Date.now() : undefined,
-        enabled: !!t2Slug,
-        staleTime: 1000 * 60 * 60 * 24
     });
 
     // 5. React Query: AI Dynamic Comparison

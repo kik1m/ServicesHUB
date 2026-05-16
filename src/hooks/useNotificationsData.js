@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { queryOptions } from '../lib/queryOptions';
 import { notificationsService } from '../services/notificationsService';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
@@ -18,16 +19,7 @@ export const useNotificationsData = () => {
 
     const labels = NOTIFICATIONS_UI_CONSTANTS.actions;
 
-    const { data: notifications = [], isLoading, error: queryError, refetch } = useQuery({
-        queryKey: ['notifications', user?.id],
-        queryFn: async () => {
-            const { data, error } = await notificationsService.fetchNotifications(user.id);
-            if (error) throw error;
-            return data || [];
-        },
-        enabled: !!user?.id,
-        staleTime: 1000 * 60 * 5 // 5 minutes cache
-    });
+    const { data: notifications = [], isLoading, error: queryError, refetch } = useQuery(queryOptions.notifications(user?.id));
 
     const error = queryError ? queryError.message : null;
 

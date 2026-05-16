@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useQuery, useQueryClient, keepPreviousData } from '@tanstack/react-query';
+import { queryOptions } from '../lib/queryOptions';
 import { adminService } from '../services/adminService';
 import { seoService } from '../services/seoService';
 import { supabase } from '../lib/supabaseClient';
@@ -54,35 +55,20 @@ export const useAdminData = () => {
     useEffect(() => { setIsMounted(true); }, []);
 
     // Role Check
-    const { data: adminRoleData, isLoading: roleLoading, error: roleError } = useQuery({
-        queryKey: ['admin_role', user?.id],
-        queryFn: async () => {
-            const { data, error } = await supabase.from('profiles').select('role, full_name').eq('id', user.id).single();
-            if (error) throw error;
-            if (data?.role !== 'admin') throw new Error('Unauthorized');
-            return data;
-        },
-        enabled: !!user?.id,
-        staleTime: Infinity,
-        retry: false
-    });
+    const { data: adminRoleData, isLoading: roleLoading, error: roleError } = useQuery(queryOptions.admin.role(user?.id));
 
     const isAdmin = adminRoleData?.role === 'admin';
 
     // Dashboard Data
     const { data: dashboardData, isLoading: dashboardLoading, error: dashboardQueryError, refetch: refetchDashboard } = useQuery({
-        queryKey: ['admin_dashboard_data'],
-        queryFn: async () => adminService.fetchDashboardData(),
+        ...queryOptions.admin.dashboard(),
         enabled: isMounted && isAdmin,
-        staleTime: 1000 * 60 * 2
     });
 
     // Paginated Tools
     const { data: allToolsData, isLoading: toolsLoading } = useQuery({
-        queryKey: ['admin_all_tools', allToolsPage],
-        queryFn: async () => adminService.fetchAllToolsPaginated(allToolsPage, 10),
+        ...queryOptions.admin.allTools(allToolsPage),
         enabled: isMounted && isAdmin && activeTab === 'manage-tools',
-        staleTime: 1000 * 60 * 2,
         placeholderData: keepPreviousData
     });
 

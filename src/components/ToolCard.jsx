@@ -2,7 +2,7 @@
 import React, { useCallback } from 'react';
 import Link from 'next/link';
 import { useQueryClient } from '@tanstack/react-query';
-import { toolsService } from '../services/toolsService';
+import { queryOptions } from '../lib/queryOptions';
 import { ArrowUpRight, Star, CheckCircle2, Zap } from 'lucide-react';
 import Skeleton from './ui/Skeleton';
 import SmartImage from './ui/SmartImage';
@@ -20,16 +20,7 @@ const ToolCard = ({ tool, isLoading = false, onClickOverride = null }) => {
     // 🚀 Prefetch on hover — loads the tool detail page data BEFORE the user clicks
     const handleMouseEnter = useCallback(() => {
         if (!tool?.slug || onClickOverride) return; // no prefetch in select mode
-
-        queryClient.prefetchQuery({
-            queryKey: ['tool', tool.slug],
-            queryFn: async () => {
-                const { data, error } = await toolsService.getToolBySlug(tool.slug);
-                if (error) throw error;
-                return data;
-            },
-            staleTime: 1000 * 60 * 10, // Cache prefetched data for 10 minutes
-        });
+        queryClient.prefetchQuery(queryOptions.toolBySlug(tool.slug));
     }, [tool?.slug, onClickOverride, queryClient]);
 
     if (isLoading) {

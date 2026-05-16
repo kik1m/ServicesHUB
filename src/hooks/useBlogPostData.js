@@ -1,7 +1,6 @@
 import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { blogService } from '../services/blogService';
-import { toolsService } from '../services/toolsService';
+import { queryOptions } from '../lib/queryOptions';
 import { BLOG_CONSTANTS } from '../constants/blogConstants';
 
 /**
@@ -10,38 +9,15 @@ import { BLOG_CONSTANTS } from '../constants/blogConstants';
  */
 export const useBlogPostData = ({ id, initialPost, initialRelatedPosts } = {}) => {
     const { data: post = null, isLoading: loadingPost, error: queryError } = useQuery({
-        queryKey: ['blog_post', id],
-        queryFn: async () => {
-            const { data: postData, error: postError } = await blogService.getPostByIdOrSlug(id);
-            if (postError) throw postError;
-
-            // Rule #44: Fetch embedded tool details
-            const toolIds = [...(postData.content?.matchAll(/\[tool id="([^"]+)"\]/g) || [])].map(m => m[1]);
-            if (toolIds.length > 0) {
-                const { data: embeddedTools } = await toolsService.getToolsByIds(toolIds);
-                postData.embeddedTools = embeddedTools || [];
-            } else {
-                postData.embeddedTools = [];
-            }
-            
-            return postData;
-        },
+        ...queryOptions.blogPost(id),
         initialData: initialPost,
         initialDataUpdatedAt: initialPost ? Date.now() : undefined,
-        enabled: !!id,
-        staleTime: 1000 * 60 * 10 // 10 minutes cache
     });
 
     const { data: relatedPosts = [], isLoading: loadingRelated } = useQuery({
-        queryKey: ['blog_related', post?.category, post?.id],
-        queryFn: async () => {
-            const { data } = await blogService.getRelatedPosts(post.category, post.id);
-            return data || [];
-        },
+        ...queryOptions.relatedPosts(post?.category, post?.id),
         initialData: initialRelatedPosts,
         initialDataUpdatedAt: initialRelatedPosts ? Date.now() : undefined,
-        enabled: !!post?.category && !!post?.id,
-        staleTime: 1000 * 60 * 60 // 1 hour cache
     });
 
     const error = queryError ? (queryError.message || BLOG_CONSTANTS.POST.ERROR_NOT_FOUND) : null;

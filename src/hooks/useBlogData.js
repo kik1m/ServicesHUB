@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect } from 'react';
 import { useQuery, useInfiniteQuery } from '@tanstack/react-query';
 import { blogService } from '../services/blogService';
 import { BLOG_CONSTANTS } from '../constants/blogConstants';
+import { queryOptions } from '../lib/queryOptions';
 
 /**
  * 🚀 Elite Blog Data Engine (React Query Optimized)
@@ -15,17 +16,9 @@ export const useBlogData = ({ initialPosts, initialCategories } = {}) => {
 
     // 1. React Query for Categories
     const { data: categories = [BLOG_CONSTANTS.FILTERS.ALL] } = useQuery({
-        queryKey: ['blog', 'categories'],
-        queryFn: async () => {
-            const { data } = await blogService.getCategories();
-            if (data) {
-                return [BLOG_CONSTANTS.FILTERS.ALL, ...data.map(c => c.name)];
-            }
-            return [BLOG_CONSTANTS.FILTERS.ALL];
-        },
+        ...queryOptions.blogCategories(),
         initialData: initialCategories,
         initialDataUpdatedAt: initialCategories ? Date.now() : undefined,
-        staleTime: 1000 * 60 * 60 * 24, // 24 hours
     });
 
     // 2. React Query for Posts (Infinite Scroll)

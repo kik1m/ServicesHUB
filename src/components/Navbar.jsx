@@ -3,10 +3,12 @@ import React, { useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Search, ChevronDown, Bell, User, Star, Menu } from 'lucide-react';
+import { useQueryClient, useQuery } from '@tanstack/react-query';
 import { useAuth } from '../context/AuthContext';
 import { useNavbar } from '../hooks/useNavbar';
 import { useNotifications } from '../hooks/useNotifications';
 import { NAV_LINKS, NAV_LABELS, MORE_GROUPS } from '../constants/navbarConstants';
+import { queryOptions } from '../lib/queryOptions';
 
 // Components
 import NotificationPanel from './NotificationPanel';
@@ -15,6 +17,7 @@ import MobileMenu from './MobileMenu';
 import GlobalSearch from './GlobalSearch';
 import Skeleton from './ui/Skeleton';
 import Button from './ui/Button';
+import SmartImage from './ui/SmartImage';
 import Logo from './Logo';
 import DropdownCard from './ui/DropdownCard';
 
@@ -23,13 +26,15 @@ import styles from './Navbar.module.css';
 
 /**
  * 🚀 Elite Unified Navigation
- * Rule #1: Logic Isolation via useNavbar
- * Rule #2: Zero Inline Styles (Rule #81)
- * Rule #3: Centralized Constants (Rule #11)
  */
 const Navbar = () => {
     const { user, loading: authLoading, signOut } = useAuth();
+    
+    // 🚀 Elite Profile Fetching (with instant fallback to user metadata)
+    const { data: profile } = useQuery(queryOptions.profile(user?.id, user));
+
     const router = useRouter();
+    const queryClient = useQueryClient();
     const { unreadCount } = useNotifications(user?.id);
     
     const {
@@ -49,71 +54,118 @@ const Navbar = () => {
         closeAll();
     };
 
+    // Universal Route Prefetcher
+    const handlePrefetchRoute = (path) => {
+        if (!path) return;
+        
+        // 0. Home Page
+        if (path === '/') {
+            queryClient.prefetchQuery(queryOptions.home.categories());
+            queryClient.prefetchQuery(queryOptions.home.featured());
+            queryClient.prefetchQuery(queryOptions.home.latest());
+            queryClient.prefetchQuery(queryOptions.home.trending());
+            queryClient.prefetchQuery(queryOptions.home.posts());
+            queryClient.prefetchQuery(queryOptions.home.comparisons());
+            queryClient.prefetchQuery(queryOptions.home.stats());
+        }
+        // 1. Dashboard & Profile
+        else if (path.startsWith('/dashboard') || path.startsWith('/profile') || path.startsWith('/notifications') || path.startsWith('/settings')) {
+            const userId = user?.id;
+            if (userId) {
+                queryClient.prefetchQuery(queryOptions.profile(userId, user));
+                queryClient.prefetchQuery(queryOptions.favorites(userId));
+                queryClient.prefetchQuery(queryOptions.dashboardTools(userId));
+                queryClient.prefetchQuery(queryOptions.notifications(userId));
+            }
+        } 
+        // 2. Categories
+        else if (path.startsWith('/categories')) {
+            queryClient.prefetchQuery(queryOptions.categories());
+        }
+        else if (path.startsWith('/category/')) {
+            const slug = path.split('/').filter(Boolean).pop();
+            if (slug && slug !== 'category') {
+                queryClient.prefetchQuery(queryOptions.categoryBySlug(slug));
+            }
+        }
+        // 3. Blog
+        else if (path.startsWith('/blog')) {
+            queryClient.prefetchQuery(queryOptions.blogCategories());
+        }
+        // 4. Tools Search
+        else if (path.startsWith('/tools')) {
+            queryClient.prefetchInfiniteQuery(queryOptions.toolsSearch());
+        }
+    };
+
     // Close on click outside
     useEffect(() => {
         const handleClickOutside = (event) => {
-            // 🚀 Fix: Don't close if clicking inside the Mobile Menu Portal
             if (event.target.closest('[data-mobile-menu]')) return;
-            
             if (navRef.current && !navRef.current.contains(event.target)) {
                 closeAll();
             }
         };
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => document.removeEventListener('mousedown', handleClickOutside);
-    }, [closeAll]);
+
+        if (activeDropdown) {
+            document.addEventListener('mousedown', handleClickOutside);
+        }
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [activeDropdown, closeAll]);
 
     return (
         <nav 
             ref={navRef}
             className={`${styles.navbar} ${isScrolled ? styles.navbarScrolled : ''}`}
-            style={{ '--nav-height': isScrolled ? '68px' : '80px' }}
         >
             <div className={styles.navContainer}>
-                <Logo size={32} onClick={closeAll} />
+                <Logo 
+                    size={32} 
+                    onClick={closeAll} 
+                    onMouseEnter={() => handlePrefetchRoute('/')}
+                />
 
-                {/* Search Bar - Center (Now Smart Global Search) */}
                 <div className={styles.navSearchContainer}>
-                    <GlobalSearch onClose={closeAll} />
+                    <GlobalSearch />
                 </div>
 
-                {/* Primary Links */}
                 <div className={styles.navLinks}>
-                    {NAV_LINKS.map(link => {
-                        const Icon = link.icon;
-                        return (
-                            <Link key={link.path} href={link.path} onClick={closeAll}>
-                                <Icon size={18} /> {link.label}
-                            </Link>
-                        );
-                    })}
-
-                    {/* More Dropdown */}
+                    {NAV_LINKS.map((link) => (
+                        <Link 
+                            key={link.path} 
+                            href={link.path}
+                            onMouseEnter={() => handlePrefetchRoute(link.path)}
+                        >
+                            {link.label}
+                        </Link>
+                    ))}
+                    
                     <div className={styles.navMoreContainer}>
-                        <button
+                        <button 
                             className={styles.navMoreTrigger}
                             onClick={() => toggleDropdown('more')}
                         >
-                            {NAV_LABELS.MORE} 
-                            <ChevronDown 
-                                size={14} 
-                                className={activeDropdown === 'more' ? styles.rotate180 : ''} 
-                            />
+                            {NAV_LABELS.MORE} <ChevronDown size={14} className={activeDropdown === 'more' ? styles.rotate180 : ''} />
                         </button>
+                        
                         {activeDropdown === 'more' && (
-                            <DropdownCard className={styles.navMoreDropdown}>
-                                {MORE_GROUPS.map((group, gIdx) => (
-                                    <div key={gIdx} className={styles.navMoreGroup}>
-                                        <span className={styles.navMoreGroupTitle}>{group.title}</span>
-                                        {group.links.map(link => {
-                                            const Icon = link.icon;
-                                            return (
-                                                <Link key={link.path} href={link.path} onClick={closeAll}>
-                                                    <Icon size={16} /> {link.label}
-                                                </Link>
-                                            );
-                                        })}
-                                        {gIdx < MORE_GROUPS.length - 1 && <div className={styles.navMoreSeparator} />}
+                            <DropdownCard className={styles.navMoreDropdown} onClose={closeAll}>
+                                {MORE_GROUPS.map((group) => (
+                                    <div key={group.title} className={styles.navMoreGroup}>
+                                        <div className={styles.navMoreGroupTitle}>{group.title}</div>
+                                        {group.links.map((item) => (
+                                            <Link 
+                                                key={item.path} 
+                                                href={item.path} 
+                                                onClick={closeAll}
+                                                onMouseEnter={() => handlePrefetchRoute(item.path)}
+                                            >
+                                                {item.icon && <item.icon size={16} />}
+                                                {item.label}
+                                            </Link>
+                                        ))}
                                     </div>
                                 ))}
                             </DropdownCard>
@@ -121,7 +173,6 @@ const Navbar = () => {
                     </div>
                 </div>
 
-                {/* Actions */}
                 <div className={styles.navActions}>
                     {authLoading ? (
                         <div className={styles.authSkeletonWrapper}>
@@ -130,20 +181,6 @@ const Navbar = () => {
                         </div>
                     ) : (
                         <>
-                            {user && user.is_premium === false && (
-                                <div className="desktop-only">
-                                    <Button 
-                                        variant="primary" 
-                                        size="sm" 
-                                        onClick={() => router.push('/premium')}
-                                        className={styles.premiumBtn}
-                                        icon={Star}
-                                    >
-                                        {NAV_LABELS.PREMIUM_CTA}
-                                    </Button>
-                                </div>
-                            )}
-                            
                             <div className={styles.hideOnMobile}>
                                 <Button 
                                     variant="primary" 
@@ -187,9 +224,20 @@ const Navbar = () => {
                                         <button
                                             className={styles.navProfileTrigger}
                                             onClick={() => toggleDropdown('account')}
+                                            onMouseEnter={() => handlePrefetchRoute('/dashboard')}
                                             title="Account"
                                         >
-                                            <User size={22} />
+                                            {profile?.avatar_url ? (
+                                                <div className={styles.navAvatarBox}>
+                                                    <SmartImage 
+                                                        src={profile.avatar_url} 
+                                                        alt={profile.full_name} 
+                                                        className={styles.navAvatar}
+                                                    />
+                                                </div>
+                                            ) : (
+                                                <User size={22} />
+                                            )}
                                         </button>
                                         {activeDropdown === 'account' && (
                                             <AccountMenu 
@@ -215,11 +263,12 @@ const Navbar = () => {
                 </div>
             </div>
 
-            <MobileMenu
-                isOpen={isMobileMenuOpen}
-                onClose={() => setIsMobileMenuOpen(false)}
+            <MobileMenu 
+                isOpen={isMobileMenuOpen} 
+                onClose={() => setIsMobileMenuOpen(false)} 
                 user={user}
                 handleLogout={handleLogout}
+                handlePrefetch={handlePrefetchRoute}
             />
         </nav>
     );

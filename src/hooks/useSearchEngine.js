@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { useQuery, useInfiniteQuery, keepPreviousData } from '@tanstack/react-query';
+import { useQuery, useInfiniteQuery, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
+import { queryOptions } from '../lib/queryOptions';
 import { toolsService } from '../services/toolsService';
 import { categoriesService } from '../services/categoriesService';
 import { PRICING_MODELS } from '../constants/searchConstants';
@@ -116,18 +117,15 @@ export const useSearchEngine = ({
     const setSort = useCallback((val) => updateParams({ sort: val }), [updateParams]);
 
     // 4. React Query for Categories
-    const { data: queryCategories = [] } = useQuery({
-        queryKey: ['categories', 'all'],
-        queryFn: async () => {
-            const { data } = await categoriesService.getAllCategories();
-            return [{ id: 'All', name: 'All' }, ...(data || [])];
-        },
-        staleTime: 1000 * 60 * 60 * 24, // Categories rarely change (24 hours)
-    });
+    const { data: rawCategories = [] } = useQuery(queryOptions.categories());
+
+    const queryCategories = useMemo(() => {
+        return [{ id: 'All', name: 'All' }, ...rawCategories];
+    }, [rawCategories]);
 
     // Sync categories locally for derived state logic
     useEffect(() => {
-        if (queryCategories.length > 0) {
+        if (queryCategories.length > 1) { // >1 because 'All' is always there
             setCategories(queryCategories);
             categoriesCache = queryCategories;
         }
@@ -143,33 +141,21 @@ export const useSearchEngine = ({
         error: queryError,
         refetch
     } = useInfiniteQuery({
-        queryKey: ['tools_search', { searchQuery, selectedCategory, selectedPrice, sortBy, itemsPerPage }],
+        ...queryOptions.toolsSearch({
+            searchQuery,
+            selectedCategory,
+            selectedPrice,
+            sortBy,
+            itemsPerPage,
+            queryCategories
+        }),
         initialPageParam: 0,
-        queryFn: async ({ pageParam = 0 }) => {
-            if (selectedCategory !== 'All' && queryCategories.length === 0) {
-                return { data: [], count: 0, offset: pageParam };
-            }
-
-            const { data, count, error: fetchErr } = await toolsService.getToolsPaginated({
-                offset: pageParam,
-                itemsPerPage,
-                searchQuery,
-                categoryName: selectedCategory,
-                priceFilter: selectedPrice,
-                sortBy,
-                categories: queryCategories
-            });
-
-            if (fetchErr) throw fetchErr;
-            return { data: data || [], count, offset: pageParam };
-        },
         getNextPageParam: (lastPage, allPages) => {
             const loadedCount = allPages.reduce((acc, p) => acc + p.data.length, 0);
             const totalCount = lastPage.count !== null ? lastPage.count : loadedCount;
             if (loadedCount >= totalCount || lastPage.data.length === 0) return undefined;
             return loadedCount;
         },
-        staleTime: 1000 * 60 * 5,
         placeholderData: keepPreviousData,
         enabled: queryCategories.length > 0 || selectedCategory === 'All'
     });
