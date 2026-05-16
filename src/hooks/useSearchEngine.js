@@ -16,6 +16,7 @@ export const useSearchEngine = ({
     mode = 'full', 
     syncUrl = true,
     fixedCategory = 'All',
+    fixedCategoryId = null,
     itemsPerPage = 20,
     debounceMs = 400
 }) => {
@@ -26,6 +27,7 @@ export const useSearchEngine = ({
     // 1. Local State Fallbacks (for modals/syncUrl=false)
     const [localQuery, setLocalQuery] = useState('');
     const [localCategory, setLocalCategory] = useState(fixedCategory);
+    const [localCategoryId, setLocalCategoryId] = useState(fixedCategoryId);
     const [localPrice, setLocalPrice] = useState('All');
     const [localSort, setLocalSort] = useState('featured');
     const [localPage, setLocalPage] = useState(0);
@@ -41,6 +43,11 @@ export const useSearchEngine = ({
     const sortBy = (syncUrl && !isMounted) ? (searchParams.get('sort') || 'featured') : localSort;
     const rawPage = (syncUrl && !isMounted) ? parseInt(searchParams.get('page') || '0', 10) : localPage;
     const page = isNaN(rawPage) ? 0 : rawPage;
+
+    // 🎯 Sync fixedCategoryId when it changes
+    useEffect(() => {
+        if (fixedCategoryId) setLocalCategoryId(fixedCategoryId);
+    }, [fixedCategoryId]);
 
     // Sync initial URL params to local state on mount
     useEffect(() => {
@@ -144,6 +151,7 @@ export const useSearchEngine = ({
         ...queryOptions.toolsSearch({
             searchQuery,
             selectedCategory,
+            selectedCategoryId: localCategoryId,
             selectedPrice,
             sortBy,
             itemsPerPage,

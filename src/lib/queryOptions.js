@@ -128,11 +128,22 @@ export const queryOptions = {
     }),
 
     toolsSearch: (params = {}) => {
-        const { searchQuery = '', selectedCategory = 'All', selectedPrice = 'All', sortBy = 'featured', itemsPerPage = 12, queryCategories = [] } = params;
+        const { 
+            searchQuery = '', 
+            selectedCategory = 'All', 
+            selectedCategoryId = null,
+            selectedPrice = 'All', 
+            sortBy = 'featured', 
+            itemsPerPage = 12, 
+            queryCategories = [] 
+        } = params;
+        
         return {
-            queryKey: ['tools_search', { searchQuery, selectedCategory, selectedPrice, sortBy, itemsPerPage }],
+            queryKey: ['tools_search', { searchQuery, selectedCategory, selectedCategoryId, selectedPrice, sortBy, itemsPerPage }],
             queryFn: async ({ pageParam = 0 }) => {
-                if (selectedCategory !== 'All' && queryCategories.length === 0) {
+                // Elite Safety: If we have a category name but no ID and the list hasn't loaded, wait or return empty
+                // BUT if we have selectedCategoryId, we can proceed immediately!
+                if (selectedCategory !== 'All' && !selectedCategoryId && queryCategories.length <= 1) {
                     return { data: [], count: 0, offset: pageParam };
                 }
 
@@ -141,6 +152,7 @@ export const queryOptions = {
                     itemsPerPage,
                     searchQuery,
                     categoryName: selectedCategory,
+                    categoryId: selectedCategoryId,
                     priceFilter: selectedPrice,
                     sortBy,
                     categories: queryCategories
