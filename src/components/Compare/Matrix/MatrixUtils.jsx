@@ -57,3 +57,19 @@ export const renderStructuredText = (text) => {
         </ul>
     );
 };
+
+/**
+ * parseInlineMarkdown
+ * Parses inline markdown like **text** into <strong> tags without block-level formatting.
+ */
+export const parseInlineMarkdown = (text) => {
+    if (!text) return null;
+    const textStr = String(text);
+    const parts = textStr.split(/(\*\*.*?\*\*)/);
+    
+    return parts.map((part, pIdx) =>
+        part.startsWith('**') && part.endsWith('**')
+            ? <strong key={pIdx} style={{ color: 'var(--text-primary)' }}>{part.slice(2, -2)}</strong>
+            : part
+    );
+};

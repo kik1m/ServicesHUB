@@ -182,16 +182,16 @@ export async function GET(request) {
             for (const currentModel of targetModels) {
                 try {
                     const ai = new GoogleGenAI({ apiKey: currentKey });
-                    const model = ai.getGenerativeModel({ model: currentModel });
-                    const result = await model.generateContent({
+                    const response = await ai.models.generateContent({
+                        model: currentModel,
                         contents: [{ role: 'user', parts: [{ text: prompt }] }],
-                        generationConfig: { 
+                        config: { 
                             responseMimeType: "application/json",
                             temperature: 0.2
                         }
                     });
 
-                    const responseText = result.response?.candidates?.[0]?.content?.parts?.[0]?.text || "";
+                    const responseText = response.candidates?.[0]?.content?.parts?.[0]?.text || "";
                     if (!responseText) throw new Error('EMPTY_AI_RESPONSE');
 
                     aiReport = JSON.parse(responseText);

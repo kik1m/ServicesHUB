@@ -19,7 +19,8 @@ export const useToolDetailData = ({ initialTool, initialPublisher, initialRelate
     const params = useParams();
     const slug = params?.slug;
     const { user } = useAuth();
-    const { showToast } = useToast();
+    const toastContext = useToast();
+    const addToast = toastContext?.addToast;
     const queryClient = useQueryClient();
 
     const [isReportModalOpen, setIsReportModalOpen] = useState(false);
@@ -39,6 +40,7 @@ export const useToolDetailData = ({ initialTool, initialPublisher, initialRelate
             return data;
         },
         initialData: initialTool,
+        initialDataUpdatedAt: initialTool ? Date.now() : undefined,
         enabled: !!slug,
         staleTime: 1000 * 60 * 10 // 10 minutes
     });
@@ -53,6 +55,7 @@ export const useToolDetailData = ({ initialTool, initialPublisher, initialRelate
             return data || null;
         },
         initialData: initialPublisher,
+        initialDataUpdatedAt: initialPublisher ? Date.now() : undefined,
         enabled: !!tool?.user_id,
         staleTime: 1000 * 60 * 60 * 24 // 24 hours
     });
@@ -65,6 +68,7 @@ export const useToolDetailData = ({ initialTool, initialPublisher, initialRelate
             return data?.filter(Boolean) || [];
         },
         initialData: initialRelatedTools,
+        initialDataUpdatedAt: initialRelatedTools ? Date.now() : undefined,
         enabled: !!tool?.category_id && !!tool?.id,
         staleTime: 1000 * 60 * 60 // 1 hour
     });
@@ -124,7 +128,7 @@ export const useToolDetailData = ({ initialTool, initialPublisher, initialRelate
                 if (revError) throw revError;
                 
                 queryClient.setQueryData(['favorite', user.id, tool.id], false);
-                showToast(TOOL_DETAIL_CONSTANTS.FAVORITE_REMOVED, 'info');
+                addToast?.(TOOL_DETAIL_CONSTANTS.FAVORITE_REMOVED, 'info');
             } else {
                 const { error: addError } = await favoritesService.addFavorite(user.id, tool.id);
                 if (addError) throw addError;
@@ -138,14 +142,14 @@ export const useToolDetailData = ({ initialTool, initialPublisher, initialRelate
                     'info'
                 ).catch(() => {});
 
-                showToast(TOOL_DETAIL_CONSTANTS.FAVORITE_ADDED, 'success');
+                addToast?.(TOOL_DETAIL_CONSTANTS.FAVORITE_ADDED, 'success');
             }
             return { success: true };
         } catch (err) {
             // Revert Optimistic Update
             setIsFavorited(isFavorited);
             console.error('Error toggling favorite:', err);
-            showToast('Failed to save favorite.', 'error');
+            addToast?.('Failed to save favorite.', 'error');
             return { error: err.message };
         }
     };
@@ -170,10 +174,10 @@ export const useToolDetailData = ({ initialTool, initialPublisher, initialRelate
         } else {
             try {
                 await navigator.clipboard.writeText(currentUrl);
-                showToast(TOOL_DETAIL_CONSTANTS.SHARE_SUCCESS, 'success');
+                addToast?.(TOOL_DETAIL_CONSTANTS.SHARE_SUCCESS, 'success');
             } catch (err) { console.error('Clipboard failed:', err); }
         }
-    }, [tool, showToast]);
+    }, [tool, addToast]);
 
     const handleExternalClick = useCallback(async () => {
         if (!tool?.id) return;

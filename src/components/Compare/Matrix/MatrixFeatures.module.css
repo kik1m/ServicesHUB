@@ -99,10 +99,10 @@
 }
 
 .aiLabelInsight {
-    font-size: 0.88rem;
-    color: var(--text-muted);
-    line-height: 1.55;
-    padding-top: 0.1rem;
+    font-size: 1rem;
+    color: var(--text-secondary);
+    line-height: 1.65;
+    padding-top: 0.4rem;
 }
 
 /* — Value cell — */
@@ -118,11 +118,11 @@
 }
 
 .aiValue {
-    font-size: 0.95rem;
+    font-size: 1.05rem;
     font-weight: 600;
     text-align: center;
     color: white;
-    line-height: 1.5;
+    line-height: 1.6;
     overflow-wrap: break-word;
     word-wrap: break-word;
     width: 100%;
@@ -224,11 +224,12 @@
     }
 
     .aiLabelInsight {
-        font-size: 0.75rem;
+        font-size: 0.9rem;
+        line-height: 1.6;
     }
 
     .aiValue {
-        font-size: 0.85rem;
+        font-size: 0.95rem;
     }
 
     /* Mobile tab switcher visibility */

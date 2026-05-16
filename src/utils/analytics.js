@@ -17,10 +17,11 @@ export const trackVisit = async (path) => {
     // 2. الحصول على الدولة (اختياري)
     let country = 'Unknown';
     try {
-      const geoRes = await fetch('https://ipapi.co/json/');
+      // Switched from ipapi.co to get.geojs.io because ipapi blocks CORS on free tier
+      const geoRes = await fetch('https://get.geojs.io/v1/ip/geo.json');
       if (geoRes.ok) {
         const geoData = await geoRes.json();
-        country = geoData.country_name || 'Unknown';
+        country = geoData.country || 'Unknown';
       }
     } catch (e) {
       // Silently fail geo-lookups to not block analytics

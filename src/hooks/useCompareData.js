@@ -38,6 +38,7 @@ export const useCompareData = ({
             return data || [];
         },
         initialData: initialRecentComparisons?.length > 0 ? initialRecentComparisons : undefined,
+        initialDataUpdatedAt: initialRecentComparisons?.length > 0 ? Date.now() : undefined,
         staleTime: 1000 * 60 * 10 
     });
 
@@ -50,6 +51,7 @@ export const useCompareData = ({
             return data;
         },
         initialData: (t1Slug === initialTool1?.slug && initialTool1) ? initialTool1 : undefined,
+        initialDataUpdatedAt: (t1Slug === initialTool1?.slug && initialTool1) ? Date.now() : undefined,
         enabled: !!t1Slug,
         staleTime: 1000 * 60 * 60 * 24
     });
@@ -63,6 +65,7 @@ export const useCompareData = ({
             return data;
         },
         initialData: (t2Slug === initialTool2?.slug && initialTool2) ? initialTool2 : undefined,
+        initialDataUpdatedAt: (t2Slug === initialTool2?.slug && initialTool2) ? Date.now() : undefined,
         enabled: !!t2Slug,
         staleTime: 1000 * 60 * 60 * 24
     });
@@ -93,6 +96,7 @@ export const useCompareData = ({
             };
         },
         initialData: initialAiResults || undefined,
+        initialDataUpdatedAt: initialAiResults ? Date.now() : undefined,
         enabled: !!t1Slug && !!t2Slug,
         staleTime: 1000 * 60 * 60 * 24
     });

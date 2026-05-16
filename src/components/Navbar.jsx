@@ -12,6 +12,7 @@ import { NAV_LINKS, NAV_LABELS, MORE_GROUPS } from '../constants/navbarConstants
 import NotificationPanel from './NotificationPanel';
 import AccountMenu from './AccountMenu';
 import MobileMenu from './MobileMenu';
+import GlobalSearch from './GlobalSearch';
 import Skeleton from './ui/Skeleton';
 import Button from './ui/Button';
 import Logo from './Logo';
@@ -71,14 +72,9 @@ const Navbar = () => {
             <div className={styles.navContainer}>
                 <Logo size={32} onClick={closeAll} />
 
-                {/* Search Bar - Center */}
+                {/* Search Bar - Center (Now Smart Global Search) */}
                 <div className={styles.navSearchContainer}>
-                    <Link href="/tools" className={styles.navSearchWrapper} onClick={closeAll}>
-                        <Search size={20} className={styles.searchIcon} />
-                        <span className={styles.navSearchText}>
-                            {NAV_LABELS.SEARCH_PLACEHOLDER}
-                        </span>
-                    </Link>
+                    <GlobalSearch onClose={closeAll} />
                 </div>
 
                 {/* Primary Links */}

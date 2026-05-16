@@ -157,8 +157,8 @@
 }
 
 .strategicText {
-    font-size: 0.95rem;
-    line-height: 1.6;
+    font-size: 1.05rem;
+    line-height: 1.7;
     color: var(--text-secondary);
     margin: 0;
 }
@@ -176,8 +176,8 @@
 .strategicText ul li {
     position: relative;
     padding-left: 1.25rem;
-    font-size: 0.9rem;
-    line-height: 1.5;
+    font-size: 1rem;
+    line-height: 1.65;
     color: var(--text-secondary);
 }
 
@@ -228,9 +228,9 @@
     display: flex;
     align-items: flex-start;
     gap: 0.75rem;
-    font-size: 0.95rem;
+    font-size: 1.05rem;
     color: var(--text-muted);
-    line-height: 1.4;
+    line-height: 1.5;
 }
 
 .decisionList li svg {

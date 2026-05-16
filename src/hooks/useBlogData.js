@@ -24,6 +24,7 @@ export const useBlogData = ({ initialPosts, initialCategories } = {}) => {
             return [BLOG_CONSTANTS.FILTERS.ALL];
         },
         initialData: initialCategories,
+        initialDataUpdatedAt: initialCategories ? Date.now() : undefined,
         staleTime: 1000 * 60 * 60 * 24, // 24 hours
     });
 
@@ -52,6 +53,7 @@ export const useBlogData = ({ initialPosts, initialCategories } = {}) => {
             pages: [{ data: initialPosts, page: 0 }],
             pageParams: [0]
         } : undefined,
+        initialDataUpdatedAt: initialPosts ? Date.now() : undefined,
         getNextPageParam: (lastPage) => {
             if (lastPage.data.length < ITEMS_PER_PAGE) {
                 return undefined;

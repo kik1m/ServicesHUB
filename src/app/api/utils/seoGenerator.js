@@ -113,11 +113,11 @@ export const generateAISeo = async (entityId, data, type = 'tool') => {
                     const response = await ai.models.generateContent({
                         model: currentModel,
                         contents: [{ role: 'user', parts: [{ text: prompt }] }],
-                        generationConfig: { responseMimeType: "application/json" }
+                        config: { responseMimeType: "application/json" }
                     });
                     
                     // Unified text extraction
-                    const candidates = response.response?.candidates || [];
+                    const candidates = response.candidates || [];
                     responseText = candidates[0]?.content?.parts?.[0]?.text || "";
                     
                     if (responseText) {

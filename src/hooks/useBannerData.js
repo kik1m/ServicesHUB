@@ -21,6 +21,7 @@ export const useBannerData = (initialTools = []) => {
             return (data || []).sort(() => Math.random() - 0.5);
         },
         initialData: initialTools.length > 0 ? initialTools : undefined,
+        initialDataUpdatedAt: initialTools.length > 0 ? Date.now() : undefined,
         staleTime: 1000 * 60 * 10,
     });
 

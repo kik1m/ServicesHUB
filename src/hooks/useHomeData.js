@@ -27,7 +27,8 @@ export const useHomeData = () => {
             const res = await categoriesService.getHomeCategories();
             if (res.error) throw res.error;
             return res.data || [];
-        }
+        },
+        staleTime: 1000 * 60 * 60 * 24 // 24 hours
     });
 
     const featuredQuery = useQuery({
@@ -36,7 +37,8 @@ export const useHomeData = () => {
             const res = await toolsService.getFeaturedTools();
             if (res.error) throw res.error;
             return res.data || [];
-        }
+        },
+        staleTime: 1000 * 60 * 60 // 1 hour
     });
 
     const latestQuery = useQuery({
@@ -45,7 +47,8 @@ export const useHomeData = () => {
             const res = await toolsService.getLatestTools();
             if (res.error) throw res.error;
             return res.data || [];
-        }
+        },
+        staleTime: 1000 * 60 * 60 // 1 hour
     });
 
     const trendingQuery = useQuery({
@@ -54,7 +57,8 @@ export const useHomeData = () => {
             const res = await toolsService.getTrendingTools();
             if (res.error) throw res.error;
             return res.data || [];
-        }
+        },
+        staleTime: 1000 * 60 * 10 // 10 minutes
     });
 
     const postsQuery = useQuery({
@@ -63,7 +67,8 @@ export const useHomeData = () => {
             const res = await blogService.getLatestPosts();
             if (res.error) throw res.error;
             return res.data || [];
-        }
+        },
+        staleTime: 1000 * 60 * 60 // 1 hour
     });
 
     const comparisonsQuery = useQuery({
@@ -72,7 +77,8 @@ export const useHomeData = () => {
             const res = await compareService.getRecentComparisons();
             if (res.error) throw res.error;
             return res.data || [];
-        }
+        },
+        staleTime: 1000 * 60 * 60 // 1 hour
     });
 
     const statsQuery = useQuery({
@@ -89,7 +95,8 @@ export const useHomeData = () => {
                 clicks: toolsRes.clicks || 0,
                 users: usersRes.count || 0
             };
-        }
+        },
+        staleTime: 1000 * 60 * 10 // 10 minutes
     });
 
     // 3. Track Click Method (Remains similar)

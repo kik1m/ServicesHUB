@@ -27,6 +27,7 @@ export const useBlogPostData = ({ id, initialPost, initialRelatedPosts } = {}) =
             return postData;
         },
         initialData: initialPost,
+        initialDataUpdatedAt: initialPost ? Date.now() : undefined,
         enabled: !!id,
         staleTime: 1000 * 60 * 10 // 10 minutes cache
     });
@@ -38,6 +39,7 @@ export const useBlogPostData = ({ id, initialPost, initialRelatedPosts } = {}) =
             return data || [];
         },
         initialData: initialRelatedPosts,
+        initialDataUpdatedAt: initialRelatedPosts ? Date.now() : undefined,
         enabled: !!post?.category && !!post?.id,
         staleTime: 1000 * 60 * 60 // 1 hour cache
     });

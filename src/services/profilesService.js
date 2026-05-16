@@ -105,5 +105,27 @@ export const profilesService = {
         return supabase
             .from('profiles')
             .select('id', { count: 'exact', head: true });
+    },
+
+    /**
+     * Search profiles by name for global search functionality
+     * @param {string} query 
+     */
+    async searchProfiles(query) {
+        if (!query || query.length < 1) return [];
+
+        try {
+            const { data, error } = await supabase
+                .from('profiles')
+                .select('id, full_name, avatar_url, role, is_premium')
+                .ilike('full_name', `%${query}%`)
+                .limit(5);
+
+            if (error) throw error;
+            return data || [];
+        } catch (err) {
+            console.error('profilesService.searchProfiles Error:', err);
+            return [];
+        }
     }
 };

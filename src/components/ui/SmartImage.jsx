@@ -18,8 +18,8 @@ const SmartImage = ({
     priority = false,
     unoptimized = false
 }) => {
-    const [isLoading, setIsLoading] = useState(true);
-    const [hasError, setHasError] = useState(false);
+    const [isLoading, setIsLoading] = useState(!!src);
+    const [hasError, setHasError] = useState(!src);
 
     // --- 🛡️ Elite Hybrid Strategy (Rule #3) ---
     // If it's an external host we don't control, use standard <img> 
@@ -28,7 +28,14 @@ const SmartImage = ({
         if (!src || typeof src !== 'string') return false;
         if (src.startsWith('/') || src.startsWith('.') || src.includes('localhost')) return false;
         
-        const trustedHosts = ['supabase.co', 'gstatic.com', 'googleusercontent.com', 'unsplash.com', 'bing.net'];
+        const trustedHosts = [
+            'supabase.co', 
+            'supabase.in',
+            'gstatic.com', 
+            'googleusercontent.com', 
+            'unsplash.com', 
+            'bing.net',
+        ];
         return src.startsWith('http') && !trustedHosts.some(host => src.includes(host));
     }, [src]);
 

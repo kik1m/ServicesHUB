@@ -1,6 +1,7 @@
 import React from 'react';
 import { Sparkles, ShieldCheck, BrainCircuit } from 'lucide-react';
 import Skeleton from '../../ui/Skeleton';
+import { parseInlineMarkdown } from './MatrixUtils';
 import styles from './MatrixFeatures.module.css';
 
 const MatrixFeatures = ({ 
@@ -52,7 +53,7 @@ const MatrixFeatures = ({
                             {/* Feature label: full width on top */}
                             <div className={styles.featureLabel}>
                                 <div className={styles.aiLabelTitle}>{row.feature}</div>
-                                <div className={styles.aiLabelInsight}>{row.insight}</div>
+                                <div className={styles.aiLabelInsight}>{parseInlineMarkdown(row.insight)}</div>
                             </div>
                             {/* Values: side by side below */}
                             <div className={styles.valuesRow}>
@@ -76,7 +77,7 @@ const MatrixFeatures = ({
                         <div key={i} className={styles.aiFeatureRow}>
                             <div className={styles.featureLabel}>
                                 <div className={styles.aiLabelTitle}>{row.feature}</div>
-                                <div className={styles.aiLabelInsight}>{row.insight}</div>
+                                <div className={styles.aiLabelInsight}>{parseInlineMarkdown(row.insight)}</div>
                             </div>
                             <div className={styles.valuesRow}>
                                 <div className={`${styles.checkContainer} ${activeTab === 2 ? styles.hideOnMobile : ''}`}>
