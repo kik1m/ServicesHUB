@@ -809,7 +809,9 @@ const InteractiveParticles = () => {
             updatePhase(centerX, centerY, globalTime);
 
             const currentPhaseName = PHASES[currentPhaseIndex].name;
-            const globalOpacity = Math.max(0.12, 1 - (scrollY / 600));
+            // Full brightness at scroll = 0; fades smoothly to exactly 40% (0.40) as the user begins to scroll (within 180px)
+            const scrollFadeRange = 180;
+            const globalOpacity = Math.max(0.40, 1 - (Math.min(scrollY, scrollFadeRange) / scrollFadeRange) * 0.60);
 
             // Sweeping transition zoom impulse: pulls particles forward, then recedes them
             let transitionZoom = 0;
