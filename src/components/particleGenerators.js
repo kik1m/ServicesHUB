@@ -20,73 +20,7 @@ export function updateParticleIdealTargets(p, phaseName, i, total, time, centerX
     let idealY = centerY;
     let idealZ = 0;
 
-    if (phaseName === 'SHAPE_LOGO') {
-        // 💎 HUBly Brand Identity - Futuristic slanted H, Orbiting Ring, and Satellite Dot
-        const satEnd = total * 0.10;
-        const ringEnd = total * 0.60;
-
-        if (i < satEnd) {
-            // 1. Satellite Dot (Top right)
-            const angle = -0.65; // ~40 degrees top-right
-            const r = 185;
-            idealX = centerX + Math.cos(angle) * r + randX * 0.3;
-            idealY = centerY + Math.sin(angle) * r + randY * 0.3;
-            idealZ = randZ * 0.3;
-        } else if (i < ringEnd) {
-            // 2. Outer Orbit Ring (3D Ribbon Circle)
-            const ringProgress = (i - satEnd) / (ringEnd - satEnd);
-            // Circle with slow continuous spin
-            const angle = ringProgress * Math.PI * 2 + time * 0.006;
-            const r = 160;
-            idealX = centerX + Math.cos(angle) * r + randX * 0.15;
-            idealY = centerY + Math.sin(angle) * r + randY * 0.15;
-            // 3D waves in the ring
-            idealZ = Math.sin(angle * 2.5) * 35;
-        } else {
-            // 3. Inner Slanted futuristic 'H'
-            const hProgress = (i - ringEnd) / (total - ringEnd);
-            
-            if (hProgress < 0.45) {
-                // Left Leg (Slanted, bottom Bending left)
-                const t_leg = hProgress / 0.45; // 0.0 to 1.0
-                let xOffset = -55 + (t_leg - 0.5) * 30; // Slanted angle
-                const yOffset = -95 + t_leg * 190;
-                
-                // Stylized curve at the bottom left
-                if (t_leg > 0.82) {
-                    xOffset -= Math.pow((t_leg - 0.82) / 0.18, 2.2) * 22;
-                }
-                
-                idealX = centerX + xOffset + randX * 0.1;
-                idealY = centerY + yOffset + randY * 0.1;
-                idealZ = -15;
-            } else if (hProgress < 0.90) {
-                // Right Leg (Slanted, top Bending right)
-                const t_leg = (hProgress - 0.45) / 0.45; // 0.0 to 1.0
-                let xOffset = 55 + (t_leg - 0.5) * 30; // Slanted angle
-                const yOffset = -95 + t_leg * 190;
-                
-                // Stylized curve at the top right
-                if (t_leg < 0.18) {
-                    xOffset += Math.pow((0.18 - t_leg) / 0.18, 2.2) * 22;
-                }
-                
-                idealX = centerX + xOffset + randX * 0.1;
-                idealY = centerY + yOffset + randY * 0.1;
-                idealZ = -15;
-            } else {
-                // Crossbar
-                const t_bar = (hProgress - 0.90) / 0.10; // 0.0 to 1.0
-                // Connect left mid-point to right mid-point
-                const xStart = -55;
-                const xEnd = 55;
-                idealX = centerX + xStart + t_bar * (xEnd - xStart) + randX * 0.2;
-                // Slightly slanted crossbar to match the futuristic design
-                idealY = centerY - 10 + t_bar * 20 + randY * 0.2;
-                idealZ = -15;
-            }
-        }
-    } else if (phaseName === 'SHAPE_DNA') {
+    if (phaseName === 'SHAPE_DNA') {
         // 🧬 Rotating 3D Double Helix
         const isStrandA = i % 2 === 0;
         const xOffset = -350 + progress * 700;
@@ -124,74 +58,6 @@ export function updateParticleIdealTargets(p, phaseName, i, total, time, centerX
             idealY = centerY + ox * Math.sin(orbitAngle) + oy * Math.cos(orbitAngle) + randY * 0.3;
             idealZ = oz;
         }
-    } else if (phaseName === 'SHAPE_TREE') {
-        // 🌳 Tree of Knowledge (3D branching network)
-        if (progress < 0.22) {
-            const trunkHeight = progress / 0.22;
-            idealX = centerX + randX * 0.8;
-            idealY = centerY + 160 - trunkHeight * 160 + randY * 0.8;
-            idealZ = randZ * 0.8;
-        } else {
-            const canopyT = ((progress - 0.22) / 0.78) * Math.PI;
-            const radius = 170 + (Math.abs(randX) * 3);
-            const phi = (i * 12.3) % (Math.PI * 2);
-            idealX = centerX + Math.cos(canopyT) * radius * Math.cos(phi) * 0.85 + randX;
-            idealY = centerY - Math.sin(canopyT) * radius + randY;
-            idealZ = Math.cos(canopyT) * radius * Math.sin(phi) * 0.85;
-        }
-    } else if (phaseName === 'SHAPE_GRID') {
-        // 🔲 3D Cyber Matrix Corridor
-        const layers = 5;
-        const layer = i % layers;
-        const cols = 6;
-        const col = Math.floor(i / layers) % cols;
-        const row = Math.floor(i / (layers * cols));
-
-        idealX = centerX - 250 + col * 100 + randX * 0.2;
-        idealY = centerY - 150 + row * 100 + randY * 0.2;
-        idealZ = -200 + layer * 100;
-    } else if (phaseName === 'SHAPE_NEURAL_SYNAPSE') {
-        // 🧠 Cognitive Synaptic Sparking Cell Bodies
-        if (progress < 0.45) {
-            const angle = progress * Math.PI * 18;
-            const r = 40 + (i % 3) * 15;
-            idealX = centerX - 180 + Math.cos(angle) * r + randX * 0.4;
-            idealY = centerY + Math.sin(angle) * r + randY * 0.4;
-            idealZ = randZ * 1.5;
-        } else if (progress < 0.90) {
-            const angle = progress * Math.PI * 18;
-            const r = 40 + (i % 3) * 15;
-            idealX = centerX + 180 + Math.cos(angle) * r + randX * 0.4;
-            idealY = centerY + Math.sin(angle) * r + randY * 0.4;
-            idealZ = randZ * 1.5;
-        } else {
-            const sparkProgress = ((i * 13) + time * 0.04) % 1;
-            idealX = (centerX - 180) + sparkProgress * 360;
-            idealY = centerY + Math.sin(sparkProgress * Math.PI * 5) * 35 + randY * 0.3;
-            idealZ = Math.cos(sparkProgress * Math.PI * 5) * 35;
-        }
-    } else if (phaseName === 'SHAPE_EYE') {
-        // 👁️ 3D Interactive Providence Eye
-        const targetXOffset = (mouse && mouse.x !== null) ? (mouse.x - centerX) * 0.16 : 0;
-        const targetYOffset = (mouse && mouse.y !== null) ? (mouse.y - centerY) * 0.16 : 0;
-
-        if (i < total * 0.4) {
-            const p_t = (i / (total * 0.4)) * Math.PI;
-            idealX = centerX - 250 + p_t * (500 / Math.PI) + randX * 0.3;
-            idealY = centerY - Math.sin(p_t) * 135 + randY * 0.3;
-            idealZ = Math.sin(p_t) * 60;
-        } else if (i < total * 0.8) {
-            const p_t = ((i - total * 0.4) / (total * 0.4)) * Math.PI;
-            idealX = centerX - 250 + p_t * (500 / Math.PI) + randX * 0.3;
-            idealY = centerY + Math.sin(p_t) * 135 + randY * 0.3;
-            idealZ = Math.sin(p_t) * 60;
-        } else {
-            const p_t = ((i - total * 0.8) / (total * 0.2)) * Math.PI * 2 + time * 0.02;
-            const r = 40 + Math.random() * 20;
-            idealX = centerX + Math.cos(p_t) * r + targetXOffset + randX * 0.3;
-            idealY = centerY + Math.sin(p_t) * r + targetYOffset + randY * 0.3;
-            idealZ = -35;
-        }
     } else if (phaseName === 'SHAPE_HOURGLASS') {
         // ⏳ 3D Flow of Time
         const scaleX = 160;
@@ -200,21 +66,6 @@ export function updateParticleIdealTargets(p, phaseName, i, total, time, centerX
         idealX = centerX + Math.sin(twist) * scaleX + randX * 0.3;
         idealY = centerY + Math.cos(t) * scaleY + randY * 0.3;
         idealZ = Math.sin(t) * 110;
-    } else if (phaseName === 'SHAPE_HEXAGON') {
-        // ⬡ 3D Hexagonal Prism
-        const sides = 6;
-        const side = Math.floor(progress * sides);
-        const sideProgress = (progress * sides) % 1;
-        const angle1 = (side / sides) * Math.PI * 2;
-        const angle2 = ((side + 1) / sides) * Math.PI * 2;
-        const r = 180;
-        const p1x = Math.cos(angle1) * r;
-        const p1y = Math.sin(angle1) * r;
-        const p2x = Math.cos(angle2) * r;
-        const p2y = Math.sin(angle2) * r;
-        idealX = centerX + p1x + (p2x - p1x) * sideProgress + randX * 0.3;
-        idealY = centerY + p1y + (p2y - p1y) * sideProgress + randY * 0.3;
-        idealZ = -120 + (i % 5) * 60;
     } else if (phaseName === 'SHAPE_GALAXY') {
         // 🌌 3D Tilted Spiral Galaxy
         const turns = 3;
@@ -293,33 +144,6 @@ export function updateParticleIdealTargets(p, phaseName, i, total, time, centerX
         idealX = centerX + x3 + randX * 0.25;
         idealY = centerY + y3 + randY * 0.25;
         idealZ = z2;
-    } else if (phaseName === 'SHAPE_BLACKHOLE') {
-        // 🚀 3D Gravitational Singularity
-        if (progress < 0.15) {
-            idealX = centerX + randX * 1.5;
-            idealY = centerY + randY * 1.5;
-            idealZ = randZ * 1.5;
-        } else if (progress < 0.40) {
-            const angleHalo = progress * Math.PI * 12 + time * 0.015;
-            const rHalo = 75 + Math.sin(time * 0.03 + progress * 5) * 5;
-            idealX = centerX + Math.cos(angleHalo) * rHalo + randX * 0.5;
-            idealY = centerY + Math.sin(angleHalo) * rHalo + randY * 0.5;
-            idealZ = randZ * 0.5;
-        } else {
-            const r = 85 + (progress - 0.4) * 260;
-            const speedMult = Math.sqrt(80 / r);
-            const angle = progress * Math.PI * 8 + time * 0.04 * speedMult;
-            const rx = Math.cos(angle) * r;
-            const rz = Math.sin(angle) * r;
-            const ry = Math.sin(time * 0.03 + r * 0.03) * 8;
-
-            const cosT = Math.cos(Math.PI / 7.2);
-            const sinT = Math.sin(Math.PI / 7.2);
-
-            idealX = centerX + rx + randX * 0.5;
-            idealY = centerY + ry * cosT - rz * sinT + randY * 0.5;
-            idealZ = ry * sinT + rz * cosT;
-        }
     } else if (phaseName === 'SHAPE_DYSON_SPHERE') {
         // 🚀 Stellar Swarm Gyro Rings
         if (progress < 0.20) {
@@ -384,22 +208,36 @@ export function updateParticleIdealTargets(p, phaseName, i, total, time, centerX
         idealY = centerY + y1 + randY * 0.3;
         idealZ = z2;
     } else if (phaseName === 'SHAPE_QUANTUM_FIELD') {
-        // ⚛️ Quantum Entanglement Mirror
-        const cloudA = i % 2 === 0;
-        const qubitT = progress * Math.PI * 2;
-
-        const rx = Math.cos(qubitT + time * 0.02) * 80;
-        const ry = Math.sin(qubitT + time * 0.02) * 80;
-        const rz = Math.sin(qubitT * 3 + time * 0.025) * 45;
-
-        if (cloudA) {
-            idealX = centerX - 160 + rx + randX * 0.25;
-            idealY = centerY + ry + randY * 0.25;
-            idealZ = rz;
+        // 🕸️ Cyber Geometric Spider Web (Futuristic 3D Concentric Mesh with RGB Pulsing)
+        const flowProgress = (progress + time * 0.003) % 1.0;
+        
+        // 8 Radial Spokes
+        const numSpokes = 8;
+        const spokeNum = i % numSpokes;
+        const radialAngle = (spokeNum / numSpokes) * Math.PI * 2 + time * 0.005;
+        
+        // Particle division: 35% on radial lines, 65% on concentric rings
+        const isRadial = i % 3 === 0;
+        
+        if (isRadial) {
+            // Radial strands flowing outward from core
+            const r = 25 + flowProgress * 235;
+            idealX = centerX + Math.cos(radialAngle) * r + randX * 0.2;
+            idealY = centerY + Math.sin(radialAngle) * r + randY * 0.2;
+            // 3D waving ripple on the web
+            idealZ = Math.sin(flowProgress * Math.PI * 3 + time * 0.03) * 35;
         } else {
-            idealX = centerX + 160 - rx + randX * 0.25;
-            idealY = centerY - ry + randY * 0.25;
-            idealZ = -rz;
+            // Concentric polygon ring strands flowing circularly!
+            const ringLayers = 7;
+            const layer = Math.floor(progress * ringLayers) % ringLayers;
+            const r = 45 + layer * 32;
+            
+            // Decagon ring vertices interpolation
+            const ringT = (progress * 10 + time * 0.015) * Math.PI * 2;
+            idealX = centerX + Math.cos(ringT) * r + randX * 0.2;
+            idealY = centerY + Math.sin(ringT) * r + randY * 0.2;
+            // Wave ripples outwards from the center of the web!
+            idealZ = Math.sin(layer * 0.8 - time * 0.035) * 25;
         }
     } else if (phaseName === 'SHAPE_WARP_DRIVE') {
         // 🚀 Space Warp Funnel

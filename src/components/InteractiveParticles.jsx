@@ -65,22 +65,7 @@ class Particle {
         let lightness = 55;
 
         // Custom phase color signatures
-        if (phaseName === 'SHAPE_LOGO') {
-            if (this.index < this.total * 0.10) {
-                baseHue = 275; // Satellite Dot (Purple)
-                farHue = 275;
-                lightness = 60;
-            } else if (this.index < this.total * 0.60) {
-                baseHue = 195; // Outer Orbit Ring (Electric Blue to Purple)
-                farHue = 275;
-                lightness = 55;
-            } else {
-                baseHue = 0;   // The Letter H (Silvery White)
-                farHue = 0;
-                saturation = 0; // Grayscale for metal
-                lightness = 95; // Super bright metallic white!
-            }
-        } else if (phaseName === 'SHAPE_DNA') {
+        if (phaseName === 'SHAPE_DNA') {
             baseHue = 320; // Magenta
             farHue = 200;  // Cyan
         } else if (phaseName === 'SHAPE_BRAIN') {
@@ -89,10 +74,6 @@ class Particle {
         } else if (phaseName === 'SHAPE_ATOM') {
             baseHue = 160; // Emerald Green
             farHue = 280;  // Royal Purple
-        } else if (phaseName === 'SHAPE_BLACKHOLE') {
-            baseHue = 0;   // Crimson Red
-            farHue = 35;   // Solar Orange
-            lightness = 50;
         } else if (phaseName === 'SHAPE_WARP_DRIVE') {
             baseHue = 180; // Electric Teal
             farHue = 240;  // Warp Blue
@@ -101,6 +82,12 @@ class Particle {
             // Rainbow prism shifting over time and index
             baseHue = (time * 0.15 + this.index * 1.5) % 360;
             farHue = (baseHue + 120) % 360;
+        } else if (phaseName === 'SHAPE_QUANTUM_FIELD') {
+            // Vibrant RGB Spider-Web Spectrum pulsing with high saturation!
+            baseHue = (time * 0.45 + this.index * 0.75) % 360;
+            farHue = (baseHue + 120) % 360;
+            saturation = 100;
+            lightness = 62; // Ultra bright RGB neon glow!
         }
 
         // 3. Depth Interpolation of Hue
@@ -201,8 +188,8 @@ class Particle {
             let dz = this.targetZ - this.z;
 
             // Premium tight spring physics - faster, snappier convergence to perfect target geometry
-            const springStrength = 0.015 + (this.index % 4) * 0.003; 
-            const damping = 0.82 + (this.index % 3) * 0.01;           
+            const springStrength = 0.015 + (this.index % 4) * 0.003;
+            const damping = 0.82 + (this.index % 3) * 0.01;
 
             this.speedX += dx * springStrength;
             this.speedY += dy * springStrength;
@@ -318,35 +305,28 @@ const InteractiveParticles = () => {
 
         // 📖 The Story of Cosmic Intelligence: Extended Theatrical Lifecycle (19 Stages)
         const PHASES = [
-            { name: 'SHAPE_LOGO', duration: 1600 },       // 💎 Brand Identity Logo (Futuristic Slanted 'H' & Orbital Ring)
             { name: 'SHAPE_DNA', duration: 1200 },       // 1. Biological Genesis (3D Double Helix)
             { name: 'SHAPE_BRAIN', duration: 1250 },     // 2. Human Intelligence (3D Brain Network)
             { name: 'SHAPE_ATOM', duration: 1150 },      // 3. Scientific Discovery (Tilted Orbit Atom)
-            { name: 'SHAPE_TREE', duration: 1200 },      // 4. Tree of Knowledge (3D Neural Canopy)
-            { name: 'SHAPE_GRID', duration: 1150 },      // 5. The Digital Era (3D Matrix Corridor)
-            { name: 'SHAPE_NEURAL_SYNAPSE', duration: 1250 }, // 6. Cognitive Processing (Active Synaptic Sparks)
-            { name: 'SHAPE_EYE', duration: 1250 },       // 7. AI Awakening (3D Responsive Lens Eye)
-            { name: 'SHAPE_HOURGLASS', duration: 1150 }, // 8. Flow of Time (Twisting Double Cone)
-            { name: 'SHAPE_HEXAGON', duration: 1200 },   // 9. Structural Perfection (Extruded Elite Hub)
-            { name: 'SHAPE_GALAXY', duration: 1250 },    // 10. Cosmic Expansion (Tilted Spiral Galaxy)
-            { name: 'WANDER', duration: 1200 },          // 11. Primordial Soup (Free drifting)
-            
+            { name: 'SHAPE_HOURGLASS', duration: 1150 }, // 4. Flow of Time (Twisting Double Cone)
+            { name: 'SHAPE_GALAXY', duration: 1250 },    // 5. Cosmic Expansion (Tilted Spiral Galaxy)
+            { name: 'WANDER', duration: 1200 },          // 6. Primordial Soup (Free drifting)
+
             // 🚀 Elite Futuristic Megastructure Scenes:
-            { name: 'SHAPE_TESSERACT', duration: 1350 },   // 12. Higher Dimensionality (4D Hypercube projection)
-            { name: 'SHAPE_BLACKHOLE', duration: 1400 },   // 13. Spacetime Singularity (Gravitational Lens & disk)
-            { name: 'SHAPE_DYSON_SPHERE', duration: 1350 },// 14. Stellar Engineering (Gyro Cross-Orbit Swarm)
-            { name: 'SHAPE_TORUS', duration: 1300 },       // 15. Zero-Point Energy (Sacred Geometry Torus Loop)
-            
+            { name: 'SHAPE_TESSERACT', duration: 1350 },   // 9. Higher Dimensionality (4D Hypercube projection)
+            { name: 'SHAPE_DYSON_SPHERE', duration: 1350 },// 10. Stellar Engineering (Gyro Cross-Orbit Swarm)
+            { name: 'SHAPE_TORUS', duration: 1300 },       // 11. Zero-Point Energy (Sacred Geometry Torus Loop)
+
             // 🚀 The 3 New Ascended Interstellar Cosmic Scenes:
-            { name: 'SHAPE_QUANTUM_FIELD', duration: 1300 }, // 16. Quantum Entanglement Mirror Superposition
-            { name: 'SHAPE_WARP_DRIVE', duration: 1350 },   // 17. Alcubierre Hyperspeed Warp Drive Tunnel
-            { name: 'SHAPE_MULTIVERSE', duration: 1400 },   // 18. Multiverse Dimensional Portal Core
-            
-            { name: 'VORTEX', duration: 700 },          // 19. The Singularity (Deep coordinate suction)
-            { name: 'SHAPE_CORE', duration: 200 },      // 20. Absolute Core Compression
-            { name: 'EXPLODE', duration: 350 },         // 21. The Big Bang shockwave
-            { name: 'STILL', duration: 400 },           // 22. Silent Cosmic Void
-            { name: 'BREATHE', duration: 900 }          // 23. Cosmic Rebirth (3D Breathing Network)
+            { name: 'SHAPE_QUANTUM_FIELD', duration: 1300 }, // 12. Quantum Entanglement Mirror Superposition
+            { name: 'SHAPE_WARP_DRIVE', duration: 1350 },   // 13. Alcubierre Hyperspeed Warp Drive Tunnel
+            { name: 'SHAPE_MULTIVERSE', duration: 1400 },   // 14. Multiverse Dimensional Portal Core
+
+            { name: 'VORTEX', duration: 700 },          // 15. The Singularity (Deep coordinate suction)
+            { name: 'SHAPE_CORE', duration: 200 },      // 16. Absolute Core Compression
+            { name: 'EXPLODE', duration: 350 },         // 17. The Big Bang shockwave
+            { name: 'STILL', duration: 400 },           // 18. Silent Cosmic Void
+            { name: 'BREATHE', duration: 900 }          // 19. Cosmic Rebirth (3D Breathing Network)
         ];
 
         let currentPhaseIndex = 0;
@@ -354,8 +334,8 @@ const InteractiveParticles = () => {
 
         const init = () => {
             particles = [];
-            // Ultra High-Definition density of 480 particles on high-res monitors for laser-sharp outlines
-            const numberOfParticles = Math.min(Math.floor((canvas.width * canvas.height) / 3200), 480);
+            // Highly optimized density of 320 particles max for flawless CPU & thermal footprint
+            const numberOfParticles = Math.min(Math.floor((canvas.width * canvas.height) / 3600), 320);
             for (let i = 0; i < numberOfParticles; i++) {
                 particles.push(new Particle(canvas, i, numberOfParticles));
             }
@@ -390,28 +370,40 @@ const InteractiveParticles = () => {
          * 3D Connected Line Constellation: Filters connections by spatial coordinates & depth diff
          */
         const connect = (opacity) => {
-            for (let a = 0; a < particles.length; a++) {
-                for (let b = a + 1; b < particles.length; b++) {
-                    const dx = particles[a].px - particles[b].px;
-                    const dy = particles[a].py - particles[b].py;
-                    const distance = Math.sqrt(dx * dx + dy * dy);
+            const len = particles.length;
+            for (let a = 0; a < len; a++) {
+                const pa = particles[a];
+                for (let b = a + 1; b < len; b++) {
+                    const pb = particles[b];
+                    
+                    // Avoid linking foreground nodes to background nodes (looks messy in 3D) - Super cheap depth check first!
+                    const dz = pa.rotatedZ - pb.rotatedZ;
+                    if (Math.abs(dz) >= 80) continue;
 
-                    // Avoid linking foreground nodes to background nodes (looks messy in 3D)
-                    const dz = particles[a].rotatedZ - particles[b].rotatedZ;
+                    const dx = pa.px - pb.px;
+                    // Early exit if horizontal distance alone exceeds 75px
+                    if (Math.abs(dx) >= 75) continue;
+                    
+                    const dy = pa.py - pb.py;
+                    // Early exit if vertical distance alone exceeds 75px
+                    if (Math.abs(dy) >= 75) continue;
 
-                    if (distance < 75 && Math.abs(dz) < 80) {
-                        const baseLineOpacity = (1 - (distance / 75)) * ((particles[a].pOpacity + particles[b].pOpacity) / 2);
+                    // Avoid Math.sqrt unless the square distance is within threshold (75^2 = 5625)
+                    const distSq = dx * dx + dy * dy;
+                    if (distSq < 5625) {
+                        const distance = Math.sqrt(distSq);
+                        const baseLineOpacity = (1 - (distance / 75)) * ((pa.pOpacity + pb.pOpacity) / 2);
                         const lineOpacity = Math.max(0.2, baseLineOpacity); // Strong minimum connection glow
 
                         // Line color inherits the dynamic HSL of both connected particles
-                        const avgHue = (particles[a].computedHue + particles[b].computedHue) / 2;
-                        const avgLightness = (particles[a].computedLightness + particles[b].computedLightness) / 2;
+                        const avgHue = (pa.computedHue + pb.computedHue) / 2;
+                        const avgLightness = (pa.computedLightness + pb.computedLightness) / 2;
 
                         ctx.strokeStyle = `hsla(${avgHue}, 100%, ${avgLightness}%, ${lineOpacity * 0.85})`;
-                        ctx.lineWidth = 1.1 * ((particles[a].scale + particles[b].scale) / 2);
+                        ctx.lineWidth = 1.1 * ((pa.scale + pb.scale) / 2);
                         ctx.beginPath();
-                        ctx.moveTo(particles[a].px, particles[a].py);
-                        ctx.lineTo(particles[b].px, particles[b].py);
+                        ctx.moveTo(pa.px, pa.py);
+                        ctx.lineTo(pb.px, pb.py);
                         ctx.stroke();
                     }
                 }
@@ -435,10 +427,10 @@ const InteractiveParticles = () => {
 
             // Recalculate targets on every frame for moving shapes, otherwise once on transition
             const isDynamicMovingShape = [
-                'SHAPE_LOGO', 'SHAPE_DNA', 'SHAPE_ATOM', 'SHAPE_GALAXY', 'SHAPE_EYE',
-                'SHAPE_TESSERACT', 'SHAPE_BLACKHOLE', 'SHAPE_DYSON_SPHERE',
+                'SHAPE_DNA', 'SHAPE_ATOM', 'SHAPE_GALAXY',
+                'SHAPE_TESSERACT', 'SHAPE_DYSON_SPHERE',
                 'SHAPE_TORUS', 'SHAPE_HOURGLASS',
-                'SHAPE_NEURAL_SYNAPSE', 'SHAPE_QUANTUM_FIELD', 'SHAPE_WARP_DRIVE', 'SHAPE_MULTIVERSE'
+                'SHAPE_QUANTUM_FIELD', 'SHAPE_WARP_DRIVE', 'SHAPE_MULTIVERSE'
             ].includes(phaseName);
 
             if (phaseChanged || isDynamicMovingShape) {
@@ -471,24 +463,53 @@ const InteractiveParticles = () => {
                         p, phaseName, i, p.total, time, centerX, centerY, mouse
                     );
 
-                    // 🌀 3. Cinematic Choreographed Morphing & Spatial Pipeline
+                    // 🌀 3. Cinematic Choreographed Morphing & Spatial Pipeline (4 Unique Styles)
+                    const transitionStyle = currentPhaseIndex % 4;
+
                     if (phaseTimer < DISSOLVE_FRAMES) {
-                        // Stage 1: Dissolve & Swirl - Recede deep into background Z-space
                         const t_dissolve = phaseTimer / DISSOLVE_FRAMES; // 0.0 to 1.0
 
-                        // Calculate swirling orbital coordinate in deep cosmic space
-                        const swirlAngle = (i * 0.16) + (time * 0.008) + (t_dissolve * Math.PI * 2.8);
-                        const swirlRadius = 30 + (i % 7) * 40 + (1 - t_dissolve) * 160;
+                        if (transitionStyle === 0) {
+                            // Style 0: Fission / Split (الانفصام والتباعد الجانبي لنصفي الجسيمات)
+                            const isLeft = i % 2 === 0;
+                            const direction = isLeft ? -1 : 1;
+                            const pushX = direction * (120 + t_dissolve * 260);
+                            const pushY = Math.sin(i * 0.1) * 100;
+                            const pushZ = 50 + t_dissolve * 150;
 
-                        const swirlX = centerX + Math.cos(swirlAngle) * swirlRadius;
-                        const swirlY = centerY + Math.sin(swirlAngle) * swirlRadius;
-                        const swirlZ = 280 + (i % 4) * 75; // Deep cosmic background
+                            p.targetX = centerX + pushX;
+                            p.targetY = centerY + pushY;
+                            p.targetZ = pushZ;
+                        } else if (transitionStyle === 1) {
+                            // Style 1: Cyber Cosmic Swirl (العاصفة اللولبية المعتادة في عمق الفضاء)
+                            const swirlAngle = (i * 0.16) + (time * 0.008) + (t_dissolve * Math.PI * 2.8);
+                            const swirlRadius = 30 + (i % 7) * 40 + (1 - t_dissolve) * 160;
 
-                        p.targetX = swirlX;
-                        p.targetY = swirlY;
-                        p.targetZ = swirlZ;
+                            p.targetX = centerX + Math.cos(swirlAngle) * swirlRadius;
+                            p.targetY = centerY + Math.sin(swirlAngle) * swirlRadius;
+                            p.targetZ = 280 + (i % 4) * 75;
+                        } else if (transitionStyle === 2) {
+                            // Style 2: Quantum Wave Scan (الماسح الموجي المتموج التكنولوجي)
+                            const col = i % 20;
+                            const row = Math.floor(i / 20) % 16;
+                            const waveX = centerX - 200 + col * 20;
+                            const waveY = centerY - 150 + row * 20 + Math.sin(t_dissolve * Math.PI * 2 + col * 0.3) * 40;
+                            const waveZ = -100 + t_dissolve * 200;
+
+                            p.targetX = waveX;
+                            p.targetY = waveY;
+                            p.targetZ = waveZ;
+                        } else {
+                            // Style 3: Big Bang Explosion (الانفجار الحركي المستعر للخارج)
+                            const radAngle = i * 0.15;
+                            const radRadius = 50 + t_dissolve * 280;
+                            const radZ = -150 + t_dissolve * 300;
+
+                            p.targetX = centerX + Math.cos(radAngle) * radRadius;
+                            p.targetY = centerY + Math.sin(radAngle) * radRadius;
+                            p.targetZ = radZ;
+                        }
                     } else if (phaseTimer < TOTAL_TRANSITION_FRAMES) {
-                        // Stage 2: Fly-in & Assemble - Assemble forward with Cubic Ease-In-Out
                         const t_assemble = (phaseTimer - DISSOLVE_FRAMES) / ASSEMBLE_FRAMES; // 0.0 to 1.0
 
                         // Cubic ease-in-out curve for deceleration feel
@@ -496,16 +517,49 @@ const InteractiveParticles = () => {
                             ? 4 * t_assemble * t_assemble * t_assemble
                             : 1 - Math.pow(-2 * t_assemble + 2, 3) / 2;
 
-                        const swirlAngle = (i * 0.16) + (time * 0.008) + (Math.PI * 2.8);
-                        const swirlRadius = 30 + (i % 7) * 40;
+                        let startX, startY, startZ;
 
-                        const swirlX = centerX + Math.cos(swirlAngle) * swirlRadius;
-                        const swirlY = centerY + Math.sin(swirlAngle) * swirlRadius;
-                        const swirlZ = 280 + (i % 4) * 75;
+                        if (transitionStyle === 0) {
+                            // Style 0: Fusion / Merge (الاندماج وتجميع النصفين المنفصمين إلى المظهر الجديد)
+                            const isLeft = i % 2 === 0;
+                            const direction = isLeft ? -1 : 1;
+                            const pushX = direction * (120 + 260);
+                            const pushY = Math.sin(i * 0.1) * 100;
+                            const pushZ = 50 + 150;
 
-                        p.targetX = swirlX + (p.idealX - swirlX) * ease;
-                        p.targetY = swirlY + (p.idealY - swirlY) * ease;
-                        p.targetZ = swirlZ + (p.idealZ - swirlZ) * ease;
+                            startX = centerX + pushX;
+                            startY = centerY + pushY;
+                            startZ = pushZ;
+                        } else if (transitionStyle === 1) {
+                            // Style 1: Cyber Cosmic Swirl
+                            const swirlAngle = (i * 0.16) + (time * 0.008) + (Math.PI * 2.8);
+                            const swirlRadius = 30 + (i % 7) * 40;
+
+                            startX = centerX + Math.cos(swirlAngle) * swirlRadius;
+                            startY = centerY + Math.sin(swirlAngle) * swirlRadius;
+                            startZ = 280 + (i % 4) * 75;
+                        } else if (transitionStyle === 2) {
+                            // Style 2: Quantum Wave Scan
+                            const col = i % 20;
+                            const row = Math.floor(i / 20) % 16;
+                            
+                            startX = centerX - 200 + col * 20;
+                            startY = centerY - 150 + row * 20 + Math.sin(Math.PI * 2 + col * 0.3) * 40;
+                            startZ = 100;
+                        } else {
+                            // Style 3: Big Bang Collapse
+                            const radAngle = i * 0.15;
+                            const radRadius = 330;
+                            const radZ = 150;
+
+                            startX = centerX + Math.cos(radAngle) * radRadius;
+                            startY = centerY + Math.sin(radAngle) * radRadius;
+                            startZ = radZ;
+                        }
+
+                        p.targetX = startX + (p.idealX - startX) * ease;
+                        p.targetY = startY + (p.idealY - startY) * ease;
+                        p.targetZ = startZ + (p.idealZ - startZ) * ease;
                     } else {
                         // Stage 3: Display Stage - Fully formed, majestic, stable 3D constellation
                         p.targetX = p.idealX;
@@ -539,42 +593,27 @@ const InteractiveParticles = () => {
             // Keep internal drawing fully crisp and luminous
             const globalOpacity = 1.0;
 
-            // Sweeping dramatic transition camera movements
+            // Sweeping transition zoom impulse: pulls particles forward, then recedes them
             let transitionZoom = 0;
-            let transitionPanX = 0;
-            let transitionPanY = 0;
-            let transitionRotX = 0;
-            let transitionRotY = 0;
-
-            const transitionDuration = 220; // 100 dissolve + 120 assemble
-            if (phaseTimer < transitionDuration) {
-                const progress = phaseTimer / transitionDuration;
-                // Elegant movie-like camera sweeps:
-                // Zoom far out, sweep left/up, then swoop back into center with organic deceleration
-                const ease = Math.sin(progress * Math.PI);
-                transitionZoom = ease * 380; // Fly back/forward in 3D space
-                transitionPanX = Math.cos(progress * Math.PI * 1.5) * 280 * ease; // Swing camera left/right
-                transitionPanY = Math.sin(progress * Math.PI * 2) * 120 * ease;    // Swing camera up/down
-                
-                // Rotational orbital swings for cinematic 3D perspective
-                transitionRotX = Math.sin(progress * Math.PI * 1.5) * 0.35 * ease;
-                transitionRotY = Math.cos(progress * Math.PI * 1.5) * 0.45 * ease;
+            if (phaseTimer < 140) {
+                // Starts at 0, peaks at 180px in 3D camera depth, then returns to 0
+                transitionZoom = Math.sin((phaseTimer / 140) * Math.PI) * 180;
             }
 
             // 🎥 Step 2: Smooth 3D Camera Depth Pan and Parallax Breathing
             const targetCameraX = (mouse.x !== null) ? (mouse.x - centerX) * 0.22 : 0;
             const targetCameraY = (mouse.y !== null) ? (mouse.y - centerY) * 0.22 : 0;
 
-            // Oscillates in Z-space + sweeps forward/backward during transitions
-            const targetCameraZ = Math.sin(globalTime * 0.008) * 120 - transitionZoom;
+            // Oscillates in Z-space + sweeps forward during transitions
+            const targetCameraZ = Math.sin(globalTime * 0.008) * 140 - transitionZoom;
 
-            cameraX += (targetCameraX + transitionPanX - cameraX) * 0.05;
-            cameraY += (targetCameraY + transitionPanY - cameraY) * 0.05;
-            cameraZ += (targetCameraZ - cameraZ) * 0.05;
+            cameraX += (targetCameraX - cameraX) * 0.04;
+            cameraY += (targetCameraY - cameraY) * 0.04;
+            cameraZ += (targetCameraZ - cameraZ) * 0.04;
 
             // Rotational angles of the camera in radians for true 3D perspective rotation
-            const rotX = cameraY * 0.0012 + transitionRotX; // tilt camera vertically (X rotation)
-            const rotY = cameraX * 0.0012 + transitionRotY; // rotate camera horizontally (Y rotation)
+            const rotX = cameraY * 0.0012; // tilt camera vertically (X rotation)
+            const rotY = cameraX * 0.0012; // rotate camera horizontally (Y rotation)
 
             const cosX = Math.cos(rotX);
             const sinX = Math.sin(rotX);
