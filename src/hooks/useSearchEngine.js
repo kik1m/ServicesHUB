@@ -60,13 +60,7 @@ export const useSearchEngine = ({
         }
     }, [syncUrl, searchParams, fixedCategory]);
 
-    // 3. Partitioned States
-    const [isLoading, setIsLoading] = useState(true);
-    const [loadingMore, setLoadingMore] = useState(false);
-    const [error, setError] = useState(null);
-    const [results, setResults] = useState([]);
-    const [hasMore, setHasMore] = useState(true);
-    const [totalResults, setTotalResults] = useState(0);
+    // 3. Partitioned States (Derived synchronously to prevent Scroll Jump & Render Flash)
     const [categories, setCategories] = useState(categoriesCache || []);
     const [catSearchQuery, setCatSearchQuery] = useState('');
     const [showAllCats, setShowAllCats] = useState(false);
@@ -168,23 +162,21 @@ export const useSearchEngine = ({
         enabled: queryCategories.length > 0 || selectedCategory === 'All'
     });
 
-    // 6. Map Infinite Query Data to Backward Compatible State
-    useEffect(() => {
-        if (infiniteData) {
-            const allResults = infiniteData.pages.flatMap(p => p.data);
-            setResults(allResults);
-            setHasMore(!!hasNextPage);
-            setTotalResults(infiniteData.pages[0]?.count || allResults.length);
-        }
-    }, [infiniteData, hasNextPage]);
+    // 6. Synchronous Derived State (Crucial for preventing Scroll Jumping!)
+    const isLoading = isPending;
+    const loadingMore = isFetchingNextPage;
+    const error = queryError ? queryError.message : null;
+    const hasMore = !!hasNextPage;
 
-    // 7. Sync loading states
-    useEffect(() => {
-        // Use isPending for initial load (when no data exists), not for background fetching!
-        setIsLoading(isPending);
-        setLoadingMore(isFetchingNextPage);
-        setError(queryError ? queryError.message : null);
-    }, [isPending, isFetchingNextPage, queryError]);
+    const results = useMemo(() => {
+        if (!infiniteData) return [];
+        return infiniteData.pages.flatMap(p => p.data);
+    }, [infiniteData]);
+
+    const totalResults = useMemo(() => {
+        if (!infiniteData) return 0;
+        return infiniteData.pages[0]?.count || results.length;
+    }, [infiniteData, results.length]);
 
     // 🎯 Reset page to 0 if filters change to avoid out-of-bounds pages
     // The queryKey change automatically resets the infinite query!
