@@ -46,5 +46,25 @@ export const notificationsService = {
             .eq('user_id', userId);
         
         return { error };
+    },
+
+    /**
+     * Create a new notification manually
+     */
+    async createNotification({ userId, title, message, type = 'system', link = null }) {
+        const { data, error } = await supabase
+            .from('notifications')
+            .insert({
+                user_id: userId,
+                title,
+                message,
+                type,
+                link,
+                is_unread: true
+            })
+            .select()
+            .single();
+            
+        return { data, error };
     }
 };

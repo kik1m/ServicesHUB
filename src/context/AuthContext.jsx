@@ -1,5 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useMemo, useCallback } from 'react';
 import { supabase } from '../lib/supabaseClient';
+import { emailTriggers } from '../utils/emailService';
+import { notificationsService } from '../services/notificationsService';
 
 const AuthContext = createContext({});
 
@@ -59,6 +61,38 @@ export const AuthProvider = ({ children }) => {
                 ...sessionUser,
                 full_name: metaName || prev?.full_name
             }));
+
+            // --- ELITE WELCOME LOGIC (Email & Notification) ---
+            try {
+                if (sessionUser.created_at && typeof window !== 'undefined') {
+                    const createdTime = new Date(sessionUser.created_at).getTime();
+                    const nowTime = new Date().getTime();
+                    const isNewUser = (nowTime - createdTime) < 60000; // 60 seconds
+                    const welcomeFlagKey = `hubly_welcome_${sessionUser.id}`;
+                    
+                    if (isNewUser && !localStorage.getItem(welcomeFlagKey)) {
+                        localStorage.setItem(welcomeFlagKey, 'true');
+                        console.log("New user detected! Triggering Welcome Protocol...");
+                        
+                        // Fire Welcome Email (non-blocking)
+                        if (sessionUser.email) {
+                            emailTriggers.sendWelcome(sessionUser.email, metaName || 'Explorer').catch(console.error);
+                        }
+                        
+                        // Fire Welcome Notification
+                        notificationsService.createNotification({
+                            userId: sessionUser.id,
+                            title: 'Welcome to HUBly! 🎉',
+                            message: 'Your elite journey starts here. Explore our premium AI directory.',
+                            type: 'system',
+                            link: '/dashboard'
+                        }).catch(console.error);
+                    }
+                }
+            } catch (err) {
+                console.error("Welcome logic failed:", err);
+            }
+            // ------------------------------------------------
 
             // Fetch full profile
             try {
