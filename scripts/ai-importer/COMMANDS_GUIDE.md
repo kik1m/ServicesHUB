@@ -10,7 +10,7 @@
 node scripts/ai-importer/index.js "https://uizard.io | https://uizard.io/pricing"
 
 # الطريقة البسيطة: رابط الأداة الرئيسي فقط
-node scripts/ai-importer/index.js "https://docs.midjourney.com/hc/en-us/articles/33329261836941-Getting-Started-Guide"
+node scripts/ai-importer/index.js "https://claude.com/"
 ```
 
 ## 2. تحديث الأسعار فقط (تحديث جراحي - Surgical Update)

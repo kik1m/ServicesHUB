@@ -1,11 +1,9 @@
 'use client';
-import React, { useState, useCallback } from 'react';
+import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useHomeData } from '../hooks/useHomeData';
-import { useBannerState } from '../hooks/useBannerState';
 
 // Import Modular Home Components
-import SmartBanner from '../components/SmartBanner';
 import VideoGuide from '../components/VideoGuide';
 import HomeHero from '../components/Home/HomeHero';
 import HomeStatsBar from '../components/Home/HomeStatsBar';
@@ -59,24 +57,8 @@ export default function HomeClient({
         initialComparisons
     });
 
-    const banner = useBannerState(initialBannerTools, false);
-
-    const handleExternalClick = useCallback((id) => {
-        // Analytics tracking would go here
-        console.log('External click tracked:', id);
-    }, []);
-
     return (
         <div className={styles.homeContainer}>
-            <SmartBanner 
-                tools={initialBannerTools}
-                currentIndex={banner.currentIndex}
-                next={banner.next}
-                prev={banner.prev}
-                isLoading={false}
-                onExternalClick={handleExternalClick}
-            />
-            
             <HomeHero 
                 searchQuery={searchQuery} 
                 setSearchQuery={setSearchQuery} 
