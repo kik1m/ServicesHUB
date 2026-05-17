@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { updateParticleIdealTargets } from './particleGenerators';
 
 /**
@@ -223,7 +223,14 @@ class Particle {
             let dist = Math.sqrt(dx * dx + dy * dy) || 1;
 
             // Premium tight spring physics - faster, snappier convergence to perfect target geometry
-            const springStrength = 0.015 + (this.index % 4) * 0.003;
+            let springStrength = 0.015 + (this.index % 4) * 0.003;
+            
+            // 🌟 Smooth Genesis: Prevent violent snapping during the very first scene loading
+            if (time < 180) {
+                // Eases smoothly from extremely soft to full strength over 3 seconds
+                springStrength *= Math.max(0.02, time / 180);
+            }
+
             const damping = 0.82 + (this.index % 3) * 0.01;
 
             // Curved flow makes them look like organic energy streams rather than rigid coordinates!
@@ -324,8 +331,19 @@ class Particle {
  */
 const InteractiveParticles = () => {
     const canvasRef = useRef(null);
+    const [shouldRender, setShouldRender] = useState(true);
 
     useEffect(() => {
+        // 🛡️ Elite Device Detection: Disable 3D Canvas on mobile phones (< 768px) to save battery and ensure clean UX
+        const checkDevice = () => setShouldRender(window.innerWidth >= 768);
+        checkDevice(); // Check instantly on mount
+        window.addEventListener('resize', checkDevice);
+        return () => window.removeEventListener('resize', checkDevice);
+    }, []);
+
+    useEffect(() => {
+        if (!shouldRender) return;
+
         const canvas = canvasRef.current;
         if (!canvas) return;
 
@@ -626,6 +644,9 @@ const InteractiveParticles = () => {
             }
         };
 
+        let currentGlobalBaseHue = 195;
+        let currentGlobalFarHue = 275;
+
         const animate = () => {
             if (!ctx) return;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -656,11 +677,42 @@ const InteractiveParticles = () => {
 
             const currentPhaseName = PHASES[currentPhaseIndex].name;
 
+            // 🎨 Global CSS Variable Synchronization (Hardware Accelerated Gradient Sync)
+            let globalBaseHue = 195;
+            let globalFarHue = 275;
+
+            if (currentPhaseName === 'SHAPE_DNA') { globalBaseHue = 320; globalFarHue = 200; }
+            else if (currentPhaseName === 'SHAPE_BRAIN') { globalBaseHue = 210; globalFarHue = 45; }
+            else if (currentPhaseName === 'SHAPE_ATOM') { globalBaseHue = 160; globalFarHue = 280; }
+            else if (currentPhaseName === 'SHAPE_WARP_DRIVE') { globalBaseHue = 180; globalFarHue = 240; }
+            else if (currentPhaseName === 'SHAPE_MULTIVERSE') { globalBaseHue = 280; globalFarHue = 340; } // Deep Violet to Hot Pink
+            else if (currentPhaseName === 'SHAPE_QUANTUM_FIELD') { globalBaseHue = 140; globalFarHue = 200; } // Emerald to Cyan
+            else if (currentPhaseName === 'SHAPE_TESSERACT' || currentPhaseName === 'SHAPE_DYSON_SPHERE') { globalBaseHue = 45; globalFarHue = 15; } // Gold to Orange
+            else { globalBaseHue = 195; globalFarHue = 275; } // Default Cyan to Violet
+
+            // 🧬 Smooth Transition (Linear Interpolation) for UI Colors
+            currentGlobalBaseHue += (globalBaseHue - currentGlobalBaseHue) * 0.03; // Slightly faster transition
+            currentGlobalFarHue += (globalFarHue - currentGlobalFarHue) * 0.03;
+
+            if (typeof document !== 'undefined') {
+                const roundedBase = Math.round(currentGlobalBaseHue);
+                const roundedFar = Math.round(currentGlobalFarHue);
+                
+                // 🛡️ Elite Optimization: Only update the actual DOM if the integer value changed!
+                // This completely prevents DOM Thrashing and stops 60fps style recalculations.
+                if (window.__lastBaseHue !== roundedBase || window.__lastFarHue !== roundedFar) {
+                    document.documentElement.style.setProperty('--dynamic-hue-1', `${roundedBase}`);
+                    document.documentElement.style.setProperty('--dynamic-hue-2', `${roundedFar}`);
+                    window.__lastBaseHue = roundedBase;
+                    window.__lastFarHue = roundedFar;
+                }
+            }
+
             // 🌟 Direct active scroll inspection inside the 60fps loop (100% bulletproof bypass of browser event restrictions)
             const winS = typeof window !== 'undefined' ? (window.scrollY || window.pageYOffset || 0) : 0;
             const docS = typeof document !== 'undefined' && document.documentElement ? document.documentElement.scrollTop : 0;
             const bodyS = typeof document !== 'undefined' && document.body ? document.body.scrollTop : 0;
-            
+
             let elementScroll = 0;
             if (typeof document !== 'undefined') {
                 const scrollableContainer = document.querySelector('.content') || document.querySelector('.app-container');
@@ -782,7 +834,9 @@ const InteractiveParticles = () => {
             window.removeEventListener('click', handleMouseClick);
             cancelAnimationFrame(animationFrameId);
         };
-    }, []);
+    }, [shouldRender]);
+
+    if (!shouldRender) return null;
 
     return (
         <canvas
