@@ -12,7 +12,13 @@ export const authService = {
             email,
             password
         });
-        if (error) throw error;
+        if (error) {
+            // Provide a hint if they try to login before verifying email
+            if (error.message === 'Invalid login credentials') {
+                error.message = 'Invalid credentials. If you just created an account, please check your email to verify it first.';
+            }
+            throw error;
+        }
         return data;
     },
 
@@ -80,10 +86,19 @@ export const authService = {
      * Sign in with OAuth provider
      */
     async signInWithSocial(provider) {
+        // Ensure robust redirect URL based on environment
+        const redirectUrl = typeof window !== 'undefined' 
+            ? `${window.location.origin}/dashboard`
+            : undefined;
+
         const { data, error } = await supabase.auth.signInWithOAuth({
             provider,
             options: {
-                redirectTo: window.location.origin + '/dashboard'
+                redirectTo: redirectUrl,
+                queryParams: {
+                    access_type: 'offline',
+                    prompt: 'consent',
+                }
             }
         });
         if (error) throw error;

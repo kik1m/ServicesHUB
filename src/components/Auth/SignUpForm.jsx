@@ -45,7 +45,7 @@ const SignUpForm = memo(({ onSubmit, loading, isInitialLoading, error, onRetry }
     }
 
     return (
-        <Safeguard error={error} onRetry={onRetry}>
+        <Safeguard>
             <form onSubmit={handleSubmit} className={styles.form}>
                 <Input 
                     id="signup-fullname"

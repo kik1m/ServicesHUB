@@ -355,7 +355,7 @@ const InteractiveParticles = () => {
 
         const handleScroll = (e) => {
             const target = e ? e.target : null;
-            scrollY = window.scrollY 
+            scrollY = window.scrollY
                 || (target && typeof target.scrollTop === 'number' ? target.scrollTop : 0)
                 || (document.documentElement ? document.documentElement.scrollTop : 0)
                 || (document.body ? document.body.scrollTop : 0)
@@ -512,7 +512,7 @@ const InteractiveParticles = () => {
             updatePhase(centerX, centerY, globalTime);
 
             const currentPhaseName = PHASES[currentPhaseIndex].name;
-            
+
             // 🌟 Dynamic hardware-accelerated CSS opacity fading:
             // 100% full crisp visibility at top (scrollY = 0)
             // Fades smoothly to exactly 20% (0.20) as the user scrolls down (within 150px) for maximum readability
@@ -533,7 +533,7 @@ const InteractiveParticles = () => {
             // 🎥 Step 2: Smooth 3D Camera Depth Pan and Parallax Breathing
             const targetCameraX = (mouse.x !== null) ? (mouse.x - centerX) * 0.22 : 0;
             const targetCameraY = (mouse.y !== null) ? (mouse.y - centerY) * 0.22 : 0;
-            
+
             // Oscillates in Z-space + sweeps forward during transitions
             const targetCameraZ = Math.sin(globalTime * 0.008) * 140 - transitionZoom;
 
@@ -544,7 +544,7 @@ const InteractiveParticles = () => {
             // Rotational angles of the camera in radians for true 3D perspective rotation
             const rotX = cameraY * 0.0012; // tilt camera vertically (X rotation)
             const rotY = cameraX * 0.0012; // rotate camera horizontally (Y rotation)
-            
+
             const cosX = Math.cos(rotX);
             const sinX = Math.sin(rotX);
             const cosY = Math.cos(rotY);

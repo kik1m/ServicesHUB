@@ -33,7 +33,7 @@ const LoginForm = memo(({ onSubmit, onForgotPassword, loading, isInitialLoading,
     }
 
     return (
-        <Safeguard error={error} onRetry={onRetry}>
+        <Safeguard>
             <form onSubmit={handleSubmit} className={styles.form}>
                 <Input 
                     id="login-email"

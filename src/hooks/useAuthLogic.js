@@ -44,9 +44,16 @@ export const useAuthLogic = () => {
         setLoading(true);
         setError(null);
         try {
-            await authService.signUp(email, password, fullName);
-            showToast('Account created! Welcome to HUBly.', 'success');
-            router.push('/dashboard');
+            const data = await authService.signUp(email, password, fullName);
+            
+            // Check if email confirmation is required by Supabase (no session returned)
+            if (data?.user && !data?.session) {
+                showToast('Account created! Please check your email to verify your account.', 'success');
+                setIsLogin(true); // Switch to login form so they can log in after verifying
+            } else {
+                showToast('Account created! Welcome to HUBly.', 'success');
+                router.push('/dashboard');
+            }
         } catch (err) {
             const msg = err.message || 'Registration failed';
             setError(msg);
