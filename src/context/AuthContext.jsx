@@ -104,8 +104,17 @@ export const AuthProvider = ({ children }) => {
             }
         };
 
-        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
             handleUserData(session?.user);
+            
+            // Smart Redirect: If user logs in via OAuth and Supabase drops them on the home page or auth page,
+            // we catch the 'SIGNED_IN' event and forcefully teleport them to the Dashboard.
+            if (event === 'SIGNED_IN' && session?.user && typeof window !== 'undefined') {
+                const path = window.location.pathname;
+                if (path === '/' || path === '/auth') {
+                    window.location.href = '/dashboard';
+                }
+            }
         });
 
         initAuth();

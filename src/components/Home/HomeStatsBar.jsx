@@ -6,8 +6,8 @@ import styles from './HomeStatsBar.module.css';
 
 const HomeStatsBar = ({ statsCount = {}, categoriesCount = 0, isLoading, error }) => {
     const stats = useMemo(() => [
-        { id: 'stat-tools', val: (statsCount.tools || 0).toLocaleString() + '+', label: STATS_LABELS.TOOLS },
-        { id: 'stat-views', val: (statsCount.views || 0).toLocaleString() + '+', label: STATS_LABELS.VIEWS },
+        { id: 'stat-tools', val: (statsCount.tools || 0).toLocaleString('en-US') + '+', label: STATS_LABELS.TOOLS },
+        { id: 'stat-views', val: (statsCount.views || 0).toLocaleString('en-US') + '+', label: STATS_LABELS.VIEWS },
         { id: 'stat-cats', val: categoriesCount || 0, label: STATS_LABELS.CATEGORIES }
     ], [statsCount, categoriesCount]);
 
