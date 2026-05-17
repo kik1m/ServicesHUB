@@ -54,11 +54,9 @@ const CompareBuilder = ({ isSelectingFor, tool1, tool2, onSelect, onClose, onCle
     // 🏆 Contextual Intelligence: If selecting Tool 2, default the category filter to Tool 1's category!
     useEffect(() => {
         if (isSelectingFor === 'tool2' && tool1?.categories?.name) {
-            if (selectedCategory === 'All') {
-                setSelectedCategory(tool1.categories.name);
-            }
+            setSelectedCategory(tool1.categories.name);
         }
-    }, [isSelectingFor, tool1, selectedCategory, setSelectedCategory]);
+    }, [isSelectingFor, tool1, setSelectedCategory]);
 
     // Rule #11: Isolate scroll locking logic
     useLockBodyScroll(true);

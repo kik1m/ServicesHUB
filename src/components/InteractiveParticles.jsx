@@ -52,7 +52,7 @@ class Particle {
     /**
      * Draw individual particle with dynamic depth coloring & advanced chromatic shifting
      */
-    draw(ctx, time, phaseName) {
+    draw(ctx, time, phaseName, mouse) {
         if (this.pOpacity <= 0) return;
 
         // 1. Calculate base depth ratio (0.0 foreground, 1.0 background)
@@ -100,6 +100,40 @@ class Particle {
             currentHue = currentHue + (hoverHue - currentHue) * this.chromaticShift;
             saturation = 100;
             lightness = lightness + (80 - lightness) * this.chromaticShift; // Boost brightness to make it glow!
+        }
+
+        // 5. 🔮 Thought Impulse click shockwave: user's input/thought propagates through the AI mind!
+        if (mouse && mouse.clickTimer >= 0) {
+            const dx = this.px - mouse.clickX;
+            const dy = this.py - mouse.clickY;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+
+            // Wave propagates outwards at 12px per frame
+            const waveRadius = mouse.clickTimer * 12;
+            const waveWidth = 70;
+            const distDiff = Math.abs(dist - waveRadius);
+
+            if (distDiff < waveWidth) {
+                // Sine shape envelope with quadratic decay
+                const progress = mouse.clickTimer / 60;
+                const intensity = (1 - distDiff / waveWidth) * Math.sin(progress * Math.PI) * (1 - progress);
+
+                // Morph color to highly glowing magenta/rose energy (hue 335)
+                const targetHue = 335;
+                let diffHue = targetHue - currentHue;
+                if (diffHue > 180) diffHue -= 360;
+                else if (diffHue < -180) diffHue += 360;
+
+                currentHue = currentHue + diffHue * intensity;
+                lightness = lightness + (94 - lightness) * intensity;
+                saturation = 100;
+
+                // Push physical coordinates outward briefly to simulate electrical impulse impact
+                const force = intensity * 2.8 * (1 / (this.scale || 1));
+                this.x += (dx / (dist || 1)) * force * this.density;
+                this.y += (dy / (dist || 1)) * force * this.density;
+                this.z += (Math.random() - 0.5) * force * 10;
+            }
         }
 
         // Cache computed color states for lines to inherit them
@@ -182,17 +216,21 @@ class Particle {
             this.y += this.speedY;
             this.z += this.speedZ;
         } else if (this.targetX !== null && this.targetY !== null && this.targetZ !== null) {
-            // Move smoothly towards 3D shape targets
+            // Move smoothly towards 3D shape targets with a flowing "neural thought-stream" curve
             let dx = this.targetX - this.x;
             let dy = this.targetY - this.y;
             let dz = this.targetZ - this.z;
+            let dist = Math.sqrt(dx * dx + dy * dy) || 1;
 
             // Premium tight spring physics - faster, snappier convergence to perfect target geometry
             const springStrength = 0.015 + (this.index % 4) * 0.003;
             const damping = 0.82 + (this.index % 3) * 0.01;
 
-            this.speedX += dx * springStrength;
-            this.speedY += dy * springStrength;
+            // Curved flow makes them look like organic energy streams rather than rigid coordinates!
+            const flowStrength = Math.sin(time * 0.04 + this.index * 0.06) * 0.45;
+
+            this.speedX += dx * springStrength + (dy / dist) * flowStrength;
+            this.speedY += dy * springStrength - (dx / dist) * flowStrength;
             this.speedZ += dz * springStrength;
 
             // Apply snap damping
@@ -294,8 +332,9 @@ const InteractiveParticles = () => {
         const ctx = canvas.getContext('2d');
         let animationFrameId;
         let particles = [];
-        const mouse = { x: null, y: null, radius: 220 };
+        const mouse = { x: null, y: null, radius: 220, speed: 0, clickX: null, clickY: null, clickTimer: -1 };
         let scrollY = 0;
+        let smoothedScrollY = 0;
         let globalTime = 0;
 
         // Camera position vectors for 3D simulation
@@ -351,19 +390,36 @@ const InteractiveParticles = () => {
 
         const handleScroll = (e) => {
             const target = e ? e.target : null;
-            scrollY = window.scrollY
-                || (target && typeof target.scrollTop === 'number' ? target.scrollTop : 0)
-                || (document.documentElement ? document.documentElement.scrollTop : 0)
-                || (document.body ? document.body.scrollTop : 0)
-                || 0;
+            const winS = window.scrollY || window.pageYOffset || 0;
+            const docS = document.documentElement ? document.documentElement.scrollTop : 0;
+            const bodyS = document.body ? document.body.scrollTop : 0;
+            const targetS = target && typeof target.scrollTop === 'number' ? target.scrollTop : 0;
+            scrollY = Math.max(winS, docS, bodyS, targetS);
         };
+        let lastMouseX = null;
+        let lastMouseY = null;
         const handleMouseMove = (event) => {
+            if (lastMouseX !== null) {
+                const dx = event.clientX - lastMouseX;
+                const dy = event.clientY - lastMouseY;
+                mouse.speed = Math.sqrt(dx * dx + dy * dy);
+            }
+            lastMouseX = event.clientX;
+            lastMouseY = event.clientY;
             mouse.x = event.clientX;
             mouse.y = event.clientY;
         };
         const handleMouseLeave = () => {
             mouse.x = null;
             mouse.y = null;
+            mouse.speed = 0;
+            lastMouseX = null;
+            lastMouseY = null;
+        };
+        const handleMouseClick = (event) => {
+            mouse.clickX = event.clientX;
+            mouse.clickY = event.clientY;
+            mouse.clickTimer = 0;
         };
 
         /**
@@ -375,7 +431,7 @@ const InteractiveParticles = () => {
                 const pa = particles[a];
                 for (let b = a + 1; b < len; b++) {
                     const pb = particles[b];
-                    
+
                     // Avoid linking foreground nodes to background nodes (looks messy in 3D) - Super cheap depth check first!
                     const dz = pa.rotatedZ - pb.rotatedZ;
                     if (Math.abs(dz) >= 80) continue;
@@ -383,7 +439,7 @@ const InteractiveParticles = () => {
                     const dx = pa.px - pb.px;
                     // Early exit if horizontal distance alone exceeds 75px
                     if (Math.abs(dx) >= 75) continue;
-                    
+
                     const dy = pa.py - pb.py;
                     // Early exit if vertical distance alone exceeds 75px
                     if (Math.abs(dy) >= 75) continue;
@@ -393,7 +449,7 @@ const InteractiveParticles = () => {
                     if (distSq < 5625) {
                         const distance = Math.sqrt(distSq);
                         const baseLineOpacity = (1 - (distance / 75)) * ((pa.pOpacity + pb.pOpacity) / 2);
-                        const lineOpacity = Math.max(0.2, baseLineOpacity); // Strong minimum connection glow
+                        const lineOpacity = Math.max(0.2 * opacity, baseLineOpacity); // Scale minimum glow with global scroll fade
 
                         // Line color inherits the dynamic HSL of both connected particles
                         const avgHue = (pa.computedHue + pb.computedHue) / 2;
@@ -542,7 +598,7 @@ const InteractiveParticles = () => {
                             // Style 2: Quantum Wave Scan
                             const col = i % 20;
                             const row = Math.floor(i / 20) % 16;
-                            
+
                             startX = centerX - 200 + col * 20;
                             startY = centerY - 150 + row * 20 + Math.sin(Math.PI * 2 + col * 0.3) * 40;
                             startZ = 100;
@@ -575,6 +631,23 @@ const InteractiveParticles = () => {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             globalTime++;
 
+            // Smooth decay of mouse speed velocity to return to stationary focus state
+            if (mouse.speed > 0.1) {
+                mouse.speed *= 0.92;
+            } else {
+                mouse.speed = 0;
+            }
+
+            // Increment Thought Click Impulse Wave timer
+            if (mouse.clickTimer >= 0) {
+                mouse.clickTimer++;
+                if (mouse.clickTimer > 60) {
+                    mouse.clickX = null;
+                    mouse.clickY = null;
+                    mouse.clickTimer = -1;
+                }
+            }
+
             const centerX = canvas.width / 2;
             const centerY = canvas.height / 2;
 
@@ -583,15 +656,26 @@ const InteractiveParticles = () => {
 
             const currentPhaseName = PHASES[currentPhaseIndex].name;
 
-            // 🌟 Dynamic hardware-accelerated CSS opacity fading:
-            // 100% full crisp visibility at top (scrollY = 0)
-            // Fades smoothly to exactly 20% (0.20) as the user scrolls down (within 150px) for maximum readability
-            const scrollFadeRange = 150;
-            const canvasOpacity = Math.max(0.20, 1 - (Math.min(scrollY, scrollFadeRange) / scrollFadeRange) * 0.80);
-            canvas.style.opacity = canvasOpacity;
+            // 🌟 Direct active scroll inspection inside the 60fps loop (100% bulletproof bypass of browser event restrictions)
+            const winS = typeof window !== 'undefined' ? (window.scrollY || window.pageYOffset || 0) : 0;
+            const docS = typeof document !== 'undefined' && document.documentElement ? document.documentElement.scrollTop : 0;
+            const bodyS = typeof document !== 'undefined' && document.body ? document.body.scrollTop : 0;
+            
+            let elementScroll = 0;
+            if (typeof document !== 'undefined') {
+                const scrollableContainer = document.querySelector('.content') || document.querySelector('.app-container');
+                if (scrollableContainer) {
+                    elementScroll = scrollableContainer.scrollTop || 0;
+                }
+            }
+            const currentScroll = Math.max(winS, docS, bodyS, elementScroll);
 
-            // Keep internal drawing fully crisp and luminous
-            const globalOpacity = 1.0;
+            // Smoothly ease the scroll position
+            smoothedScrollY += (currentScroll - smoothedScrollY) * 0.075;
+
+            // Fades smoothly and organically to exactly 15% (0.15) as the user scrolls down (decrease by 85%)
+            const scrollFadeRange = 180;
+            const globalOpacity = Math.max(0.15, 1 - (Math.min(smoothedScrollY, scrollFadeRange) / scrollFadeRange) * 0.85);
 
             // Sweeping transition zoom impulse: pulls particles forward, then recedes them
             let transitionZoom = 0;
@@ -664,9 +748,10 @@ const InteractiveParticles = () => {
                 // High-fidelity individual starlight twinkling phase
                 const twinkle = Math.sin(globalTime * 0.05 + i * 1.5) * 0.15 + 0.85;
 
-                p.pOpacity = globalOpacity * Math.max(0.42, scale) * nearFade * farFade * twinkle * 1.15; // Solid, vibrant particle presence
+                let baseParticleOpacity = Math.max(0.42, scale) * nearFade * farFade * twinkle * 1.15;
+                p.pOpacity = Math.min(baseParticleOpacity, 1.0) * globalOpacity; // Strict alpha capping guarantees exact fade
 
-                p.draw(ctx, globalTime, currentPhaseName);
+                p.draw(ctx, globalTime, currentPhaseName, mouse);
             }
 
             // 🕸️ Step 4: Draw depth-filtered connecting line constellations
@@ -678,18 +763,23 @@ const InteractiveParticles = () => {
         };
 
         window.addEventListener('resize', resize);
+        window.addEventListener('scroll', handleScroll, { passive: true });
         document.addEventListener('scroll', handleScroll, { capture: true, passive: true });
         window.addEventListener('mousemove', handleMouseMove);
         window.addEventListener('mouseleave', handleMouseLeave);
+        window.addEventListener('click', handleMouseClick);
 
         resize();
+        handleScroll();
         animate();
 
         return () => {
             window.removeEventListener('resize', resize);
+            window.removeEventListener('scroll', handleScroll);
             document.removeEventListener('scroll', handleScroll, { capture: true });
             window.removeEventListener('mousemove', handleMouseMove);
             window.removeEventListener('mouseleave', handleMouseLeave);
+            window.removeEventListener('click', handleMouseClick);
             cancelAnimationFrame(animationFrameId);
         };
     }, []);

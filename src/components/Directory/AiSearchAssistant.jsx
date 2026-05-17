@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Search as SearchIcon, Sparkles, Send, Loader2 } from 'lucide-react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useAuth } from '../../context/AuthContext';
 import styles from './AiSearchAssistant.module.css';
 
 /** Converts **bold** markdown in AI messages to <strong> elements */
@@ -16,8 +18,17 @@ const parseMessage = (text) => {
  * Replaces both standard input and floating AI assistant with a single, sleek component.
  */
 const AiSearchAssistant = ({ standardQuery, setStandardQuery, onProcess, onReset, message, isThinking }) => {
+    const { user, loading: authLoading } = useAuth();
+    const router = useRouter();
+    const searchParams = useSearchParams();
     const [isAiMode, setIsAiMode] = useState(false);
     const [localAiQuery, setLocalAiQuery] = useState('');
+
+    useEffect(() => {
+        if (searchParams.get('ai') === 'true') {
+            setIsAiMode(true);
+        }
+    }, [searchParams]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -29,7 +40,7 @@ const AiSearchAssistant = ({ standardQuery, setStandardQuery, onProcess, onReset
         <div className={styles.unifiedContainer}>
             {/* Mode Toggle */}
             <div className={styles.toggleContainer}>
-                <button 
+                <button
                     type="button"
                     className={`${styles.toggleBtn} ${!isAiMode ? styles.activeStandard : ''}`}
                     onClick={() => setIsAiMode(false)}
@@ -37,10 +48,16 @@ const AiSearchAssistant = ({ standardQuery, setStandardQuery, onProcess, onReset
                     <SearchIcon size={14} />
                     Standard Search
                 </button>
-                <button 
+                <button
                     type="button"
                     className={`${styles.toggleBtn} ${isAiMode ? styles.activeAi : ''}`}
-                    onClick={() => setIsAiMode(true)}
+                    onClick={() => {
+                        if (!user && !authLoading) {
+                            router.push('/auth?redirect=/tools?ai=true');
+                        } else {
+                            setIsAiMode(true);
+                        }
+                    }}
                 >
                     <Sparkles size={14} />
                     AI Assistant
@@ -55,15 +72,15 @@ const AiSearchAssistant = ({ standardQuery, setStandardQuery, onProcess, onReset
                     ) : (
                         <SearchIcon size={20} className={styles.standardIcon} />
                     )}
-                    
-                    <input 
+
+                    <input
                         type="text"
                         placeholder={isAiMode ? "Describe what you need (e.g., 'find me a free SEO tool')" : "Search tools, tags, or technology..."}
                         value={isAiMode ? localAiQuery : standardQuery}
                         onChange={(e) => isAiMode ? setLocalAiQuery(e.target.value) : setStandardQuery(e.target.value)}
                         disabled={isThinking}
                     />
-                    
+
                     {isAiMode && (
                         <button type="submit" className={styles.submitBtn} disabled={!localAiQuery.trim() || isThinking}>
                             {isThinking ? <Loader2 size={18} className={styles.spin} /> : <Send size={18} />}
@@ -83,23 +100,23 @@ const AiSearchAssistant = ({ standardQuery, setStandardQuery, onProcess, onReset
             )}
 
             {isAiMode && !isThinking && message && (
-                    <div className={`${styles.aiMessageBubble} ${message.includes('Limit Reached') || message.includes('used your 3') ? styles.errorBubble : ''}`}>
-                        <Sparkles size={16} />
-                        <div className={styles.aiMessageContent}>
-                            <span>{parseMessage(message)}</span>
-                            <button 
-                                type="button"
-                                className={styles.resetBtn}
-                                onClick={() => {
-                                    setLocalAiQuery('');
-                                    if (onReset) onReset();
-                                }}
-                            >
-                                ✕ Clear & Show All
-                            </button>
-                        </div>
+                <div className={`${styles.aiMessageBubble} ${message.includes('Limit Reached') || message.includes('used your 3') ? styles.errorBubble : ''}`}>
+                    <Sparkles size={16} />
+                    <div className={styles.aiMessageContent}>
+                        <span>{parseMessage(message)}</span>
+                        <button
+                            type="button"
+                            className={styles.resetBtn}
+                            onClick={() => {
+                                setLocalAiQuery('');
+                                if (onReset) onReset();
+                            }}
+                        >
+                            ✕ Clear & Show All
+                        </button>
                     </div>
-                )}
+                </div>
+            )}
         </div>
     );
 };
