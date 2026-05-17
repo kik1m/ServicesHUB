@@ -93,12 +93,6 @@ const SignUpForm = memo(({ onSubmit, loading, isInitialLoading, error, onRetry }
                     required
                 />
 
-                {error && (
-                    <div className={styles.inlineError}>
-                        {error}
-                    </div>
-                )}
-
                 <Button 
                     type="submit" 
                     className={styles.submitBtn}

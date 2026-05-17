@@ -93,8 +93,9 @@ export const authService = {
      */
     async signInWithSocial(provider) {
         // Ensure robust redirect URL based on environment
+        // We now point explicitly to the dedicated callback route!
         const redirectUrl = typeof window !== 'undefined' 
-            ? `${window.location.origin}/dashboard`
+            ? `${window.location.origin}/auth/callback`
             : undefined;
 
         const { data, error } = await supabase.auth.signInWithOAuth({
