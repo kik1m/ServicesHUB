@@ -65,7 +65,22 @@ class Particle {
         let lightness = 55;
 
         // Custom phase color signatures
-        if (phaseName === 'SHAPE_DNA') {
+        if (phaseName === 'SHAPE_LOGO') {
+            if (this.index < this.total * 0.10) {
+                baseHue = 275; // Satellite Dot (Purple)
+                farHue = 275;
+                lightness = 60;
+            } else if (this.index < this.total * 0.60) {
+                baseHue = 195; // Outer Orbit Ring (Electric Blue to Purple)
+                farHue = 275;
+                lightness = 55;
+            } else {
+                baseHue = 0;   // The Letter H (Silvery White)
+                farHue = 0;
+                saturation = 0; // Grayscale for metal
+                lightness = 95; // Super bright metallic white!
+            }
+        } else if (phaseName === 'SHAPE_DNA') {
             baseHue = 320; // Magenta
             farHue = 200;  // Cyan
         } else if (phaseName === 'SHAPE_BRAIN') {
@@ -303,6 +318,7 @@ const InteractiveParticles = () => {
 
         // 📖 The Story of Cosmic Intelligence: Extended Theatrical Lifecycle (19 Stages)
         const PHASES = [
+            { name: 'SHAPE_LOGO', duration: 1600 },       // 💎 Brand Identity Logo (Futuristic Slanted 'H' & Orbital Ring)
             { name: 'SHAPE_DNA', duration: 1200 },       // 1. Biological Genesis (3D Double Helix)
             { name: 'SHAPE_BRAIN', duration: 1250 },     // 2. Human Intelligence (3D Brain Network)
             { name: 'SHAPE_ATOM', duration: 1150 },      // 3. Scientific Discovery (Tilted Orbit Atom)
@@ -314,18 +330,18 @@ const InteractiveParticles = () => {
             { name: 'SHAPE_HEXAGON', duration: 1200 },   // 9. Structural Perfection (Extruded Elite Hub)
             { name: 'SHAPE_GALAXY', duration: 1250 },    // 10. Cosmic Expansion (Tilted Spiral Galaxy)
             { name: 'WANDER', duration: 1200 },          // 11. Primordial Soup (Free drifting)
-
+            
             // 🚀 Elite Futuristic Megastructure Scenes:
             { name: 'SHAPE_TESSERACT', duration: 1350 },   // 12. Higher Dimensionality (4D Hypercube projection)
             { name: 'SHAPE_BLACKHOLE', duration: 1400 },   // 13. Spacetime Singularity (Gravitational Lens & disk)
             { name: 'SHAPE_DYSON_SPHERE', duration: 1350 },// 14. Stellar Engineering (Gyro Cross-Orbit Swarm)
             { name: 'SHAPE_TORUS', duration: 1300 },       // 15. Zero-Point Energy (Sacred Geometry Torus Loop)
-
+            
             // 🚀 The 3 New Ascended Interstellar Cosmic Scenes:
             { name: 'SHAPE_QUANTUM_FIELD', duration: 1300 }, // 16. Quantum Entanglement Mirror Superposition
             { name: 'SHAPE_WARP_DRIVE', duration: 1350 },   // 17. Alcubierre Hyperspeed Warp Drive Tunnel
             { name: 'SHAPE_MULTIVERSE', duration: 1400 },   // 18. Multiverse Dimensional Portal Core
-
+            
             { name: 'VORTEX', duration: 700 },          // 19. The Singularity (Deep coordinate suction)
             { name: 'SHAPE_CORE', duration: 200 },      // 20. Absolute Core Compression
             { name: 'EXPLODE', duration: 350 },         // 21. The Big Bang shockwave
@@ -419,7 +435,7 @@ const InteractiveParticles = () => {
 
             // Recalculate targets on every frame for moving shapes, otherwise once on transition
             const isDynamicMovingShape = [
-                'SHAPE_DNA', 'SHAPE_ATOM', 'SHAPE_GALAXY', 'SHAPE_EYE',
+                'SHAPE_LOGO', 'SHAPE_DNA', 'SHAPE_ATOM', 'SHAPE_GALAXY', 'SHAPE_EYE',
                 'SHAPE_TESSERACT', 'SHAPE_BLACKHOLE', 'SHAPE_DYSON_SPHERE',
                 'SHAPE_TORUS', 'SHAPE_HOURGLASS',
                 'SHAPE_NEURAL_SYNAPSE', 'SHAPE_QUANTUM_FIELD', 'SHAPE_WARP_DRIVE', 'SHAPE_MULTIVERSE'
@@ -523,27 +539,42 @@ const InteractiveParticles = () => {
             // Keep internal drawing fully crisp and luminous
             const globalOpacity = 1.0;
 
-            // Sweeping transition zoom impulse: pulls particles forward, then recedes them
+            // Sweeping dramatic transition camera movements
             let transitionZoom = 0;
-            if (phaseTimer < 140) {
-                // Starts at 0, peaks at 180px in 3D camera depth, then returns to 0
-                transitionZoom = Math.sin((phaseTimer / 140) * Math.PI) * 180;
+            let transitionPanX = 0;
+            let transitionPanY = 0;
+            let transitionRotX = 0;
+            let transitionRotY = 0;
+
+            const transitionDuration = 220; // 100 dissolve + 120 assemble
+            if (phaseTimer < transitionDuration) {
+                const progress = phaseTimer / transitionDuration;
+                // Elegant movie-like camera sweeps:
+                // Zoom far out, sweep left/up, then swoop back into center with organic deceleration
+                const ease = Math.sin(progress * Math.PI);
+                transitionZoom = ease * 380; // Fly back/forward in 3D space
+                transitionPanX = Math.cos(progress * Math.PI * 1.5) * 280 * ease; // Swing camera left/right
+                transitionPanY = Math.sin(progress * Math.PI * 2) * 120 * ease;    // Swing camera up/down
+                
+                // Rotational orbital swings for cinematic 3D perspective
+                transitionRotX = Math.sin(progress * Math.PI * 1.5) * 0.35 * ease;
+                transitionRotY = Math.cos(progress * Math.PI * 1.5) * 0.45 * ease;
             }
 
             // 🎥 Step 2: Smooth 3D Camera Depth Pan and Parallax Breathing
             const targetCameraX = (mouse.x !== null) ? (mouse.x - centerX) * 0.22 : 0;
             const targetCameraY = (mouse.y !== null) ? (mouse.y - centerY) * 0.22 : 0;
 
-            // Oscillates in Z-space + sweeps forward during transitions
-            const targetCameraZ = Math.sin(globalTime * 0.008) * 140 - transitionZoom;
+            // Oscillates in Z-space + sweeps forward/backward during transitions
+            const targetCameraZ = Math.sin(globalTime * 0.008) * 120 - transitionZoom;
 
-            cameraX += (targetCameraX - cameraX) * 0.04;
-            cameraY += (targetCameraY - cameraY) * 0.04;
-            cameraZ += (targetCameraZ - cameraZ) * 0.04;
+            cameraX += (targetCameraX + transitionPanX - cameraX) * 0.05;
+            cameraY += (targetCameraY + transitionPanY - cameraY) * 0.05;
+            cameraZ += (targetCameraZ - cameraZ) * 0.05;
 
             // Rotational angles of the camera in radians for true 3D perspective rotation
-            const rotX = cameraY * 0.0012; // tilt camera vertically (X rotation)
-            const rotY = cameraX * 0.0012; // rotate camera horizontally (Y rotation)
+            const rotX = cameraY * 0.0012 + transitionRotX; // tilt camera vertically (X rotation)
+            const rotY = cameraX * 0.0012 + transitionRotY; // rotate camera horizontally (Y rotation)
 
             const cosX = Math.cos(rotX);
             const sinX = Math.sin(rotX);

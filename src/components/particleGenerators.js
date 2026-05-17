@@ -20,7 +20,73 @@ export function updateParticleIdealTargets(p, phaseName, i, total, time, centerX
     let idealY = centerY;
     let idealZ = 0;
 
-    if (phaseName === 'SHAPE_DNA') {
+    if (phaseName === 'SHAPE_LOGO') {
+        // 💎 HUBly Brand Identity - Futuristic slanted H, Orbiting Ring, and Satellite Dot
+        const satEnd = total * 0.10;
+        const ringEnd = total * 0.60;
+
+        if (i < satEnd) {
+            // 1. Satellite Dot (Top right)
+            const angle = -0.65; // ~40 degrees top-right
+            const r = 185;
+            idealX = centerX + Math.cos(angle) * r + randX * 0.3;
+            idealY = centerY + Math.sin(angle) * r + randY * 0.3;
+            idealZ = randZ * 0.3;
+        } else if (i < ringEnd) {
+            // 2. Outer Orbit Ring (3D Ribbon Circle)
+            const ringProgress = (i - satEnd) / (ringEnd - satEnd);
+            // Circle with slow continuous spin
+            const angle = ringProgress * Math.PI * 2 + time * 0.006;
+            const r = 160;
+            idealX = centerX + Math.cos(angle) * r + randX * 0.15;
+            idealY = centerY + Math.sin(angle) * r + randY * 0.15;
+            // 3D waves in the ring
+            idealZ = Math.sin(angle * 2.5) * 35;
+        } else {
+            // 3. Inner Slanted futuristic 'H'
+            const hProgress = (i - ringEnd) / (total - ringEnd);
+            
+            if (hProgress < 0.45) {
+                // Left Leg (Slanted, bottom Bending left)
+                const t_leg = hProgress / 0.45; // 0.0 to 1.0
+                let xOffset = -55 + (t_leg - 0.5) * 30; // Slanted angle
+                const yOffset = -95 + t_leg * 190;
+                
+                // Stylized curve at the bottom left
+                if (t_leg > 0.82) {
+                    xOffset -= Math.pow((t_leg - 0.82) / 0.18, 2.2) * 22;
+                }
+                
+                idealX = centerX + xOffset + randX * 0.1;
+                idealY = centerY + yOffset + randY * 0.1;
+                idealZ = -15;
+            } else if (hProgress < 0.90) {
+                // Right Leg (Slanted, top Bending right)
+                const t_leg = (hProgress - 0.45) / 0.45; // 0.0 to 1.0
+                let xOffset = 55 + (t_leg - 0.5) * 30; // Slanted angle
+                const yOffset = -95 + t_leg * 190;
+                
+                // Stylized curve at the top right
+                if (t_leg < 0.18) {
+                    xOffset += Math.pow((0.18 - t_leg) / 0.18, 2.2) * 22;
+                }
+                
+                idealX = centerX + xOffset + randX * 0.1;
+                idealY = centerY + yOffset + randY * 0.1;
+                idealZ = -15;
+            } else {
+                // Crossbar
+                const t_bar = (hProgress - 0.90) / 0.10; // 0.0 to 1.0
+                // Connect left mid-point to right mid-point
+                const xStart = -55;
+                const xEnd = 55;
+                idealX = centerX + xStart + t_bar * (xEnd - xStart) + randX * 0.2;
+                // Slightly slanted crossbar to match the futuristic design
+                idealY = centerY - 10 + t_bar * 20 + randY * 0.2;
+                idealZ = -15;
+            }
+        }
+    } else if (phaseName === 'SHAPE_DNA') {
         // 🧬 Rotating 3D Double Helix
         const isStrandA = i % 2 === 0;
         const xOffset = -350 + progress * 700;
