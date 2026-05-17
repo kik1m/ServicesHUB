@@ -185,15 +185,15 @@ class Particle {
             let dy = this.targetY - this.y;
             let dz = this.targetZ - this.z;
 
-            // Premium spring physics - makes particles accelerate, overshoot slightly, and settle organically
-            const springStrength = 0.004 + (this.index % 4) * 0.0015; // individual variations to create liquid morphing
-            const damping = 0.84 + (this.index % 3) * 0.02;           // organic damping variations
+            // Premium tight spring physics - faster, snappier convergence to perfect target geometry
+            const springStrength = 0.015 + (this.index % 4) * 0.003; 
+            const damping = 0.82 + (this.index % 3) * 0.01;           
 
             this.speedX += dx * springStrength;
             this.speedY += dy * springStrength;
             this.speedZ += dz * springStrength;
 
-            // Apply friction/damping to velocities
+            // Apply snap damping
             this.speedX *= damping;
             this.speedY *= damping;
             this.speedZ *= damping;
@@ -338,8 +338,8 @@ const InteractiveParticles = () => {
 
         const init = () => {
             particles = [];
-            // Safe, optimal density of 260 particles on high-res monitors
-            const numberOfParticles = Math.min(Math.floor((canvas.width * canvas.height) / 4500), 260);
+            // Ultra High-Definition density of 480 particles on high-res monitors for laser-sharp outlines
+            const numberOfParticles = Math.min(Math.floor((canvas.width * canvas.height) / 3200), 480);
             for (let i = 0; i < numberOfParticles; i++) {
                 particles.push(new Particle(canvas, i, numberOfParticles));
             }
@@ -383,8 +383,8 @@ const InteractiveParticles = () => {
                     // Avoid linking foreground nodes to background nodes (looks messy in 3D)
                     const dz = particles[a].rotatedZ - particles[b].rotatedZ;
 
-                    if (distance < 110 && Math.abs(dz) < 120) {
-                        const baseLineOpacity = (1 - (distance / 110)) * ((particles[a].pOpacity + particles[b].pOpacity) / 2);
+                    if (distance < 75 && Math.abs(dz) < 80) {
+                        const baseLineOpacity = (1 - (distance / 75)) * ((particles[a].pOpacity + particles[b].pOpacity) / 2);
                         const lineOpacity = Math.max(0.2, baseLineOpacity); // Strong minimum connection glow
 
                         // Line color inherits the dynamic HSL of both connected particles

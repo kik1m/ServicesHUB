@@ -11,10 +11,10 @@ export function updateParticleIdealTargets(p, phaseName, i, total, time, centerX
     const t = (i / total) * Math.PI * 2;
     const progress = i / total;
 
-    // High-quality deterministic organic offsets
-    const randX = (Math.sin(i * 9.9) * 0.5) * 20;
-    const randY = (Math.cos(i * 7.7) * 0.5) * 20;
-    const randZ = (Math.sin(i * 5.5) * 0.5) * 20;
+    // High-quality deterministic organic offsets - Extremely reduced to 3px for laser-sharp mathematical precision
+    const randX = (Math.sin(i * 9.9) * 0.5) * 3;
+    const randY = (Math.cos(i * 7.7) * 0.5) * 3;
+    const randZ = (Math.sin(i * 5.5) * 0.5) * 3;
 
     let idealX = centerX;
     let idealY = centerY;
