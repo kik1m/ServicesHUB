@@ -98,10 +98,18 @@ export const authService = {
      * Sign in with OAuth provider
      */
     async signInWithSocial(provider) {
+        const redirectUrl = typeof window !== 'undefined' 
+            ? `${window.location.origin}/auth/callback`
+            : undefined;
+
         const { data, error } = await supabase.auth.signInWithOAuth({
             provider,
             options: {
-                redirectTo: typeof window !== 'undefined' ? `${window.location.origin}/dashboard` : undefined
+                redirectTo: redirectUrl,
+                queryParams: {
+                    access_type: 'offline',
+                    prompt: 'consent',
+                }
             }
         });
         if (error) throw error;
