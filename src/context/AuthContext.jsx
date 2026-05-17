@@ -130,17 +130,6 @@ export const AuthProvider = ({ children }) => {
         };
 
         const initAuth = async () => {
-            // Check for PKCE ?code= parameter in URL (Next.js default for Supabase OAuth)
-            if (typeof window !== 'undefined') {
-                const url = new URL(window.location.href);
-                const code = url.searchParams.get('code');
-                if (code) {
-                    await supabase.auth.exchangeCodeForSession(code);
-                    // Remove the code from the URL to prevent re-triggering
-                    window.history.replaceState({}, document.title, window.location.pathname);
-                }
-            }
-
             const { data: { session } } = await supabase.auth.getSession();
             if (session?.user) {
                 handleUserData(session.user);
@@ -149,17 +138,8 @@ export const AuthProvider = ({ children }) => {
             }
         };
 
-        const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
             handleUserData(session?.user);
-            
-            // Smart Redirect: If user logs in via OAuth and Supabase drops them on the home page or auth page,
-            // we catch the 'SIGNED_IN' event and forcefully teleport them to the Dashboard.
-            if (event === 'SIGNED_IN' && session?.user && typeof window !== 'undefined') {
-                const path = window.location.pathname;
-                if (path === '/' || path === '/auth') {
-                    window.location.href = '/dashboard';
-                }
-            }
         });
 
         initAuth();

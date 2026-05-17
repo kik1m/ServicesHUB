@@ -30,34 +30,14 @@ export const authService = {
             email,
             password,
             options: {
-                data: { full_name: fullName },
-                emailRedirectTo: `${window.location.origin}/dashboard`
+                data: {
+                    full_name: fullName,
+                    name: fullName
+                }
             }
         });
-        
+
         if (error) throw error;
-
-        // Trigger the secure server-side API to create the profile bypassing RLS
-        if (data?.user) {
-            try {
-                const response = await fetch('/api/auth/create-profile', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        id: data.user.id,
-                        email: email,
-                        full_name: fullName
-                    })
-                });
-
-                if (!response.ok) {
-                    const errText = await response.text();
-                    console.error("Profile Creation API Failed:", errText);
-                }
-            } catch (err) {
-                console.error("Profile API Network Error:", err);
-            }
-        }
         
         return data;
     },
