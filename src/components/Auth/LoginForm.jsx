@@ -71,6 +71,12 @@ const LoginForm = memo(({ onSubmit, onForgotPassword, loading, isInitialLoading,
                     />
                 </div>
 
+                {error && (
+                    <div className={styles.inlineError}>
+                        {error}
+                    </div>
+                )}
+
                 <Button 
                     type="submit" 
                     className={styles.submitBtn}

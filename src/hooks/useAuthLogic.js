@@ -44,7 +44,9 @@ export const useAuthLogic = () => {
         setLoading(true);
         setError(null);
         try {
+            console.log("Attempting to sign up with:", email);
             const data = await authService.signUp(email, password, fullName);
+            console.log("Sign up response:", data);
             
             // Check if email confirmation is required by Supabase (no session returned)
             if (data?.user && !data?.session) {
@@ -55,7 +57,8 @@ export const useAuthLogic = () => {
                 router.push('/dashboard');
             }
         } catch (err) {
-            const msg = err.message || 'Registration failed';
+            console.error("SignUp Error:", err);
+            const msg = err.message || 'Registration failed. Please check your details.';
             setError(msg);
             showToast(msg, 'error');
         } finally {
@@ -80,9 +83,13 @@ export const useAuthLogic = () => {
 
     const handleSocialLogin = useCallback(async (provider) => {
         try {
+            console.log(`Triggering Social Login for: ${provider}`);
             await authService.signInWithSocial(provider);
         } catch (err) {
-            showToast(err.message, 'error');
+            console.error(`Social Login Error (${provider}):`, err);
+            const msg = err.message || 'Social login failed. Please try again.';
+            setError(msg);
+            showToast(msg, 'error');
         }
     }, [showToast]);
 

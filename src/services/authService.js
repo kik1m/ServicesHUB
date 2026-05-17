@@ -40,13 +40,19 @@ export const authService = {
         // Note: AuthContext handles profile creation via "healing logic" 
         // but we can also do a proactive upsert if needed.
         if (data?.user) {
-            await supabase.from('profiles').upsert({
+            const { error: profileError } = await supabase.from('profiles').upsert({
                 id: data.user.id,
                 full_name: fullName,
                 email: email, // Store email for admin notifications & cross-referencing
                 role: 'user',
                 updated_at: new Date().toISOString()
             });
+
+            if (profileError) {
+                console.error("Critical: Profile Upsert Failed (Check RLS Policies):", profileError);
+                // We do NOT throw here because the auth user is already created.
+                // The 'healing logic' in AuthContext should fix this later once they log in.
+            }
         }
         
         return data;
