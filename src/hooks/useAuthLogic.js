@@ -44,16 +44,13 @@ export const useAuthLogic = () => {
         setLoading(true);
         setError(null);
         try {
-            console.log("Attempting to sign up with:", email);
             await authService.signUp(email, password, fullName);
             
-            // Reverted to Vite Parity: Blindly redirect to dashboard after sign up.
-            // If Supabase Email Confirmation is enabled, the session will be null and the dashboard will handle it.
+            // Vite Parity: Redirect to dashboard after sign up.
             showToast('Account created! Welcome to HUBly.', 'success');
             router.push('/dashboard');
             
         } catch (err) {
-            console.error("SignUp Error:", err);
             const msg = err.message || 'Registration failed. Please check your details.';
             setError(msg);
             showToast(msg, 'error');

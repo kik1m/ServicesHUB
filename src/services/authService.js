@@ -52,12 +52,10 @@ export const authService = {
 
                 if (!response.ok) {
                     const errText = await response.text();
-                    console.error("Critical: Server Profile Creation Failed:", errText);
-                } else {
-                    console.log("Server Profile successfully created bypassing RLS!");
+                    console.error("Profile Creation API Failed:", errText);
                 }
             } catch (err) {
-                console.error("Critical: API call to create profile failed:", err);
+                console.error("Profile API Network Error:", err);
             }
         }
         
