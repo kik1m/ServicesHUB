@@ -96,6 +96,17 @@ export const AuthProvider = ({ children }) => {
         };
 
         const initAuth = async () => {
+            // Check for PKCE ?code= parameter in URL (Next.js default for Supabase OAuth)
+            if (typeof window !== 'undefined') {
+                const url = new URL(window.location.href);
+                const code = url.searchParams.get('code');
+                if (code) {
+                    await supabase.auth.exchangeCodeForSession(code);
+                    // Remove the code from the URL to prevent re-triggering
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                }
+            }
+
             const { data: { session } } = await supabase.auth.getSession();
             if (session?.user) {
                 handleUserData(session.user);
