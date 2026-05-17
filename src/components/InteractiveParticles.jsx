@@ -38,23 +38,67 @@ class Particle {
 
         this.index = index;
         this.total = total;
+        this.chromaticShift = 0;
+        this.computedHue = 195;
+        this.computedLightness = 55;
     }
 
     /**
-     * Draw individual particle with dynamic depth coloring (Neon Cyan -> Electric Violet)
+     * Draw individual particle with dynamic depth coloring & advanced chromatic shifting
      */
-    draw(ctx) {
+    draw(ctx, time, phaseName) {
         if (this.pOpacity <= 0) return;
 
-        // Dynamic color interpolation based on depth (Z + cameraZ relative to screen)
-        // Maps depth from foreground (cyan) to deep background (violet)
+        // 1. Calculate base depth ratio (0.0 foreground, 1.0 background)
         const depthRatio = Math.max(0, Math.min(1, (this.z + 200) / 500));
 
-        const r = Math.round(0 + depthRatio * 160);
-        const g = Math.round(220 * (1 - depthRatio));
-        const b = 255;
+        // 2. Define Phase-Specific Palettes (Hues)
+        let baseHue = 195; // Default Cyan (Foreground)
+        let farHue = 275;  // Default Violet (Background)
+        let saturation = 100;
+        let lightness = 55;
 
-        ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${this.pOpacity})`;
+        // Custom phase color signatures
+        if (phaseName === 'SHAPE_DNA') {
+            baseHue = 320; // Magenta
+            farHue = 200;  // Cyan
+        } else if (phaseName === 'SHAPE_BRAIN') {
+            baseHue = 210; // Electric Blue
+            farHue = 45;   // Deep Gold
+        } else if (phaseName === 'SHAPE_ATOM') {
+            baseHue = 160; // Emerald Green
+            farHue = 280;  // Royal Purple
+        } else if (phaseName === 'SHAPE_BLACKHOLE') {
+            baseHue = 0;   // Crimson Red
+            farHue = 35;   // Solar Orange
+            lightness = 50;
+        } else if (phaseName === 'SHAPE_WARP_DRIVE') {
+            baseHue = 180; // Electric Teal
+            farHue = 240;  // Warp Blue
+            lightness = 65; // Extra bright
+        } else if (phaseName === 'SHAPE_MULTIVERSE') {
+            // Rainbow prism shifting over time and index
+            baseHue = (time * 0.15 + this.index * 1.5) % 360;
+            farHue = (baseHue + 120) % 360;
+        }
+
+        // 3. Depth Interpolation of Hue
+        let currentHue = baseHue + depthRatio * (farHue - baseHue);
+
+        // 4. Mouse Interactive Chromatic Shift (Supernova Paintbrush)
+        // Shines a hot golden-rose glow on hover
+        if (this.chromaticShift > 0.01) {
+            const hoverHue = 340; // Hot Pink/Rose Gold
+            currentHue = currentHue + (hoverHue - currentHue) * this.chromaticShift;
+            saturation = 100;
+            lightness = lightness + (80 - lightness) * this.chromaticShift; // Boost brightness to make it glow!
+        }
+
+        // Cache computed color states for lines to inherit them
+        this.computedHue = currentHue;
+        this.computedLightness = lightness;
+
+        ctx.fillStyle = `hsla(${currentHue}, ${saturation}%, ${lightness}%, ${this.pOpacity})`;
         ctx.beginPath();
         ctx.arc(this.px, this.py, this.pSize, 0, Math.PI * 2);
         ctx.closePath();
@@ -196,8 +240,8 @@ class Particle {
             else if (this.z < -200) this.z = 300;
         }
 
-        // Mouse interaction (Repel on screen projected coords)
-        if (mouse.x != null) {
+        // Mouse interaction (Repel on screen projected coords + Chromatic Brush Shift)
+        if (mouse.x !== null) {
             let dx = mouse.x - this.px;
             let dy = mouse.y - this.py;
             let distance = Math.sqrt(dx * dx + dy * dy);
@@ -214,7 +258,17 @@ class Particle {
 
                 // Displace in Z-depth to create an interactive "depth dent" under mouse
                 this.z += (Math.random() - 0.3) * pushStrength * 0.8;
+
+                // Charge chromatic brush shift based on proximity
+                const charge = 1 - (distance / mouse.radius);
+                this.chromaticShift += (charge - this.chromaticShift) * 0.18;
+            } else {
+                // Dissipate charge
+                this.chromaticShift += (0 - this.chromaticShift) * 0.06;
             }
+        } else {
+            // Dissipate charge
+            this.chromaticShift += (0 - this.chromaticShift) * 0.06;
         }
     }
 }
@@ -327,14 +381,11 @@ const InteractiveParticles = () => {
                         const baseLineOpacity = (1 - (distance / 110)) * ((particles[a].pOpacity + particles[b].pOpacity) / 2);
                         const lineOpacity = Math.max(0.2, baseLineOpacity); // Strong minimum connection glow
 
-                        // Line color shifts dynamically along with particle average depth
-                        const avgZ = (particles[a].rotatedZ + particles[b].rotatedZ) / 2;
-                        const depthRatio = Math.max(0, Math.min(1, (avgZ + 200) / 500));
-                        const colorR = Math.round(0 + depthRatio * 160);
-                        const colorG = Math.round(220 * (1 - depthRatio));
-                        const colorB = 255;
+                        // Line color inherits the dynamic HSL of both connected particles
+                        const avgHue = (particles[a].computedHue + particles[b].computedHue) / 2;
+                        const avgLightness = (particles[a].computedLightness + particles[b].computedLightness) / 2;
 
-                        ctx.strokeStyle = `rgba(${colorR}, ${colorG}, ${colorB}, ${lineOpacity * 0.85})`;
+                        ctx.strokeStyle = `hsla(${avgHue}, 100%, ${avgLightness}%, ${lineOpacity * 0.85})`;
                         ctx.lineWidth = 1.1 * ((particles[a].scale + particles[b].scale) / 2);
                         ctx.beginPath();
                         ctx.moveTo(particles[a].px, particles[a].py);
@@ -816,9 +867,16 @@ const InteractiveParticles = () => {
             updatePhase(centerX, centerY, globalTime);
 
             const currentPhaseName = PHASES[currentPhaseIndex].name;
-            // Full brightness at scroll = 0; fades smoothly to exactly 40% (0.40) as the user begins to scroll (within 180px)
-            const scrollFadeRange = 180;
-            const globalOpacity = Math.max(0.40, 1 - (Math.min(scrollY, scrollFadeRange) / scrollFadeRange) * 0.60);
+            
+            // 🌟 Dynamic hardware-accelerated CSS opacity fading:
+            // 100% full crisp visibility at top (scrollY = 0)
+            // Fades smoothly to exactly 20% (0.20) as the user scrolls down (within 150px) for maximum readability
+            const scrollFadeRange = 150;
+            const canvasOpacity = Math.max(0.20, 1 - (Math.min(scrollY, scrollFadeRange) / scrollFadeRange) * 0.80);
+            canvas.style.opacity = canvasOpacity;
+
+            // Keep internal drawing fully crisp and luminous
+            const globalOpacity = 1.0;
 
             // Sweeping transition zoom impulse: pulls particles forward, then recedes them
             let transitionZoom = 0;
@@ -893,7 +951,7 @@ const InteractiveParticles = () => {
 
                 p.pOpacity = globalOpacity * Math.max(0.42, scale) * nearFade * farFade * twinkle * 1.15; // Solid, vibrant particle presence
 
-                p.draw(ctx);
+                p.draw(ctx, globalTime, currentPhaseName);
             }
 
             // 🕸️ Step 4: Draw depth-filtered connecting line constellations
