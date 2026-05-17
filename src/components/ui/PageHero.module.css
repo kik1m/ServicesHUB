@@ -4,7 +4,7 @@
     position: relative;
     margin-top: -80px; /* Pull into the parent's padding area */
     padding: 110px 5% 40px; /* 80px offset + 30px content padding */
-    background: var(--bg-dark) !important;
+    background: transparent !important;
     display: flex;
     justify-content: center;
     align-items: center;

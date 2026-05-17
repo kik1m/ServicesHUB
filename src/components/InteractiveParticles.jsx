@@ -293,7 +293,14 @@ const InteractiveParticles = () => {
             }
         };
 
-        const handleScroll = () => { scrollY = window.scrollY; };
+        const handleScroll = (e) => {
+            const target = e ? e.target : null;
+            scrollY = window.scrollY 
+                || (target && typeof target.scrollTop === 'number' ? target.scrollTop : 0)
+                || (document.documentElement ? document.documentElement.scrollTop : 0)
+                || (document.body ? document.body.scrollTop : 0)
+                || 0;
+        };
         const handleMouseMove = (event) => {
             mouse.x = event.clientX;
             mouse.y = event.clientY;
@@ -898,7 +905,7 @@ const InteractiveParticles = () => {
         };
 
         window.addEventListener('resize', resize);
-        window.addEventListener('scroll', handleScroll, { passive: true });
+        document.addEventListener('scroll', handleScroll, { capture: true, passive: true });
         window.addEventListener('mousemove', handleMouseMove);
         window.addEventListener('mouseleave', handleMouseLeave);
 
@@ -907,7 +914,7 @@ const InteractiveParticles = () => {
 
         return () => {
             window.removeEventListener('resize', resize);
-            window.removeEventListener('scroll', handleScroll);
+            document.removeEventListener('scroll', handleScroll, { capture: true });
             window.removeEventListener('mousemove', handleMouseMove);
             window.removeEventListener('mouseleave', handleMouseLeave);
             cancelAnimationFrame(animationFrameId);
