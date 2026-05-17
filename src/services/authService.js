@@ -37,21 +37,27 @@ export const authService = {
         
         if (error) throw error;
 
-        // Note: AuthContext handles profile creation via "healing logic" 
-        // but we can also do a proactive upsert if needed.
+        // Trigger the secure server-side API to create the profile bypassing RLS
         if (data?.user) {
-            const { error: profileError } = await supabase.from('profiles').upsert({
-                id: data.user.id,
-                full_name: fullName,
-                email: email, // Store email for admin notifications & cross-referencing
-                role: 'user',
-                updated_at: new Date().toISOString()
-            });
+            try {
+                const response = await fetch('/api/auth/create-profile', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        id: data.user.id,
+                        email: email,
+                        full_name: fullName
+                    })
+                });
 
-            if (profileError) {
-                console.error("Critical: Profile Upsert Failed (Check RLS Policies):", profileError);
-                // We do NOT throw here because the auth user is already created.
-                // The 'healing logic' in AuthContext should fix this later once they log in.
+                if (!response.ok) {
+                    const errText = await response.text();
+                    console.error("Critical: Server Profile Creation Failed:", errText);
+                } else {
+                    console.log("Server Profile successfully created bypassing RLS!");
+                }
+            } catch (err) {
+                console.error("Critical: API call to create profile failed:", err);
             }
         }
         
