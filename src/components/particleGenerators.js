@@ -2,6 +2,7 @@
  * 🌌 particleGenerators.js — 3D Shape Mathematics Engine
  * Zero-allocation: mutates particle idealX/Y/Z in-place.
  * Pre-computes expensive data at module level for hot-path speed.
+ * ⚡ PERF: Rotation trig values are pre-computed once per frame outside the particle loop.
  */
 
 // ─── Pre-compute Tesseract edges once (module level, never GC'd) ─────────────
@@ -39,35 +40,62 @@ const _MERK_EDGES = (() => {
     return edges;
 })();
 
-// ─── Rotation helper ─────────────────────────────────────────────────────────
-export function rotateYPR(x, y, z, pitch, yaw, roll = 0) {
-    const cp = Math.cos(pitch), sp = Math.sin(pitch);
-    const cy = Math.cos(yaw),   sy = Math.sin(yaw);
-    const y1 = y * cp - z * sp, z1 = y * sp + z * cp;
-    const x2 = x * cy - z1 * sy, z2 = x * sy + z1 * cy;
-    if (!roll) return { x: x2, y: y1, z: z2 };
-    const cr = Math.cos(roll), sr = Math.sin(roll);
-    return { x: x2 * cr - y1 * sr, y: x2 * sr + y1 * cr, z: z2 };
-}
-
 // ─── Constants ───────────────────────────────────────────────────────────────
 const GOLDEN_ANGLE = Math.PI * (1 + Math.sqrt(5));
+
+// ─── Pre-computed trig cache (updated once per frame by caller) ───────────────
+// Avoids Math.cos/sin per-particle — the single biggest CPU saving.
+const _trig = { cp:1, sp:0, cy:1, sy:0, cr:1, sr:0 };
+
+export function precomputeShapeTrig(time, phaseName) {
+    // Each shape needs different rotation speeds; compute once per frame
+    if (phaseName === 'SHAPE_GLOBE') {
+        _trig.cp = Math.cos(time * 0.002); _trig.sp = Math.sin(time * 0.002);
+        _trig.cy = Math.cos(time * 0.005); _trig.sy = Math.sin(time * 0.005);
+    } else if (phaseName === 'SHAPE_MERKABA') {
+        _trig.cp = Math.cos(time * 0.008); _trig.sp = Math.sin(time * 0.008);
+        _trig.cy = Math.cos(time * 0.005); _trig.sy = Math.sin(time * 0.005);
+        _trig.cr = Math.cos(time * 0.003); _trig.sr = Math.sin(time * 0.003);
+    } else if (phaseName === 'SHAPE_TESSERACT') {
+        _trig.cp = Math.cos(time * 0.012); _trig.sp = Math.sin(time * 0.012);
+        _trig.cy = Math.cos(time * 0.008); _trig.sy = Math.sin(time * 0.008);
+        _trig.cr = Math.cos(time * 0.005); _trig.sr = Math.sin(time * 0.005);
+    } else if (phaseName === 'SHAPE_TORUS') {
+        _trig.cp = Math.cos(time * 0.008); _trig.sp = Math.sin(time * 0.008);
+        _trig.cy = Math.cos(time * 0.006); _trig.sy = Math.sin(time * 0.006);
+    } else if (phaseName === 'SHAPE_DYSON_SPHERE') {
+        _trig.cp = Math.cos(time * 0.005); _trig.sp = Math.sin(time * 0.005);
+        _trig.cy = Math.cos(time * 0.003); _trig.sy = Math.sin(time * 0.003);
+    } else if (phaseName === 'SHAPE_PYRAMID') {
+        _trig.cp = Math.cos(time * 0.007); _trig.sp = Math.sin(time * 0.007);
+        _trig.cy = Math.cos(time * 0.005); _trig.sy = Math.sin(time * 0.005);
+        _trig.cr = Math.cos(time * 0.002); _trig.sr = Math.sin(time * 0.002);
+    }
+}
+
+// ─── Fast inline rotation using pre-computed trig ───────────────────────────
+function rotateInline(x, y, z, withRoll) {
+    const { cp, sp, cy, sy } = _trig;
+    const y1 = y * cp - z * sp, z1 = y * sp + z * cp;
+    const x2 = x * cy - z1 * sy, z2 = x * sy + z1 * cy;
+    if (!withRoll) return { x: x2, y: y1, z: z2 };
+    const { cr, sr } = _trig;
+    return { x: x2 * cr - y1 * sr, y: x2 * sr + y1 * cr, z: z2 };
+}
 
 // ─── Main shape calculator ───────────────────────────────────────────────────
 export function updateParticleIdealTargets(p, phaseName, i, total, time, cx, cy) {
     const prog = i / total;
     const t    = prog * Math.PI * 2;
     
-    // Pre-calculated organic offsets on the particle itself (Zero-Cost)
-    const rx = p.randX || 0;
-    const ry = p.randY || 0;
-    const rz = p.randZ || 0;
+    const rx = p.randX;
+    const ry = p.randY;
+    const rz = p.randZ;
     
     let ix = cx, iy = cy, iz = 0;
 
     if (phaseName === 'SHAPE_DNA') {
         const strand = i % 2 === 0;
-        // Tighter coils and more definition for the DNA
         const angle  = prog * Math.PI * 7.5 + time * 0.02 + (strand ? 0 : Math.PI);
         ix = cx + (-400 + prog * 800) + rx;
         iy = cy + Math.sin(angle) * 110 + ry;
@@ -76,28 +104,29 @@ export function updateParticleIdealTargets(p, phaseName, i, total, time, cx, cy)
     } else if (phaseName === 'SHAPE_GLOBE') {
         const phi   = Math.acos(1 - 2 * prog);
         const theta = GOLDEN_ANGLE * i;
-        const r = rotateYPR(
+        // ⚡ Use pre-computed trig
+        const r = rotateInline(
             Math.sin(phi) * Math.cos(theta) * 200,
             Math.cos(phi) * 200,
             Math.sin(phi) * Math.sin(theta) * 200,
-            time * 0.002, time * 0.005
+            false
         );
         ix = cx + r.x + rx; iy = cy + r.y + ry; iz = r.z + rz;
+
     } else if (phaseName === 'SHAPE_AI_TEXT') {
         const sp = prog;
         let x1, y1, x2, y2, lt;
-        if      (sp < 0.3) { x1=-140; y1=140;  x2=-70;  y2=-140; lt=sp/0.3; } // A left
-        else if (sp < 0.6) { x1=-70;  y1=-140; x2=0;    y2=140;  lt=(sp-0.3)/0.3; } // A right
-        else if (sp < 0.7) { x1=-110; y1=20;   x2=-30;  y2=20;   lt=(sp-0.6)/0.1; } // A crossbar
-        else if (sp < 0.8) { x1=60;   y1=-140; x2=140;  y2=-140; lt=(sp-0.7)/0.1; } // I top
-        else if (sp < 0.9) { x1=100;  y1=-140; x2=100;  y2=140;  lt=(sp-0.8)/0.1; } // I mid
-        else               { x1=60;   y1=140;  x2=140;  y2=140;  lt=(sp-0.9)/0.1; } // I bot
+        if      (sp < 0.3) { x1=-140; y1=140;  x2=-70;  y2=-140; lt=sp/0.3; }
+        else if (sp < 0.6) { x1=-70;  y1=-140; x2=0;    y2=140;  lt=(sp-0.3)/0.3; }
+        else if (sp < 0.7) { x1=-110; y1=20;   x2=-30;  y2=20;   lt=(sp-0.6)/0.1; }
+        else if (sp < 0.8) { x1=60;   y1=-140; x2=140;  y2=-140; lt=(sp-0.7)/0.1; }
+        else if (sp < 0.9) { x1=100;  y1=-140; x2=100;  y2=140;  lt=(sp-0.8)/0.1; }
+        else               { x1=60;   y1=140;  x2=140;  y2=140;  lt=(sp-0.9)/0.1; }
         ix = cx + x1 + (x2 - x1) * lt + rx;
         iy = cy + y1 + (y2 - y1) * lt + ry;
         iz = rz * 2.5;
 
     } else if (phaseName === 'SHAPE_HOURGLASS') {
-        // ⏳ Original 3D Figure-8 standing infinity hourglass (Connected, twisted and extremely beautiful)
         const twist = t * 2 + time * 0.02;
         ix = cx + Math.sin(twist) * 160 + rx * 0.3;
         iy = cy + Math.cos(t) * 230 + ry * 0.3;
@@ -106,11 +135,12 @@ export function updateParticleIdealTargets(p, phaseName, i, total, time, cx, cy)
     } else if (phaseName === 'SHAPE_MERKABA') {
         const ei = i % 12, ep = ((i * 7) % 20) / 19;
         const [pa, pb] = _MERK_EDGES[ei];
-        const r = rotateYPR(
+        // ⚡ Use pre-computed trig with roll
+        const r = rotateInline(
             pa[0] + (pb[0] - pa[0]) * ep,
             pa[1] + (pb[1] - pa[1]) * ep,
             pa[2] + (pb[2] - pa[2]) * ep,
-            time * 0.008, time * 0.005, time * 0.003
+            true
         );
         ix = cx + r.x + rx; iy = cy + r.y + ry; iz = r.z + rz;
 
@@ -118,11 +148,12 @@ export function updateParticleIdealTargets(p, phaseName, i, total, time, cx, cy)
         const { v, e } = _TESS;
         const ei = i % e.length, ep = ((i * 7) % 11) / 10;
         const [ai, bi] = e[ei];
-        const r = rotateYPR(
+        // ⚡ Use pre-computed trig with roll
+        const r = rotateInline(
             v[ai][0] + (v[bi][0] - v[ai][0]) * ep,
             v[ai][1] + (v[bi][1] - v[ai][1]) * ep,
             v[ai][2] + (v[bi][2] - v[ai][2]) * ep,
-            time * 0.012, time * 0.008, time * 0.005
+            true
         );
         ix = cx + r.x + rx; iy = cy + r.y + ry; iz = r.z + rz;
 
@@ -136,21 +167,22 @@ export function updateParticleIdealTargets(p, phaseName, i, total, time, cx, cy)
         } else {
             const ring = i % 3, angle = prog * Math.PI * 6 + time * 0.015, rad = 160 + ring * 25;
             let rxV = 0, ryV = 0, rzV = 0;
-            if      (ring === 0) { rxV = Math.cos(angle)*rad; ryV = Math.sin(angle)*rad; rzV = Math.sin(time*0.02+i)*8; }
-            else if (ring === 1) { rxV = Math.cos(angle)*rad; rzV = Math.sin(angle)*rad; ryV = Math.cos(time*0.025+i)*8; }
-            else                 { ryV = Math.cos(angle)*rad; rzV = Math.sin(angle)*rad; rxV = Math.cos(time*0.03+i)*8; }
-            const r = rotateYPR(rxV, ryV, rzV, time * 0.005, time * 0.003);
+            if      (ring === 0) { rxV = Math.cos(angle)*rad; ryV = Math.sin(angle)*rad; rzV = 0; }
+            else if (ring === 1) { rxV = Math.cos(angle)*rad; rzV = Math.sin(angle)*rad; ryV = 0; }
+            else                 { ryV = Math.cos(angle)*rad; rzV = Math.sin(angle)*rad; rxV = 0; }
+            // ⚡ Pre-computed rotation
+            const r = rotateInline(rxV, ryV, rzV, false);
             ix = cx + r.x + rx; iy = cy + r.y + ry; iz = r.z + rz;
         }
 
     } else if (phaseName === 'SHAPE_TORUS') {
         const phi = prog * Math.PI * 2, theta = prog * Math.PI * 24 + time * 0.05;
-        // Thicker, more substantial 3D Torus
-        const r = rotateYPR(
+        // ⚡ Pre-computed rotation
+        const r = rotateInline(
             (180 + 65 * Math.cos(theta)) * Math.cos(phi),
             (180 + 65 * Math.cos(theta)) * Math.sin(phi),
             65 * Math.sin(theta),
-            time * 0.008, time * 0.006
+            false
         );
         ix = cx + r.x + rx; iy = cy + r.y + ry; iz = r.z + rz;
 
@@ -199,13 +231,10 @@ export function updateParticleIdealTargets(p, phaseName, i, total, time, cx, cy)
         }
 
     } else if (phaseName === 'SHAPE_PYRAMID') {
-        // 🔮 THE QUANTUM NEXUS CORE (Hyper-Advanced Final Scene)
-        // Pulsating central sphere, orthogonal data rings, and 6 sharp 3D spokes
         let tx = 0, ty = 0, tz = 0;
         const subPhase = i % 3;
         
         if (subPhase === 0) {
-            // 1. Central Pulsating Core (30% of particles)
             const phi = Math.acos(1 - 2 * (prog * 3 % 1));
             const theta = (prog * 3 % 1) * Math.PI * 2 + time * 0.03;
             const rad = 45 + Math.sin(time * 0.05 + i) * 8;
@@ -213,22 +242,20 @@ export function updateParticleIdealTargets(p, phaseName, i, total, time, cx, cy)
             ty = rad * Math.sin(phi) * Math.sin(theta);
             tz = rad * Math.cos(phi);
         } else if (subPhase === 1) {
-            // 2. Dual Orthogonal Orbit Rings (40% of particles)
             const angle = (prog * 3 % 1) * Math.PI * 2 + time * 0.02;
             const isXY = (i % 2 === 0);
             if (isXY) {
                 tx = Math.cos(angle) * 190;
                 ty = Math.sin(angle) * 190;
-                tz = Math.sin(time * 0.03 + i) * 5;
+                tz = 0;
             } else {
-                tx = Math.sin(time * 0.03 + i) * 5;
+                tx = 0;
                 ty = Math.cos(angle) * 190;
                 tz = Math.sin(angle) * 190;
             }
         } else {
-            // 3. 6 Sharp 3D Coordinate Spikes (30% of particles)
             const spikeDir = i % 6;
-            const len = 45 + ((i * 7) % 20) / 19 * 215; // Extends out to 260px
+            const len = 45 + ((i * 7) % 20) / 19 * 215;
             if (spikeDir === 0) { tx = len; ty = 0; tz = 0; }
             else if (spikeDir === 1) { tx = -len; ty = 0; tz = 0; }
             else if (spikeDir === 2) { tx = 0; ty = len; tz = 0; }
@@ -237,8 +264,8 @@ export function updateParticleIdealTargets(p, phaseName, i, total, time, cx, cy)
             else { tx = 0; ty = 0; tz = -len; }
         }
         
-        // Multi-axial physics rotation
-        const r = rotateYPR(tx, ty, tz, time * 0.007, time * 0.005, time * 0.002);
+        // ⚡ Use pre-computed trig with roll
+        const r = rotateInline(tx, ty, tz, true);
         ix = cx + r.x + rx * 0.3; iy = cy + r.y + ry * 0.3; iz = r.z + rz * 0.3;
     }
 

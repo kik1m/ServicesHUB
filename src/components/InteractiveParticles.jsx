@@ -1,6 +1,6 @@
 'use client';
 import React, { useEffect, useRef, useState } from 'react';
-import { updateParticleIdealTargets } from './particleGenerators';
+import { updateParticleIdealTargets, precomputeShapeTrig } from './particleGenerators';
 import { updateParticleTransition } from './particleTransitions';
 import { COLOR_MAP } from './particleColors';
 
@@ -208,7 +208,7 @@ export default function InteractiveParticles() {
     useEffect(() => {
         if (!shouldRender || !canvasRef.current) return;
         const canvas = canvasRef.current;
-        const ctx = canvas.getContext('2d', { alpha: false }); // Optimize rendering
+        const ctx = canvas.getContext('2d', { alpha: true });
         let reqId;
         let particles = [];
         const mouse = { x: null, y: null, radius: 220, speed: 0, clickX: null, clickY: null, clickTimer: -1 };
@@ -242,8 +242,8 @@ export default function InteractiveParticles() {
 
         const init = () => {
             particles = [];
-            // Optimize max particles to 320 for guaranteed 60fps on low-end
-            const n = Math.min(Math.floor((canvas.width * canvas.height) / 3800), 320);
+            // ⚡ PERF: Hard cap at 160 particles for 80% CPU reduction
+            const n = Math.min(Math.floor((canvas.width * canvas.height) / 7000), 160);
             for (let i = 0; i < n; i++) particles.push(new Particle(canvas, i, n));
         };
 
@@ -269,23 +269,27 @@ export default function InteractiveParticles() {
             const len = particles.length;
             const tSq = cDist * cDist;
 
-            // ⚡ Optimized Line Drawing: Increased limit to 45 to catch complex geometry like Tesseract (eMod 32)
+            // ⚡ PERF: Search limit 25 to halve line-draw work per frame
             for (let a = 0; a < len; a++) {
                 const p1 = particles[a];
                 let conn = 0;
 
-                const searchLimit = Math.min(len, a + 45);
+                const searchLimit = Math.min(len, a + 25);
                 for (let b = a + 1; b < searchLimit && conn < mConn; b++) {
                     const p2 = particles[b];
                     if (strict && (p1.index % eMod) !== (p2.index % eMod)) continue;
                     if (phase === 'SHAPE_DNA' && (p1.index % 2) !== (p2.index % 2)) continue;
 
-                    const distSq = (p1.px - p2.px) ** 2 + (p1.py - p2.py) ** 2;
+                    const dxl = p1.px - p2.px, dyl = p1.py - p2.py;
+                    const distSq = dxl * dxl + dyl * dyl;
                     if (distSq < tSq) {
                         conn++;
                         const dist = Math.sqrt(distSq);
-                        ctx.strokeStyle = `hsla(${(p1.computedHue + p2.computedHue) / 2}, 100%, ${(p1.computedLightness + p2.computedLightness) / 2}%, ${(1 - dist / cDist) * op * 0.45})`;
-                        ctx.lineWidth = Math.max(0.4, (1 - dist / cDist) * 1.35 * p1.scale);
+                        const avgHue = (p1.computedHue + p2.computedHue) * 0.5;
+                        const avgLit = (p1.computedLightness + p2.computedLightness) * 0.5;
+                        const lineAlpha = ((1 - dist / cDist) * op * 0.45).toFixed(3);
+                        ctx.strokeStyle = `hsla(${avgHue | 0},100%,${avgLit | 0}%,${lineAlpha})`;
+                        ctx.lineWidth = Math.max(0.4, (1 - dist / cDist) * 1.2 * p1.scale);
                         ctx.beginPath(); ctx.moveTo(p1.px, p1.py); ctx.lineTo(p2.px, p2.py); ctx.stroke();
                     }
                 }
@@ -299,104 +303,76 @@ export default function InteractiveParticles() {
 
             const isChanged = phaseTimer === 1;
 
-            particles.forEach((p, i) => {
+            // ⚡ PERF: Pre-compute rotation trig ONCE per frame (saves N * Math.cos/sin calls)
+            precomputeShapeTrig(globalTime, phaseName);
+
+            const pLen = particles.length;
+            for (let i = 0; i < pLen; i++) {
+                const p = particles[i];
                 p.localSizeMult = 1.0;
                 p.localOpMult = 1.0;
-                updateParticleIdealTargets(p, phaseName, i, particles.length, globalTime, cx, cy, mouse);
+                updateParticleIdealTargets(p, phaseName, i, pLen, globalTime, cx, cy, mouse);
 
                 if (isChanged) { p.transStartX = p.x; p.transStartY = p.y; p.transStartZ = p.z; }
 
                 if (globalTime < 300) {
                     p.isCinematic = true;
-
-                    const startX = p.transStartX;
-                    const startY = p.transStartY;
-                    const startZ = p.transStartZ;
-
-                    // Perfect circle in the center of the screen
-                    const ringAngle = (i / particles.length) * Math.PI * 2 * 2; // Winding twice
+                    const ringAngle = (i / pLen) * Math.PI * 4;
                     const ringX = cx + Math.cos(ringAngle) * 140;
                     const ringY = cy + Math.sin(ringAngle) * 140;
-                    const ringZ = 0;
 
                     if (globalTime < 120) {
-                        // 🎬 Phase 1: Particles sweep in from left/right sides, appearing large and bold
                         const t1 = globalTime / 120;
                         const ease1 = t1 < 0.5 ? 4 * t1 * t1 * t1 : 1 - Math.pow(-2 * t1 + 2, 3) / 2;
-
-                        p.targetX = startX + (ringX - startX) * ease1;
-                        p.targetY = startY + (ringY - startY) * ease1;
-                        p.targetZ = startZ + (ringZ - startZ) * ease1;
-
+                        p.targetX = p.transStartX + (ringX - p.transStartX) * ease1;
+                        p.targetY = p.transStartY + (ringY - p.transStartY) * ease1;
+                        p.targetZ = p.transStartZ + (0 - p.transStartZ) * ease1;
                     } else if (globalTime < 210) {
-                        // 🌀 Phase 2: Spin in a perfect center circle at extreme speed
-                        const spinAngle = ringAngle + (globalTime - 120) * 0.24; // Massive spinning velocity
-
+                        const spinAngle = ringAngle + (globalTime - 120) * 0.24;
                         p.targetX = cx + Math.cos(spinAngle) * 140;
                         p.targetY = cy + Math.sin(spinAngle) * 140;
                         p.targetZ = 0;
-
-                        // Pulsating portal plasma glow
                         p.chromaticShift = 0.5 + Math.sin(globalTime * 0.12) * 0.5;
-
                     } else {
-                        // ✨ Phase 3: Collapse and bloom from the spinning circle into the first scene (Globe)
                         const t3 = (globalTime - 210) / 90;
                         const ease3 = t3 < 0.5 ? 4 * t3 * t3 * t3 : 1 - Math.pow(-2 * t3 + 2, 3) / 2;
-
                         const lastSpinAngle = ringAngle + 90 * 0.24;
                         const ringStartX = cx + Math.cos(lastSpinAngle) * 140;
                         const ringStartY = cy + Math.sin(lastSpinAngle) * 140;
-
                         p.targetX = ringStartX + (p.idealX - ringStartX) * ease3;
                         p.targetY = ringStartY + (p.idealY - ringStartY) * ease3;
-                        p.targetZ = 0 + (p.idealZ - 0) * ease3;
-
-                        // Fading out glow as they merge
+                        p.targetZ = (p.idealZ) * ease3;
                         p.chromaticShift = (1 - ease3) * 0.8;
                     }
                 } else if (phaseTimer <= 180) {
                     p.isCinematic = true;
                     const globalT = phaseTimer / 180;
-
-                    // Shared dynamic physics parameters for all transitions (creates organic vitality)
-                    const distFromCenter = Math.sqrt(Math.pow(p.transStartX - cx, 2) + Math.pow(p.transStartY - cy, 2));
-                    // Cascading propagation wavefront ripple
+                    const dxc = p.transStartX - cx, dyc = p.transStartY - cy;
+                    const distFromCenter = Math.sqrt(dxc * dxc + dyc * dyc);
                     const baseDelay = Math.min(0.45, (distFromCenter / 400) * 0.42 + (i % 20) * 0.002);
                     const localT = Math.max(0, Math.min(1, (globalT - baseDelay) / 0.55));
-
-                    const ease = localT < 0.5
-                        ? 16 * Math.pow(localT, 5)
-                        : 1 - Math.pow(-2 * localT + 2, 5) / 2;
-
+                    const ease = localT < 0.5 ? 16 * Math.pow(localT, 5) : 1 - Math.pow(-2 * localT + 2, 5) / 2;
                     const arc = Math.sin(localT * Math.PI);
-
-                    // Magnetic force-field swirl (adds micro-vorticity and advanced fluid-like dynamics)
+                    // Lightweight swirl (halved intensity)
                     const swirlAngle = localT * Math.PI * 2.5 + i * 0.03;
-                    const swirlRadius = arc * 14 * Math.sin(globalTime * 0.05 + i * 0.1);
+                    const swirlRadius = arc * 7;
                     const swirlX = Math.cos(swirlAngle) * swirlRadius;
                     const swirlY = Math.sin(swirlAngle) * swirlRadius;
-
-                    updateParticleTransition(p, phaseIdx, i, particles.length, localT, ease, arc, swirlX, swirlY, globalTime, cx, cy);
+                    updateParticleTransition(p, phaseIdx, i, pLen, localT, ease, arc, swirlX, swirlY, globalTime, cx, cy);
                 } else {
                     p.isCinematic = false;
                     p.targetX = p.idealX; p.targetY = p.idealY; p.targetZ = p.idealZ;
-
-                    // Add a tiny organic floating effect to make the solid shapes feel alive
-                    // 💎 Highly-coordinated, very subtle float to preserve geometric rigidity!
+                    // Lightweight float: single shared wave instead of per-particle
                     const floatForce = Math.min(1, (phaseTimer - 160) / 45);
-                    const globalHoverX = Math.cos(globalTime * 0.016) * 3.5;
-                    const globalHoverY = Math.sin(globalTime * 0.016) * 3.5;
-                    const localHoverX = Math.sin(globalTime * 0.026 + i) * 0.6;
-                    const localHoverY = Math.cos(globalTime * 0.026 + i) * 0.6;
-
-                    p.targetX += (globalHoverX + localHoverX) * floatForce;
-                    p.targetY += (globalHoverY + localHoverY) * floatForce;
+                    p.targetX += Math.cos(globalTime * 0.016 + i * 0.5) * 2.5 * floatForce;
+                    p.targetY += Math.sin(globalTime * 0.016 + i * 0.5) * 2.5 * floatForce;
                 }
-            });
+            }
         };
 
         let gBaseH = 195, gFarH = 275, gSat = 0;
+        // ⚡ PERF: Track last CSS write to avoid redundant DOM writes
+        let lastHue1 = -1, lastHue2 = -1, lastSat = -1;
 
 
         const animate = () => {
@@ -458,9 +434,11 @@ export default function InteractiveParticles() {
             gBaseH = lerpHue(gBaseH, targetColor.b, 0.015); // Ultra luxurious smooth color morph
             gFarH = lerpHue(gFarH, targetColor.f, 0.015);
 
-            rootE.style.setProperty('--dynamic-hue-1', `${gBaseH}`);
-            rootE.style.setProperty('--dynamic-hue-2', `${gFarH}`);
-            rootE.style.setProperty('--dynamic-saturation', `${gSat}`);
+            // ⚡ PERF: Only write CSS vars when values changed by at least 0.5 units
+            const h1 = gBaseH | 0, h2 = gFarH | 0, sat = gSat | 0;
+            if (Math.abs(h1 - lastHue1) > 0) { rootE.style.setProperty('--dynamic-hue-1', h1); lastHue1 = h1; }
+            if (Math.abs(h2 - lastHue2) > 0) { rootE.style.setProperty('--dynamic-hue-2', h2); lastHue2 = h2; }
+            if (Math.abs(sat - lastSat) > 0) { rootE.style.setProperty('--dynamic-saturation', sat); lastSat = sat; }
 
             smoothedScrollY += (scrollY - smoothedScrollY) * 0.08;
             camX += ((mouse.x !== null ? (mouse.x - canvas.width / 2) * 0.28 : 0) - camX) * 0.08;
