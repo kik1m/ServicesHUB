@@ -1,860 +1,547 @@
 'use client';
 import React, { useEffect, useRef, useState } from 'react';
 import { updateParticleIdealTargets } from './particleGenerators';
+import { updateParticleTransition } from './particleTransitions';
+import { COLOR_MAP } from './particleColors';
 
 /**
- * 🌌 Particle Class - Advanced 3D Engine Physics & Depth Logic
+ * 🌌 Particle Class - Highly Optimized 3D Physics
+ * Inlined to guarantee V8 JIT inlining for 60fps performance.
  */
 class Particle {
     constructor(canvas, index, total) {
         this.canvas = canvas;
-        this.x = Math.random() * canvas.width;
+        const cy = canvas.height / 2;
+
+        // 🎬 THE GRAND ENTRANCE: Spawn on the extreme left and right sides of the page
+        const isLeft = index % 2 === 0;
+        this.x = isLeft ? -250 : canvas.width + 250;
         this.y = Math.random() * canvas.height;
-        this.z = Math.random() * 400 - 200; // Depth between -200 (close) and +200 (far)
-        this.size = Math.random() * 2 + 0.5;
+        this.z = -150; // Closer to camera for large, sharp particles
 
-        // Base drift speeds in 3D space
-        this.baseSpeedX = Math.random() * 1 - 0.5;
-        this.baseSpeedY = Math.random() * 1 - 0.5;
-        this.baseSpeedZ = Math.random() * 0.8 - 0.4;
+        this.speedX = 0; this.speedY = 0; this.speedZ = 0;
+        this.baseSpeedX = (Math.random() - 0.5) * 1.6;
+        this.baseSpeedY = (Math.random() - 0.5) * 1.6;
+        this.baseSpeedZ = (Math.random() - 0.5) * 1.2;
 
-        this.speedX = this.baseSpeedX;
-        this.speedY = this.baseSpeedY;
-        this.speedZ = this.baseSpeedZ;
+        this.size = Math.random() * 1.45 + 0.85;
+        this.density = Math.random() * 20 + 8;
 
-        this.density = (Math.random() * 25) + 1;
+        this.targetX = null; this.targetY = null; this.targetZ = null;
+        this.transStartX = this.x; this.transStartY = this.y; this.transStartZ = this.z;
+        this.idealX = this.x; this.idealY = this.y; this.idealZ = this.z;
 
-        // Shape targets in 3D space
-        this.targetX = null;
-        this.targetY = null;
-        this.targetZ = null;
-
-        // Stable JIT ideal target placeholders for zero-allocation performance
-        this.idealX = this.x;
-        this.idealY = this.y;
-        this.idealZ = this.z;
-
-        // Projected 2D coordinates for screen drawing & line connection
-        this.px = this.x;
-        this.py = this.y;
-        this.pSize = this.size;
-        this.pOpacity = 0.8;
-        this.scale = 1;
-        this.rotatedZ = this.z;
+        this.px = this.x; this.py = this.y; this.pSize = this.size;
+        this.pOpacity = 0.8; this.scale = 1; this.rotatedZ = this.z;
 
         this.index = index;
         this.total = total;
         this.chromaticShift = 0;
         this.computedHue = 195;
         this.computedLightness = 55;
+
+        // Zero-cost pre-calculated randomness for shapes
+        this.randX = (Math.sin(index * 9.9) * 0.5) * 3.5;
+        this.randY = (Math.cos(index * 7.7) * 0.5) * 3.5;
+        this.randZ = (Math.sin(index * 5.5) * 0.5) * 3.5;
     }
 
-    /**
-     * Draw individual particle with dynamic depth coloring & advanced chromatic shifting
-     */
-    draw(ctx, time, phaseName, mouse) {
+    draw(ctx, time, phaseName, mouse, gBaseH, gFarH) {
         if (this.pOpacity <= 0) return;
 
-        // 1. Calculate base depth ratio (0.0 foreground, 1.0 background)
+        const lerpHue = (a, b, t) => {
+            let d = b - a;
+            while (d > 180) d -= 360;
+            while (d < -180) d += 360;
+            let res = a + d * t;
+            while (res < 0) res += 360;
+            return res % 360;
+        };
+
         const depthRatio = Math.max(0, Math.min(1, (this.z + 200) / 500));
+        let cHue = lerpHue(gBaseH, gFarH, depthRatio);
+        let sat = 100, lit = phaseName === 'SHAPE_WARP_DRIVE' || phaseName === 'SHAPE_QUANTUM_FIELD' ? 65 : 55;
 
-        // 2. Define Phase-Specific Palettes (Hues)
-        let baseHue = 195; // Default Cyan (Foreground)
-        let farHue = 275;  // Default Violet (Background)
-        let saturation = 100;
-        let lightness = 55;
-
-        // Custom phase color signatures
-        if (phaseName === 'SHAPE_DNA') {
-            baseHue = 320; // Magenta
-            farHue = 200;  // Cyan
-        } else if (phaseName === 'SHAPE_BRAIN') {
-            baseHue = 210; // Electric Blue
-            farHue = 45;   // Deep Gold
-        } else if (phaseName === 'SHAPE_ATOM') {
-            baseHue = 160; // Emerald Green
-            farHue = 280;  // Royal Purple
-        } else if (phaseName === 'SHAPE_WARP_DRIVE') {
-            baseHue = 180; // Electric Teal
-            farHue = 240;  // Warp Blue
-            lightness = 65; // Extra bright
-        } else if (phaseName === 'SHAPE_MULTIVERSE') {
-            // Rainbow prism shifting over time and index
-            baseHue = (time * 0.15 + this.index * 1.5) % 360;
-            farHue = (baseHue + 120) % 360;
-        } else if (phaseName === 'SHAPE_QUANTUM_FIELD') {
-            // Vibrant RGB Spider-Web Spectrum pulsing with high saturation!
-            baseHue = (time * 0.45 + this.index * 0.75) % 360;
-            farHue = (baseHue + 120) % 360;
-            saturation = 100;
-            lightness = 62; // Ultra bright RGB neon glow!
-        }
-
-        // 3. Depth Interpolation of Hue
-        let currentHue = baseHue + depthRatio * (farHue - baseHue);
-
-        // 4. Mouse Interactive Chromatic Shift (Supernova Paintbrush)
-        // Shines a hot golden-rose glow on hover
+        // Brush & Shockwave interactivity
         if (this.chromaticShift > 0.01) {
-            const hoverHue = 340; // Hot Pink/Rose Gold
-            currentHue = currentHue + (hoverHue - currentHue) * this.chromaticShift;
-            saturation = 100;
-            lightness = lightness + (80 - lightness) * this.chromaticShift; // Boost brightness to make it glow!
+            cHue += (340 - cHue) * this.chromaticShift;
+            lit += (80 - lit) * this.chromaticShift;
         }
 
-        // 5. 🔮 Thought Impulse click shockwave: user's input/thought propagates through the AI mind!
         if (mouse && mouse.clickTimer >= 0) {
-            const dx = this.px - mouse.clickX;
-            const dy = this.py - mouse.clickY;
+            const dx = this.px - mouse.clickX, dy = this.py - mouse.clickY;
             const dist = Math.sqrt(dx * dx + dy * dy);
+            // ⚡ INSTANT SHOCKWAVE: Travels extremely fast (40px per frame)
+            const wRadius = mouse.clickTimer * 40;
+            const distDiff = Math.abs(dist - wRadius);
 
-            // Wave propagates outwards at 12px per frame
-            const waveRadius = mouse.clickTimer * 12;
-            const waveWidth = 70;
-            const distDiff = Math.abs(dist - waveRadius);
+            if (distDiff < 90) { // Thicker wave band
+                const prog = mouse.clickTimer / 25; // Faster fade out
+                const int = (1 - distDiff / 90) * Math.sin(prog * Math.PI) * (1 - prog);
+                let dH = 335 - cHue;
+                dH = dH > 180 ? dH - 360 : dH < -180 ? dH + 360 : dH;
+                cHue += dH * int;
+                lit += (94 - lit) * int;
 
-            if (distDiff < waveWidth) {
-                // Sine shape envelope with quadratic decay
-                const progress = mouse.clickTimer / 60;
-                const intensity = (1 - distDiff / waveWidth) * Math.sin(progress * Math.PI) * (1 - progress);
-
-                // Morph color to highly glowing magenta/rose energy (hue 335)
-                const targetHue = 335;
-                let diffHue = targetHue - currentHue;
-                if (diffHue > 180) diffHue -= 360;
-                else if (diffHue < -180) diffHue += 360;
-
-                currentHue = currentHue + diffHue * intensity;
-                lightness = lightness + (94 - lightness) * intensity;
-                saturation = 100;
-
-                // Push physical coordinates outward briefly to simulate electrical impulse impact
-                const force = intensity * 2.8 * (1 / (this.scale || 1));
-                this.x += (dx / (dist || 1)) * force * this.density;
-                this.y += (dy / (dist || 1)) * force * this.density;
-                this.z += (Math.random() - 0.5) * force * 10;
+                // INSTANT PUNCH: Add massive momentum immediately
+                const f = int * 6.5 / (this.scale || 1);
+                this.speedX += (dx / (dist || 1)) * f;
+                this.speedY += (dy / (dist || 1)) * f;
+                this.speedZ += (Math.random() - 0.5) * f * 12;
             }
         }
 
-        // Cache computed color states for lines to inherit them
-        this.computedHue = currentHue;
-        this.computedLightness = lightness;
+        this.computedHue = cHue;
+        this.computedLightness = lit;
 
-        ctx.fillStyle = `hsla(${currentHue}, ${saturation}%, ${lightness}%, ${this.pOpacity})`;
+        ctx.fillStyle = `hsla(${cHue}, ${sat}%, ${lit}%, ${this.pOpacity})`;
         ctx.beginPath();
         ctx.arc(this.px, this.py, this.pSize, 0, Math.PI * 2);
-        ctx.closePath();
         ctx.fill();
     }
 
-    /**
-     * 3D Physics update and interactive screen behavior
-     */
-    update(mouse, phaseName, centerX, centerY, time) {
+    update(mouse, phaseName, cx, cy, time) {
         if (phaseName === 'STILL') {
-            // Apply high friction in 3D
-            this.speedX *= 0.88;
-            this.speedY *= 0.88;
-            this.speedZ *= 0.88;
-            this.x += this.speedX;
-            this.y += this.speedY;
-            this.z += this.speedZ;
+            this.speedX *= 0.88; this.speedY *= 0.88; this.speedZ *= 0.88;
         } else if (phaseName === 'VORTEX') {
-            // Spiral towards center (Whirlpool effect) in 3D
-            let dx = centerX - this.x;
-            let dy = centerY - this.y;
-            let dist = Math.sqrt(dx * dx + dy * dy);
-
-            // Tangent vector for spiral
-            let tx = dy;
-            let ty = -dx;
-
-            // Normalize and scale speed
-            let length = Math.sqrt(tx * tx + ty * ty) || 1;
-            tx = (tx / length) * 8;
-            ty = (ty / length) * 8;
-
-            // Inward pull
-            let pull = 0.05;
-            tx += dx * pull;
-            ty += dy * pull;
-
+            let dx = cx - this.x, dy = cy - this.y;
+            let len = Math.sqrt(dx * dx + dy * dy) || 1;
+            let tx = dy / len * 8 + dx * 0.05, ty = -dx / len * 8 + dy * 0.05;
             this.speedX += (tx - this.speedX) * 0.08;
             this.speedY += (ty - this.speedY) * 0.08;
-
-            // Pull Z towards deep background singularity
-            let dz = 220 - this.z;
-            this.speedZ += (dz - this.speedZ) * 0.05;
-
-            this.x += this.speedX;
-            this.y += this.speedY;
-            this.z += this.speedZ;
+            this.speedZ += ((220 - this.z) - this.speedZ) * 0.05;
         } else if (phaseName === 'BREATHE') {
-            // Slowly expand and contract in 3D space
-            let dx = this.x - centerX;
-            let dy = this.y - centerY;
-            let dist = Math.sqrt(dx * dx + dy * dy) || 1;
+            let dx = this.x - cx, dy = this.y - cy, d = Math.sqrt(dx * dx + dy * dy) || 1;
+            let bf = Math.sin(time * 0.03) * 1.5, bfZ = Math.cos(time * 0.03 + this.index) * 1.2;
+            this.speedX += (dx / d) * bf * 0.1 + (this.baseSpeedX * 0.5 - this.speedX) * 0.05;
+            this.speedY += (dy / d) * bf * 0.1 + (this.baseSpeedY * 0.5 - this.speedY) * 0.05;
+            this.speedZ += bfZ * 0.05 + (this.baseSpeedZ * 0.5 - this.speedZ) * 0.05;
+            this.speedX *= 0.96; this.speedY *= 0.96; this.speedZ *= 0.96;
+        } else if (this.targetX !== null) {
+            let dx = this.targetX - this.x, dy = this.targetY - this.y, dz = this.targetZ - this.z;
 
-            // Sine wave for breathing (expansion/contraction)
-            let breatheForce = Math.sin(time * 0.03) * 1.5;
-            let breatheForceZ = Math.cos(time * 0.03 + this.index) * 1.2;
+            // 💎 FLUID BUTTERY SPRING: Moves perfectly to the target, very soft and elegant.
+            // When transitioning, it's a bit looser. When fully formed, it's tighter.
+            const spr = this.isCinematic ? 0.05 : 0.15;
+            const damp = this.isCinematic ? 0.85 : 0.65;
 
-            this.speedX += (dx / dist) * breatheForce * 0.1;
-            this.speedY += (dy / dist) * breatheForce * 0.1;
-            this.speedZ += breatheForceZ * 0.05;
+            this.speedX += dx * spr;
+            this.speedY += dy * spr;
+            this.speedZ += dz * spr;
 
-            // Add wander back in
-            this.speedX += (this.baseSpeedX * 0.5 - this.speedX) * 0.05;
-            this.speedY += (this.baseSpeedY * 0.5 - this.speedY) * 0.05;
-            this.speedZ += (this.baseSpeedZ * 0.5 - this.speedZ) * 0.05;
-
-            this.speedX *= 0.96; // friction
-            this.speedY *= 0.96;
-            this.speedZ *= 0.96;
-
-            this.x += this.speedX;
-            this.y += this.speedY;
-            this.z += this.speedZ;
-        } else if (this.targetX !== null && this.targetY !== null && this.targetZ !== null) {
-            // Move smoothly towards 3D shape targets with a flowing "neural thought-stream" curve
-            let dx = this.targetX - this.x;
-            let dy = this.targetY - this.y;
-            let dz = this.targetZ - this.z;
-            let dist = Math.sqrt(dx * dx + dy * dy) || 1;
-
-            // Premium tight spring physics - faster, snappier convergence to perfect target geometry
-            let springStrength = 0.015 + (this.index % 4) * 0.003;
-            
-            // 🌟 Smooth Genesis: Prevent violent snapping during the very first scene loading
-            if (time < 180) {
-                // Eases smoothly from extremely soft to full strength over 3 seconds
-                springStrength *= Math.max(0.02, time / 180);
-            }
-
-            const damping = 0.82 + (this.index % 3) * 0.01;
-
-            // Curved flow makes them look like organic energy streams rather than rigid coordinates!
-            const flowStrength = Math.sin(time * 0.04 + this.index * 0.06) * 0.45;
-
-            this.speedX += dx * springStrength + (dy / dist) * flowStrength;
-            this.speedY += dy * springStrength - (dx / dist) * flowStrength;
-            this.speedZ += dz * springStrength;
-
-            // Apply snap damping
-            this.speedX *= damping;
-            this.speedY *= damping;
-            this.speedZ *= damping;
-
-            this.x += this.speedX;
-            this.y += this.speedY;
-            this.z += this.speedZ;
-
-            // Subtle 3D floating effect while in shape to keep it organic and alive
-            this.y += Math.sin(time * 0.05 + this.index) * 0.4;
-            this.x += Math.cos(time * 0.04 + this.index) * 0.3;
-            this.z += Math.sin(time * 0.03 + this.index) * 0.3;
+            this.speedX *= damp; this.speedY *= damp; this.speedZ *= damp;
+            this.x += this.speedX; this.y += this.speedY; this.z += this.speedZ;
         } else {
-            // WANDER, WANDER_FAST, or EXPLODE
             if (phaseName === 'WANDER') {
-                // Smooth flocking drift in 3D
                 this.speedX += (this.baseSpeedX - this.speedX) * 0.02;
                 this.speedY += (this.baseSpeedY - this.speedY) * 0.02;
                 this.speedZ += (this.baseSpeedZ - this.speedZ) * 0.02;
-
-                // Subtle organic wave
                 this.y += Math.sin(time * 0.02 + this.index) * 0.5;
                 this.z += Math.cos(time * 0.02 + this.index) * 0.3;
             } else if (phaseName === 'WANDER_FAST') {
-                // Chaotic rapid swimming in 3D
-                this.speedX *= 0.99;
-                this.speedY *= 0.99;
-                this.speedZ *= 0.99;
-                this.speedX += (Math.random() - 0.5) * 0.6;
-                this.speedY += (Math.random() - 0.5) * 0.6;
-                this.speedZ += (Math.random() - 0.5) * 0.6;
+                this.speedX = this.speedX * 0.99 + (Math.random() - 0.5) * 0.6;
+                this.speedY = this.speedY * 0.99 + (Math.random() - 0.5) * 0.6;
+                this.speedZ = this.speedZ * 0.99 + (Math.random() - 0.5) * 0.6;
             } else if (phaseName === 'EXPLODE') {
-                // Big bang inertia drift
-                this.speedX *= 0.96;
-                this.speedY *= 0.96;
-                this.speedZ *= 0.96;
+                this.speedX *= 0.96; this.speedY *= 0.96; this.speedZ *= 0.96;
             }
-            this.x += this.speedX;
-            this.y += this.speedY;
-            this.z += this.speedZ;
         }
 
-        // Boundary wrap for non-shape phases in 3D space
+        this.x += this.speedX; this.y += this.speedY; this.z += this.speedZ;
+
         if (['WANDER', 'WANDER_FAST', 'EXPLODE', 'BREATHE', 'VORTEX'].includes(phaseName)) {
-            if (this.x > this.canvas.width) this.x = 0;
-            else if (this.x < 0) this.x = this.canvas.width;
-            if (this.y > this.canvas.height) this.y = 0;
-            else if (this.y < 0) this.y = this.canvas.height;
-            if (this.z > 300) this.z = -200;
-            else if (this.z < -200) this.z = 300;
+            if (this.x > this.canvas.width) this.x = 0; else if (this.x < 0) this.x = this.canvas.width;
+            if (this.y > this.canvas.height) this.y = 0; else if (this.y < 0) this.y = this.canvas.height;
+            if (this.z > 300) this.z = -200; else if (this.z < -200) this.z = 300;
         }
 
-        // Mouse interaction (Repel on screen projected coords + Chromatic Brush Shift)
+        // 🖱️ Mouse Interaction: Explosive Direct Force
         if (mouse.x !== null) {
-            let dx = mouse.x - this.px;
-            let dy = mouse.y - this.py;
-            let distance = Math.sqrt(dx * dx + dy * dy);
+            let dx = mouse.x - this.px, dy = mouse.y - this.py;
+            let dSq = dx * dx + dy * dy;
+            const radSq = mouse.radius * mouse.radius;
 
-            if (distance < mouse.radius) {
-                const forceDirectionX = dx / distance;
-                const forceDirectionY = dy / distance;
-                const force = (mouse.radius - distance) / mouse.radius;
+            if (dSq < radSq) {
+                const d = Math.sqrt(dSq);
+                const f = (mouse.radius - d) / mouse.radius;
 
-                // Repel the absolute coordinates. Scale strength by perspective
-                const pushStrength = force * this.density * 0.75 * (1 / (this.scale || 1));
-                this.x -= forceDirectionX * pushStrength;
-                this.y -= forceDirectionY * pushStrength;
+                // RESTORED: Directly push particles violently out of the way for satisfying reaction
+                const push = f * this.density * 1.5 / (this.scale || 1);
+                this.x -= (dx / (d || 1)) * push;
+                this.y -= (dy / (d || 1)) * push;
+                this.z += (Math.random() - 0.5) * push * 1.5;
 
-                // Displace in Z-depth to create an interactive "depth dent" under mouse
-                this.z += (Math.random() - 0.3) * pushStrength * 0.8;
+                // Add lingering momentum to the spring
+                this.speedX -= (dx / (d || 1)) * push * 0.12;
+                this.speedY -= (dy / (d || 1)) * push * 0.12;
 
-                // Charge chromatic brush shift based on proximity
-                const charge = 1 - (distance / mouse.radius);
-                this.chromaticShift += (charge - this.chromaticShift) * 0.18;
+                this.chromaticShift += (1 - d / mouse.radius - this.chromaticShift) * 0.25;
             } else {
-                // Dissipate charge
-                this.chromaticShift += (0 - this.chromaticShift) * 0.06;
+                this.chromaticShift *= 0.92;
             }
         } else {
-            // Dissipate charge
-            this.chromaticShift += (0 - this.chromaticShift) * 0.06;
+            this.chromaticShift *= 0.92;
         }
     }
 }
 
 /**
- * 🌌 InteractiveParticles - Elite Cinematic 3D Lifecycle Edition
+ * 🌌 InteractiveParticles Engine
  */
-const InteractiveParticles = () => {
+export default function InteractiveParticles() {
     const canvasRef = useRef(null);
     const [shouldRender, setShouldRender] = useState(true);
+    const [isAlive, setIsAlive] = useState(false);
 
     useEffect(() => {
-        // 🛡️ Elite Device Detection: Disable 3D Canvas on mobile phones (< 768px) to save battery and ensure clean UX
-        const checkDevice = () => setShouldRender(window.innerWidth >= 768);
-        checkDevice(); // Check instantly on mount
-        window.addEventListener('resize', checkDevice);
-        return () => window.removeEventListener('resize', checkDevice);
+        const t = setTimeout(() => setIsAlive(true), 80);
+        return () => clearTimeout(t);
     }, []);
 
     useEffect(() => {
-        if (!shouldRender) return;
+        const check = () => setShouldRender(window.innerWidth >= 768);
+        check();
+        window.addEventListener('resize', check);
+        return () => window.removeEventListener('resize', check);
+    }, []);
 
+    useEffect(() => {
+        if (!shouldRender || !canvasRef.current) return;
         const canvas = canvasRef.current;
-        if (!canvas) return;
-
-        const ctx = canvas.getContext('2d');
-        let animationFrameId;
+        const ctx = canvas.getContext('2d', { alpha: false }); // Optimize rendering
+        let reqId;
         let particles = [];
         const mouse = { x: null, y: null, radius: 220, speed: 0, clickX: null, clickY: null, clickTimer: -1 };
-        let scrollY = 0;
-        let smoothedScrollY = 0;
-        let globalTime = 0;
+        let scrollY = 0, smoothedScrollY = 0, globalTime = 0;
+        let camX = 0, camY = 0, camZ = 0;
+        let startTime = performance.now();
 
-        // Camera position vectors for 3D simulation
-        let cameraX = 0;
-        let cameraY = 0;
-        let cameraZ = 0;
+        // Extremely fast LUT for twinkling
+        const LUT_SIZE = 512, SIN_LUT = new Float32Array(LUT_SIZE);
+        for (let i = 0; i < LUT_SIZE; i++) SIN_LUT[i] = Math.sin(i / LUT_SIZE * Math.PI * 2);
+        const fastSin = x => SIN_LUT[(x * (LUT_SIZE / (Math.PI * 2)) | 0) & (LUT_SIZE - 1)];
 
-        // 📖 The Story of Cosmic Intelligence: Extended Theatrical Lifecycle (19 Stages)
+        const rootE = document.documentElement;
+        const scrollC = document.querySelector('.content') || document.querySelector('.app-container');
+
         const PHASES = [
-            { name: 'SHAPE_DNA', duration: 1200 },       // 1. Biological Genesis (3D Double Helix)
-            { name: 'SHAPE_BRAIN', duration: 1250 },     // 2. Human Intelligence (3D Brain Network)
-            { name: 'SHAPE_ATOM', duration: 1150 },      // 3. Scientific Discovery (Tilted Orbit Atom)
-            { name: 'SHAPE_HOURGLASS', duration: 1150 }, // 4. Flow of Time (Twisting Double Cone)
-            { name: 'SHAPE_GALAXY', duration: 1250 },    // 5. Cosmic Expansion (Tilted Spiral Galaxy)
-            { name: 'WANDER', duration: 1200 },          // 6. Primordial Soup (Free drifting)
-
-            // 🚀 Elite Futuristic Megastructure Scenes:
-            { name: 'SHAPE_TESSERACT', duration: 1350 },   // 9. Higher Dimensionality (4D Hypercube projection)
-            { name: 'SHAPE_DYSON_SPHERE', duration: 1350 },// 10. Stellar Engineering (Gyro Cross-Orbit Swarm)
-            { name: 'SHAPE_TORUS', duration: 1300 },       // 11. Zero-Point Energy (Sacred Geometry Torus Loop)
-
-            // 🚀 The 3 New Ascended Interstellar Cosmic Scenes:
-            { name: 'SHAPE_QUANTUM_FIELD', duration: 1300 }, // 12. Quantum Entanglement Mirror Superposition
-            { name: 'SHAPE_WARP_DRIVE', duration: 1350 },   // 13. Alcubierre Hyperspeed Warp Drive Tunnel
-            { name: 'SHAPE_MULTIVERSE', duration: 1400 },   // 14. Multiverse Dimensional Portal Core
-
-            { name: 'VORTEX', duration: 700 },          // 15. The Singularity (Deep coordinate suction)
-            { name: 'SHAPE_CORE', duration: 200 },      // 16. Absolute Core Compression
-            { name: 'EXPLODE', duration: 350 },         // 17. The Big Bang shockwave
-            { name: 'STILL', duration: 400 },           // 18. Silent Cosmic Void
-            { name: 'BREATHE', duration: 900 }          // 19. Cosmic Rebirth (3D Breathing Network)
+            { name: 'SHAPE_GLOBE', duration: 1200 },       // 0: Majestic Start (Cyan/Gold)
+            { name: 'SHAPE_AI_TEXT', duration: 1000 },     // 1: AI/Platform Title
+            { name: 'SHAPE_MERKABA', duration: 1000 },     // 2
+            { name: 'SHAPE_TESSERACT', duration: 1000 },   // 3
+            { name: 'SHAPE_DNA', duration: 1000 },         // 4
+            { name: 'SHAPE_TORUS', duration: 1000 },       // 5
+            { name: 'SHAPE_WARP_DRIVE', duration: 1000 },  // 6
+            { name: 'SHAPE_HOURGLASS', duration: 1000 },   // 7
+            { name: 'SHAPE_MULTIVERSE', duration: 1000 },  // 8
+            { name: 'SHAPE_DYSON_SPHERE', duration: 1000 },// 9
+            { name: 'SHAPE_PYRAMID', duration: 1000 }      // 10: Epic Cybernetic Quantum Nexus Core
         ];
 
-        let currentPhaseIndex = 0;
-        let phaseTimer = 0;
+        let phaseIdx = 0, phaseTimer = 0;
 
         const init = () => {
             particles = [];
-            // Highly optimized density of 320 particles max for flawless CPU & thermal footprint
-            const numberOfParticles = Math.min(Math.floor((canvas.width * canvas.height) / 3600), 320);
-            for (let i = 0; i < numberOfParticles; i++) {
-                particles.push(new Particle(canvas, i, numberOfParticles));
-            }
+            // Optimize max particles to 320 for guaranteed 60fps on low-end
+            const n = Math.min(Math.floor((canvas.width * canvas.height) / 3800), 320);
+            for (let i = 0; i < n; i++) particles.push(new Particle(canvas, i, n));
         };
 
-        const resize = () => {
-            if (typeof window !== 'undefined') {
-                canvas.width = window.innerWidth;
-                canvas.height = window.innerHeight;
-                init();
-            }
-        };
+        const onResize = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; init(); };
+        const onScroll = e => scrollY = Math.max(window.scrollY || 0, document.documentElement.scrollTop || 0, document.body.scrollTop || 0, e?.target?.scrollTop || 0);
+        let lx = null, ly = null;
+        const onMove = e => { if (lx !== null) mouse.speed = Math.sqrt((e.clientX - lx) ** 2 + (e.clientY - ly) ** 2); lx = mouse.x = e.clientX; ly = mouse.y = e.clientY; };
+        const onLeave = () => { mouse.x = mouse.y = lx = ly = null; mouse.speed = 0; };
+        const onClick = e => { mouse.clickX = e.clientX; mouse.clickY = e.clientY; mouse.clickTimer = 0; };
 
-        const handleScroll = (e) => {
-            const target = e ? e.target : null;
-            const winS = window.scrollY || window.pageYOffset || 0;
-            const docS = document.documentElement ? document.documentElement.scrollTop : 0;
-            const bodyS = document.body ? document.body.scrollTop : 0;
-            const targetS = target && typeof target.scrollTop === 'number' ? target.scrollTop : 0;
-            scrollY = Math.max(winS, docS, bodyS, targetS);
-        };
-        let lastMouseX = null;
-        let lastMouseY = null;
-        const handleMouseMove = (event) => {
-            if (lastMouseX !== null) {
-                const dx = event.clientX - lastMouseX;
-                const dy = event.clientY - lastMouseY;
-                mouse.speed = Math.sqrt(dx * dx + dy * dy);
-            }
-            lastMouseX = event.clientX;
-            lastMouseY = event.clientY;
-            mouse.x = event.clientX;
-            mouse.y = event.clientY;
-        };
-        const handleMouseLeave = () => {
-            mouse.x = null;
-            mouse.y = null;
-            mouse.speed = 0;
-            lastMouseX = null;
-            lastMouseY = null;
-        };
-        const handleMouseClick = (event) => {
-            mouse.clickX = event.clientX;
-            mouse.clickY = event.clientY;
-            mouse.clickTimer = 0;
-        };
+        const drawLines = (op) => {
+            const phase = PHASES[phaseIdx].name;
+            let cDist = 65, mConn = 4, strict = false, eMod = 1;
 
-        /**
-         * 3D Connected Line Constellation: Filters connections by spatial coordinates & depth diff
-         */
-        const connect = (opacity) => {
+            if (phase === 'SHAPE_AI_TEXT') { cDist = 32; mConn = 3; }
+            else if (phase === 'SHAPE_MERKABA') { cDist = 120; strict = true; eMod = 12; mConn = 6; }
+            else if (phase === 'SHAPE_TESSERACT') { cDist = 140; strict = true; eMod = 32; mConn = 6; }
+            else if (phase === 'SHAPE_DYSON_SPHERE') { cDist = 80; mConn = 3; }
+            else if (['SHAPE_QUANTUM_FIELD', 'SHAPE_MULTIVERSE'].includes(phase)) { cDist = 70; mConn = 4; }
+            else if (phase === 'SHAPE_DNA') { cDist = 58; mConn = 3; }
+            else if (phase === 'SHAPE_PYRAMID') { cDist = 140; strict = true; eMod = 6; mConn = 4; }
+
             const len = particles.length;
+            const tSq = cDist * cDist;
+
+            // ⚡ Optimized Line Drawing: Increased limit to 45 to catch complex geometry like Tesseract (eMod 32)
             for (let a = 0; a < len; a++) {
-                const pa = particles[a];
-                for (let b = a + 1; b < len; b++) {
-                    const pb = particles[b];
+                const p1 = particles[a];
+                let conn = 0;
 
-                    // Avoid linking foreground nodes to background nodes (looks messy in 3D) - Super cheap depth check first!
-                    const dz = pa.rotatedZ - pb.rotatedZ;
-                    if (Math.abs(dz) >= 80) continue;
+                const searchLimit = Math.min(len, a + 45);
+                for (let b = a + 1; b < searchLimit && conn < mConn; b++) {
+                    const p2 = particles[b];
+                    if (strict && (p1.index % eMod) !== (p2.index % eMod)) continue;
+                    if (phase === 'SHAPE_DNA' && (p1.index % 2) !== (p2.index % 2)) continue;
 
-                    const dx = pa.px - pb.px;
-                    // Early exit if horizontal distance alone exceeds 75px
-                    if (Math.abs(dx) >= 75) continue;
-
-                    const dy = pa.py - pb.py;
-                    // Early exit if vertical distance alone exceeds 75px
-                    if (Math.abs(dy) >= 75) continue;
-
-                    // Avoid Math.sqrt unless the square distance is within threshold (75^2 = 5625)
-                    const distSq = dx * dx + dy * dy;
-                    if (distSq < 5625) {
-                        const distance = Math.sqrt(distSq);
-                        const baseLineOpacity = (1 - (distance / 75)) * ((pa.pOpacity + pb.pOpacity) / 2);
-                        const lineOpacity = Math.max(0.2 * opacity, baseLineOpacity); // Scale minimum glow with global scroll fade
-
-                        // Line color inherits the dynamic HSL of both connected particles
-                        const avgHue = (pa.computedHue + pb.computedHue) / 2;
-                        const avgLightness = (pa.computedLightness + pb.computedLightness) / 2;
-
-                        ctx.strokeStyle = `hsla(${avgHue}, 100%, ${avgLightness}%, ${lineOpacity * 0.85})`;
-                        ctx.lineWidth = 1.1 * ((pa.scale + pb.scale) / 2);
-                        ctx.beginPath();
-                        ctx.moveTo(pa.px, pa.py);
-                        ctx.lineTo(pb.px, pb.py);
-                        ctx.stroke();
+                    const distSq = (p1.px - p2.px) ** 2 + (p1.py - p2.py) ** 2;
+                    if (distSq < tSq) {
+                        conn++;
+                        const dist = Math.sqrt(distSq);
+                        ctx.strokeStyle = `hsla(${(p1.computedHue + p2.computedHue) / 2}, 100%, ${(p1.computedLightness + p2.computedLightness) / 2}%, ${(1 - dist / cDist) * op * 0.45})`;
+                        ctx.lineWidth = Math.max(0.4, (1 - dist / cDist) * 1.35 * p1.scale);
+                        ctx.beginPath(); ctx.moveTo(p1.px, p1.py); ctx.lineTo(p2.px, p2.py); ctx.stroke();
                     }
                 }
             }
         };
 
-        /**
-         * Recalculate mathematical shapes (both static and moving/rotating equations)
-         */
-        const updatePhase = (centerX, centerY, time) => {
+        const updatePhaseLogic = () => {
+            const phaseName = PHASES[phaseIdx].name;
+            const cx = canvas.width / 2, cy = canvas.height / 2;
             phaseTimer++;
-            let phaseChanged = false;
-            if (phaseTimer > PHASES[currentPhaseIndex].duration) {
-                currentPhaseIndex = (currentPhaseIndex + 1) % PHASES.length;
-                phaseTimer = 0;
-                phaseChanged = true;
-            }
 
-            const phaseName = PHASES[currentPhaseIndex].name;
-            const phaseDuration = PHASES[currentPhaseIndex].duration;
+            const isChanged = phaseTimer === 1;
 
-            // Recalculate targets on every frame for moving shapes, otherwise once on transition
-            const isDynamicMovingShape = [
-                'SHAPE_DNA', 'SHAPE_ATOM', 'SHAPE_GALAXY',
-                'SHAPE_TESSERACT', 'SHAPE_DYSON_SPHERE',
-                'SHAPE_TORUS', 'SHAPE_HOURGLASS',
-                'SHAPE_QUANTUM_FIELD', 'SHAPE_WARP_DRIVE', 'SHAPE_MULTIVERSE'
-            ].includes(phaseName);
+            particles.forEach((p, i) => {
+                p.localSizeMult = 1.0;
+                p.localOpMult = 1.0;
+                updateParticleIdealTargets(p, phaseName, i, particles.length, globalTime, cx, cy, mouse);
 
-            if (phaseChanged || isDynamicMovingShape) {
-                const DISSOLVE_FRAMES = 100;
-                const ASSEMBLE_FRAMES = 120;
-                const TOTAL_TRANSITION_FRAMES = DISSOLVE_FRAMES + ASSEMBLE_FRAMES;
+                if (isChanged) { p.transStartX = p.x; p.transStartY = p.y; p.transStartZ = p.z; }
 
-                particles.forEach((p, i) => {
-                    // 1. Early return for free dynamic non-shape phases
-                    if (['WANDER', 'VORTEX', 'BREATHE', 'EXPLODE', 'STILL'].includes(phaseName)) {
-                        p.targetX = null;
-                        p.targetY = null;
-                        p.targetZ = null;
+                if (globalTime < 300) {
+                    p.isCinematic = true;
 
-                        if (phaseName === 'EXPLODE') {
-                            const dx = p.x - centerX;
-                            const dy = p.y - centerY;
-                            const dz = p.z;
-                            const dist = Math.sqrt(dx * dx + dy * dy + dz * dz) || 1;
-                            const force = Math.random() * 35 + 20;
-                            p.speedX = (dx / dist) * force;
-                            p.speedY = (dy / dist) * force;
-                            p.speedZ = (dz / dist) * force;
-                        }
-                        return; // Skip to next particle
-                    }
+                    const startX = p.transStartX;
+                    const startY = p.transStartY;
+                    const startZ = p.transStartZ;
 
-                    // 2. Compute the IDEAL structured shape coordinate matrix using the JIT-optimized zero-allocation helper
-                    updateParticleIdealTargets(
-                        p, phaseName, i, p.total, time, centerX, centerY, mouse
-                    );
+                    // Perfect circle in the center of the screen
+                    const ringAngle = (i / particles.length) * Math.PI * 2 * 2; // Winding twice
+                    const ringX = cx + Math.cos(ringAngle) * 140;
+                    const ringY = cy + Math.sin(ringAngle) * 140;
+                    const ringZ = 0;
 
-                    // 🌀 3. Cinematic Choreographed Morphing & Spatial Pipeline (4 Unique Styles)
-                    const transitionStyle = currentPhaseIndex % 4;
+                    if (globalTime < 120) {
+                        // 🎬 Phase 1: Particles sweep in from left/right sides, appearing large and bold
+                        const t1 = globalTime / 120;
+                        const ease1 = t1 < 0.5 ? 4 * t1 * t1 * t1 : 1 - Math.pow(-2 * t1 + 2, 3) / 2;
 
-                    if (phaseTimer < DISSOLVE_FRAMES) {
-                        const t_dissolve = phaseTimer / DISSOLVE_FRAMES; // 0.0 to 1.0
+                        p.targetX = startX + (ringX - startX) * ease1;
+                        p.targetY = startY + (ringY - startY) * ease1;
+                        p.targetZ = startZ + (ringZ - startZ) * ease1;
 
-                        if (transitionStyle === 0) {
-                            // Style 0: Fission / Split (الانفصام والتباعد الجانبي لنصفي الجسيمات)
-                            const isLeft = i % 2 === 0;
-                            const direction = isLeft ? -1 : 1;
-                            const pushX = direction * (120 + t_dissolve * 260);
-                            const pushY = Math.sin(i * 0.1) * 100;
-                            const pushZ = 50 + t_dissolve * 150;
+                    } else if (globalTime < 210) {
+                        // 🌀 Phase 2: Spin in a perfect center circle at extreme speed
+                        const spinAngle = ringAngle + (globalTime - 120) * 0.24; // Massive spinning velocity
 
-                            p.targetX = centerX + pushX;
-                            p.targetY = centerY + pushY;
-                            p.targetZ = pushZ;
-                        } else if (transitionStyle === 1) {
-                            // Style 1: Cyber Cosmic Swirl (العاصفة اللولبية المعتادة في عمق الفضاء)
-                            const swirlAngle = (i * 0.16) + (time * 0.008) + (t_dissolve * Math.PI * 2.8);
-                            const swirlRadius = 30 + (i % 7) * 40 + (1 - t_dissolve) * 160;
+                        p.targetX = cx + Math.cos(spinAngle) * 140;
+                        p.targetY = cy + Math.sin(spinAngle) * 140;
+                        p.targetZ = 0;
 
-                            p.targetX = centerX + Math.cos(swirlAngle) * swirlRadius;
-                            p.targetY = centerY + Math.sin(swirlAngle) * swirlRadius;
-                            p.targetZ = 280 + (i % 4) * 75;
-                        } else if (transitionStyle === 2) {
-                            // Style 2: Quantum Wave Scan (الماسح الموجي المتموج التكنولوجي)
-                            const col = i % 20;
-                            const row = Math.floor(i / 20) % 16;
-                            const waveX = centerX - 200 + col * 20;
-                            const waveY = centerY - 150 + row * 20 + Math.sin(t_dissolve * Math.PI * 2 + col * 0.3) * 40;
-                            const waveZ = -100 + t_dissolve * 200;
+                        // Pulsating portal plasma glow
+                        p.chromaticShift = 0.5 + Math.sin(globalTime * 0.12) * 0.5;
 
-                            p.targetX = waveX;
-                            p.targetY = waveY;
-                            p.targetZ = waveZ;
-                        } else {
-                            // Style 3: Big Bang Explosion (الانفجار الحركي المستعر للخارج)
-                            const radAngle = i * 0.15;
-                            const radRadius = 50 + t_dissolve * 280;
-                            const radZ = -150 + t_dissolve * 300;
-
-                            p.targetX = centerX + Math.cos(radAngle) * radRadius;
-                            p.targetY = centerY + Math.sin(radAngle) * radRadius;
-                            p.targetZ = radZ;
-                        }
-                    } else if (phaseTimer < TOTAL_TRANSITION_FRAMES) {
-                        const t_assemble = (phaseTimer - DISSOLVE_FRAMES) / ASSEMBLE_FRAMES; // 0.0 to 1.0
-
-                        // Cubic ease-in-out curve for deceleration feel
-                        const ease = t_assemble < 0.5
-                            ? 4 * t_assemble * t_assemble * t_assemble
-                            : 1 - Math.pow(-2 * t_assemble + 2, 3) / 2;
-
-                        let startX, startY, startZ;
-
-                        if (transitionStyle === 0) {
-                            // Style 0: Fusion / Merge (الاندماج وتجميع النصفين المنفصمين إلى المظهر الجديد)
-                            const isLeft = i % 2 === 0;
-                            const direction = isLeft ? -1 : 1;
-                            const pushX = direction * (120 + 260);
-                            const pushY = Math.sin(i * 0.1) * 100;
-                            const pushZ = 50 + 150;
-
-                            startX = centerX + pushX;
-                            startY = centerY + pushY;
-                            startZ = pushZ;
-                        } else if (transitionStyle === 1) {
-                            // Style 1: Cyber Cosmic Swirl
-                            const swirlAngle = (i * 0.16) + (time * 0.008) + (Math.PI * 2.8);
-                            const swirlRadius = 30 + (i % 7) * 40;
-
-                            startX = centerX + Math.cos(swirlAngle) * swirlRadius;
-                            startY = centerY + Math.sin(swirlAngle) * swirlRadius;
-                            startZ = 280 + (i % 4) * 75;
-                        } else if (transitionStyle === 2) {
-                            // Style 2: Quantum Wave Scan
-                            const col = i % 20;
-                            const row = Math.floor(i / 20) % 16;
-
-                            startX = centerX - 200 + col * 20;
-                            startY = centerY - 150 + row * 20 + Math.sin(Math.PI * 2 + col * 0.3) * 40;
-                            startZ = 100;
-                        } else {
-                            // Style 3: Big Bang Collapse
-                            const radAngle = i * 0.15;
-                            const radRadius = 330;
-                            const radZ = 150;
-
-                            startX = centerX + Math.cos(radAngle) * radRadius;
-                            startY = centerY + Math.sin(radAngle) * radRadius;
-                            startZ = radZ;
-                        }
-
-                        p.targetX = startX + (p.idealX - startX) * ease;
-                        p.targetY = startY + (p.idealY - startY) * ease;
-                        p.targetZ = startZ + (p.idealZ - startZ) * ease;
                     } else {
-                        // Stage 3: Display Stage - Fully formed, majestic, stable 3D constellation
-                        p.targetX = p.idealX;
-                        p.targetY = p.idealY;
-                        p.targetZ = p.idealZ;
+                        // ✨ Phase 3: Collapse and bloom from the spinning circle into the first scene (Globe)
+                        const t3 = (globalTime - 210) / 90;
+                        const ease3 = t3 < 0.5 ? 4 * t3 * t3 * t3 : 1 - Math.pow(-2 * t3 + 2, 3) / 2;
+
+                        const lastSpinAngle = ringAngle + 90 * 0.24;
+                        const ringStartX = cx + Math.cos(lastSpinAngle) * 140;
+                        const ringStartY = cy + Math.sin(lastSpinAngle) * 140;
+
+                        p.targetX = ringStartX + (p.idealX - ringStartX) * ease3;
+                        p.targetY = ringStartY + (p.idealY - ringStartY) * ease3;
+                        p.targetZ = 0 + (p.idealZ - 0) * ease3;
+
+                        // Fading out glow as they merge
+                        p.chromaticShift = (1 - ease3) * 0.8;
                     }
-                });
-            }
+                } else if (phaseTimer <= 180) {
+                    p.isCinematic = true;
+                    const globalT = phaseTimer / 180;
+
+                    // Shared dynamic physics parameters for all transitions (creates organic vitality)
+                    const distFromCenter = Math.sqrt(Math.pow(p.transStartX - cx, 2) + Math.pow(p.transStartY - cy, 2));
+                    // Cascading propagation wavefront ripple
+                    const baseDelay = Math.min(0.45, (distFromCenter / 400) * 0.42 + (i % 20) * 0.002);
+                    const localT = Math.max(0, Math.min(1, (globalT - baseDelay) / 0.55));
+
+                    const ease = localT < 0.5
+                        ? 16 * Math.pow(localT, 5)
+                        : 1 - Math.pow(-2 * localT + 2, 5) / 2;
+
+                    const arc = Math.sin(localT * Math.PI);
+
+                    // Magnetic force-field swirl (adds micro-vorticity and advanced fluid-like dynamics)
+                    const swirlAngle = localT * Math.PI * 2.5 + i * 0.03;
+                    const swirlRadius = arc * 14 * Math.sin(globalTime * 0.05 + i * 0.1);
+                    const swirlX = Math.cos(swirlAngle) * swirlRadius;
+                    const swirlY = Math.sin(swirlAngle) * swirlRadius;
+
+                    updateParticleTransition(p, phaseIdx, i, particles.length, localT, ease, arc, swirlX, swirlY, globalTime, cx, cy);
+                } else {
+                    p.isCinematic = false;
+                    p.targetX = p.idealX; p.targetY = p.idealY; p.targetZ = p.idealZ;
+
+                    // Add a tiny organic floating effect to make the solid shapes feel alive
+                    // 💎 Highly-coordinated, very subtle float to preserve geometric rigidity!
+                    const floatForce = Math.min(1, (phaseTimer - 160) / 45);
+                    const globalHoverX = Math.cos(globalTime * 0.016) * 3.5;
+                    const globalHoverY = Math.sin(globalTime * 0.016) * 3.5;
+                    const localHoverX = Math.sin(globalTime * 0.026 + i) * 0.6;
+                    const localHoverY = Math.cos(globalTime * 0.026 + i) * 0.6;
+
+                    p.targetX += (globalHoverX + localHoverX) * floatForce;
+                    p.targetY += (globalHoverY + localHoverY) * floatForce;
+                }
+            });
         };
 
-        let currentGlobalBaseHue = 195;
-        let currentGlobalFarHue = 275;
+        let gBaseH = 195, gFarH = 275, gSat = 0;
+
 
         const animate = () => {
-            if (!ctx) return;
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            // High-Performance Clear & Simple Smooth Motion Blur (البلور الحركي الذكي)
+            // Skip blur completely during the very first portal sweep-in entrance (globalTime < 300)
+            const isMorphing = globalTime >= 300 && phaseTimer > 0 && phaseTimer <= 180;
+            
+            if (isMorphing) {
+                // 🌊 Ultra-Soft Sine Wave Easing: Perfect bell-curve entrance and exit
+                // Math.sin creates a flawless, organic ramp peaking exactly at the middle (frame 90)
+                const blurStrength = Math.sin((phaseTimer / 180) * Math.PI);
+
+                // Very subtle blur: 1.0 is pure clear (no blur), 0.55 is a short, highly elegant tail
+                const activeFade = 0.55 + (1.0 - 0.55) * (1.0 - blurStrength);
+
+                // Transparent fade clear for realistic, delicate organic trails
+                ctx.globalCompositeOperation = 'destination-out';
+                ctx.fillStyle = `rgba(0, 0, 0, ${activeFade})`;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.globalCompositeOperation = 'screen';
+            } else {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            }
+
             globalTime++;
 
-            // Smooth decay of mouse speed velocity to return to stationary focus state
-            if (mouse.speed > 0.1) {
-                mouse.speed *= 0.92;
+            if (mouse.speed > 0.1) mouse.speed *= 0.95;
+            // ⚡ Instant Click Timer: Caps at 25 frames for an explosive short reaction
+            if (mouse.clickTimer >= 0 && ++mouse.clickTimer > 25) mouse.clickTimer = -1;
+
+            if (phaseTimer >= PHASES[phaseIdx].duration) { phaseIdx = (phaseIdx + 1) % PHASES.length; phaseTimer = 0; }
+
+            updatePhaseLogic();
+
+            if (globalTime < 210) {
+                gSat = 0; // Remain completely gray (lifeless) during sweep-in and high-speed spinning portal
+            } else if (globalTime < 300) {
+                // Smoothly fade in color over 90 frames in PERFECT SYNC with the bloom expansion into the Globe
+                const t = (globalTime - 210) / 90;
+                // Cubic ease-in-out for ultimate luxury transition
+                const ease = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+                gSat = ease * 100;
             } else {
-                mouse.speed = 0;
+                gSat = 100; // Full, vibrant, synchronized life!
             }
 
-            // Increment Thought Click Impulse Wave timer
-            if (mouse.clickTimer >= 0) {
-                mouse.clickTimer++;
-                if (mouse.clickTimer > 60) {
-                    mouse.clickX = null;
-                    mouse.clickY = null;
-                    mouse.clickTimer = -1;
+            const pName = PHASES[phaseIdx].name;
+            const targetColor = COLOR_MAP[phaseIdx] || { b: 195, f: 275 };
+
+            const lerpHue = (a, b, t) => {
+                let d = b - a;
+                while (d > 180) d -= 360;
+                while (d < -180) d += 360;
+                let res = a + d * t;
+                while (res < 0) res += 360;
+                return res % 360;
+            };
+
+            gBaseH = lerpHue(gBaseH, targetColor.b, 0.015); // Ultra luxurious smooth color morph
+            gFarH = lerpHue(gFarH, targetColor.f, 0.015);
+
+            rootE.style.setProperty('--dynamic-hue-1', `${gBaseH}`);
+            rootE.style.setProperty('--dynamic-hue-2', `${gFarH}`);
+            rootE.style.setProperty('--dynamic-saturation', `${gSat}`);
+
+            smoothedScrollY += (scrollY - smoothedScrollY) * 0.08;
+            camX += ((mouse.x !== null ? (mouse.x - canvas.width / 2) * 0.28 : 0) - camX) * 0.08;
+            camY += ((mouse.y !== null ? (mouse.y - canvas.height / 2) * 0.28 : 0) - camY) * 0.08;
+
+            const bZ = Math.sin(globalTime * 0.012) * 15;
+            if (globalTime < 200) {
+                const t = globalTime / 200;
+                const blend = Math.min(1, Math.max(0, (globalTime - 100) / 100));
+                camZ = 450 * (1 - t) ** 2.2 * Math.cos(globalTime * 0.015) * (1 - blend) + bZ * blend;
+            } else camZ = bZ;
+
+            const gOp = Math.max(0.15, Math.min(1, 1 - smoothedScrollY / 550)); // Fade to 15% on scroll
+            const cx = canvas.width / 2, cy = canvas.height / 2;
+            const cX = Math.cos(camY * 0.0012), sX = Math.sin(camY * 0.0012);
+            const cY = Math.cos(camX * 0.0012), sY = Math.sin(camX * 0.0012);
+
+            let sMult = 1, oMult = 1;
+            if (phaseIdx === 0 && globalTime < 300) {
+                if (globalTime < 120) {
+                    const p = globalTime / 120;
+                    sMult = 2.4 - 0.8 * p; // Start at 2.4x size, scale down to 1.6x
+                    oMult = 1.0;
+                } else if (globalTime < 210) {
+                    sMult = 1.6;
+                    oMult = 1.0;
+                } else {
+                    const p = (globalTime - 210) / 90;
+                    sMult = 1.6 - 0.6 * p; // Scale down to 1.0x
+                    oMult = 1.0;
                 }
             }
 
-            const centerX = canvas.width / 2;
-            const centerY = canvas.height / 2;
-
-            // 🔄 Step 1: Update target coordinate matrices
-            updatePhase(centerX, centerY, globalTime);
-
-            const currentPhaseName = PHASES[currentPhaseIndex].name;
-
-            // 🎨 Global CSS Variable Synchronization (Hardware Accelerated Gradient Sync)
-            let globalBaseHue = 195;
-            let globalFarHue = 275;
-
-            if (currentPhaseName === 'SHAPE_DNA') { globalBaseHue = 320; globalFarHue = 200; }
-            else if (currentPhaseName === 'SHAPE_BRAIN') { globalBaseHue = 210; globalFarHue = 45; }
-            else if (currentPhaseName === 'SHAPE_ATOM') { globalBaseHue = 160; globalFarHue = 280; }
-            else if (currentPhaseName === 'SHAPE_WARP_DRIVE') { globalBaseHue = 180; globalFarHue = 240; }
-            else if (currentPhaseName === 'SHAPE_MULTIVERSE') { globalBaseHue = 280; globalFarHue = 340; } // Deep Violet to Hot Pink
-            else if (currentPhaseName === 'SHAPE_QUANTUM_FIELD') { globalBaseHue = 140; globalFarHue = 200; } // Emerald to Cyan
-            else if (currentPhaseName === 'SHAPE_TESSERACT' || currentPhaseName === 'SHAPE_DYSON_SPHERE') { globalBaseHue = 45; globalFarHue = 15; } // Gold to Orange
-            else { globalBaseHue = 195; globalFarHue = 275; } // Default Cyan to Violet
-
-            // 🧬 Smooth Transition (Linear Interpolation) for UI Colors
-            currentGlobalBaseHue += (globalBaseHue - currentGlobalBaseHue) * 0.03; // Slightly faster transition
-            currentGlobalFarHue += (globalFarHue - currentGlobalFarHue) * 0.03;
-
-            if (typeof document !== 'undefined') {
-                const roundedBase = Math.round(currentGlobalBaseHue);
-                const roundedFar = Math.round(currentGlobalFarHue);
-                
-                // 🛡️ Elite Optimization: Only update the actual DOM if the integer value changed!
-                // This completely prevents DOM Thrashing and stops 60fps style recalculations.
-                if (window.__lastBaseHue !== roundedBase || window.__lastFarHue !== roundedFar) {
-                    document.documentElement.style.setProperty('--dynamic-hue-1', `${roundedBase}`);
-                    document.documentElement.style.setProperty('--dynamic-hue-2', `${roundedFar}`);
-                    window.__lastBaseHue = roundedBase;
-                    window.__lastFarHue = roundedFar;
-                }
-            }
-
-            // 🌟 Direct active scroll inspection inside the 60fps loop (100% bulletproof bypass of browser event restrictions)
-            const winS = typeof window !== 'undefined' ? (window.scrollY || window.pageYOffset || 0) : 0;
-            const docS = typeof document !== 'undefined' && document.documentElement ? document.documentElement.scrollTop : 0;
-            const bodyS = typeof document !== 'undefined' && document.body ? document.body.scrollTop : 0;
-
-            let elementScroll = 0;
-            if (typeof document !== 'undefined') {
-                const scrollableContainer = document.querySelector('.content') || document.querySelector('.app-container');
-                if (scrollableContainer) {
-                    elementScroll = scrollableContainer.scrollTop || 0;
-                }
-            }
-            const currentScroll = Math.max(winS, docS, bodyS, elementScroll);
-
-            // Smoothly ease the scroll position
-            smoothedScrollY += (currentScroll - smoothedScrollY) * 0.075;
-
-            // Fades smoothly and organically to exactly 15% (0.15) as the user scrolls down (decrease by 85%)
-            const scrollFadeRange = 180;
-            const globalOpacity = Math.max(0.15, 1 - (Math.min(smoothedScrollY, scrollFadeRange) / scrollFadeRange) * 0.85);
-
-            // Sweeping transition zoom impulse: pulls particles forward, then recedes them
-            let transitionZoom = 0;
-            if (phaseTimer < 140) {
-                // Starts at 0, peaks at 180px in 3D camera depth, then returns to 0
-                transitionZoom = Math.sin((phaseTimer / 140) * Math.PI) * 180;
-            }
-
-            // 🎥 Step 2: Smooth 3D Camera Depth Pan and Parallax Breathing
-            const targetCameraX = (mouse.x !== null) ? (mouse.x - centerX) * 0.22 : 0;
-            const targetCameraY = (mouse.y !== null) ? (mouse.y - centerY) * 0.22 : 0;
-
-            // Oscillates in Z-space + sweeps forward during transitions
-            const targetCameraZ = Math.sin(globalTime * 0.008) * 140 - transitionZoom;
-
-            cameraX += (targetCameraX - cameraX) * 0.04;
-            cameraY += (targetCameraY - cameraY) * 0.04;
-            cameraZ += (targetCameraZ - cameraZ) * 0.04;
-
-            // Rotational angles of the camera in radians for true 3D perspective rotation
-            const rotX = cameraY * 0.0012; // tilt camera vertically (X rotation)
-            const rotY = cameraX * 0.0012; // rotate camera horizontally (Y rotation)
-
-            const cosX = Math.cos(rotX);
-            const sinX = Math.sin(rotX);
-            const cosY = Math.cos(rotY);
-            const sinY = Math.sin(rotY);
-
-            // 📐 Step 3: Run Particle 3D Projective Mathematics
             for (let i = 0; i < particles.length; i++) {
                 const p = particles[i];
-                p.update(mouse, currentPhaseName, centerX, centerY, globalTime);
+                p.update(mouse, pName, cx, cy, globalTime);
 
-                // Coordinate subtraction relative to origin (centerX, centerY) before rotation
-                const rx = p.x - centerX;
-                const ry = p.y - centerY;
-                const rz = p.z; // absolute Z coordinate
+                const rx = p.x - cx, ry = p.y - cy, rz = p.z;
+                const y1 = ry * cX - rz * sX, z1 = ry * sX + rz * cX;
+                const x2 = rx * cY - z1 * sY, z2 = rx * sY + z1 * cY;
 
-                // 1. Rotate around X-axis (tilt vertically)
-                const y1 = ry * cosX - rz * sinX;
-                const z1 = ry * sinX + rz * cosX;
-
-                // 2. Rotate around Y-axis (orbit horizontally)
-                const x2 = rx * cosY - z1 * sinY;
-                const z2 = rx * sinY + z1 * cosY;
-
-                // Cache rotated depth for connection line calculations in camera-space
                 p.rotatedZ = z2;
+                const cRZ = Math.max(-280, z2 + camZ);
+                const sc = 360 / (360 + cRZ);
 
-                // Apply camera depth shifts (breathing + morph zoom)
-                const finalRZ = z2 + cameraZ;
+                p.px = cx + x2 * sc; p.py = cy + y1 * sc; p.scale = sc;
+                p.pSize = Math.max(0.2, p.size * sc * sMult * p.localSizeMult);
 
-                // Safe focal length equation (prevents dividing by zero or massive blowouts)
-                const clampedRZ = Math.max(-280, finalRZ);
-                const scale = 360 / (360 + clampedRZ);
+                const nF = cRZ < -150 ? Math.max(0, (cRZ + 280) / 130) : 1;
+                const fF = Math.max(0.6, 1 - (cRZ - 100) / 600);
+                p.pOpacity = Math.min(Math.max(0.42, sc) * nF * fF * (fastSin(globalTime * 0.05 + i * 1.5) * 0.15 + 0.85) * 1.15, 1) * gOp * oMult * p.localOpMult;
 
-                // Project rotated coordinates into screen space
-                p.px = centerX + x2 * scale;
-                p.py = centerY + y1 * scale;
-                p.scale = scale;
-                p.pSize = Math.max(0.2, p.size * scale);
-
-                // Near-plane and far-plane clipping to mimic professional 3D camera depth-of-field
-                let nearFade = 1;
-                if (clampedRZ < -150) {
-                    nearFade = Math.max(0, (clampedRZ + 280) / 130);
-                }
-                const farFade = Math.max(0.6, 1 - (clampedRZ - 100) / 600); // Softer far-depth fade
-
-                // High-fidelity individual starlight twinkling phase
-                const twinkle = Math.sin(globalTime * 0.05 + i * 1.5) * 0.15 + 0.85;
-
-                let baseParticleOpacity = Math.max(0.42, scale) * nearFade * farFade * twinkle * 1.15;
-                p.pOpacity = Math.min(baseParticleOpacity, 1.0) * globalOpacity; // Strict alpha capping guarantees exact fade
-
-                p.draw(ctx, globalTime, currentPhaseName, mouse);
+                p.draw(ctx, globalTime, pName, mouse, gBaseH, gFarH);
             }
 
-            // 🕸️ Step 4: Draw depth-filtered connecting line constellations
-            if (globalOpacity > 0.1) {
-                connect(globalOpacity);
-            }
+            if (gOp > 0.1) drawLines(gOp);
 
-            animationFrameId = requestAnimationFrame(animate);
+            reqId = requestAnimationFrame(animate);
         };
 
-        window.addEventListener('resize', resize);
-        window.addEventListener('scroll', handleScroll, { passive: true });
-        document.addEventListener('scroll', handleScroll, { capture: true, passive: true });
-        window.addEventListener('mousemove', handleMouseMove);
-        window.addEventListener('mouseleave', handleMouseLeave);
-        window.addEventListener('click', handleMouseClick);
+        window.addEventListener('resize', onResize); window.addEventListener('scroll', onScroll, { passive: true });
+        if (scrollC) scrollC.addEventListener('scroll', onScroll, { passive: true });
+        window.addEventListener('mousemove', onMove); window.addEventListener('mouseleave', onLeave); window.addEventListener('click', onClick);
 
-        resize();
-        handleScroll();
-        animate();
+        onResize(); animate();
 
         return () => {
-            window.removeEventListener('resize', resize);
-            window.removeEventListener('scroll', handleScroll);
-            document.removeEventListener('scroll', handleScroll, { capture: true });
-            window.removeEventListener('mousemove', handleMouseMove);
-            window.removeEventListener('mouseleave', handleMouseLeave);
-            window.removeEventListener('click', handleMouseClick);
-            cancelAnimationFrame(animationFrameId);
+            cancelAnimationFrame(reqId);
+            window.removeEventListener('resize', onResize); window.removeEventListener('scroll', onScroll);
+            if (scrollC) scrollC.removeEventListener('scroll', onScroll);
+            window.removeEventListener('mousemove', onMove); window.removeEventListener('mouseleave', onLeave); window.removeEventListener('click', onClick);
         };
     }, [shouldRender]);
 
-    if (!shouldRender) return null;
+    if (!shouldRender) return <div style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none', background: 'transparent' }} />;
 
     return (
-        <canvas
-            ref={canvasRef}
-            aria-hidden="true"
-            style={{
-                position: 'fixed',
-                top: 0,
-                left: 0,
-                width: '100vw',
-                height: '100vh',
-                pointerEvents: 'none',
-                zIndex: 0,
-                background: 'transparent',
-                opacity: 1
-            }}
-        />
+        <canvas ref={canvasRef} style={{
+            position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh',
+            zIndex: 0, pointerEvents: 'none', mixBlendMode: 'screen',
+            opacity: isAlive ? 0.88 : 0, transition: 'opacity 1.8s cubic-bezier(0.16, 1, 0.3, 1)'
+        }} />
     );
-};
-
-export default InteractiveParticles;
+}

@@ -52,33 +52,33 @@
     align-items: center;
     gap: 8px;
     padding: 6px 16px;
-    background: rgba(0, 210, 255, 0.1);
-    border: 1px solid rgba(0, 210, 255, 0.2);
+    background: rgba(var(--primary-rgb, 0, 136, 204), 0.1);
+    border: 1px solid hsl(var(--dynamic-hue-1, 195), calc(var(--dynamic-saturation, 0) * 1%), 50%, 0.35);
     border-radius: 100px;
     backdrop-filter: blur(8px);
 }
-
+ 
 .badgeIconWrapper {
     display: flex;
     align-items: center;
-    color: #00d2ff;
+    color: hsl(var(--dynamic-hue-1, 195), calc(var(--dynamic-saturation, 0) * 1%), 65%);
 }
-
+ 
 .badgeText {
-    color: #00d2ff;
+    color: hsl(var(--dynamic-hue-1, 195), calc(var(--dynamic-saturation, 0) * 1%), 65%);
     font-size: 0.8rem;
     font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 1.2px;
 }
-
+ 
 .mainTitleGroup {
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 0.8rem;
 }
-
+ 
 .eliteHeadingText {
     font-size: 2.3rem; /* Reduced from 2.8rem for better long-name support */
     font-weight: 900;
@@ -87,13 +87,13 @@
     line-height: 1.2;
     text-align: center;
 }
-
+ 
 .toolNameHighlight {
-    background: linear-gradient(135deg, #00d2ff 0%, #3a7bd5 100%); /* Tool Name is Blue Gradient */
+    background: var(--gradient);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
-    filter: drop-shadow(0 0 10px rgba(0, 210, 255, 0.2));
+    filter: drop-shadow(0 0 12px hsl(var(--dynamic-hue-1, 195), calc(var(--dynamic-saturation, 0) * 1%), 50%, 0.25));
 }
 
 .heroSubTagline {

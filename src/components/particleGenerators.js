@@ -1,283 +1,248 @@
 /**
- * 🌌 particleGenerators.js - Pure Mathematical 3D Physics Engine for Constellations
- * Decoupled from React to achieve extreme JIT compiler optimizations (V8 Engine)
- * and rock-solid rendering performance.
- *
- * ⚡ Optimized with Zero-Allocation Loop: Mutates particle targets in-place to
- * eliminate Garbage Collection pauses and battery heating on mobile devices.
+ * 🌌 particleGenerators.js — 3D Shape Mathematics Engine
+ * Zero-allocation: mutates particle idealX/Y/Z in-place.
+ * Pre-computes expensive data at module level for hot-path speed.
  */
 
-export function updateParticleIdealTargets(p, phaseName, i, total, time, centerX, centerY, mouse) {
-    const t = (i / total) * Math.PI * 2;
-    const progress = i / total;
+// ─── Pre-compute Tesseract edges once (module level, never GC'd) ─────────────
+const _TESS = (() => {
+    const v = [];
+    for (const sc of [165, 75])
+        for (let x = -1; x <= 1; x += 2)
+            for (let y = -1; y <= 1; y += 2)
+                for (let z = -1; z <= 1; z += 2)
+                    v.push([x * sc, y * sc, z * sc]);
+    const e = [];
+    for (let g = 0; g < 2; g++) {
+        const o = g * 8;
+        for (let a = o; a < o + 8; a++)
+            for (let b = a + 1; b < o + 8; b++) {
+                const d = (v[a][0] !== v[b][0]) + (v[a][1] !== v[b][1]) + (v[a][2] !== v[b][2]);
+                if (d === 1) e.push([a, b]);
+            }
+    }
+    for (let a = 0; a < 8; a++) e.push([a, a + 8]);
+    return { v, e };
+})();
 
-    // High-quality deterministic organic offsets - Extremely reduced to 3px for laser-sharp mathematical precision
-    const randX = (Math.sin(i * 9.9) * 0.5) * 3;
-    const randY = (Math.cos(i * 7.7) * 0.5) * 3;
-    const randZ = (Math.sin(i * 5.5) * 0.5) * 3;
+// ─── Merkaba edges (12 edges of 2 interlocked tetrahedra) ────────────────────
+const _MERK_EDGES = (() => {
+    const R = 130;
+    const t1 = [[R,R,R],[R,-R,-R],[-R,R,-R],[-R,-R,R]];
+    const t2 = [[-R,-R,-R],[-R,R,R],[R,-R,R],[R,R,-R]];
+    const edges = [];
+    [[t1,t1],[t2,t2]].forEach(([ta]) => {
+        for (let a = 0; a < 4; a++)
+            for (let b = a + 1; b < 4; b++)
+                edges.push([ta[a], ta[b]]);
+    });
+    return edges;
+})();
 
-    let idealX = centerX;
-    let idealY = centerY;
-    let idealZ = 0;
+// ─── Rotation helper ─────────────────────────────────────────────────────────
+export function rotateYPR(x, y, z, pitch, yaw, roll = 0) {
+    const cp = Math.cos(pitch), sp = Math.sin(pitch);
+    const cy = Math.cos(yaw),   sy = Math.sin(yaw);
+    const y1 = y * cp - z * sp, z1 = y * sp + z * cp;
+    const x2 = x * cy - z1 * sy, z2 = x * sy + z1 * cy;
+    if (!roll) return { x: x2, y: y1, z: z2 };
+    const cr = Math.cos(roll), sr = Math.sin(roll);
+    return { x: x2 * cr - y1 * sr, y: x2 * sr + y1 * cr, z: z2 };
+}
+
+// ─── Constants ───────────────────────────────────────────────────────────────
+const GOLDEN_ANGLE = Math.PI * (1 + Math.sqrt(5));
+
+// ─── Main shape calculator ───────────────────────────────────────────────────
+export function updateParticleIdealTargets(p, phaseName, i, total, time, cx, cy) {
+    const prog = i / total;
+    const t    = prog * Math.PI * 2;
+    
+    // Pre-calculated organic offsets on the particle itself (Zero-Cost)
+    const rx = p.randX || 0;
+    const ry = p.randY || 0;
+    const rz = p.randZ || 0;
+    
+    let ix = cx, iy = cy, iz = 0;
 
     if (phaseName === 'SHAPE_DNA') {
-        // 🧬 Rotating 3D Double Helix
-        const isStrandA = i % 2 === 0;
-        const xOffset = -350 + progress * 700;
-        const angle = progress * Math.PI * 5.5 + time * 0.025 + (isStrandA ? 0 : Math.PI);
-        const r = 85;
-        idealX = centerX + xOffset + randX * 0.3;
-        idealY = centerY + Math.sin(angle) * r + randY * 0.3;
-        idealZ = Math.cos(angle) * r;
-    } else if (phaseName === 'SHAPE_BRAIN') {
-        // 🧠 Human Brain Neural Network in 3D depth
-        const lobe = i % 2 === 0 ? -1 : 1;
-        const fold = Math.sin(t * 15) * 15;
-        const spread = i % 3 === 0 ? 0.5 : 1;
-        idealX = centerX + (lobe * 70 + Math.cos(t) * 105 * spread + fold) + randX;
-        idealY = centerY - 25 + (Math.sin(t) * 115 * spread + fold) + randY;
-        idealZ = Math.sin(t * lobe) * 80 + randZ * 1.5;
-    } else if (phaseName === 'SHAPE_ATOM') {
-        // ⚛️ 3D Atomic Structure with Tilted Orbitals
-        if (i < total * 0.15) {
-            idealX = centerX + randX * 2.5;
-            idealY = centerY + randY * 2.5;
-            idealZ = randZ * 2.5;
-        } else {
-            const orbitNum = i % 3;
-            const r = 210;
-            const cx = Math.cos(t) * r;
-            const cy = Math.sin(t) * r;
-            const orbitAngle = orbitNum * (Math.PI / 3) + time * 0.012;
+        const strand = i % 2 === 0;
+        // Tighter coils and more definition for the DNA
+        const angle  = prog * Math.PI * 7.5 + time * 0.02 + (strand ? 0 : Math.PI);
+        ix = cx + (-400 + prog * 800) + rx;
+        iy = cy + Math.sin(angle) * 110 + ry;
+        iz = Math.cos(angle) * 110 + rz;
 
-            const ox = cx;
-            const oy = cy * Math.cos(Math.PI / 4);
-            const oz = cy * Math.sin(Math.PI / 4);
+    } else if (phaseName === 'SHAPE_GLOBE') {
+        const phi   = Math.acos(1 - 2 * prog);
+        const theta = GOLDEN_ANGLE * i;
+        const r = rotateYPR(
+            Math.sin(phi) * Math.cos(theta) * 200,
+            Math.cos(phi) * 200,
+            Math.sin(phi) * Math.sin(theta) * 200,
+            time * 0.002, time * 0.005
+        );
+        ix = cx + r.x + rx; iy = cy + r.y + ry; iz = r.z + rz;
+    } else if (phaseName === 'SHAPE_AI_TEXT') {
+        const sp = prog;
+        let x1, y1, x2, y2, lt;
+        if      (sp < 0.3) { x1=-140; y1=140;  x2=-70;  y2=-140; lt=sp/0.3; } // A left
+        else if (sp < 0.6) { x1=-70;  y1=-140; x2=0;    y2=140;  lt=(sp-0.3)/0.3; } // A right
+        else if (sp < 0.7) { x1=-110; y1=20;   x2=-30;  y2=20;   lt=(sp-0.6)/0.1; } // A crossbar
+        else if (sp < 0.8) { x1=60;   y1=-140; x2=140;  y2=-140; lt=(sp-0.7)/0.1; } // I top
+        else if (sp < 0.9) { x1=100;  y1=-140; x2=100;  y2=140;  lt=(sp-0.8)/0.1; } // I mid
+        else               { x1=60;   y1=140;  x2=140;  y2=140;  lt=(sp-0.9)/0.1; } // I bot
+        ix = cx + x1 + (x2 - x1) * lt + rx;
+        iy = cy + y1 + (y2 - y1) * lt + ry;
+        iz = rz * 2.5;
 
-            idealX = centerX + ox * Math.cos(orbitAngle) - oy * Math.sin(orbitAngle) + randX * 0.3;
-            idealY = centerY + ox * Math.sin(orbitAngle) + oy * Math.cos(orbitAngle) + randY * 0.3;
-            idealZ = oz;
-        }
     } else if (phaseName === 'SHAPE_HOURGLASS') {
-        // ⏳ 3D Flow of Time
-        const scaleX = 160;
-        const scaleY = 230;
+        // ⏳ Original 3D Figure-8 standing infinity hourglass (Connected, twisted and extremely beautiful)
         const twist = t * 2 + time * 0.02;
-        idealX = centerX + Math.sin(twist) * scaleX + randX * 0.3;
-        idealY = centerY + Math.cos(t) * scaleY + randY * 0.3;
-        idealZ = Math.sin(t) * 110;
-    } else if (phaseName === 'SHAPE_GALAXY') {
-        // 🌌 3D Tilted Spiral Galaxy
-        const turns = 3;
-        const spiralT = progress * Math.PI * 2 * turns + time * 0.01;
-        const r = progress * 280 + 35;
-        const armOffset = i % 2 === 0 ? 0 : Math.PI;
-        const rx = Math.cos(spiralT + armOffset) * r;
-        const ry = Math.sin(spiralT + armOffset) * r;
-        const rz = (Math.sin(i * 12.3)) * 35 * (1 - progress);
+        ix = cx + Math.sin(twist) * 160 + rx * 0.3;
+        iy = cy + Math.cos(t) * 230 + ry * 0.3;
+        iz = Math.sin(t) * 110 + rz * 0.3;
 
-        const cosT = Math.cos(Math.PI / 3);
-        const sinT = Math.sin(Math.PI / 3);
+    } else if (phaseName === 'SHAPE_MERKABA') {
+        const ei = i % 12, ep = ((i * 7) % 20) / 19;
+        const [pa, pb] = _MERK_EDGES[ei];
+        const r = rotateYPR(
+            pa[0] + (pb[0] - pa[0]) * ep,
+            pa[1] + (pb[1] - pa[1]) * ep,
+            pa[2] + (pb[2] - pa[2]) * ep,
+            time * 0.008, time * 0.005, time * 0.003
+        );
+        ix = cx + r.x + rx; iy = cy + r.y + ry; iz = r.z + rz;
 
-        idealX = centerX + rx + randX * 0.4;
-        idealY = centerY + ry * cosT - rz * sinT + randY * 0.4;
-        idealZ = ry * sinT + rz * cosT;
     } else if (phaseName === 'SHAPE_TESSERACT') {
-        // 🚀 4D Hypercube (Tesseract)
-        const vertices = [];
-        for (let x = -1; x <= 1; x += 2) {
-            for (let y = -1; y <= 1; y += 2) {
-                for (let z = -1; z <= 1; z += 2) {
-                    vertices.push({ x: x * 165, y: y * 165, z: z * 165 });
-                }
-            }
-        }
-        for (let x = -1; x <= 1; x += 2) {
-            for (let y = -1; y <= 1; y += 2) {
-                for (let z = -1; z <= 1; z += 2) {
-                    vertices.push({ x: x * 75, y: y * 75, z: z * 75 });
-                }
-            }
-        }
+        const { v, e } = _TESS;
+        const ei = i % e.length, ep = ((i * 7) % 11) / 10;
+        const [ai, bi] = e[ei];
+        const r = rotateYPR(
+            v[ai][0] + (v[bi][0] - v[ai][0]) * ep,
+            v[ai][1] + (v[bi][1] - v[ai][1]) * ep,
+            v[ai][2] + (v[bi][2] - v[ai][2]) * ep,
+            time * 0.012, time * 0.008, time * 0.005
+        );
+        ix = cx + r.x + rx; iy = cy + r.y + ry; iz = r.z + rz;
 
-        const edges = [];
-        for (let a = 0; a < 8; a++) {
-            for (let b = a + 1; b < 8; b++) {
-                let diffs = (vertices[a].x !== vertices[b].x ? 1 : 0) +
-                    (vertices[a].y !== vertices[b].y ? 1 : 0) +
-                    (vertices[a].z !== vertices[b].z ? 1 : 0);
-                if (diffs === 1) edges.push([a, b]);
-            }
-        }
-        for (let a = 8; a < 16; a++) {
-            for (let b = a + 1; b < 16; b++) {
-                let diffs = (vertices[a].x !== vertices[b].x ? 1 : 0) +
-                    (vertices[a].y !== vertices[b].y ? 1 : 0) +
-                    (vertices[a].z !== vertices[b].z ? 1 : 0);
-                if (diffs === 1) edges.push([a, b]);
-            }
-        }
-        for (let a = 0; a < 8; a++) {
-            edges.push([a, a + 8]);
-        }
-
-        const edgeIdx = i % edges.length;
-        const edgeProgress = ((i * 7) % 11) / 10;
-        const p1 = vertices[edges[edgeIdx][0]];
-        const p2 = vertices[edges[edgeIdx][1]];
-
-        let rx = p1.x + (p2.x - p1.x) * edgeProgress;
-        let ry = p1.y + (p2.y - p1.y) * edgeProgress;
-        let rz = p1.z + (p2.z - p1.z) * edgeProgress;
-
-        const rotX = time * 0.012;
-        const rotY = time * 0.008;
-        const rotZ = time * 0.005;
-
-        let y1 = ry * Math.cos(rotX) - rz * Math.sin(rotX);
-        let z1 = ry * Math.sin(rotX) + rz * Math.cos(rotX);
-        let x2 = rx * Math.cos(rotY) - z1 * Math.sin(rotY);
-        let z2 = rx * Math.sin(rotY) + z1 * Math.cos(rotY);
-        let x3 = x2 * Math.cos(rotZ) - y1 * Math.sin(rotZ);
-        let y3 = x2 * Math.sin(rotZ) + y1 * Math.cos(rotZ);
-
-        idealX = centerX + x3 + randX * 0.25;
-        idealY = centerY + y3 + randY * 0.25;
-        idealZ = z2;
     } else if (phaseName === 'SHAPE_DYSON_SPHERE') {
-        // 🚀 Stellar Swarm Gyro Rings
-        if (progress < 0.20) {
-            const r = 35 + Math.sin(time * 0.06 + i) * 6;
-            const theta = (i * 15.3) % (Math.PI * 2);
-            const phi = Math.acos(((i * 7.7) % 2) - 1);
-            idealX = centerX + r * Math.sin(phi) * Math.cos(theta) + randX * 0.5;
-            idealY = centerY + r * Math.sin(phi) * Math.sin(theta) + randY * 0.5;
-            idealZ = r * Math.cos(phi);
+        if (prog < 0.2) {
+            const phi = Math.acos(((i * 7.7) % 2) - 1), theta = (i * 15.3) % (Math.PI * 2);
+            const rad = 35 + Math.sin(time * 0.06 + i) * 6;
+            ix = cx + Math.sin(phi) * Math.cos(theta) * rad + rx;
+            iy = cy + Math.sin(phi) * Math.sin(theta) * rad + ry;
+            iz = Math.cos(phi) * rad + rz;
         } else {
-            const ringNum = i % 3;
-            const angle = progress * Math.PI * 6 + time * 0.015;
-            const r = 160 + ringNum * 25;
-
-            let rx = 0, ry = 0, rz = 0;
-            if (ringNum === 0) {
-                rx = Math.cos(angle) * r;
-                ry = Math.sin(angle) * r;
-                rz = Math.sin(time * 0.02 + i) * 8;
-            } else if (ringNum === 1) {
-                rx = Math.cos(angle) * r;
-                ry = Math.cos(time * 0.025 + i) * 8;
-                rz = Math.sin(angle) * r;
-            } else {
-                rx = Math.cos(time * 0.03 + i) * 8;
-                ry = Math.cos(angle) * r;
-                rz = Math.sin(angle) * r;
-            }
-
-            const tiltX = time * 0.005;
-            const tiltY = time * 0.003;
-
-            const y1 = ry * Math.cos(tiltX) - rz * Math.sin(tiltX);
-            const z1 = ry * Math.sin(tiltX) + rz * Math.cos(tiltX);
-            const x2 = rx * Math.cos(tiltY) - z1 * Math.sin(tiltY);
-            const z2 = rx * Math.sin(tiltY) + z1 * Math.cos(tiltY);
-
-            idealX = centerX + x2 + randX * 0.35;
-            idealY = centerY + y1 + randY * 0.35;
-            idealZ = z2;
+            const ring = i % 3, angle = prog * Math.PI * 6 + time * 0.015, rad = 160 + ring * 25;
+            let rxV = 0, ryV = 0, rzV = 0;
+            if      (ring === 0) { rxV = Math.cos(angle)*rad; ryV = Math.sin(angle)*rad; rzV = Math.sin(time*0.02+i)*8; }
+            else if (ring === 1) { rxV = Math.cos(angle)*rad; rzV = Math.sin(angle)*rad; ryV = Math.cos(time*0.025+i)*8; }
+            else                 { ryV = Math.cos(angle)*rad; rzV = Math.sin(angle)*rad; rxV = Math.cos(time*0.03+i)*8; }
+            const r = rotateYPR(rxV, ryV, rzV, time * 0.005, time * 0.003);
+            ix = cx + r.x + rx; iy = cy + r.y + ry; iz = r.z + rz;
         }
+
     } else if (phaseName === 'SHAPE_TORUS') {
-        // 🚀 Torus Loop
-        const majorR = 150;
-        const minorR = 45;
-        const phi = progress * Math.PI * 2;
-        const theta = progress * Math.PI * 18 + time * 0.05;
+        const phi = prog * Math.PI * 2, theta = prog * Math.PI * 24 + time * 0.05;
+        // Thicker, more substantial 3D Torus
+        const r = rotateYPR(
+            (180 + 65 * Math.cos(theta)) * Math.cos(phi),
+            (180 + 65 * Math.cos(theta)) * Math.sin(phi),
+            65 * Math.sin(theta),
+            time * 0.008, time * 0.006
+        );
+        ix = cx + r.x + rx; iy = cy + r.y + ry; iz = r.z + rz;
 
-        const rx = (majorR + minorR * Math.cos(theta)) * Math.cos(phi);
-        const ry = (majorR + minorR * Math.cos(theta)) * Math.sin(phi);
-        const rz = minorR * Math.sin(theta);
-
-        const rotX = time * 0.008;
-        const rotY = time * 0.006;
-
-        const y1 = ry * Math.cos(rotX) - rz * Math.sin(rotX);
-        const z1 = ry * Math.sin(rotX) + rz * Math.cos(rotX);
-        const x2 = rx * Math.cos(rotY) - z1 * Math.sin(rotY);
-        const z2 = rx * Math.sin(rotY) + z1 * Math.cos(rotY);
-
-        idealX = centerX + x2 + randX * 0.3;
-        idealY = centerY + y1 + randY * 0.3;
-        idealZ = z2;
     } else if (phaseName === 'SHAPE_QUANTUM_FIELD') {
-        // 🕸️ Cyber Geometric Spider Web (Futuristic 3D Concentric Mesh with RGB Pulsing)
-        const flowProgress = (progress + time * 0.003) % 1.0;
-        
-        // 8 Radial Spokes
-        const numSpokes = 8;
-        const spokeNum = i % numSpokes;
-        const radialAngle = (spokeNum / numSpokes) * Math.PI * 2 + time * 0.005;
-        
-        // Particle division: 35% on radial lines, 65% on concentric rings
-        const isRadial = i % 3 === 0;
-        
-        if (isRadial) {
-            // Radial strands flowing outward from core
-            const r = 25 + flowProgress * 235;
-            idealX = centerX + Math.cos(radialAngle) * r + randX * 0.2;
-            idealY = centerY + Math.sin(radialAngle) * r + randY * 0.2;
-            // 3D waving ripple on the web
-            idealZ = Math.sin(flowProgress * Math.PI * 3 + time * 0.03) * 35;
+        const spokeAngle = (i % 8) / 8 * Math.PI * 2 + time * 0.005;
+        if (i % 3 === 0) {
+            const rad = 25 + prog * 235;
+            ix = cx + Math.cos(spokeAngle) * rad;
+            iy = cy + Math.sin(spokeAngle) * rad;
+            iz = Math.sin(prog * Math.PI * 3 + time * 0.03) * 35;
         } else {
-            // Concentric polygon ring strands flowing circularly!
-            const ringLayers = 7;
-            const layer = Math.floor(progress * ringLayers) % ringLayers;
-            const r = 45 + layer * 32;
-            
-            // Decagon ring vertices interpolation
-            const ringT = (progress * 10 + time * 0.015) * Math.PI * 2;
-            idealX = centerX + Math.cos(ringT) * r + randX * 0.2;
-            idealY = centerY + Math.sin(ringT) * r + randY * 0.2;
-            // Wave ripples outwards from the center of the web!
-            idealZ = Math.sin(layer * 0.8 - time * 0.035) * 25;
+            const layer = Math.floor(prog * 7) % 7, rad = 45 + layer * 32;
+            const a = (prog * 10 + time * 0.015) * Math.PI * 2;
+            ix = cx + Math.cos(a) * rad;
+            iy = cy + Math.sin(a) * rad;
+            iz = Math.sin(layer * 0.8 - time * 0.035) * 25;
         }
+
     } else if (phaseName === 'SHAPE_WARP_DRIVE') {
-        // 🚀 Space Warp Funnel
-        if (progress < 0.20) {
-            const angle = progress * Math.PI * 10 + time * 0.045;
-            idealX = centerX + Math.cos(angle) * 140 + randX * 0.3;
-            idealY = centerY + Math.sin(angle) * 140 + randY * 0.3;
-            idealZ = -120;
+        if (prog < 0.2) {
+            const angle = prog * Math.PI * 10 + time * 0.045;
+            ix = cx + Math.cos(angle) * 140;
+            iy = cy + Math.sin(angle) * 140;
+            iz = -120;
         } else {
-            const zPos = -120 + ((progress - 0.2) / 0.8) * 380;
-            const rFunnel = 140 - ((progress - 0.2) / 0.8) * 115;
-            const angle = progress * Math.PI * 20 + time * 0.05;
-            idealX = centerX + Math.cos(angle) * rFunnel + randX * 0.4;
-            idealY = centerY + Math.sin(angle) * rFunnel + randY * 0.4;
-            idealZ = zPos;
+            const f = (prog - 0.2) / 0.8;
+            const angle = prog * Math.PI * 20 + time * 0.05;
+            ix = cx + Math.cos(angle) * (140 - f * 115);
+            iy = cy + Math.sin(angle) * (140 - f * 115);
+            iz = -120 + f * 380;
         }
+
     } else if (phaseName === 'SHAPE_MULTIVERSE') {
-        // 🌌 Parallel Multiverse Portal
-        if (progress < 0.45) {
-            const angle = progress * Math.PI * 8 + time * 0.015;
-            const wave = Math.sin(time * 0.045 + i) * 12;
-            idealX = centerX + Math.cos(angle) * 230 + wave + randX * 0.3;
-            idealY = centerY + Math.sin(angle) * 230 + wave + randY * 0.3;
-            idealZ = Math.sin(angle * 2.5) * 60;
+        if (prog < 0.45) {
+            const angle = prog * Math.PI * 8 + time * 0.015;
+            const wave  = Math.sin(time * 0.045 + i) * 12;
+            ix = cx + Math.cos(angle) * 230 + wave;
+            iy = cy + Math.sin(angle) * 230 + wave;
+            iz = Math.sin(angle * 2.5) * 60;
         } else {
-            const r = ((progress - 0.45) / 0.55) * 165;
-            const angleCore = progress * Math.PI * 12 - time * 0.035;
-            idealX = centerX + Math.cos(angleCore) * r + randX * 0.45;
-            idealY = centerY + Math.sin(angleCore) * r + randY * 0.45;
-            idealZ = -70 + (1 - progress) * 200;
+            const f = (prog - 0.45) / 0.55;
+            const angle = prog * Math.PI * 12 - time * 0.035;
+            ix = cx + Math.cos(angle) * f * 165;
+            iy = cy + Math.sin(angle) * f * 165;
+            iz = -70 + (1 - prog) * 200;
         }
-    } else if (phaseName === 'SHAPE_CORE') {
-        // 🔴 Compression Core
-        idealX = centerX + randX * 1.5;
-        idealY = centerY + randY * 1.5;
-        idealZ = randZ * 1.5;
+
+    } else if (phaseName === 'SHAPE_PYRAMID') {
+        // 🔮 THE QUANTUM NEXUS CORE (Hyper-Advanced Final Scene)
+        // Pulsating central sphere, orthogonal data rings, and 6 sharp 3D spokes
+        let tx = 0, ty = 0, tz = 0;
+        const subPhase = i % 3;
+        
+        if (subPhase === 0) {
+            // 1. Central Pulsating Core (30% of particles)
+            const phi = Math.acos(1 - 2 * (prog * 3 % 1));
+            const theta = (prog * 3 % 1) * Math.PI * 2 + time * 0.03;
+            const rad = 45 + Math.sin(time * 0.05 + i) * 8;
+            tx = rad * Math.sin(phi) * Math.cos(theta);
+            ty = rad * Math.sin(phi) * Math.sin(theta);
+            tz = rad * Math.cos(phi);
+        } else if (subPhase === 1) {
+            // 2. Dual Orthogonal Orbit Rings (40% of particles)
+            const angle = (prog * 3 % 1) * Math.PI * 2 + time * 0.02;
+            const isXY = (i % 2 === 0);
+            if (isXY) {
+                tx = Math.cos(angle) * 190;
+                ty = Math.sin(angle) * 190;
+                tz = Math.sin(time * 0.03 + i) * 5;
+            } else {
+                tx = Math.sin(time * 0.03 + i) * 5;
+                ty = Math.cos(angle) * 190;
+                tz = Math.sin(angle) * 190;
+            }
+        } else {
+            // 3. 6 Sharp 3D Coordinate Spikes (30% of particles)
+            const spikeDir = i % 6;
+            const len = 45 + ((i * 7) % 20) / 19 * 215; // Extends out to 260px
+            if (spikeDir === 0) { tx = len; ty = 0; tz = 0; }
+            else if (spikeDir === 1) { tx = -len; ty = 0; tz = 0; }
+            else if (spikeDir === 2) { tx = 0; ty = len; tz = 0; }
+            else if (spikeDir === 3) { tx = 0; ty = -len; tz = 0; }
+            else if (spikeDir === 4) { tx = 0; ty = 0; tz = len; }
+            else { tx = 0; ty = 0; tz = -len; }
+        }
+        
+        // Multi-axial physics rotation
+        const r = rotateYPR(tx, ty, tz, time * 0.007, time * 0.005, time * 0.002);
+        ix = cx + r.x + rx * 0.3; iy = cy + r.y + ry * 0.3; iz = r.z + rz * 0.3;
     }
 
-    // Direct in-place mutation of the particle reference object
-    p.idealX = idealX;
-    p.idealY = idealY;
-    p.idealZ = idealZ;
+    p.idealX = ix;
+    p.idealY = iy;
+    p.idealZ = iz;
 }
