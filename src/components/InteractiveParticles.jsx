@@ -4,9 +4,18 @@ import { updateParticleIdealTargets, precomputeShapeTrig } from './particleGener
 import { updateParticleTransition } from './particleTransitions';
 import { COLOR_MAP } from './particleColors';
 
+// ⚡ PERF: Module-level lerpHue — eliminates closure allocation on every draw() call
+const _lerpHue = (a, b, t) => {
+    let d = b - a;
+    if (d > 180) d -= 360; else if (d < -180) d += 360;
+    let res = a + d * t;
+    if (res < 0) res += 360;
+    return res % 360;
+};
+
 /**
  * 🌌 Particle Class - Highly Optimized 3D Physics
- * Inlined to guarantee V8 JIT inlining for 60fps performance.
+ * Inlined to guarantee V8 JIT inlining for 30fps performance.
  */
 class Particle {
     constructor(canvas, index, total) {
@@ -49,17 +58,8 @@ class Particle {
     draw(ctx, time, phaseName, mouse, gBaseH, gFarH) {
         if (this.pOpacity <= 0) return;
 
-        const lerpHue = (a, b, t) => {
-            let d = b - a;
-            while (d > 180) d -= 360;
-            while (d < -180) d += 360;
-            let res = a + d * t;
-            while (res < 0) res += 360;
-            return res % 360;
-        };
-
         const depthRatio = Math.max(0, Math.min(1, (this.z + 200) / 500));
-        let cHue = lerpHue(gBaseH, gFarH, depthRatio);
+        let cHue = _lerpHue(gBaseH, gFarH, depthRatio);
         let sat = 100, lit = phaseName === 'SHAPE_WARP_DRIVE' || phaseName === 'SHAPE_QUANTUM_FIELD' ? 65 : 55;
 
         // Brush & Shockwave interactivity
@@ -247,7 +247,17 @@ export default function InteractiveParticles() {
             for (let i = 0; i < n; i++) particles.push(new Particle(canvas, i, n));
         };
 
-        const onResize = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; init(); };
+        // ⚡ PERF: Cap devicePixelRatio to 1 — cuts GPU memory by 50-75% on Retina/HiDPI screens
+        // Canvas CSS size stays full-screen; we only reduce the internal render buffer.
+        const DPR = Math.min(window.devicePixelRatio || 1, 1);
+        const onResize = () => {
+            canvas.width = Math.floor(window.innerWidth * DPR);
+            canvas.height = Math.floor(window.innerHeight * DPR);
+            canvas.style.width = '100vw';
+            canvas.style.height = '100vh';
+            if (DPR !== 1) ctx.scale(DPR, DPR);
+            init();
+        };
         const onScroll = e => scrollY = Math.max(window.scrollY || 0, document.documentElement.scrollTop || 0, document.body.scrollTop || 0, e?.target?.scrollTop || 0);
         let lx = null, ly = null;
         const onMove = e => { if (lx !== null) mouse.speed = Math.sqrt((e.clientX - lx) ** 2 + (e.clientY - ly) ** 2); lx = mouse.x = e.clientX; ly = mouse.y = e.clientY; };
@@ -495,15 +505,23 @@ export default function InteractiveParticles() {
             }
 
             if (gOp > 0.1) drawLines(gOp);
+        };
 
-            reqId = requestAnimationFrame(animate);
+        // ⚡ PERF: 30fps throttle wrapper — halves main-thread work with no perceptible quality loss
+        let _lastFrame = 0;
+        const _TARGET_MS = 1000 / 30;
+        const animateLoop = (ts) => {
+            reqId = requestAnimationFrame(animateLoop);
+            if (ts - _lastFrame < _TARGET_MS - 1) return;
+            _lastFrame = ts;
+            animate();
         };
 
         window.addEventListener('resize', onResize); window.addEventListener('scroll', onScroll, { passive: true });
         if (scrollC) scrollC.addEventListener('scroll', onScroll, { passive: true });
         window.addEventListener('mousemove', onMove); window.addEventListener('mouseleave', onLeave); window.addEventListener('click', onClick);
 
-        onResize(); animate();
+        onResize(); reqId = requestAnimationFrame(animateLoop);
 
         return () => {
             cancelAnimationFrame(reqId);
