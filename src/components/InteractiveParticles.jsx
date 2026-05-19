@@ -322,7 +322,7 @@ export default function InteractiveParticles() {
 
             if (phase === 'SHAPE_QUANTUM_SINGULARITY') { cDist = 75; mConn = 4; }
             else if (phase === 'SHAPE_CHRONOS_HYPERSPHERE') { cDist = 90; mConn = 4; }
-            else if (phase === 'SHAPE_TESSERACT') { cDist = 75; strict = false; mConn = 4; }
+            else if (phase === 'SHAPE_TESSERACT') { cDist = 130; strict = true; eMod = 32; mConn = 6; }
             else if (phase === 'SHAPE_STELLATED_OCTAHEDRON') { cDist = 130; strict = true; eMod = 12; mConn = 6; }
             else if (phase === 'SHAPE_PULSAR_STAR') { cDist = 80; mConn = 4; }
             else if (phase === 'SHAPE_HOURGLASS') { cDist = 80; mConn = 4; }
