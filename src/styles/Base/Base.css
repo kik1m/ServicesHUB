@@ -93,35 +93,45 @@ html[data-page="home"] body {
     );
 }
 
+/* ─── Desktop-only: show the animated stars canvas ─────────────────────── */
+@media (min-width: 768px) {
+  .desktop-stars-canvas {
+    display: block !important;
+  }
+}
+
 /*
  * ─────────────────────────────────────────────────────────────────────────────
- * 📱 MOBILE RENDERING FIXES
+ * 📱 MOBILE: Instagram-style clean dark background
  * ─────────────────────────────────────────────────────────────────────────────
  *
- * Fix 1 — Background Jumping:
- *   `background-attachment: fixed` is NOT reliably supported on mobile browsers
- *   (iOS Safari, Android Chrome). When the browser's address bar shows/hides
- *   during scroll, it triggers a full background repaint causing the visible
- *   "background jumping" effect. The fix: switch to `scroll` on mobile.
- *
- * Fix 2 — Ghosting / Texture Corruption (broken cards visual):
- *   `backdrop-filter: blur()` creates a new GPU compositing layer. When a
- *   Canvas element (BackgroundStars / InteractiveParticles) sits underneath
- *   an element with backdrop-filter, Chrome on Android fails to correctly
- *   resolve the stacking contexts during scroll — causing the "shattered TV"
- *   artifacts visible in the Key Features and Related Tools sections.
- *   The fix: disable backdrop-filter entirely on touch devices and use a
- *   slightly opaque solid background as a fallback.
+ * Mobile gets a solid #111111 background (same as Instagram dark mode).
+ * This approach:
+ *  1. Eliminates the "background jumping" caused by background-attachment:fixed
+ *     fighting with the address-bar show/hide viewport resize on mobile browsers.
+ *  2. Eliminates ALL GPU compositing glitches caused by backdrop-filter:blur()
+ *     reading from a 60fps canvas texture — there is no canvas on mobile.
+ *  3. Ensures UI elements (buttons, logo, hero title) still respond to dynamic
+ *     color changes via the lightweight CSS-variable loop in InteractiveParticles
+ *     that runs on mobile WITHOUT rendering any canvas at all.
  * ─────────────────────────────────────────────────────────────────────────────
  */
-@media (max-width: 768px) {
-  /* Fix 1: Kill the jumping background on mobile */
+@media (max-width: 767px) {
+  /* Solid dark background — no background-image, no attachment issues */
   body,
   html[data-page="home"] body {
+    background-color: #111111;
+    background-image: none;
     background-attachment: scroll;
   }
 
-  /* Fix 2: Kill backdrop-filter on mobile to prevent GPU compositing artifacts */
+  /* Stars canvas never runs on mobile (guarded in JS too) */
+  .desktop-stars-canvas {
+    display: none !important;
+  }
+
+  /* Disable backdrop-filter: prevents GPU compositing artifacts with any
+     future canvas elements that might be added */
   * {
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;

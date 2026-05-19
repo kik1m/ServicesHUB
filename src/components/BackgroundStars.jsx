@@ -1,39 +1,24 @@
 'use client';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 
 /**
- * 🌠 BackgroundStars — Global Static Star Layer
+ * 🌠 BackgroundStars — Desktop-only animated star canvas.
  *
- * Desktop (≥768px): Full animated canvas with 300 twinkling stars,
- *   shooting stars, and a scroll-based opacity fade. Uses position:fixed
- *   and requestAnimationFrame.
+ * Mobile (<768px): Component returns null — background is handled purely
+ * by CSS (solid dark color in Base.css). This eliminates ALL mobile canvas
+ * GPU compositing bugs, backdrop-filter glitches, and viewport-resize
+ * position:fixed jumping issues.
  *
- * Mobile (<768px): Replaces the canvas entirely with a lightweight CSS
- *   approach. Reason: On mobile Chrome/Safari, a 60fps position:fixed canvas
- *   combined with elements using backdrop-filter:blur() above it causes a
- *   critical GPU compositor race condition — the browser reads stale canvas
- *   texture mid-frame, producing "shattered TV" glitch artifacts. Additionally,
- *   changing canvas.style.opacity in handleScroll triggers a full compositor
- *   repass on every scroll frame, causing the address-bar-resize viewport
- *   jitter to visibly shift the canvas position ("jumping background").
- *   CSS static dots are composited once, never invalidate, and have zero
- *   interaction with the canvas stack.
+ * Desktop (≥768px): Full 300-star twinkling canvas with shooting stars
+ * and scroll-based opacity fade.
  */
 export default function BackgroundStars() {
     const canvasRef = useRef(null);
-    const [isMobile, setIsMobile] = useState(false);
 
-    // Detect mobile ONCE on mount only (SSR-safe)
     useEffect(() => {
-        const check = () => setIsMobile(window.innerWidth < 768);
-        check();
-        window.addEventListener('resize', check);
-        return () => window.removeEventListener('resize', check);
-    }, []);
+        // ─── MOBILE GUARD: no canvas on mobile ───────────────────────────
+        if (window.innerWidth < 768) return;
 
-    // ─── DESKTOP: Full animated canvas engine ─────────────────────────────
-    useEffect(() => {
-        if (isMobile) return; // Mobile uses CSS stars instead
         const canvas = canvasRef.current;
         if (!canvas) return;
         const ctx = canvas.getContext('2d');
@@ -54,14 +39,14 @@ export default function BackgroundStars() {
             for (const cfg of STAR_CONFIG) {
                 for (let i = 0; i < cfg.count; i++) {
                     stars.push({
-                        x:            Math.random() * width,
-                        y:            Math.random() * height,
-                        size:         cfg.minSize + Math.random() * (cfg.maxSize - cfg.minSize),
-                        baseAlpha:    cfg.minAlpha + Math.random() * (cfg.maxAlpha - cfg.minAlpha),
-                        twinkleSpeed: cfg.twinkleSpeed + Math.random() * cfg.twinkleSpeed,
-                        twinkleOffset:Math.random() * Math.PI * 2,
-                        hue:          200 + (Math.random() - 0.5) * 60,
-                        sat:          10  + Math.random() * 30,
+                        x:             Math.random() * width,
+                        y:             Math.random() * height,
+                        size:          cfg.minSize + Math.random() * (cfg.maxSize - cfg.minSize),
+                        baseAlpha:     cfg.minAlpha + Math.random() * (cfg.maxAlpha - cfg.minAlpha),
+                        twinkleSpeed:  cfg.twinkleSpeed + Math.random() * cfg.twinkleSpeed,
+                        twinkleOffset: Math.random() * Math.PI * 2,
+                        hue:           200 + (Math.random() - 0.5) * 60,
+                        sat:           10  + Math.random() * 30,
                     });
                 }
             }
@@ -144,8 +129,7 @@ export default function BackgroundStars() {
             reqId = requestAnimationFrame(draw);
         };
 
-        // Scroll fade: uses CSS transition so no per-frame style writes during scroll
-        // We debounce via requestAnimationFrame to avoid thrashing the compositor
+        // Debounced scroll opacity — avoids per-frame style thrashing
         let scrollRaf = null;
         const handleScroll = () => {
             if (scrollRaf) return;
@@ -168,12 +152,7 @@ export default function BackgroundStars() {
             cancelAnimationFrame(reqId);
             if (scrollRaf) cancelAnimationFrame(scrollRaf);
         };
-    }, [isMobile]);
-
-    // ─── MOBILE: Pure CSS static stars — ZERO canvas, ZERO GPU invalidation ─
-    if (isMobile) {
-        return <MobileStars />;
-    }
+    }, []);
 
     return (
         <canvas
@@ -186,93 +165,11 @@ export default function BackgroundStars() {
                 pointerEvents: 'none',
                 zIndex:        0,
                 opacity:       1,
-                // CSS transition handles the opacity fade smoothly without JS writes
                 transition:    'opacity 0.4s ease-out',
+                // Hidden on mobile via CSS — no rendering ever starts
+                display:       'none',
             }}
+            className="desktop-stars-canvas"
         />
-    );
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// MobileStars: Pre-generated CSS star dots, painted once, scroll with the page.
-// No rAF, no fixed positioning, no GPU compositing interaction with backdrop-filter.
-// ─────────────────────────────────────────────────────────────────────────────
-const MOBILE_STAR_COUNT = 80;
-
-// Deterministic seed so stars don't shift on hydration
-function seededRandom(seed) {
-    let s = seed;
-    return () => {
-        s = (s * 16807 + 0) % 2147483647;
-        return (s - 1) / 2147483646;
-    };
-}
-
-const mobileStars = (() => {
-    const rand = seededRandom(42);
-    return Array.from({ length: MOBILE_STAR_COUNT }, (_, i) => ({
-        id:      i,
-        top:     (rand() * 100).toFixed(2),
-        left:    (rand() * 100).toFixed(2),
-        size:    (rand() * 1.5 + 0.5).toFixed(2),
-        opacity: (rand() * 0.45 + 0.1).toFixed(2),
-        delay:   (rand() * 4).toFixed(2),
-        dur:     (rand() * 3 + 2).toFixed(2),
-    }));
-})();
-
-function MobileStars() {
-    return (
-        <>
-            <style>{`
-                @keyframes star-twinkle {
-                    0%, 100% { opacity: var(--star-op); }
-                    50%       { opacity: calc(var(--star-op) * 0.3); }
-                }
-                .mobile-star {
-                    position: absolute;
-                    border-radius: 50%;
-                    background: rgba(220, 235, 255, 1);
-                    animation: star-twinkle var(--star-dur) ease-in-out var(--star-delay) infinite;
-                    pointer-events: none;
-                }
-            `}</style>
-            <div
-                aria-hidden="true"
-                style={{
-                    /*
-                     * position:fixed so stars cover the full viewport always.
-                     * Unlike the canvas, this div is a STATIC element — it has no
-                     * JavaScript updating it every frame, so the browser composites
-                     * it once and never invalidates it during scroll. This means:
-                     *  - No GPU race condition with backdrop-filter (no canvas texture to read)
-                     *  - No style changes on scroll (no opacity writes = no compositor repasses)
-                     *  - The address-bar show/hide resize does NOT cause glitches because
-                     *    CSS animations are GPU-side and unaffected by JS scroll events.
-                     */
-                    position:      'fixed',
-                    inset:         0,
-                    zIndex:        0,
-                    pointerEvents: 'none',
-                    overflow:      'hidden',
-                }}
-            >
-                {mobileStars.map(s => (
-                    <span
-                        key={s.id}
-                        className="mobile-star"
-                        style={{
-                            top:        `${s.top}%`,
-                            left:       `${s.left}%`,
-                            width:      `${s.size}px`,
-                            height:     `${s.size}px`,
-                            '--star-op':    s.opacity,
-                            '--star-dur':   `${s.dur}s`,
-                            '--star-delay': `${s.delay}s`,
-                        }}
-                    />
-                ))}
-            </div>
-        </>
     );
 }
