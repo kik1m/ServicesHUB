@@ -212,72 +212,6 @@ export default function InteractiveParticles() {
         return () => window.removeEventListener('resize', check);
     }, []);
 
-    // 📱 Mobile-only lightweight color loop: CSS variable cycling with NO canvas, NO GPU cost.
-    // Runs only when the full particle engine is disabled (mobile screens < 768px).
-    useEffect(() => {
-        if (shouldRender) return; // Desktop handles its own color via the canvas engine
-        const rootE = document.documentElement;
-        let frameId;
-        let globalTime = 0;
-        let phaseIdx = 0, phaseTimer = 0;
-        let gBaseH = 195, gFarH = 275, gSat = 0;
-        let lastHue1 = -1, lastHue2 = -1, lastSat = -1;
-
-        const PHASES_DUR = [1300,1200,1200,1200,1200,1000,1000,1000,1000,1000,1000];
-        const COLOR_MAP_M = [
-            { b: 195, f: 275 }, { b: 210, f: 45  }, { b: 175, f: 300 },
-            { b: 220, f: 160 }, { b: 255, f: 195 }, { b: 185, f: 265 },
-            { b: 35,  f: 195 }, { b: 200, f: 280 }, { b: 140, f: 210 },
-            { b: 190, f: 260 }, { b: 55,  f: 195 }
-        ];
-
-        const lerpHue = (a, b, t) => {
-            let d = b - a;
-            while (d > 180) d -= 360;
-            while (d < -180) d += 360;
-            let res = a + d * t;
-            while (res < 0) res += 360;
-            return res % 360;
-        };
-
-        let _last = 0;
-        const loop = (ts) => {
-            frameId = requestAnimationFrame(loop);
-            if (ts - _last < 16.7) return; // ~60fps cap, lightweight
-            _last = ts;
-
-            globalTime++;
-            if (phaseTimer >= PHASES_DUR[phaseIdx]) {
-                phaseIdx = (phaseIdx + 1) % PHASES_DUR.length;
-                phaseTimer = 0;
-            }
-            phaseTimer++;
-
-            // Mirror the desktop saturation ramp-up: gray → color over 220 frames
-            if (globalTime < 220) {
-                gSat = 0;
-            } else if (globalTime < 320) {
-                const t = (globalTime - 220) / 100;
-                const ease = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
-                gSat = ease * 100;
-            } else {
-                gSat = 100;
-            }
-
-            const target = COLOR_MAP_M[phaseIdx] || { b: 195, f: 275 };
-            gBaseH = lerpHue(gBaseH, target.b, 0.015);
-            gFarH  = lerpHue(gFarH,  target.f, 0.015);
-
-            const h1 = gBaseH | 0, h2 = gFarH | 0, sat = gSat | 0;
-            if (h1 !== lastHue1) { rootE.style.setProperty('--dynamic-hue-1', h1); lastHue1 = h1; }
-            if (h2 !== lastHue2) { rootE.style.setProperty('--dynamic-hue-2', h2); lastHue2 = h2; }
-            if (sat !== lastSat) { rootE.style.setProperty('--dynamic-saturation', sat); lastSat = sat; }
-        };
-
-        frameId = requestAnimationFrame(loop);
-        return () => cancelAnimationFrame(frameId);
-    }, [shouldRender]);
-
     useEffect(() => {
         if (!shouldRender || !canvasRef.current) return;
         const canvas = canvasRef.current;
@@ -412,7 +346,7 @@ export default function InteractiveParticles() {
                         const t1 = globalTime / 130;
                         const ease1 = 1 - Math.pow(1 - t1, 4); // Quartic ease-out for explosive initial speed
                         const rotAngle = ringAngle + globalTime * 0.18;
-                        
+
                         const startX = cx;
                         const startY = cy;
                         const startZ = 1200;
@@ -433,7 +367,7 @@ export default function InteractiveParticles() {
                         const t2 = (globalTime - 130) / 90;
                         const ease2 = t2 < 0.5 ? 4 * t2 * t2 * t2 : 1 - Math.pow(-2 * t2 + 2, 3) / 2;
                         const spinAngle = ringAngle + globalTime * 0.28; // Blazing fast spin!
-                        
+
                         const currentRadius = 340 + (165 - 340) * ease2;
                         p.targetX = cx + Math.cos(spinAngle) * currentRadius;
                         p.targetY = cy + Math.sin(spinAngle) * currentRadius;
@@ -446,7 +380,7 @@ export default function InteractiveParticles() {
                         const lastSpinAngle = ringAngle + 220 * 0.28 + (globalTime - 220) * 0.05;
                         const ringStartX = cx + Math.cos(lastSpinAngle) * 165;
                         const ringStartY = cy + Math.sin(lastSpinAngle) * 165;
-                        
+
                         p.targetX = ringStartX + (p.idealX - ringStartX) * ease3;
                         p.targetY = ringStartY + (p.idealY - ringStartY) * ease3;
                         p.targetZ = (p.idealZ) * ease3;
@@ -487,11 +421,30 @@ export default function InteractiveParticles() {
             // High-Performance Clear & Simple Smooth Motion Blur (البلور الحركي الذكي)
             // Skip blur completely during the very first portal sweep-in entrance (globalTime < 320)
             const isMorphing = globalTime >= 320 && phaseTimer > 0 && phaseTimer <= 180;
-            
+
+            if (isHomeRef.current) {
+                if (isMorphing) {
+                    // 🌊 Ultra-Soft Sine Wave Easing: Perfect bell-curve entrance and exit
+                    const blurStrength = Math.sin((phaseTimer / 180) * Math.PI);
+                    const activeFade = 0.55 + (1.0 - 0.55) * (1.0 - blurStrength);
+                    ctx.globalCompositeOperation = 'destination-out';
+                    ctx.fillStyle = `rgba(0, 0, 0, ${activeFade})`;
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    ctx.globalCompositeOperation = 'screen';
+                } else {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                }
+            }
+
             globalTime++;
 
+            if (mouse.speed > 0.1) mouse.speed *= 0.95;
+            // ⚡ Instant Click Timer: Caps at 25 frames for an explosive short reaction
+            if (mouse.clickTimer >= 0 && ++mouse.clickTimer > 25) mouse.clickTimer = -1;
+
             if (phaseTimer >= PHASES[phaseIdx].duration) { phaseIdx = (phaseIdx + 1) % PHASES.length; phaseTimer = 0; }
-            phaseTimer++;
+
+            updatePhaseLogic();
 
             if (globalTime < 220) {
                 gSat = 0; // Remain completely gray (lifeless) during sweep-in and high-speed spinning portal
@@ -526,42 +479,7 @@ export default function InteractiveParticles() {
             if (Math.abs(h2 - lastHue2) > 0) { rootE.style.setProperty('--dynamic-hue-2', h2); lastHue2 = h2; }
             if (Math.abs(sat - lastSat) > 0) { rootE.style.setProperty('--dynamic-saturation', sat); lastSat = sat; }
 
-            // ⚡ CRITICAL PERFORMANCE UPGRADE:
-            // If the user is NOT on the homepage, completely bypass all particle physics and canvas operations!
-            // This immediately drops CPU from ~100% to virtual zero (<0.5%) on all sub-pages!
-            if (!isHomeRef.current) {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                return;
-            }
-
             smoothedScrollY += (scrollY - smoothedScrollY) * 0.08;
-            const gOp = Math.max(0, 1 - smoothedScrollY / 550); // Fade completely to 0 on scroll
-
-            // ⚡ SCROLL OPTIMIZATION:
-            // If they are on the homepage but have scrolled the hero out of view, pause calculations!
-            if (gOp <= 0.01) {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                return;
-            }
-
-            if (isMorphing) {
-                // 🌊 Ultra-Soft Sine Wave Easing: Perfect bell-curve entrance and exit
-                const blurStrength = Math.sin((phaseTimer / 180) * Math.PI);
-                const activeFade = 0.55 + (1.0 - 0.55) * (1.0 - blurStrength);
-                ctx.globalCompositeOperation = 'destination-out';
-                ctx.fillStyle = `rgba(0, 0, 0, ${activeFade})`;
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                ctx.globalCompositeOperation = 'screen';
-            } else {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-            }
-
-            if (mouse.speed > 0.1) mouse.speed *= 0.95;
-            // ⚡ Instant Click Timer: Caps at 25 frames for an explosive short reaction
-            if (mouse.clickTimer >= 0 && ++mouse.clickTimer > 25) mouse.clickTimer = -1;
-
-            updatePhaseLogic();
-
             camX += ((mouse.x !== null ? (mouse.x - canvas.width / 2) * 0.28 : 0) - camX) * 0.08;
             camY += ((mouse.y !== null ? (mouse.y - canvas.height / 2) * 0.28 : 0) - camY) * 0.08;
 
@@ -572,6 +490,7 @@ export default function InteractiveParticles() {
                 camZ = 450 * (1 - t) ** 2.2 * Math.cos(globalTime * 0.015) * (1 - blend) + bZ * blend;
             } else camZ = bZ;
 
+            const gOp = Math.max(0, 1 - smoothedScrollY / 550); // Fade completely to 0 on scroll
             const cx = canvas.width / 2, cy = canvas.height / 2;
             const cX = Math.cos(camY * 0.0012), sX = Math.sin(camY * 0.0012);
             const cY = Math.cos(camX * 0.0012), sY = Math.sin(camX * 0.0012);
@@ -592,29 +511,31 @@ export default function InteractiveParticles() {
                 }
             }
 
-            for (let i = 0; i < particles.length; i++) {
-                const p = particles[i];
-                p.update(mouse, pName, cx, cy, globalTime);
+            if (isHomeRef.current) {
+                for (let i = 0; i < particles.length; i++) {
+                    const p = particles[i];
+                    p.update(mouse, pName, cx, cy, globalTime);
 
-                const rx = p.x - cx, ry = p.y - cy, rz = p.z;
-                const y1 = ry * cX - rz * sX, z1 = ry * sX + rz * cX;
-                const x2 = rx * cY - z1 * sY, z2 = rx * sY + z1 * cY;
+                    const rx = p.x - cx, ry = p.y - cy, rz = p.z;
+                    const y1 = ry * cX - rz * sX, z1 = ry * sX + rz * cX;
+                    const x2 = rx * cY - z1 * sY, z2 = rx * sY + z1 * cY;
 
-                p.rotatedZ = z2;
-                const cRZ = Math.max(-280, z2 + camZ);
-                const sc = 360 / (360 + cRZ);
+                    p.rotatedZ = z2;
+                    const cRZ = Math.max(-280, z2 + camZ);
+                    const sc = 360 / (360 + cRZ);
 
-                p.px = cx + x2 * sc; p.py = cy + y1 * sc; p.scale = sc;
-                p.pSize = Math.max(0.2, p.size * sc * sMult * p.localSizeMult);
+                    p.px = cx + x2 * sc; p.py = cy + y1 * sc; p.scale = sc;
+                    p.pSize = Math.max(0.2, p.size * sc * sMult * p.localSizeMult);
 
-                const nF = cRZ < -150 ? Math.max(0, (cRZ + 280) / 130) : 1;
-                const fF = Math.max(0.6, 1 - (cRZ - 100) / 600);
-                p.pOpacity = Math.min(Math.max(0.42, sc) * nF * fF * (fastSin(globalTime * 0.05 + i * 1.5) * 0.15 + 0.85) * 1.15, 1) * gOp * oMult * p.localOpMult;
+                    const nF = cRZ < -150 ? Math.max(0, (cRZ + 280) / 130) : 1;
+                    const fF = Math.max(0.6, 1 - (cRZ - 100) / 600);
+                    p.pOpacity = Math.min(Math.max(0.42, sc) * nF * fF * (fastSin(globalTime * 0.05 + i * 1.5) * 0.15 + 0.85) * 1.15, 1) * gOp * oMult * p.localOpMult;
 
-                p.draw(ctx, globalTime, pName, mouse, gBaseH, gFarH);
+                    p.draw(ctx, globalTime, pName, mouse, gBaseH, gFarH);
+                }
+
+                if (gOp > 0.1) drawLines(gOp);
             }
-
-            if (gOp > 0.1) drawLines(gOp);
         };
 
         // 🚀 60 FPS ULTRA-FLUID CINEMATIC RENDER LOOP
@@ -641,7 +562,7 @@ export default function InteractiveParticles() {
         };
     }, [shouldRender]);
 
-    if (!shouldRender) return null;
+    if (!shouldRender) return <div style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none', background: 'transparent' }} />;
 
     return (
         <canvas ref={canvasRef} style={{
