@@ -317,7 +317,24 @@ export default function InteractiveParticles() {
         const onClick = e => { mouse.clickX = e.clientX; mouse.clickY = e.clientY; mouse.clickTimer = 0; };
 
         const drawLines = (op) => {
-            const phase = PHASES[phaseIdx].name;
+            // 🎬 CINEMATIC TRANSITION LOGIC: Smooth out lines during phase changes
+            const isTransition = globalTime >= 320 && phaseTimer > 0 && phaseTimer <= 180;
+            const usePrev = isTransition && phaseTimer <= 90;
+            
+            const activeIdx = usePrev ? ((phaseIdx - 1 + PHASES.length) % PHASES.length) : phaseIdx;
+            const phase = PHASES[activeIdx].name;
+            
+            let lineTransOp = 1.0;
+            if (isTransition) {
+                if (phaseTimer <= 90) {
+                    // Fade OUT the previous shape's lines
+                    lineTransOp = 1.0 - (phaseTimer / 90);
+                } else {
+                    // Fade IN the new shape's lines
+                    lineTransOp = (phaseTimer - 90) / 90;
+                }
+            }
+
             let cDist = 65, mConn = 4, strict = false, eMod = 1;
 
             if (phase === 'SHAPE_QUANTUM_SINGULARITY') { cDist = 75; mConn = 4; }
@@ -342,12 +359,13 @@ export default function InteractiveParticles() {
                 bin.sumScale = 0;
             }
 
-            // ⚡ PERF: Search limit 25 to halve line-draw work per frame
+            // ⚡ PERF: Dynamic search limit based on phase
+            const sLimit = phase === 'SHAPE_TESSERACT' ? 75 : 25;
+
             for (let a = 0; a < len; a++) {
                 const p1 = particles[a];
                 let conn = 0;
 
-                const sLimit = phase === 'SHAPE_TESSERACT' ? 75 : 25;
                 const searchLimit = Math.min(len, a + sLimit);
                 for (let b = a + 1; b < searchLimit && conn < mConn; b++) {
                     const p2 = particles[b];
@@ -362,10 +380,11 @@ export default function InteractiveParticles() {
                         // ⚡ ELITE MATH: Bypass Math.sqrt completely using quadratic distance decay!
                         const distRatioSq = distSq / tSq;
                         const fade = 1.0 - distRatioSq;
-                        const lineAlpha = fade * op * 0.45;
+                        // Determine sorting bin based on standard alpha so batching isn't skewed to 0
+                        const baseLineAlpha = fade * op * 0.45;
 
                         // ⚡ ELITE BATCHING: Group coordinates into 5 discretized opacity buckets
-                        const binIdx = Math.min(4, Math.max(0, (lineAlpha * 11) | 0));
+                        const binIdx = Math.min(4, Math.max(0, (baseLineAlpha * 11) | 0));
                         const bin = _LINE_BINS[binIdx];
 
                         bin.points.push(p1.px, p1.py, p2.px, p2.py);
@@ -388,8 +407,8 @@ export default function InteractiveParticles() {
                 const avgLit = bin.sumLit / count;
                 const avgScale = bin.sumScale / count;
 
-                // Represent the alpha and width curve for this bin
-                const binAlpha = ((i + 0.5) / 5) * op * 0.45;
+                // Represent the alpha and width curve for this bin, applying the transition fade!
+                const binAlpha = ((i + 0.5) / 5) * op * 0.45 * lineTransOp;
                 const binWidth = Math.max(0.4, ((i + 0.5) / 5) * 1.2 * avgScale);
 
                 ctx.strokeStyle = getCachedHsla(avgHue, 100, avgLit, binAlpha);

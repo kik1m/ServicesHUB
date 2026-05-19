@@ -4,13 +4,9 @@ import Providers from "../components/Providers";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import PageTransition from "../components/PageTransition";
-import dynamic from "next/dynamic";
+import InteractiveParticles from "../components/InteractiveParticles";
+import BackgroundStars from "../components/BackgroundStars";
 import PageBodyClass from "../components/PageBodyClass";
-
-const InteractiveParticles = dynamic(() => import("../components/InteractiveParticles"), { ssr: false });
-const BackgroundStars = dynamic(() => import("../components/BackgroundStars"), { ssr: false });
-
-
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
