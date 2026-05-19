@@ -347,7 +347,8 @@ export default function InteractiveParticles() {
                 const p1 = particles[a];
                 let conn = 0;
 
-                const searchLimit = Math.min(len, a + 25);
+                const sLimit = phase === 'SHAPE_TESSERACT' ? 75 : 25;
+                const searchLimit = Math.min(len, a + sLimit);
                 for (let b = a + 1; b < searchLimit && conn < mConn; b++) {
                     const p2 = particles[b];
                     if (strict && (p1.index % eMod) !== (p2.index % eMod)) continue;
