@@ -155,6 +155,19 @@ export const AuthProvider = ({ children }) => {
         setUser(null);
     }, []);
 
+    // 🛡️ Global JWT Interceptor: Listen for 401 errors from React Query
+    useEffect(() => {
+        const handleJwtExpired = async () => {
+            console.warn('🛡️ JWT Expired detected. Silently logging out and redirecting...');
+            await signOut();
+            if (typeof window !== 'undefined') {
+                window.location.href = '/login?expired=true';
+            }
+        };
+        window.addEventListener('auth:jwt-expired', handleJwtExpired);
+        return () => window.removeEventListener('auth:jwt-expired', handleJwtExpired);
+    }, [signOut]);
+
     const value = useMemo(() => ({
         user,
         loading,
