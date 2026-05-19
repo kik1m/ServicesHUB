@@ -52,6 +52,16 @@ body {
 }
 
 body {
+  background: transparent; /* Allows the isolated fixed background wrapper to show through perfectly */
+  color: var(--text-main);
+  font-family: var(--font-family);
+  line-height: 1.6;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* 🌌 Elite Isolated Space Background: Completely immune to mobile scroll address-bar resizing and GPU compositing bugs */
+.global-space-background {
   background-color: var(--bg-dark);
   background-image:
     /* Vertical depth gradient */
@@ -62,18 +72,12 @@ body {
       #060609 70%,
       #04040a 100%
     );
-  background-size: 100% 100%;
+  background-size: cover;
   background-position: center;
-  background-attachment: scroll; /* Scrolls naturally with the viewport for 100% stable scrolling */
-  color: var(--text-main);
-  font-family: var(--font-family);
-  line-height: 1.6;
-  overflow-x: hidden;
-  -webkit-font-smoothing: antialiased;
 }
 
 /* 🌟 Dynamic breathing background glow restricted strictly to the Home Page */
-html[data-page="home"] body {
+html[data-page="home"] .global-space-background {
   background-image:
     /* Dynamic hue glow — breathes with the particle engine */
     radial-gradient(
@@ -96,7 +100,6 @@ html[data-page="home"] body {
       #060609 70%,
       #04040a 100%
     );
-  background-attachment: scroll;
 }
 
 /* 🚀 Mobile Optimization: Disable heavy backdrop-filters to cure mobile GPU compositing/shattering glitches */
