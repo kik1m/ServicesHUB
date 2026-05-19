@@ -195,9 +195,22 @@ export default function InteractiveParticles() {
     const pathname = usePathname();
     const isHome = pathname === '/';
     const isHomeRef = useRef(isHome);
+    const isIntersectingRef = useRef(true);
+    const triggerLoopCheckRef = useRef(null);
 
     useEffect(() => {
         isHomeRef.current = isHome;
+        if (!isHome) {
+            const rootE = document.documentElement;
+            rootE.style.setProperty('--dynamic-saturation', '100');
+            if (!rootE.style.getPropertyValue('--dynamic-hue-1')) {
+                rootE.style.setProperty('--dynamic-hue-1', '195');
+                rootE.style.setProperty('--dynamic-hue-2', '275');
+            }
+        }
+        if (triggerLoopCheckRef.current) {
+            triggerLoopCheckRef.current();
+        }
     }, [isHome]);
 
     useEffect(() => {
@@ -306,7 +319,7 @@ export default function InteractiveParticles() {
                         const dist = Math.sqrt(distSq);
                         const avgHue = (p1.computedHue + p2.computedHue) * 0.5;
                         const avgLit = (p1.computedLightness + p2.computedLightness) * 0.5;
-                        const lineAlpha = ((1 - dist / cDist) * op * 0.45).toFixed(3);
+                        const lineAlpha = (1 - dist / cDist) * op * 0.45;
                         ctx.strokeStyle = `hsla(${avgHue | 0},100%,${avgLit | 0}%,${lineAlpha})`;
                         ctx.lineWidth = Math.max(0.4, (1 - dist / cDist) * 1.2 * p1.scale);
                         ctx.beginPath(); ctx.moveTo(p1.px, p1.py); ctx.lineTo(p2.px, p2.py); ctx.stroke();
@@ -415,9 +428,20 @@ export default function InteractiveParticles() {
         let gBaseH = 195, gFarH = 275, gSat = 0;
         // ⚡ PERF: Track last CSS write to avoid redundant DOM writes
         let lastHue1 = -1, lastHue2 = -1, lastSat = -1;
-
+        let isLooping = false;
 
         const animate = () => {
+            const isPaused = !isHomeRef.current || !isIntersectingRef.current;
+            if (isPaused) {
+                // Keep the last active hues and saturation set on root so other pages keep colors
+                const h1 = gBaseH | 0, h2 = gFarH | 0;
+                rootE.style.setProperty('--dynamic-hue-1', h1);
+                rootE.style.setProperty('--dynamic-hue-2', h2);
+                rootE.style.setProperty('--dynamic-saturation', 100);
+                stopLoop();
+                return;
+            }
+
             // High-Performance Clear & Simple Smooth Motion Blur (البلور الحركي الذكي)
             // Skip blur completely during the very first portal sweep-in entrance (globalTime < 320)
             const isMorphing = globalTime >= 320 && phaseTimer > 0 && phaseTimer <= 180;
@@ -542,20 +566,54 @@ export default function InteractiveParticles() {
         let _lastFrame = 0;
         const _TARGET_MS = 1000 / 60;
         const animateLoop = (ts) => {
+            if (!isLooping) return;
             reqId = requestAnimationFrame(animateLoop);
             if (ts - _lastFrame < _TARGET_MS - 1) return;
             _lastFrame = ts;
             animate();
         };
 
+        const startLoop = () => {
+            if (isLooping) return;
+            isLooping = true;
+            reqId = requestAnimationFrame(animateLoop);
+        };
+
+        const stopLoop = () => {
+            if (!isLooping) return;
+            isLooping = false;
+            cancelAnimationFrame(reqId);
+        };
+
+        const triggerLoopCheck = () => {
+            if (isHomeRef.current && isIntersectingRef.current) {
+                startLoop();
+            } else {
+                stopLoop();
+            }
+        };
+        triggerLoopCheckRef.current = triggerLoopCheck;
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                isIntersectingRef.current = entry.isIntersecting;
+                triggerLoopCheck();
+            });
+        }, { threshold: 0.01 });
+
+        observer.observe(canvas);
+
         window.addEventListener('resize', onResize); window.addEventListener('scroll', onScroll, { passive: true });
         if (scrollC) scrollC.addEventListener('scroll', onScroll, { passive: true });
         window.addEventListener('mousemove', onMove); window.addEventListener('mouseleave', onLeave); window.addEventListener('click', onClick);
 
-        onResize(); reqId = requestAnimationFrame(animateLoop);
+        onResize();
+        triggerLoopCheck();
 
         return () => {
-            cancelAnimationFrame(reqId);
+            stopLoop();
+            observer.disconnect();
+            triggerLoopCheckRef.current = null;
             window.removeEventListener('resize', onResize); window.removeEventListener('scroll', onScroll);
             if (scrollC) scrollC.removeEventListener('scroll', onScroll);
             window.removeEventListener('mousemove', onMove); window.removeEventListener('mouseleave', onLeave); window.removeEventListener('click', onClick);

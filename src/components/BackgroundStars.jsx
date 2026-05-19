@@ -72,7 +72,17 @@ export default function BackgroundStars() {
             spawnStars();
         };
 
-        const draw = () => {
+        let _lastFrame = 0;
+        const _TARGET_MS = 1000 / 30; // Throttle background stars to an efficient 30 FPS
+
+        const draw = (ts) => {
+            reqId = requestAnimationFrame(draw);
+            
+            const now = ts || performance.now();
+            const delta = now - _lastFrame;
+            if (delta < _TARGET_MS - 1) return;
+            _lastFrame = now;
+
             ctx.clearRect(0, 0, width, height);
             time++;
 
