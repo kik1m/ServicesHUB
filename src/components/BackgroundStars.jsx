@@ -42,14 +42,10 @@ export default function BackgroundStars() {
             decay: 0
         };
 
-        let isMobile = typeof window !== 'undefined' ? window.innerWidth < 768 : false;
-
         const spawnStars = () => {
             stars = [];
-            const multiplier = isMobile ? 0.3 : 1.0;
             for (const cfg of STAR_CONFIG) {
-                const count = Math.floor(cfg.count * multiplier);
-                for (let i = 0; i < count; i++) {
+                for (let i = 0; i < cfg.count; i++) {
                     stars.push({
                         x:      Math.random() * width,
                         y:      Math.random() * height,
@@ -66,7 +62,6 @@ export default function BackgroundStars() {
         };
 
         const resize = () => {
-            isMobile = window.innerWidth < 768;
             width  = window.innerWidth;
             height = window.innerHeight;
             const dpr = window.devicePixelRatio || 1;
@@ -174,27 +169,18 @@ export default function BackgroundStars() {
     }, []);
 
     return (
-        <div className="global-space-background" style={{
-            position:      'fixed',
-            inset:         0,
-            zIndex:        -1, // Deepest isolated background layer behind scrollable content
-            pointerEvents: 'none',
-            overflow:      'hidden'
-        }}>
-            <canvas
-                ref={canvasRef}
-                aria-hidden="true"
-                style={{
-                    position:      'absolute',
-                    top:           0,
-                    left:          0,
-                    width:         '100%',
-                    height:        '100%',
-                    pointerEvents: 'none',
-                    opacity:       1,
-                    transition:    'opacity 0.2s ease-out', // Smooths out rapid scrolls
-                }}
-            />
-        </div>
+        <canvas
+            ref={canvasRef}
+            aria-hidden="true"
+            style={{
+                position:      'fixed',
+                top:           0,
+                left:          0,
+                pointerEvents: 'none',
+                zIndex:        0,
+                opacity:       1,
+                transition:    'opacity 0.2s ease-out',
+            }}
+        />
     );
 }

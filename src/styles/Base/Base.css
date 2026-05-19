@@ -35,13 +35,12 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  -webkit-tap-highlight-color: transparent; /* Removes translucent tap highlight on mobile WebKit */
+  -webkit-tap-highlight-color: transparent;
 }
 
-/* Make scrolling & dragging feel native by preventing accidental text selection on touch targets */
 a, button, [role="button"], .toolCard, .categoryCard, .heroCategoryBadge, img {
-  -webkit-user-select: none; /* Safari */
-  user-select: none;         /* Standard */
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 html,
@@ -52,19 +51,8 @@ body {
 }
 
 body {
-  background: transparent; /* Allows the isolated fixed background wrapper to show through perfectly */
-  color: var(--text-main);
-  font-family: var(--font-family);
-  line-height: 1.6;
-  overflow-x: hidden;
-  -webkit-font-smoothing: antialiased;
-}
-
-/* 🌌 Elite Isolated Space Background: Completely immune to mobile scroll address-bar resizing and GPU compositing bugs */
-.global-space-background {
   background-color: var(--bg-dark);
   background-image:
-    /* Vertical depth gradient */
     linear-gradient(
       180deg,
       #04040a 0%,
@@ -74,25 +62,28 @@ body {
     );
   background-size: cover;
   background-position: center;
+  background-attachment: fixed;
+  color: var(--text-main);
+  font-family: var(--font-family);
+  line-height: 1.6;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
 }
 
 /* 🌟 Dynamic breathing background glow restricted strictly to the Home Page */
-html[data-page="home"] .global-space-background {
+html[data-page="home"] body {
   background-image:
-    /* Dynamic hue glow — breathes with the particle engine */
     radial-gradient(
       ellipse 90% 50% at 50% 0%,
       hsla(var(--dynamic-hue-1, 195), 90%, 30%, 0.22) 0%,
       hsla(var(--dynamic-hue-1, 195), 70%, 20%, 0.08) 40%,
       transparent 70%
     ),
-    /* Subtle secondary hue on the opposite corner */
     radial-gradient(
       ellipse 70% 40% at 100% 100%,
       hsla(var(--dynamic-hue-2, 275), 80%, 25%, 0.14) 0%,
       transparent 65%
     ),
-    /* Vertical depth gradient */
     linear-gradient(
       180deg,
       #04040a 0%,
@@ -102,8 +93,35 @@ html[data-page="home"] .global-space-background {
     );
 }
 
-/* 🚀 Mobile Optimization: Disable heavy backdrop-filters to cure mobile GPU compositing/shattering glitches */
+/*
+ * ─────────────────────────────────────────────────────────────────────────────
+ * 📱 MOBILE RENDERING FIXES
+ * ─────────────────────────────────────────────────────────────────────────────
+ *
+ * Fix 1 — Background Jumping:
+ *   `background-attachment: fixed` is NOT reliably supported on mobile browsers
+ *   (iOS Safari, Android Chrome). When the browser's address bar shows/hides
+ *   during scroll, it triggers a full background repaint causing the visible
+ *   "background jumping" effect. The fix: switch to `scroll` on mobile.
+ *
+ * Fix 2 — Ghosting / Texture Corruption (broken cards visual):
+ *   `backdrop-filter: blur()` creates a new GPU compositing layer. When a
+ *   Canvas element (BackgroundStars / InteractiveParticles) sits underneath
+ *   an element with backdrop-filter, Chrome on Android fails to correctly
+ *   resolve the stacking contexts during scroll — causing the "shattered TV"
+ *   artifacts visible in the Key Features and Related Tools sections.
+ *   The fix: disable backdrop-filter entirely on touch devices and use a
+ *   slightly opaque solid background as a fallback.
+ * ─────────────────────────────────────────────────────────────────────────────
+ */
 @media (max-width: 768px) {
+  /* Fix 1: Kill the jumping background on mobile */
+  body,
+  html[data-page="home"] body {
+    background-attachment: scroll;
+  }
+
+  /* Fix 2: Kill backdrop-filter on mobile to prevent GPU compositing artifacts */
   * {
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
