@@ -14,6 +14,26 @@ const _lerpHue = (a, b, t) => {
     return res % 360;
 };
 
+// ⚡ PERF: Module-level HSLA Caching Map to eliminate string allocations
+const COLOR_CACHE = new Map();
+const getCachedHsla = (h, s, l, a) => {
+    const key = ((h | 0) << 16) | ((s | 0) << 8) | ((l | 0) << 4) | ((a * 20) | 0);
+    let cached = COLOR_CACHE.get(key);
+    if (!cached) {
+        cached = `hsla(${h | 0},${s | 0}%,${l | 0}%,${a.toFixed(2)})`;
+        COLOR_CACHE.set(key, cached);
+    }
+    return cached;
+};
+
+// ⚡ PERF: Reusable, zero-allocation flat array structure for line connection batching
+const _LINE_BINS = Array.from({ length: 5 }, () => ({
+    points: [],
+    sumHue: 0,
+    sumLit: 0,
+    sumScale: 0
+}));
+
 /**
  * 🌌 Particle Class - Highly Optimized 3D Physics
  * Inlined to guarantee V8 JIT inlining for 30fps performance.
@@ -53,6 +73,11 @@ class Particle {
         this.randX = (Math.sin(index * 9.9) * 0.5) * 3.5;
         this.randY = (Math.cos(index * 7.7) * 0.5) * 3.5;
         this.randZ = (Math.sin(index * 5.5) * 0.5) * 3.5;
+
+        // ⚡ JIT Monomorphism Stability: Pre-initialize all V8 properties
+        this.isCinematic = false;
+        this.localSizeMult = 1.0;
+        this.localOpMult = 1.0;
     }
 
     draw(ctx, time, phaseName, mouse, gBaseH, gFarH) {
@@ -70,31 +95,37 @@ class Particle {
 
         if (mouse && mouse.clickTimer >= 0) {
             const dx = this.px - mouse.clickX, dy = this.py - mouse.clickY;
-            const dist = Math.sqrt(dx * dx + dy * dy);
-            // ⚡ INSTANT SHOCKWAVE: Travels extremely fast (40px per frame)
+            const distSq = dx * dx + dy * dy;
             const wRadius = mouse.clickTimer * 40;
-            const distDiff = Math.abs(dist - wRadius);
+            const maxBound = wRadius + 90, minBound = Math.max(0, wRadius - 90);
 
-            if (distDiff < 90) { // Thicker wave band
-                const prog = mouse.clickTimer / 25; // Faster fade out
-                const int = (1 - distDiff / 90) * Math.sin(prog * Math.PI) * (1 - prog);
-                let dH = 335 - cHue;
-                dH = dH > 180 ? dH - 360 : dH < -180 ? dH + 360 : dH;
-                cHue += dH * int;
-                lit += (94 - lit) * int;
+            // ⚡ PERF: Broad-phase boundary check to avoid Math.sqrt on 90% of screen particles
+            if (distSq < maxBound * maxBound && distSq > minBound * minBound) {
+                const dist = Math.sqrt(distSq);
+                const distDiff = Math.abs(dist - wRadius);
 
-                // INSTANT PUNCH: Add massive momentum immediately
-                const f = int * 6.5 / (this.scale || 1);
-                this.speedX += (dx / (dist || 1)) * f;
-                this.speedY += (dy / (dist || 1)) * f;
-                this.speedZ += (Math.random() - 0.5) * f * 12;
+                if (distDiff < 90) { // Thicker wave band
+                    const prog = mouse.clickTimer / 25; // Faster fade out
+                    const int = (1 - distDiff / 90) * Math.sin(prog * Math.PI) * (1 - prog);
+                    let dH = 335 - cHue;
+                    dH = dH > 180 ? dH - 360 : dH < -180 ? dH + 360 : dH;
+                    cHue += dH * int;
+                    lit += (94 - lit) * int;
+
+                    // INSTANT PUNCH: Add massive momentum immediately
+                    const f = int * 6.5 / (this.scale || 1);
+                    this.speedX += (dx / (dist || 1)) * f;
+                    this.speedY += (dy / (dist || 1)) * f;
+                    this.speedZ += (Math.random() - 0.5) * f * 12;
+                }
             }
         }
 
         this.computedHue = cHue;
         this.computedLightness = lit;
 
-        ctx.fillStyle = `hsla(${cHue}, ${sat}%, ${lit}%, ${this.pOpacity})`;
+        // ⚡ PERF: Zero-allocation HSLA color cache hit
+        ctx.fillStyle = getCachedHsla(cHue, sat, lit, this.pOpacity);
         ctx.beginPath();
         ctx.arc(this.px, this.py, this.pSize, 0, Math.PI * 2);
         ctx.fill();
@@ -275,6 +306,7 @@ export default function InteractiveParticles() {
             canvas.height = Math.floor(window.innerHeight * DPR);
             canvas.style.width = '100vw';
             canvas.style.height = '100vh';
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
             if (DPR !== 1) ctx.scale(DPR, DPR);
             init();
         };
@@ -301,6 +333,15 @@ export default function InteractiveParticles() {
             const len = particles.length;
             const tSq = cDist * cDist;
 
+            // ⚡ PERF: Reset line bins for zero-allocation batching
+            for (let i = 0; i < 5; i++) {
+                const bin = _LINE_BINS[i];
+                bin.points.length = 0;
+                bin.sumHue = 0;
+                bin.sumLit = 0;
+                bin.sumScale = 0;
+            }
+
             // ⚡ PERF: Search limit 25 to halve line-draw work per frame
             for (let a = 0; a < len; a++) {
                 const p1 = particles[a];
@@ -316,15 +357,49 @@ export default function InteractiveParticles() {
                     const distSq = dxl * dxl + dyl * dyl;
                     if (distSq < tSq) {
                         conn++;
-                        const dist = Math.sqrt(distSq);
-                        const avgHue = (p1.computedHue + p2.computedHue) * 0.5;
-                        const avgLit = (p1.computedLightness + p2.computedLightness) * 0.5;
-                        const lineAlpha = (1 - dist / cDist) * op * 0.45;
-                        ctx.strokeStyle = `hsla(${avgHue | 0},100%,${avgLit | 0}%,${lineAlpha})`;
-                        ctx.lineWidth = Math.max(0.4, (1 - dist / cDist) * 1.2 * p1.scale);
-                        ctx.beginPath(); ctx.moveTo(p1.px, p1.py); ctx.lineTo(p2.px, p2.py); ctx.stroke();
+
+                        // ⚡ ELITE MATH: Bypass Math.sqrt completely using quadratic distance decay!
+                        const distRatioSq = distSq / tSq;
+                        const fade = 1.0 - distRatioSq;
+                        const lineAlpha = fade * op * 0.45;
+
+                        // ⚡ ELITE BATCHING: Group coordinates into 5 discretized opacity buckets
+                        const binIdx = Math.min(4, Math.max(0, (lineAlpha * 11) | 0));
+                        const bin = _LINE_BINS[binIdx];
+
+                        bin.points.push(p1.px, p1.py, p2.px, p2.py);
+                        bin.sumHue += (p1.computedHue + p2.computedHue) * 0.5;
+                        bin.sumLit += (p1.computedLightness + p2.computedLightness) * 0.5;
+                        bin.sumScale += p1.scale;
                     }
                 }
+            }
+
+            // ⚡ ELITE GPU DRAW: Flush all line paths in exactly 5 composite draw calls!
+            for (let i = 0; i < 5; i++) {
+                const bin = _LINE_BINS[i];
+                const pts = bin.points;
+                const lenPts = pts.length;
+                if (lenPts === 0) continue;
+
+                const count = lenPts / 4;
+                const avgHue = bin.sumHue / count;
+                const avgLit = bin.sumLit / count;
+                const avgScale = bin.sumScale / count;
+
+                // Represent the alpha and width curve for this bin
+                const binAlpha = ((i + 0.5) / 5) * op * 0.45;
+                const binWidth = Math.max(0.4, ((i + 0.5) / 5) * 1.2 * avgScale);
+
+                ctx.strokeStyle = getCachedHsla(avgHue, 100, avgLit, binAlpha);
+                ctx.lineWidth = binWidth;
+
+                ctx.beginPath();
+                for (let k = 0; k < lenPts; k += 4) {
+                    ctx.moveTo(pts[k], pts[k + 1]);
+                    ctx.lineTo(pts[k + 2], pts[k + 3]);
+                }
+                ctx.stroke();
             }
         };
 
@@ -585,8 +660,13 @@ export default function InteractiveParticles() {
             cancelAnimationFrame(reqId);
         };
 
+        const handleVisibilityChange = () => {
+            triggerLoopCheck();
+        };
+
         const triggerLoopCheck = () => {
-            if (isHomeRef.current && isIntersectingRef.current) {
+            const isVisible = typeof document !== 'undefined' && document.visibilityState === 'visible';
+            if (isHomeRef.current && isIntersectingRef.current && isVisible) {
                 startLoop();
             } else {
                 stopLoop();
@@ -606,6 +686,7 @@ export default function InteractiveParticles() {
         window.addEventListener('resize', onResize); window.addEventListener('scroll', onScroll, { passive: true });
         if (scrollC) scrollC.addEventListener('scroll', onScroll, { passive: true });
         window.addEventListener('mousemove', onMove); window.addEventListener('mouseleave', onLeave); window.addEventListener('click', onClick);
+        document.addEventListener('visibilitychange', handleVisibilityChange);
 
         onResize();
         triggerLoopCheck();
@@ -617,6 +698,7 @@ export default function InteractiveParticles() {
             window.removeEventListener('resize', onResize); window.removeEventListener('scroll', onScroll);
             if (scrollC) scrollC.removeEventListener('scroll', onScroll);
             window.removeEventListener('mousemove', onMove); window.removeEventListener('mouseleave', onLeave); window.removeEventListener('click', onClick);
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
         };
     }, [shouldRender]);
 
