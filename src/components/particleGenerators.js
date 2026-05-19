@@ -40,6 +40,43 @@ const _MERK_EDGES = (() => {
     return edges;
 })();
 
+// ─── Stellated Octahedron edges (24 edges) ───────────────────────────────────
+const _STELLATED_EDGES = (() => {
+    const R = 145; // peak tip radius
+    const r = 75;  // inner core octahedron radius
+    
+    // Octahedron vertices
+    const oct = [
+        [r,0,0], [-r,0,0], [0,r,0], [0,-r,0], [0,0,r], [0,0,-r]
+    ];
+    // 8 star peak tips
+    const tips = [
+        [R,R,R], [-R,R,R], [R,-R,R], [-R,-R,R],
+        [R,R,-R], [-R,R,-R], [R,-R,-R], [-R,-R,-R]
+    ];
+    const edges = [];
+    
+    // Inner octahedron 12 edges
+    const octEdges = [
+        [0,2], [0,3], [0,4], [0,5],
+        [1,2], [1,3], [1,4], [1,5],
+        [2,4], [2,5], [3,4], [3,5]
+    ];
+    octEdges.forEach(([a, b]) => edges.push([oct[a], oct[b]]));
+    
+    // Connect each of the 8 tips to its 3 closest octahedron corners
+    for (let t = 0; t < 8; t++) {
+        const tip = tips[t];
+        const sx = tip[0] > 0 ? 0 : 1;
+        const sy = tip[1] > 0 ? 2 : 3;
+        const sz = tip[2] > 0 ? 4 : 5;
+        edges.push([tip, oct[sx]]);
+        edges.push([tip, oct[sy]]);
+        edges.push([tip, oct[sz]]);
+    }
+    return edges;
+})();
+
 // ─── Constants ───────────────────────────────────────────────────────────────
 const GOLDEN_ANGLE = Math.PI * (1 + Math.sqrt(5));
 
@@ -52,14 +89,20 @@ export function precomputeShapeTrig(time, phaseName) {
     if (phaseName === 'SHAPE_GLOBE') {
         _trig.cp = Math.cos(time * 0.002); _trig.sp = Math.sin(time * 0.002);
         _trig.cy = Math.cos(time * 0.005); _trig.sy = Math.sin(time * 0.005);
-    } else if (phaseName === 'SHAPE_MERKABA') {
-        _trig.cp = Math.cos(time * 0.008); _trig.sp = Math.sin(time * 0.008);
+    } else if (phaseName === 'SHAPE_QUANTUM_SINGULARITY') {
+        _trig.cp = Math.cos(time * 0.004); _trig.sp = Math.sin(time * 0.004);
+        _trig.cy = Math.cos(time * 0.006); _trig.sy = Math.sin(time * 0.006);
+    } else if (phaseName === 'SHAPE_CHRONOS_HYPERSPHERE') {
+        _trig.cp = Math.cos(time * 0.003); _trig.sp = Math.sin(time * 0.003);
         _trig.cy = Math.cos(time * 0.005); _trig.sy = Math.sin(time * 0.005);
-        _trig.cr = Math.cos(time * 0.003); _trig.sr = Math.sin(time * 0.003);
-    } else if (phaseName === 'SHAPE_TESSERACT') {
-        _trig.cp = Math.cos(time * 0.012); _trig.sp = Math.sin(time * 0.012);
+        _trig.cr = Math.cos(time * 0.002); _trig.sr = Math.sin(time * 0.002);
+    } else if (phaseName === 'SHAPE_COSMIC_TORNADO') {
+        _trig.cp = Math.cos(time * 0.002); _trig.sp = Math.sin(time * 0.002);
         _trig.cy = Math.cos(time * 0.008); _trig.sy = Math.sin(time * 0.008);
-        _trig.cr = Math.cos(time * 0.005); _trig.sr = Math.sin(time * 0.005);
+    } else if (phaseName === 'SHAPE_STELLATED_OCTAHEDRON') {
+        _trig.cp = Math.cos(time * 0.005); _trig.sp = Math.sin(time * 0.005);
+        _trig.cy = Math.cos(time * 0.004); _trig.sy = Math.sin(time * 0.004);
+        _trig.cr = Math.cos(time * 0.003); _trig.sr = Math.sin(time * 0.003);
     } else if (phaseName === 'SHAPE_TORUS') {
         _trig.cp = Math.cos(time * 0.008); _trig.sp = Math.sin(time * 0.008);
         _trig.cy = Math.cos(time * 0.006); _trig.sy = Math.sin(time * 0.006);
@@ -94,12 +137,43 @@ export function updateParticleIdealTargets(p, phaseName, i, total, time, cx, cy)
     
     let ix = cx, iy = cy, iz = 0;
 
-    if (phaseName === 'SHAPE_DNA') {
-        const strand = i % 2 === 0;
-        const angle  = prog * Math.PI * 7.5 + time * 0.02 + (strand ? 0 : Math.PI);
-        ix = cx + (-400 + prog * 800) + rx;
-        iy = cy + Math.sin(angle) * 110 + ry;
-        iz = Math.cos(angle) * 110 + rz;
+    if (phaseName === 'SHAPE_QUANTUM_SINGULARITY') {
+        // Breathing core + event horizon disk + perpendicular vertical warp disk
+        if (prog < 0.40) {
+            // 3D Spherical Core (40% of particles)
+            const phi = Math.acos(1 - 2 * (prog / 0.40));
+            const theta = GOLDEN_ANGLE * i + time * 0.02;
+            const rad = 30 + Math.sin(time * 0.045 + i) * 6;
+            const r = rotateInline(
+                Math.sin(phi) * Math.cos(theta) * rad,
+                Math.cos(phi) * rad,
+                Math.sin(phi) * Math.sin(theta) * rad,
+                false
+            );
+            ix = cx + r.x + rx * 0.2; iy = cy + r.y + ry * 0.2; iz = r.z + rz * 0.2;
+        } else if (prog < 0.70) {
+            // Horizontal Event Horizon Disk (30% of particles)
+            const angle = ((prog - 0.40) / 0.30) * Math.PI * 2 + time * 0.035;
+            const rad = 70 + (i % 8) * 22;
+            const r = rotateInline(
+                Math.cos(angle) * rad,
+                Math.sin(angle) * rad,
+                Math.sin(time * 0.02 + i) * 8,
+                false
+            );
+            ix = cx + r.x + rx * 0.3; iy = cy + r.y + ry * 0.3; iz = r.z + rz * 0.3;
+        } else {
+            // Perpendicular Vertical Accretion Disk (30% of particles)
+            const angle = ((prog - 0.70) / 0.30) * Math.PI * 2 - time * 0.03;
+            const rad = 70 + (i % 8) * 22;
+            const r = rotateInline(
+                Math.cos(angle) * rad,
+                Math.sin(time * 0.02 + i) * 8,
+                Math.sin(angle) * rad,
+                false
+            );
+            ix = cx + r.x + rx * 0.3; iy = cy + r.y + ry * 0.3; iz = r.z + rz * 0.3;
+        }
 
     } else if (phaseName === 'SHAPE_GLOBE') {
         const phi   = Math.acos(1 - 2 * prog);
@@ -113,40 +187,46 @@ export function updateParticleIdealTargets(p, phaseName, i, total, time, cx, cy)
         );
         ix = cx + r.x + rx; iy = cy + r.y + ry; iz = r.z + rz;
 
-    } else if (phaseName === 'SHAPE_AI_TEXT') {
-        const sp = prog;
-        let x1, y1, x2, y2, lt;
-        if      (sp < 0.3) { x1=-140; y1=140;  x2=-70;  y2=-140; lt=sp/0.3; }
-        else if (sp < 0.6) { x1=-70;  y1=-140; x2=0;    y2=140;  lt=(sp-0.3)/0.3; }
-        else if (sp < 0.7) { x1=-110; y1=20;   x2=-30;  y2=20;   lt=(sp-0.6)/0.1; }
-        else if (sp < 0.8) { x1=60;   y1=-140; x2=140;  y2=-140; lt=(sp-0.7)/0.1; }
-        else if (sp < 0.9) { x1=100;  y1=-140; x2=100;  y2=140;  lt=(sp-0.8)/0.1; }
-        else               { x1=60;   y1=140;  x2=140;  y2=140;  lt=(sp-0.9)/0.1; }
-        ix = cx + x1 + (x2 - x1) * lt + rx;
-        iy = cy + y1 + (y2 - y1) * lt + ry;
-        iz = rz * 2.5;
-
-    } else if (phaseName === 'SHAPE_HOURGLASS') {
-        const twist = t * 2 + time * 0.02;
-        ix = cx + Math.sin(twist) * 160 + rx * 0.3;
-        iy = cy + Math.cos(t) * 230 + ry * 0.3;
-        iz = Math.sin(t) * 110 + rz * 0.3;
-
-    } else if (phaseName === 'SHAPE_MERKABA') {
-        const ei = i % 12, ep = ((i * 7) % 20) / 19;
-        const [pa, pb] = _MERK_EDGES[ei];
-        // ⚡ Use pre-computed trig with roll
-        const r = rotateInline(
-            pa[0] + (pb[0] - pa[0]) * ep,
-            pa[1] + (pb[1] - pa[1]) * ep,
-            pa[2] + (pb[2] - pa[2]) * ep,
-            true
-        );
-        ix = cx + r.x + rx; iy = cy + r.y + ry; iz = r.z + rz;
+    } else if (phaseName === 'SHAPE_CHRONOS_HYPERSPHERE') {
+        // Gyroscope containing 3 concentric rings + central pulsing nucleus
+        let tx = 0, ty = 0, tz = 0;
+        if (prog < 0.25) {
+            // Outer Horizontal Ring
+            const angle = (prog / 0.25) * Math.PI * 2 + time * 0.025;
+            const rad = 210;
+            tx = Math.cos(angle) * rad;
+            ty = Math.sin(angle) * rad;
+            tz = 0;
+        } else if (prog < 0.50) {
+            // Mid Vertical Ring
+            const angle = ((prog - 0.25) / 0.25) * Math.PI * 2 - time * 0.02;
+            const rad = 160;
+            tx = Math.cos(angle) * rad;
+            ty = 0;
+            tz = Math.sin(angle) * rad;
+        } else if (prog < 0.75) {
+            // Inner Inclined Ring
+            const angle = ((prog - 0.50) / 0.25) * Math.PI * 2 + time * 0.035;
+            const rad = 110;
+            tx = 0;
+            ty = Math.cos(angle) * rad;
+            tz = Math.sin(angle) * rad;
+        } else {
+            // Central Pulsing Quantum Nucleus
+            const phi = Math.acos(1 - 2 * ((prog - 0.75) / 0.25));
+            const theta = GOLDEN_ANGLE * i + time * 0.015;
+            const rad = 35 + Math.sin(time * 0.05 + i) * 10;
+            tx = Math.sin(phi) * Math.cos(theta) * rad;
+            ty = Math.cos(phi) * rad;
+            tz = Math.sin(phi) * Math.sin(theta) * rad;
+        }
+        const r = rotateInline(tx, ty, tz, true);
+        ix = cx + r.x + rx * 0.4; iy = cy + r.y + ry * 0.4; iz = r.z + rz * 0.4;
 
     } else if (phaseName === 'SHAPE_TESSERACT') {
         const { v, e } = _TESS;
-        const ei = i % e.length, ep = ((i * 7) % 11) / 10;
+        const ei = i % e.length;
+        const ep = ((i * 7) % 13) / 12;
         const [ai, bi] = e[ei];
         // ⚡ Use pre-computed trig with roll
         const r = rotateInline(
@@ -155,7 +235,20 @@ export function updateParticleIdealTargets(p, phaseName, i, total, time, cx, cy)
             v[ai][2] + (v[bi][2] - v[ai][2]) * ep,
             true
         );
-        ix = cx + r.x + rx; iy = cy + r.y + ry; iz = r.z + rz;
+        ix = cx + r.x + rx * 0.3; iy = cy + r.y + ry * 0.3; iz = r.z + rz * 0.3;
+
+    } else if (phaseName === 'SHAPE_STELLATED_OCTAHEDRON') {
+        // Perfect Merkaba Geometry (12 edges)
+        const ei = i % _MERK_EDGES.length;
+        const ep = ((i * 7) % 13) / 12;
+        const [pa, pb] = _MERK_EDGES[ei];
+        const r = rotateInline(
+            pa[0] + (pb[0] - pa[0]) * ep,
+            pa[1] + (pb[1] - pa[1]) * ep,
+            pa[2] + (pb[2] - pa[2]) * ep,
+            true
+        );
+        ix = cx + r.x + rx * 0.4; iy = cy + r.y + ry * 0.4; iz = r.z + rz * 0.4;
 
     } else if (phaseName === 'SHAPE_DYSON_SPHERE') {
         if (prog < 0.2) {
@@ -201,19 +294,51 @@ export function updateParticleIdealTargets(p, phaseName, i, total, time, cx, cy)
             iz = Math.sin(layer * 0.8 - time * 0.035) * 25;
         }
 
-    } else if (phaseName === 'SHAPE_WARP_DRIVE') {
-        if (prog < 0.2) {
-            const angle = prog * Math.PI * 10 + time * 0.045;
-            ix = cx + Math.cos(angle) * 140;
-            iy = cy + Math.sin(angle) * 140;
-            iz = -120;
+    } else if (phaseName === 'SHAPE_PULSAR_STAR') {
+        // Pulsar Star (النجم الطارق)
+        // Extremely dense spinning core, with two massive high-energy jets shooting from poles.
+        if (prog < 0.35) {
+            const phi = Math.acos(1 - 2 * (prog / 0.35));
+            const theta = GOLDEN_ANGLE * i + time * 0.15;
+            const rad = 30 + Math.sin(time * 0.08 + i) * 8;
+            ix = cx + Math.sin(phi) * Math.cos(theta) * rad;
+            iy = cy + Math.sin(phi) * Math.sin(theta) * rad;
+            iz = Math.cos(phi) * rad;
+        } else if (prog < 0.65) {
+            const angle = ((prog - 0.35) / 0.30) * Math.PI * 2 - time * 0.12;
+            const rad = 60 + (i % 5) * 15;
+            ix = cx + Math.cos(angle) * rad;
+            iy = cy + Math.sin(angle) * rad;
+            iz = Math.sin(time * 0.1 + i) * 6;
         } else {
-            const f = (prog - 0.2) / 0.8;
-            const angle = prog * Math.PI * 20 + time * 0.05;
-            ix = cx + Math.cos(angle) * (140 - f * 115);
-            iy = cy + Math.sin(angle) * (140 - f * 115);
-            iz = -120 + f * 380;
+            const isTop = i % 2 === 0;
+            const lengthProg = ((prog - 0.65) / 0.35);
+            const h = (isTop ? 1 : -1) * (40 + lengthProg * 400); 
+            const rad = 8 + lengthProg * 25;
+            const angle = lengthProg * Math.PI * 12 + time * 0.2;
+            const pulse = Math.sin(lengthProg * Math.PI * 4 - time * 0.1) > 0 ? 1.5 : 1.0;
+            
+            ix = cx + Math.cos(angle) * rad * pulse;
+            iy = cy + Math.sin(angle) * rad * pulse;
+            iz = h;
         }
+        const r = rotateInline(ix - cx, iy - cy, iz, true);
+        ix = cx + r.x + rx * 0.2; iy = cy + r.y + ry * 0.2; iz = r.z + rz * 0.2;
+
+    } else if (phaseName === 'SHAPE_HOURGLASS') {
+        // True 3D Infinity Figure-8 Hourglass
+        const ribbon = i % 4; 
+        const t3 = (prog * Math.PI * 2) + (ribbon * Math.PI / 2) + time * 0.015;
+        const L_scale = 2 / (3 - Math.cos(2 * t3));
+        const height = 240; 
+        const width = 110;  
+        
+        const lx = width * L_scale * Math.cos(t3);
+        const ly = height * L_scale * Math.sin(2 * t3);
+        const lz = 60 * Math.sin(t3 * 3 + time * 0.05);
+        
+        const r = rotateInline(lx, ly, lz, true);
+        ix = cx + r.x + rx * 0.3; iy = cy + r.y + ry * 0.3; iz = r.z + rz * 0.3;
 
     } else if (phaseName === 'SHAPE_MULTIVERSE') {
         if (prog < 0.45) {

@@ -10,6 +10,7 @@ import SmartImage from './ui/SmartImage';
 import Skeleton from './ui/Skeleton';
 import Safeguard from './ui/Safeguard';
 
+
 /**
  * SmartBanner - Elite Advertising Engine (v3.3)
  * Feature: Unified Verification UI & Enhanced Skeletons
@@ -33,6 +34,7 @@ const SmartBanner = memo((props) => {
     return (
         <div className={styles.smartBannerNew} id="smart-banner-node">
             <div className={styles.bannerInner}>
+
                 {/* 1. Visual Section */}
                 <div className={styles.bannerVisual}>
                     <div className={styles.imageFixedBox}>

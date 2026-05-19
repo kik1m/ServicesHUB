@@ -3,6 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { updateParticleIdealTargets, precomputeShapeTrig } from './particleGenerators';
 import { updateParticleTransition } from './particleTransitions';
 import { COLOR_MAP } from './particleColors';
+import { usePathname } from 'next/navigation';
 
 // ⚡ PERF: Module-level lerpHue — eliminates closure allocation on every draw() call
 const _lerpHue = (a, b, t) => {
@@ -22,11 +23,10 @@ class Particle {
         this.canvas = canvas;
         const cy = canvas.height / 2;
 
-        // 🎬 THE GRAND ENTRANCE: Spawn on the extreme left and right sides of the page
-        const isLeft = index % 2 === 0;
-        this.x = isLeft ? -250 : canvas.width + 250;
-        this.y = Math.random() * canvas.height;
-        this.z = -150; // Closer to camera for large, sharp particles
+        // 🎬 THE GRAND ENTRANCE: Spawn as an extremely dense central stardust singularity
+        this.x = canvas.width / 2 + (Math.random() - 0.5) * 15;
+        this.y = canvas.height / 2 + (Math.random() - 0.5) * 15;
+        this.z = 1000 + Math.random() * 500; // Deep behind the screen
 
         this.speedX = 0; this.speedY = 0; this.speedZ = 0;
         this.baseSpeedX = (Math.random() - 0.5) * 1.6;
@@ -60,7 +60,7 @@ class Particle {
 
         const depthRatio = Math.max(0, Math.min(1, (this.z + 200) / 500));
         let cHue = _lerpHue(gBaseH, gFarH, depthRatio);
-        let sat = 100, lit = phaseName === 'SHAPE_WARP_DRIVE' || phaseName === 'SHAPE_QUANTUM_FIELD' ? 65 : 55;
+        let sat = 100, lit = phaseName === 'SHAPE_PULSAR_STAR' || phaseName === 'SHAPE_QUANTUM_FIELD' ? 65 : 55;
 
         // Brush & Shockwave interactivity
         if (this.chromaticShift > 0.01) {
@@ -192,6 +192,13 @@ export default function InteractiveParticles() {
     const canvasRef = useRef(null);
     const [shouldRender, setShouldRender] = useState(true);
     const [isAlive, setIsAlive] = useState(false);
+    const pathname = usePathname();
+    const isHome = pathname === '/';
+    const isHomeRef = useRef(isHome);
+
+    useEffect(() => {
+        isHomeRef.current = isHome;
+    }, [isHome]);
 
     useEffect(() => {
         const t = setTimeout(() => setIsAlive(true), 80);
@@ -225,25 +232,25 @@ export default function InteractiveParticles() {
         const scrollC = document.querySelector('.content') || document.querySelector('.app-container');
 
         const PHASES = [
-            { name: 'SHAPE_GLOBE', duration: 1200 },       // 0: Majestic Start (Cyan/Gold)
-            { name: 'SHAPE_AI_TEXT', duration: 1000 },     // 1: AI/Platform Title
-            { name: 'SHAPE_MERKABA', duration: 1000 },     // 2
-            { name: 'SHAPE_TESSERACT', duration: 1000 },   // 3
-            { name: 'SHAPE_DNA', duration: 1000 },         // 4
-            { name: 'SHAPE_TORUS', duration: 1000 },       // 5
-            { name: 'SHAPE_WARP_DRIVE', duration: 1000 },  // 6
-            { name: 'SHAPE_HOURGLASS', duration: 1000 },   // 7
-            { name: 'SHAPE_MULTIVERSE', duration: 1000 },  // 8
-            { name: 'SHAPE_DYSON_SPHERE', duration: 1000 },// 9
-            { name: 'SHAPE_PYRAMID', duration: 1000 }      // 10: Epic Cybernetic Quantum Nexus Core
+            { name: 'SHAPE_GLOBE', duration: 1300 },               // 0: Majestic Start (Cyan/Gold)
+            { name: 'SHAPE_QUANTUM_SINGULARITY', duration: 1200 }, // 1: Volumetric Black Hole
+            { name: 'SHAPE_CHRONOS_HYPERSPHERE', duration: 1200 }, // 2: nested 3-Axis Gyroscope
+            { name: 'SHAPE_TESSERACT', duration: 1200 },           // 3: 4D Hypercube Tesseract
+            { name: 'SHAPE_STELLATED_OCTAHEDRON', duration: 1200 },// 4: Sacred Geometry Star Tetrahedron
+            { name: 'SHAPE_TORUS', duration: 1000 },               // 5
+            { name: 'SHAPE_PULSAR_STAR', duration: 1000 },         // 6: Pulsar Star (النجم الطارق)
+            { name: 'SHAPE_HOURGLASS', duration: 1000 },           // 7: 3D Infinity Figure-8 Hourglass
+            { name: 'SHAPE_MULTIVERSE', duration: 1000 },          // 8
+            { name: 'SHAPE_DYSON_SPHERE', duration: 1000 },        // 9
+            { name: 'SHAPE_PYRAMID', duration: 1000 }              // 10
         ];
 
         let phaseIdx = 0, phaseTimer = 0;
 
         const init = () => {
             particles = [];
-            // ⚡ PERF: Hard cap at 160 particles for 80% CPU reduction
-            const n = Math.min(Math.floor((canvas.width * canvas.height) / 7000), 160);
+            // Colossal high-density stardust for a breathtaking high-resolution experience
+            const n = Math.min(Math.floor((canvas.width * canvas.height) / 2500), 380);
             for (let i = 0; i < n; i++) particles.push(new Particle(canvas, i, n));
         };
 
@@ -268,12 +275,14 @@ export default function InteractiveParticles() {
             const phase = PHASES[phaseIdx].name;
             let cDist = 65, mConn = 4, strict = false, eMod = 1;
 
-            if (phase === 'SHAPE_AI_TEXT') { cDist = 32; mConn = 3; }
-            else if (phase === 'SHAPE_MERKABA') { cDist = 120; strict = true; eMod = 12; mConn = 6; }
-            else if (phase === 'SHAPE_TESSERACT') { cDist = 140; strict = true; eMod = 32; mConn = 6; }
+            if (phase === 'SHAPE_QUANTUM_SINGULARITY') { cDist = 75; mConn = 4; }
+            else if (phase === 'SHAPE_CHRONOS_HYPERSPHERE') { cDist = 90; mConn = 4; }
+            else if (phase === 'SHAPE_TESSERACT') { cDist = 75; strict = false; mConn = 4; }
+            else if (phase === 'SHAPE_STELLATED_OCTAHEDRON') { cDist = 130; strict = true; eMod = 12; mConn = 6; }
+            else if (phase === 'SHAPE_PULSAR_STAR') { cDist = 80; mConn = 4; }
+            else if (phase === 'SHAPE_HOURGLASS') { cDist = 80; mConn = 4; }
             else if (phase === 'SHAPE_DYSON_SPHERE') { cDist = 80; mConn = 3; }
             else if (['SHAPE_QUANTUM_FIELD', 'SHAPE_MULTIVERSE'].includes(phase)) { cDist = 70; mConn = 4; }
-            else if (phase === 'SHAPE_DNA') { cDist = 58; mConn = 3; }
             else if (phase === 'SHAPE_PYRAMID') { cDist = 140; strict = true; eMod = 6; mConn = 4; }
 
             const len = particles.length;
@@ -325,34 +334,57 @@ export default function InteractiveParticles() {
 
                 if (isChanged) { p.transStartX = p.x; p.transStartY = p.y; p.transStartZ = p.z; }
 
-                if (globalTime < 300) {
+                if (globalTime < 320) {
                     p.isCinematic = true;
                     const ringAngle = (i / pLen) * Math.PI * 4;
-                    const ringX = cx + Math.cos(ringAngle) * 140;
-                    const ringY = cy + Math.sin(ringAngle) * 140;
+                    const ringX = cx + Math.cos(ringAngle) * 165;
+                    const ringY = cy + Math.sin(ringAngle) * 165;
 
-                    if (globalTime < 120) {
-                        const t1 = globalTime / 120;
-                        const ease1 = t1 < 0.5 ? 4 * t1 * t1 * t1 : 1 - Math.pow(-2 * t1 + 2, 3) / 2;
-                        p.targetX = p.transStartX + (ringX - p.transStartX) * ease1;
-                        p.targetY = p.transStartY + (ringY - p.transStartY) * ease1;
-                        p.targetZ = p.transStartZ + (0 - p.transStartZ) * ease1;
-                    } else if (globalTime < 210) {
-                        const spinAngle = ringAngle + (globalTime - 120) * 0.24;
-                        p.targetX = cx + Math.cos(spinAngle) * 140;
-                        p.targetY = cy + Math.sin(spinAngle) * 140;
-                        p.targetZ = 0;
-                        p.chromaticShift = 0.5 + Math.sin(globalTime * 0.12) * 0.5;
+                    if (globalTime < 130) {
+                        // Phase 0: Hyper-speed Big Bang Singularity Explosion
+                        // Particles blast violently from deep singularity (z=1200) forward to the camera (z=-400), swirling aggressively
+                        const t1 = globalTime / 130;
+                        const ease1 = 1 - Math.pow(1 - t1, 4); // Quartic ease-out for explosive initial speed
+                        const rotAngle = ringAngle + globalTime * 0.18;
+                        
+                        const startX = cx;
+                        const startY = cy;
+                        const startZ = 1200;
+
+                        // Radial blast outward and then swirl
+                        const targetRadius = ease1 * 340;
+                        const destX = cx + Math.cos(rotAngle) * targetRadius;
+                        const destY = cy + Math.sin(rotAngle) * targetRadius;
+                        const destZ = startZ + (-400 - startZ) * ease1;
+
+                        p.targetX = startX + (destX - startX) * ease1;
+                        p.targetY = startY + (destY - startY) * ease1;
+                        p.targetZ = startZ + (destZ - startZ) * ease1;
+                        p.chromaticShift = 0.95 * (1.0 - t1);
+                    } else if (globalTime < 220) {
+                        // Phase 1: High-speed Gravity Accretion Disk collapse
+                        // Sucked inward and compressed into a dense, flat spinning ring at z=0
+                        const t2 = (globalTime - 130) / 90;
+                        const ease2 = t2 < 0.5 ? 4 * t2 * t2 * t2 : 1 - Math.pow(-2 * t2 + 2, 3) / 2;
+                        const spinAngle = ringAngle + globalTime * 0.28; // Blazing fast spin!
+                        
+                        const currentRadius = 340 + (165 - 340) * ease2;
+                        p.targetX = cx + Math.cos(spinAngle) * currentRadius;
+                        p.targetY = cy + Math.sin(spinAngle) * currentRadius;
+                        p.targetZ = -400 + (0 - -400) * ease2;
+                        p.chromaticShift = 0.82;
                     } else {
-                        const t3 = (globalTime - 210) / 90;
+                        // Phase 2: Majestic Crystallization Bloom into the Globe
+                        const t3 = (globalTime - 220) / 100;
                         const ease3 = t3 < 0.5 ? 4 * t3 * t3 * t3 : 1 - Math.pow(-2 * t3 + 2, 3) / 2;
-                        const lastSpinAngle = ringAngle + 90 * 0.24;
-                        const ringStartX = cx + Math.cos(lastSpinAngle) * 140;
-                        const ringStartY = cy + Math.sin(lastSpinAngle) * 140;
+                        const lastSpinAngle = ringAngle + 220 * 0.28 + (globalTime - 220) * 0.05;
+                        const ringStartX = cx + Math.cos(lastSpinAngle) * 165;
+                        const ringStartY = cy + Math.sin(lastSpinAngle) * 165;
+                        
                         p.targetX = ringStartX + (p.idealX - ringStartX) * ease3;
                         p.targetY = ringStartY + (p.idealY - ringStartY) * ease3;
                         p.targetZ = (p.idealZ) * ease3;
-                        p.chromaticShift = (1 - ease3) * 0.8;
+                        p.chromaticShift = (1.0 - ease3) * 0.8;
                     }
                 } else if (phaseTimer <= 180) {
                     p.isCinematic = true;
@@ -387,24 +419,21 @@ export default function InteractiveParticles() {
 
         const animate = () => {
             // High-Performance Clear & Simple Smooth Motion Blur (البلور الحركي الذكي)
-            // Skip blur completely during the very first portal sweep-in entrance (globalTime < 300)
-            const isMorphing = globalTime >= 300 && phaseTimer > 0 && phaseTimer <= 180;
+            // Skip blur completely during the very first portal sweep-in entrance (globalTime < 320)
+            const isMorphing = globalTime >= 320 && phaseTimer > 0 && phaseTimer <= 180;
             
-            if (isMorphing) {
-                // 🌊 Ultra-Soft Sine Wave Easing: Perfect bell-curve entrance and exit
-                // Math.sin creates a flawless, organic ramp peaking exactly at the middle (frame 90)
-                const blurStrength = Math.sin((phaseTimer / 180) * Math.PI);
-
-                // Very subtle blur: 1.0 is pure clear (no blur), 0.55 is a short, highly elegant tail
-                const activeFade = 0.55 + (1.0 - 0.55) * (1.0 - blurStrength);
-
-                // Transparent fade clear for realistic, delicate organic trails
-                ctx.globalCompositeOperation = 'destination-out';
-                ctx.fillStyle = `rgba(0, 0, 0, ${activeFade})`;
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                ctx.globalCompositeOperation = 'screen';
-            } else {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            if (isHomeRef.current) {
+                if (isMorphing) {
+                    // 🌊 Ultra-Soft Sine Wave Easing: Perfect bell-curve entrance and exit
+                    const blurStrength = Math.sin((phaseTimer / 180) * Math.PI);
+                    const activeFade = 0.55 + (1.0 - 0.55) * (1.0 - blurStrength);
+                    ctx.globalCompositeOperation = 'destination-out';
+                    ctx.fillStyle = `rgba(0, 0, 0, ${activeFade})`;
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    ctx.globalCompositeOperation = 'screen';
+                } else {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                }
             }
 
             globalTime++;
@@ -417,11 +446,11 @@ export default function InteractiveParticles() {
 
             updatePhaseLogic();
 
-            if (globalTime < 210) {
+            if (globalTime < 220) {
                 gSat = 0; // Remain completely gray (lifeless) during sweep-in and high-speed spinning portal
-            } else if (globalTime < 300) {
-                // Smoothly fade in color over 90 frames in PERFECT SYNC with the bloom expansion into the Globe
-                const t = (globalTime - 210) / 90;
+            } else if (globalTime < 320) {
+                // Smoothly fade in color over 100 frames in PERFECT SYNC with the bloom expansion into the Globe
+                const t = (globalTime - 220) / 100;
                 // Cubic ease-in-out for ultimate luxury transition
                 const ease = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
                 gSat = ease * 100;
@@ -461,55 +490,57 @@ export default function InteractiveParticles() {
                 camZ = 450 * (1 - t) ** 2.2 * Math.cos(globalTime * 0.015) * (1 - blend) + bZ * blend;
             } else camZ = bZ;
 
-            const gOp = Math.max(0.15, Math.min(1, 1 - smoothedScrollY / 550)); // Fade to 15% on scroll
+            const gOp = Math.max(0, 1 - smoothedScrollY / 550); // Fade completely to 0 on scroll
             const cx = canvas.width / 2, cy = canvas.height / 2;
             const cX = Math.cos(camY * 0.0012), sX = Math.sin(camY * 0.0012);
             const cY = Math.cos(camX * 0.0012), sY = Math.sin(camX * 0.0012);
 
             let sMult = 1, oMult = 1;
-            if (phaseIdx === 0 && globalTime < 300) {
-                if (globalTime < 120) {
-                    const p = globalTime / 120;
-                    sMult = 2.4 - 0.8 * p; // Start at 2.4x size, scale down to 1.6x
+            if (phaseIdx === 0 && globalTime < 320) {
+                if (globalTime < 130) {
+                    const p = globalTime / 130;
+                    sMult = 3.6 - 1.8 * p; // Start at 3.6x size, scale down to 1.8x
                     oMult = 1.0;
-                } else if (globalTime < 210) {
-                    sMult = 1.6;
+                } else if (globalTime < 220) {
+                    sMult = 1.8;
                     oMult = 1.0;
                 } else {
-                    const p = (globalTime - 210) / 90;
-                    sMult = 1.6 - 0.6 * p; // Scale down to 1.0x
+                    const p = (globalTime - 220) / 100;
+                    sMult = 1.8 - 0.8 * p; // Scale down to 1.0x
                     oMult = 1.0;
                 }
             }
 
-            for (let i = 0; i < particles.length; i++) {
-                const p = particles[i];
-                p.update(mouse, pName, cx, cy, globalTime);
+            if (isHomeRef.current) {
+                for (let i = 0; i < particles.length; i++) {
+                    const p = particles[i];
+                    p.update(mouse, pName, cx, cy, globalTime);
 
-                const rx = p.x - cx, ry = p.y - cy, rz = p.z;
-                const y1 = ry * cX - rz * sX, z1 = ry * sX + rz * cX;
-                const x2 = rx * cY - z1 * sY, z2 = rx * sY + z1 * cY;
+                    const rx = p.x - cx, ry = p.y - cy, rz = p.z;
+                    const y1 = ry * cX - rz * sX, z1 = ry * sX + rz * cX;
+                    const x2 = rx * cY - z1 * sY, z2 = rx * sY + z1 * cY;
 
-                p.rotatedZ = z2;
-                const cRZ = Math.max(-280, z2 + camZ);
-                const sc = 360 / (360 + cRZ);
+                    p.rotatedZ = z2;
+                    const cRZ = Math.max(-280, z2 + camZ);
+                    const sc = 360 / (360 + cRZ);
 
-                p.px = cx + x2 * sc; p.py = cy + y1 * sc; p.scale = sc;
-                p.pSize = Math.max(0.2, p.size * sc * sMult * p.localSizeMult);
+                    p.px = cx + x2 * sc; p.py = cy + y1 * sc; p.scale = sc;
+                    p.pSize = Math.max(0.2, p.size * sc * sMult * p.localSizeMult);
 
-                const nF = cRZ < -150 ? Math.max(0, (cRZ + 280) / 130) : 1;
-                const fF = Math.max(0.6, 1 - (cRZ - 100) / 600);
-                p.pOpacity = Math.min(Math.max(0.42, sc) * nF * fF * (fastSin(globalTime * 0.05 + i * 1.5) * 0.15 + 0.85) * 1.15, 1) * gOp * oMult * p.localOpMult;
+                    const nF = cRZ < -150 ? Math.max(0, (cRZ + 280) / 130) : 1;
+                    const fF = Math.max(0.6, 1 - (cRZ - 100) / 600);
+                    p.pOpacity = Math.min(Math.max(0.42, sc) * nF * fF * (fastSin(globalTime * 0.05 + i * 1.5) * 0.15 + 0.85) * 1.15, 1) * gOp * oMult * p.localOpMult;
 
-                p.draw(ctx, globalTime, pName, mouse, gBaseH, gFarH);
+                    p.draw(ctx, globalTime, pName, mouse, gBaseH, gFarH);
+                }
+
+                if (gOp > 0.1) drawLines(gOp);
             }
-
-            if (gOp > 0.1) drawLines(gOp);
         };
 
-        // ⚡ PERF: 30fps throttle wrapper — halves main-thread work with no perceptible quality loss
+        // 🚀 60 FPS ULTRA-FLUID CINEMATIC RENDER LOOP
         let _lastFrame = 0;
-        const _TARGET_MS = 1000 / 30;
+        const _TARGET_MS = 1000 / 60;
         const animateLoop = (ts) => {
             reqId = requestAnimationFrame(animateLoop);
             if (ts - _lastFrame < _TARGET_MS - 1) return;
@@ -535,9 +566,9 @@ export default function InteractiveParticles() {
 
     return (
         <canvas ref={canvasRef} style={{
-            position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh',
+            position: 'absolute', top: 0, left: 0, width: '100vw', height: '100vh',
             zIndex: 0, pointerEvents: 'none', mixBlendMode: 'screen',
-            opacity: isAlive ? 0.88 : 0, transition: 'opacity 1.8s cubic-bezier(0.16, 1, 0.3, 1)'
+            opacity: (isAlive && isHome) ? 0.88 : 0, transition: 'opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1)'
         }} />
     );
 }

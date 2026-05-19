@@ -32,40 +32,58 @@ export function updateParticleTransition(p, phaseIdx, i, total, localT, ease, ar
         p.targetZ = startZ + (idealZ - startZ) * ease + oz;
 
     } else if (phaseIdx === 1) {
-        // 🌧️ TRANSITION 1: The Matrix Gravity Drop
-        // Particles fall sharply downwards off-screen, then rain down from the top into the new shape.
-        let dropY = 0;
-        if (localT < 0.5) {
-            // First half: drop down aggressively
-            const t2 = localT * 2;
-            dropY = (t2 * t2 * t2) * 800; // Cubic acceleration
-        } else {
-            // Second half: fall from above
-            const t2 = (localT - 0.5) * 2;
-            dropY = -800 + (t2 * t2 * t2) * 800; // Cubic deceleration into place
-        }
-
-        p.targetX = startX + (idealX - startX) * ease;
-        p.targetY = startY + (idealY - startY) * ease + dropY;
-        p.targetZ = startZ + (idealZ - startZ) * ease;
-
-    } else if (phaseIdx === 2) {
-        // 🌌 GATHER 1: The Core Singularity Collapse
-        // Particles gather and violently fuse into a single microscopic point in the dead center.
+        // 💥 SUPERNOVA SHOCKWAVE BURST (For Quantum Singularity)
+        // Particles violently blast outwards in an expanding spherical wave, then get forcefully sucked back into the singularity.
         const currentX = startX + (idealX - startX) * ease;
         const currentY = startY + (idealY - startY) * ease;
         const currentZ = startZ + (idealZ - startZ) * ease;
         
-        // Intense exponential suction force towards the center
-        const suction = Math.pow(arc, 2.5);
+        const blastSpeed = arc * 280;
+        const angle = (i / total) * Math.PI * 2 + localT * Math.PI * 4;
+        const phi = Math.acos(2 * (i / total) - 1);
         
-        p.targetX = currentX + (cx - currentX) * suction;
-        p.targetY = currentY + (cy - currentY) * suction;
-        p.targetZ = currentZ + (0 - currentZ) * suction;
+        const bx = Math.sin(phi) * Math.cos(angle) * blastSpeed;
+        const by = Math.cos(phi) * blastSpeed;
+        const bz = Math.sin(phi) * Math.sin(angle) * blastSpeed;
+        
+        p.targetX = currentX + bx;
+        p.targetY = currentY + by;
+        p.targetZ = currentZ + bz;
+
+    } else if (phaseIdx === 2) {
+        // 🌀 TRIPLE-AXIS GYROSPIN (For Chronos Hypersphere)
+        // Concentric rings rotating dynamically along horizontal, vertical, and inclined axes.
+        const currentX = startX + (idealX - startX) * ease;
+        const currentY = startY + (idealY - startY) * ease;
+        const currentZ = startZ + (idealZ - startZ) * ease;
+        
+        const ring = i % 3;
+        const angle = localT * Math.PI * 6 + (i / total) * Math.PI * 2;
+        const R = arc * 180;
+        
+        let rx = 0, ry = 0, rz = 0;
+        if (ring === 0) {
+            rx = Math.cos(angle) * R;
+            ry = Math.sin(angle) * R;
+        } else if (ring === 1) {
+            rx = Math.cos(angle) * R;
+            rz = Math.sin(angle) * R;
+        } else {
+            ry = Math.cos(angle) * R;
+            rz = Math.sin(angle) * R;
+        }
+        
+        p.targetX = currentX + rx;
+        p.targetY = currentY + ry;
+        p.targetZ = currentZ + rz;
 
     } else if (phaseIdx === 3) {
-        // 🧊 TRANSITION 3: The 4D Hypercube Fold
+        // 🧊 TRANSITION 3: The 4D Hypercube Fold (For Tesseract)
         // Geometrical, mathematical folding mimicking a 4D tesseract rotating in 3D space.
+        const currentX = startX + (idealX - startX) * ease;
+        const currentY = startY + (idealY - startY) * ease;
+        const currentZ = startZ + (idealZ - startZ) * ease;
+        
         const foldX = (i % 2 === 0 ? 1 : -1) * arc * 180;
         const foldY = (i % 3 === 0 ? 1 : -1) * arc * 180;
         const foldZ = (i % 4 === 0 ? 1 : -1) * arc * 180;
@@ -73,24 +91,28 @@ export function updateParticleTransition(p, phaseIdx, i, total, localT, ease, ar
         // Crisp 90-degree rotations
         const rotPhase = Math.floor(localT * 4);
         
-        p.targetX = startX + (idealX - startX) * ease + (rotPhase % 2 === 0 ? foldX : foldY * 0.5);
-        p.targetY = startY + (idealY - startY) * ease + (rotPhase % 2 !== 0 ? foldY : foldZ * 0.5);
-        p.targetZ = startZ + (idealZ - startZ) * ease + foldZ;
+        p.targetX = currentX + (rotPhase % 2 === 0 ? foldX : foldY * 0.5);
+        p.targetY = currentY + (rotPhase % 2 !== 0 ? foldY : foldZ * 0.5);
+        p.targetZ = currentZ + foldZ;
 
     } else if (phaseIdx === 4) {
-        // 🧬 TRANSITION 4: The Double Helix Weave
-        // Particles split into two intertwined DNA strands, twisting around each other.
-        const strand = i % 2 === 0 ? 1 : -1;
-        const helixY = ((i / total) - 0.5) * 400;
-        const helixAngle = localT * Math.PI * 10 + (i / total) * Math.PI * 4;
+        // 💎 SACRED GEOMETRY FRACTAL FOLD (For Stellated Octahedron)
+        // Particles expand outwards into 8 distinct pyramid corners before folding back into place.
+        const currentX = startX + (idealX - startX) * ease;
+        const currentY = startY + (idealY - startY) * ease;
+        const currentZ = startZ + (idealZ - startZ) * ease;
         
-        const hx = Math.cos(helixAngle) * 90 * strand * arc;
-        const hz = Math.sin(helixAngle) * 90 * strand * arc;
-        const hy = helixY * arc;
-
-        p.targetX = startX + (idealX - startX) * ease + hx;
-        p.targetY = startY + (idealY - startY) * ease + hy;
-        p.targetZ = startZ + (idealZ - startZ) * ease + hz;
+        const corner = i % 8;
+        const dirs = [
+            [1,1,1], [-1,1,1], [1,-1,1], [-1,-1,1],
+            [1,1,-1], [-1,1,-1], [1,-1,-1], [-1,-1,-1]
+        ];
+        const dir = dirs[corner];
+        const dist = arc * 220;
+        
+        p.targetX = currentX + dir[0] * dist;
+        p.targetY = currentY + dir[1] * dist;
+        p.targetZ = currentZ + dir[2] * dist;
 
     } else if (phaseIdx === 5) {
         // 💿 GATHER 2: The Dense Rotating Disc Compression
@@ -111,36 +133,37 @@ export function updateParticleTransition(p, phaseIdx, i, total, localT, ease, ar
         p.targetZ = currentZ + (discZ - currentZ) * arc;
 
     } else if (phaseIdx === 6) {
-        // 🌊 TRANSITION 6: The Sine-Wave River
-        // Particles form a horizontal flowing river, riding complex sine waves smoothly.
-        const riverX = ((i / total) - 0.5) * 600;
-        // Wavy motion based on their horizontal position and time
-        const waveY = Math.sin(riverX * 0.015 + localT * 15) * 140 * arc;
-        const waveZ = Math.cos(riverX * 0.015 + localT * 15) * 80 * arc;
-
-        p.targetX = startX + (idealX - startX) * ease + (riverX * arc);
-        p.targetY = startY + (idealY - startY) * ease + waveY;
-        p.targetZ = startZ + (idealZ - startZ) * ease + waveZ;
-
-    } else if (phaseIdx === 7) {
-        // ⬛ TRANSITION 7: The Holographic Grid Snap
-        // Particles snap to rigid 3D grid coordinates, creating a digital/holographic restructuring.
-        const gridSize = 60;
-        
-        // Midpoint calculation
+        // 💥 TRANSITION 6: Gamma-Ray Burst (For Pulsar Star / النجم الطارق)
+        // Two massive jets shoot upwards and downwards from a collapsing central core.
         const currentX = startX + (idealX - startX) * ease;
         const currentY = startY + (idealY - startY) * ease;
         const currentZ = startZ + (idealZ - startZ) * ease;
         
-        // Snap to grid tightly at the peak of the arc
-        const snapForce = Math.pow(arc, 2);
-        const gridX = Math.round(currentX / gridSize) * gridSize;
-        const gridY = Math.round(currentY / gridSize) * gridSize;
-        const gridZ = Math.round(currentZ / gridSize) * gridSize;
+        const isTopJet = i % 2 === 0;
+        const jetY = (isTopJet ? 1 : -1) * arc * 500;
+        const spiral = localT * Math.PI * 20 + i;
+        const radius = arc * 15;
+        
+        p.targetX = currentX + Math.cos(spiral) * radius;
+        p.targetY = currentY + jetY;
+        p.targetZ = currentZ + Math.sin(spiral) * radius;
 
-        p.targetX = currentX + (gridX - currentX) * snapForce;
-        p.targetY = currentY + (gridY - currentY) * snapForce;
-        p.targetZ = currentZ + (gridZ - currentZ) * snapForce;
+    } else if (phaseIdx === 7) {
+        // ⏳ TRANSITION 7: Infinity Loop Splice (For Hourglass)
+        // Particles loop rapidly through a central pinch point tracing the figure 8.
+        const currentX = startX + (idealX - startX) * ease;
+        const currentY = startY + (idealY - startY) * ease;
+        const currentZ = startZ + (idealZ - startZ) * ease;
+        
+        const t3 = (localT * Math.PI * 6) + (i / total) * Math.PI * 2;
+        const L_scale = 2 / (3 - Math.cos(2 * t3));
+        
+        const lx = 150 * L_scale * Math.cos(t3) * arc;
+        const ly = 250 * L_scale * Math.sin(2 * t3) * arc;
+        
+        p.targetX = currentX + lx;
+        p.targetY = currentY + ly;
+        p.targetZ = currentZ + Math.sin(t3 * 3) * 80 * arc;
 
     } else if (phaseIdx === 8) {
         // 🧊 GATHER 3: The Solid Crystal Fusion

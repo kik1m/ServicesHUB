@@ -3,8 +3,11 @@ import "../index.css";
 import Providers from "../components/Providers";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
-import InteractiveParticles from "../components/InteractiveParticles";
 import PageTransition from "../components/PageTransition";
+import InteractiveParticles from "../components/InteractiveParticles";
+import BackgroundStars from "../components/BackgroundStars";
+import PageBodyClass from "../components/PageBodyClass";
+
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -41,6 +44,8 @@ export default function RootLayout({ children }) {
     <html lang="en" data-scroll-behavior="smooth" className={`${geistSans.variable} ${geistMono.variable}`} suppressHydrationWarning>
       <body>
         <Providers>
+          <PageBodyClass />
+          <BackgroundStars />
           <InteractiveParticles />
           <div className="app-container is-ready">
             <Navbar />
