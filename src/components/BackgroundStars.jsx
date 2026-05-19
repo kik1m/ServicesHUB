@@ -1,61 +1,67 @@
 'use client';
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 /**
  * 🌠 BackgroundStars — Global Static Star Layer
  *
- * A fixed, full-viewport canvas of gentle background stars rendered
- * behind InteractiveParticles. Stars are static (no drift) for a realistic
- * deep-space feel — only a slow, hypnotic twinkle effect.
+ * Desktop (≥768px): Full animated canvas with 300 twinkling stars,
+ *   shooting stars, and a scroll-based opacity fade. Uses position:fixed
+ *   and requestAnimationFrame.
  *
- * Depth is simulated via 3 size buckets:
- *   - Small (far):   many, dim, slow twinkle
- *   - Medium (mid):  moderate, moderate twinkle
- *   - Large (close): few, bright, faster twinkle
+ * Mobile (<768px): Replaces the canvas entirely with a lightweight CSS
+ *   approach. Reason: On mobile Chrome/Safari, a 60fps position:fixed canvas
+ *   combined with elements using backdrop-filter:blur() above it causes a
+ *   critical GPU compositor race condition — the browser reads stale canvas
+ *   texture mid-frame, producing "shattered TV" glitch artifacts. Additionally,
+ *   changing canvas.style.opacity in handleScroll triggers a full compositor
+ *   repass on every scroll frame, causing the address-bar-resize viewport
+ *   jitter to visibly shift the canvas position ("jumping background").
+ *   CSS static dots are composited once, never invalidate, and have zero
+ *   interaction with the canvas stack.
  */
 export default function BackgroundStars() {
     const canvasRef = useRef(null);
+    const [isMobile, setIsMobile] = useState(false);
 
+    // Detect mobile ONCE on mount only (SSR-safe)
     useEffect(() => {
+        const check = () => setIsMobile(window.innerWidth < 768);
+        check();
+        window.addEventListener('resize', check);
+        return () => window.removeEventListener('resize', check);
+    }, []);
+
+    // ─── DESKTOP: Full animated canvas engine ─────────────────────────────
+    useEffect(() => {
+        if (isMobile) return; // Mobile uses CSS stars instead
         const canvas = canvasRef.current;
         if (!canvas) return;
         const ctx = canvas.getContext('2d');
 
         let width, height, reqId, time = 0;
 
-        // 300 stars across 3 depth layers
         const STAR_CONFIG = [
-            { count: 200, minSize: 0.2, maxSize: 0.7,  minAlpha: 0.15, maxAlpha: 0.45, twinkleSpeed: 0.008 }, // Far
-            { count:  80, minSize: 0.7, maxSize: 1.2,  minAlpha: 0.30, maxAlpha: 0.65, twinkleSpeed: 0.015 }, // Mid
-            { count:  20, minSize: 1.2, maxSize: 2.0,  minAlpha: 0.50, maxAlpha: 0.90, twinkleSpeed: 0.025 }, // Near
+            { count: 200, minSize: 0.2, maxSize: 0.7,  minAlpha: 0.15, maxAlpha: 0.45, twinkleSpeed: 0.008 },
+            { count:  80, minSize: 0.7, maxSize: 1.2,  minAlpha: 0.30, maxAlpha: 0.65, twinkleSpeed: 0.015 },
+            { count:  20, minSize: 1.2, maxSize: 2.0,  minAlpha: 0.50, maxAlpha: 0.90, twinkleSpeed: 0.025 },
         ];
 
         let stars = [];
-        let shootingStar = {
-            active: false,
-            x: 0,
-            y: 0,
-            dx: 0,
-            dy: 0,
-            length: 0,
-            life: 0,
-            decay: 0
-        };
+        let shootingStar = { active: false, x: 0, y: 0, dx: 0, dy: 0, length: 0, life: 0, decay: 0 };
 
         const spawnStars = () => {
             stars = [];
             for (const cfg of STAR_CONFIG) {
                 for (let i = 0; i < cfg.count; i++) {
                     stars.push({
-                        x:      Math.random() * width,
-                        y:      Math.random() * height,
-                        size:   cfg.minSize + Math.random() * (cfg.maxSize - cfg.minSize),
-                        baseAlpha:  cfg.minAlpha + Math.random() * (cfg.maxAlpha - cfg.minAlpha),
+                        x:            Math.random() * width,
+                        y:            Math.random() * height,
+                        size:         cfg.minSize + Math.random() * (cfg.maxSize - cfg.minSize),
+                        baseAlpha:    cfg.minAlpha + Math.random() * (cfg.maxAlpha - cfg.minAlpha),
                         twinkleSpeed: cfg.twinkleSpeed + Math.random() * cfg.twinkleSpeed,
-                        twinkleOffset: Math.random() * Math.PI * 2,
-                        // White-blue tint: realistic star color
-                        hue:   200 + (Math.random() - 0.5) * 60,
-                        sat:   10  + Math.random() * 30,
+                        twinkleOffset:Math.random() * Math.PI * 2,
+                        hue:          200 + (Math.random() - 0.5) * 60,
+                        sat:          10  + Math.random() * 30,
                     });
                 }
             }
@@ -77,12 +83,10 @@ export default function BackgroundStars() {
             ctx.clearRect(0, 0, width, height);
             time++;
 
-            // Draw Background Stars
             for (let i = 0; i < stars.length; i++) {
                 const s = stars[i];
                 const twinkle = Math.sin(time * s.twinkleSpeed + s.twinkleOffset);
                 const alpha   = s.baseAlpha + twinkle * (s.baseAlpha * 0.5);
-
                 if (alpha <= 0) continue;
 
                 ctx.beginPath();
@@ -90,7 +94,6 @@ export default function BackgroundStars() {
                 ctx.fillStyle = `hsla(${s.hue}, ${s.sat}%, 95%, ${alpha})`;
                 ctx.fill();
 
-                // Tiny cross-shaped diffraction spike for brighter stars
                 if (s.size > 1.4 && alpha > 0.6) {
                     ctx.globalAlpha = alpha * 0.35;
                     ctx.strokeStyle = `hsla(${s.hue}, ${s.sat}%, 95%, 1)`;
@@ -105,41 +108,34 @@ export default function BackgroundStars() {
                 }
             }
 
-            // --- 🌠 Subtle Shooting Star Logic ---
-            if (!shootingStar.active && Math.random() < 0.0006) { // Occurs rarely (about once every 20-30 seconds of active viewing)
+            // Shooting star
+            if (!shootingStar.active && Math.random() < 0.0006) {
                 shootingStar.active = true;
-                shootingStar.x = Math.random() * width * 1.2;     // Start from top right mostly
-                shootingStar.y = Math.random() * height * 0.25;    // Upper section of screen
-                shootingStar.dx = -7 - Math.random() * 8;         // Move diagonally left and fast
-                shootingStar.dy = 3 + Math.random() * 4;          // Move down
+                shootingStar.x      = Math.random() * width * 1.2;
+                shootingStar.y      = Math.random() * height * 0.25;
+                shootingStar.dx     = -7 - Math.random() * 8;
+                shootingStar.dy     = 3 + Math.random() * 4;
                 shootingStar.length = 70 + Math.random() * 90;
-                shootingStar.life = 1.0;
-                shootingStar.decay = 0.015 + Math.random() * 0.015; // Smoothly fades out in 35-65 frames
+                shootingStar.life   = 1.0;
+                shootingStar.decay  = 0.015 + Math.random() * 0.015;
             }
-
             if (shootingStar.active) {
                 const speed = Math.hypot(shootingStar.dx, shootingStar.dy);
-                const endX = shootingStar.x - (shootingStar.dx / speed) * shootingStar.length;
-                const endY = shootingStar.y - (shootingStar.dy / speed) * shootingStar.length;
-
-                const grad = ctx.createLinearGradient(shootingStar.x, shootingStar.y, endX, endY);
-                // Elegant bright white center fading into a subtle space-cyan tail
-                grad.addColorStop(0, `rgba(255, 255, 255, ${shootingStar.life * 0.85})`);
+                const endX  = shootingStar.x - (shootingStar.dx / speed) * shootingStar.length;
+                const endY  = shootingStar.y - (shootingStar.dy / speed) * shootingStar.length;
+                const grad  = ctx.createLinearGradient(shootingStar.x, shootingStar.y, endX, endY);
+                grad.addColorStop(0,    `rgba(255, 255, 255, ${shootingStar.life * 0.85})`);
                 grad.addColorStop(0.12, `hsla(195, 100%, 80%, ${shootingStar.life * 0.5})`);
-                grad.addColorStop(1, 'rgba(255, 255, 255, 0)');
-
+                grad.addColorStop(1,    'rgba(255, 255, 255, 0)');
                 ctx.beginPath();
                 ctx.strokeStyle = grad;
-                ctx.lineWidth = 1.2; // Incredibly delicate and professional
+                ctx.lineWidth   = 1.2;
                 ctx.moveTo(shootingStar.x, shootingStar.y);
                 ctx.lineTo(endX, endY);
                 ctx.stroke();
-
-                // Move and decay life
-                shootingStar.x += shootingStar.dx;
-                shootingStar.y += shootingStar.dy;
+                shootingStar.x    += shootingStar.dx;
+                shootingStar.y    += shootingStar.dy;
                 shootingStar.life -= shootingStar.decay;
-
                 if (shootingStar.life <= 0 || shootingStar.x < -100 || shootingStar.y > height + 100) {
                     shootingStar.active = false;
                 }
@@ -148,11 +144,16 @@ export default function BackgroundStars() {
             reqId = requestAnimationFrame(draw);
         };
 
+        // Scroll fade: uses CSS transition so no per-frame style writes during scroll
+        // We debounce via requestAnimationFrame to avoid thrashing the compositor
+        let scrollRaf = null;
         const handleScroll = () => {
-            const scrollY = window.scrollY;
-            // Fade out the stars smoothly to 20% opacity at 500px scroll depth
-            const opacity = Math.max(0.20, 1 - scrollY / 500);
-            canvas.style.opacity = opacity;
+            if (scrollRaf) return;
+            scrollRaf = requestAnimationFrame(() => {
+                scrollRaf = null;
+                const opacity = Math.max(0.20, 1 - window.scrollY / 500);
+                canvas.style.opacity = opacity;
+            });
         };
 
         window.addEventListener('resize', resize);
@@ -165,8 +166,14 @@ export default function BackgroundStars() {
             window.removeEventListener('resize', resize);
             window.removeEventListener('scroll', handleScroll);
             cancelAnimationFrame(reqId);
+            if (scrollRaf) cancelAnimationFrame(scrollRaf);
         };
-    }, []);
+    }, [isMobile]);
+
+    // ─── MOBILE: Pure CSS static stars — ZERO canvas, ZERO GPU invalidation ─
+    if (isMobile) {
+        return <MobileStars />;
+    }
 
     return (
         <canvas
@@ -179,8 +186,93 @@ export default function BackgroundStars() {
                 pointerEvents: 'none',
                 zIndex:        0,
                 opacity:       1,
-                transition:    'opacity 0.2s ease-out',
+                // CSS transition handles the opacity fade smoothly without JS writes
+                transition:    'opacity 0.4s ease-out',
             }}
         />
+    );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MobileStars: Pre-generated CSS star dots, painted once, scroll with the page.
+// No rAF, no fixed positioning, no GPU compositing interaction with backdrop-filter.
+// ─────────────────────────────────────────────────────────────────────────────
+const MOBILE_STAR_COUNT = 80;
+
+// Deterministic seed so stars don't shift on hydration
+function seededRandom(seed) {
+    let s = seed;
+    return () => {
+        s = (s * 16807 + 0) % 2147483647;
+        return (s - 1) / 2147483646;
+    };
+}
+
+const mobileStars = (() => {
+    const rand = seededRandom(42);
+    return Array.from({ length: MOBILE_STAR_COUNT }, (_, i) => ({
+        id:      i,
+        top:     (rand() * 100).toFixed(2),
+        left:    (rand() * 100).toFixed(2),
+        size:    (rand() * 1.5 + 0.5).toFixed(2),
+        opacity: (rand() * 0.45 + 0.1).toFixed(2),
+        delay:   (rand() * 4).toFixed(2),
+        dur:     (rand() * 3 + 2).toFixed(2),
+    }));
+})();
+
+function MobileStars() {
+    return (
+        <>
+            <style>{`
+                @keyframes star-twinkle {
+                    0%, 100% { opacity: var(--star-op); }
+                    50%       { opacity: calc(var(--star-op) * 0.3); }
+                }
+                .mobile-star {
+                    position: absolute;
+                    border-radius: 50%;
+                    background: rgba(220, 235, 255, 1);
+                    animation: star-twinkle var(--star-dur) ease-in-out var(--star-delay) infinite;
+                    pointer-events: none;
+                }
+            `}</style>
+            <div
+                aria-hidden="true"
+                style={{
+                    /*
+                     * position:fixed so stars cover the full viewport always.
+                     * Unlike the canvas, this div is a STATIC element — it has no
+                     * JavaScript updating it every frame, so the browser composites
+                     * it once and never invalidates it during scroll. This means:
+                     *  - No GPU race condition with backdrop-filter (no canvas texture to read)
+                     *  - No style changes on scroll (no opacity writes = no compositor repasses)
+                     *  - The address-bar show/hide resize does NOT cause glitches because
+                     *    CSS animations are GPU-side and unaffected by JS scroll events.
+                     */
+                    position:      'fixed',
+                    inset:         0,
+                    zIndex:        0,
+                    pointerEvents: 'none',
+                    overflow:      'hidden',
+                }}
+            >
+                {mobileStars.map(s => (
+                    <span
+                        key={s.id}
+                        className="mobile-star"
+                        style={{
+                            top:        `${s.top}%`,
+                            left:       `${s.left}%`,
+                            width:      `${s.size}px`,
+                            height:     `${s.size}px`,
+                            '--star-op':    s.opacity,
+                            '--star-dur':   `${s.dur}s`,
+                            '--star-delay': `${s.delay}s`,
+                        }}
+                    />
+                ))}
+            </div>
+        </>
     );
 }
