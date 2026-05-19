@@ -53,24 +53,6 @@ body {
 
 body {
   background-color: var(--bg-dark);
-  color: var(--text-main);
-  font-family: var(--font-family);
-  line-height: 1.6;
-  overflow-x: hidden;
-  -webkit-font-smoothing: antialiased;
-}
-
-/* Beautiful Fixed Background Layer: Solves mobile scroll jumping and Chromium GPU glitching */
-body::before {
-  content: '';
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  z-index: -2; /* Deepest layer — behind stars and all elements */
-  pointer-events: none;
-  background-color: var(--bg-dark);
   background-image:
     /* Vertical depth gradient */
     linear-gradient(
@@ -80,12 +62,18 @@ body::before {
       #060609 70%,
       #04040a 100%
     );
-  background-size: cover;
+  background-size: 100% 100%;
   background-position: center;
+  background-attachment: scroll; /* Scrolls naturally with the viewport for 100% stable scrolling */
+  color: var(--text-main);
+  font-family: var(--font-family);
+  line-height: 1.6;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
 }
 
 /* 🌟 Dynamic breathing background glow restricted strictly to the Home Page */
-html[data-page="home"] body::before {
+html[data-page="home"] body {
   background-image:
     /* Dynamic hue glow — breathes with the particle engine */
     radial-gradient(
@@ -108,6 +96,15 @@ html[data-page="home"] body::before {
       #060609 70%,
       #04040a 100%
     );
+  background-attachment: scroll;
+}
+
+/* 🚀 Mobile Optimization: Disable heavy backdrop-filters to cure mobile GPU compositing/shattering glitches */
+@media (max-width: 768px) {
+  * {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
 }
 
 #root {

@@ -42,8 +42,11 @@ export default function BackgroundStars() {
             decay: 0
         };
 
+        let isMobile = typeof window !== 'undefined' ? window.innerWidth < 768 : false;
+
         const spawnStars = () => {
             stars = [];
+            if (isMobile) return;
             for (const cfg of STAR_CONFIG) {
                 for (let i = 0; i < cfg.count; i++) {
                     stars.push({
@@ -62,6 +65,14 @@ export default function BackgroundStars() {
         };
 
         const resize = () => {
+            isMobile = window.innerWidth < 768;
+            if (isMobile) {
+                canvas.width = 1;
+                canvas.height = 1;
+                canvas.style.display = 'none';
+                return;
+            }
+            canvas.style.display = 'block';
             width  = window.innerWidth;
             height = window.innerHeight;
             const dpr = window.devicePixelRatio || 1;
@@ -74,6 +85,10 @@ export default function BackgroundStars() {
         };
 
         const draw = () => {
+            if (isMobile) {
+                reqId = requestAnimationFrame(draw);
+                return;
+            }
             ctx.clearRect(0, 0, width, height);
             time++;
 
