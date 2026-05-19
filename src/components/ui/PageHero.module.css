@@ -27,6 +27,8 @@
         margin-top: -80px !important;
         padding: 100px 1rem 30px !important; /* 80px offset + 20px padding */
         min-height: 140px !important;
+        mask-image: none !important;
+        -webkit-mask-image: none !important;
     }
 }
 

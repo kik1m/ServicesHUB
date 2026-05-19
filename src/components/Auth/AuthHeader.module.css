@@ -34,8 +34,15 @@
     max-width: 280px;
 }
 
-.errorAlert {
+.errorAlertContainer {
     margin-top: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+}
+
+.errorAlert {
     padding: 12px 16px;
     background: rgba(239, 68, 68, 0.1);
     border: 1px solid rgba(239, 68, 68, 0.2);
@@ -44,6 +51,59 @@
     font-size: 0.85rem;
     font-weight: 500;
     animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
+}
+
+.errorActionBox {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 12px;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    text-align: center;
+}
+
+.errorActionText {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.6);
+    line-height: 1.4;
+}
+
+.errorActionText strong {
+    color: #ffffff;
+    font-weight: 600;
+}
+
+.errorActionButtons {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.errorActionBtn {
+    background: rgba(0, 170, 255, 0.08);
+    border: 1px solid rgba(0, 170, 255, 0.2);
+    color: #00aaff;
+    padding: 10px 14px;
+    border-radius: 10px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    width: 100%;
+}
+
+.errorActionBtn:hover:not(:disabled) {
+    background: rgba(0, 170, 255, 0.16);
+    border-color: rgba(0, 170, 255, 0.4);
+    color: #ffffff;
+    transform: translateY(-1px);
+}
+
+.errorActionBtn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
 @keyframes shake {

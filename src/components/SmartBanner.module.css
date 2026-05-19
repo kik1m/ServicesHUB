@@ -227,6 +227,11 @@
 }
 
 @media (max-width: 768px) {
+    .smartBannerNew {
+        mask-image: none !important;
+        -webkit-mask-image: none !important;
+    }
+
     .bannerInner {
         grid-template-columns: 1fr;
         text-align: center;
