@@ -120,6 +120,15 @@
     font-weight: 800;
     margin-top: 10px;
     box-shadow: 0 8px 20px rgba(0, 136, 204, 0.25);
+    border: none !important;
+    outline: none !important;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.authItem:hover, .authItem:active {
+    background: var(--gradient) !important;
+    border: none !important;
+    transform: scale(0.98);
 }
 
 .authItem svg {

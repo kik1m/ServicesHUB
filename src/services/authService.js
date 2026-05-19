@@ -15,7 +15,7 @@ export const authService = {
         if (error) {
             // Provide a hint if they try to login before verifying email
             if (error.message === 'Invalid login credentials') {
-                error.message = 'Invalid credentials. If you just created an account, please check your email to verify it first.';
+                error.message = "Invalid credentials. If you originally signed up using Google, please use the 'Continue with Google' button. Otherwise, make sure to check your email to verify your standard account first.";
             }
             throw error;
         }

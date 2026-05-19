@@ -353,7 +353,7 @@
 }
 
 /* Mobile Toggle */
-.menuTogglePremium {
+.menuTogglePremium, .mobileSearchToggle {
     display: none;
     align-items: center;
     justify-content: center;
@@ -366,7 +366,65 @@
     transition: all 0.3s;
 }
 
+/* Mobile Search Overlay styling (Premium Instagram Dark Theme) */
+.mobileSearchOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100dvh;
+    background: #111111; /* Clean Solid Instagram dark background */
+    z-index: 10002;
+    display: flex;
+    flex-direction: column;
+    padding: 24px 20px;
+    animation: fadeInOverlay 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
 
+.mobileSearchHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.mobileSearchTitle {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: #ffffff;
+    letter-spacing: 0.5px;
+}
+
+.mobileSearchCloseBtn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.mobileSearchCloseBtn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: scale(0.95);
+}
+
+.mobileSearchBody {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+
+@keyframes fadeInOverlay {
+    from { opacity: 0; transform: translateY(-10px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
 
 /* Responsiveness */
 @media (max-width: 1400px) {
@@ -383,6 +441,7 @@
     .navSearchContainer { display: none; }
     .navLinks { display: none; }
     .menuTogglePremium { display: flex; }
+    .mobileSearchToggle { display: flex; }
     
     .navMoreDropdown,
     .notifDropdown,

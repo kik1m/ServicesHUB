@@ -1,8 +1,8 @@
 'use client';
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Search, ChevronDown, Bell, User, Star, Menu } from 'lucide-react';
+import { Search, ChevronDown, Bell, User, Star, Menu, X } from 'lucide-react';
 import { useQueryClient, useQuery } from '@tanstack/react-query';
 import { useAuth } from '../context/AuthContext';
 import { useNavbar } from '../hooks/useNavbar';
@@ -47,6 +47,7 @@ const Navbar = () => {
     } = useNavbar();
 
     const navRef = useRef(null);
+    const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
 
     const handleLogout = async () => {
         await signOut();
@@ -254,6 +255,14 @@ const Navbar = () => {
                     )}
 
                     <button
+                        className={styles.mobileSearchToggle}
+                        onClick={() => setIsMobileSearchOpen(true)}
+                        aria-label="Open Search"
+                    >
+                        <Search size={21} color="white" />
+                    </button>
+
+                    <button
                         className={styles.menuTogglePremium}
                         onClick={() => setIsMobileMenuOpen(true)}
                         aria-label="Open Menu"
@@ -270,6 +279,24 @@ const Navbar = () => {
                 handleLogout={handleLogout}
                 handlePrefetch={handlePrefetchRoute}
             />
+
+            {isMobileSearchOpen && (
+                <div className={styles.mobileSearchOverlay}>
+                    <div className={styles.mobileSearchHeader}>
+                        <div className={styles.mobileSearchTitle}>Search HUBly</div>
+                        <button 
+                            className={styles.mobileSearchCloseBtn}
+                            onClick={() => setIsMobileSearchOpen(false)}
+                            aria-label="Close Search"
+                        >
+                            <X size={20} />
+                        </button>
+                    </div>
+                    <div className={styles.mobileSearchBody}>
+                        <GlobalSearch onClose={() => setIsMobileSearchOpen(false)} />
+                    </div>
+                </div>
+            )}
         </nav>
     );
 };
