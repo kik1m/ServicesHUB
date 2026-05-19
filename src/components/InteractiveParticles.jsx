@@ -206,10 +206,7 @@ export default function InteractiveParticles() {
     }, []);
 
     useEffect(() => {
-        const check = () => setShouldRender(window.innerWidth >= 768);
-        check();
-        window.addEventListener('resize', check);
-        return () => window.removeEventListener('resize', check);
+        setShouldRender(true);
     }, []);
 
     useEffect(() => {
@@ -247,8 +244,11 @@ export default function InteractiveParticles() {
 
         let phaseIdx = 0, phaseTimer = 0;
 
+        let isMobile = typeof window !== 'undefined' ? window.innerWidth < 768 : false;
+
         const init = () => {
             particles = [];
+            if (isMobile) return; // Zero particles on mobile
             // Colossal high-density stardust for a breathtaking high-resolution experience
             const n = Math.min(Math.floor((canvas.width * canvas.height) / 2500), 380);
             for (let i = 0; i < n; i++) particles.push(new Particle(canvas, i, n));
@@ -258,6 +258,16 @@ export default function InteractiveParticles() {
         // Canvas CSS size stays full-screen; we only reduce the internal render buffer.
         const DPR = Math.min(window.devicePixelRatio || 1, 1);
         const onResize = () => {
+            isMobile = window.innerWidth < 768;
+            if (isMobile) {
+                // Keep canvas completely unallocated/hidden on mobile devices
+                canvas.width = 1;
+                canvas.height = 1;
+                canvas.style.display = 'none';
+                particles = [];
+                return;
+            }
+            canvas.style.display = 'block';
             canvas.width = Math.floor(window.innerWidth * DPR);
             canvas.height = Math.floor(window.innerHeight * DPR);
             canvas.style.width = '100vw';
@@ -418,6 +428,38 @@ export default function InteractiveParticles() {
 
 
         const animate = () => {
+            if (isMobile) {
+                // LIGHTWEIGHT MOBILE COLOR CYCLE:
+                // Only update globalTime and cycle CSS variables, bypassing 100% of graphics rendering!
+                globalTime++;
+                if (phaseTimer >= PHASES[phaseIdx].duration) {
+                    phaseIdx = (phaseIdx + 1) % PHASES.length;
+                    phaseTimer = 0;
+                }
+                phaseTimer++;
+
+                gSat = 100; // Always keep elements colorful and vibrant on mobile
+                const targetColor = COLOR_MAP[phaseIdx] || { b: 195, f: 275 };
+                
+                const lerpHue = (a, b, t) => {
+                    let d = b - a;
+                    while (d > 180) d -= 360;
+                    while (d < -180) d += 360;
+                    let res = a + d * t;
+                    while (res < 0) res += 360;
+                    return res % 360;
+                };
+
+                gBaseH = lerpHue(gBaseH, targetColor.b, 0.015);
+                gFarH = lerpHue(gFarH, targetColor.f, 0.015);
+
+                const h1 = gBaseH | 0, h2 = gFarH | 0, sat = gSat | 0;
+                if (Math.abs(h1 - lastHue1) > 0) { rootE.style.setProperty('--dynamic-hue-1', h1); lastHue1 = h1; }
+                if (Math.abs(h2 - lastHue2) > 0) { rootE.style.setProperty('--dynamic-hue-2', h2); lastHue2 = h2; }
+                if (Math.abs(sat - lastSat) > 0) { rootE.style.setProperty('--dynamic-saturation', sat); lastSat = sat; }
+                return;
+            }
+
             // High-Performance Clear & Simple Smooth Motion Blur (البلور الحركي الذكي)
             // Skip blur completely during the very first portal sweep-in entrance (globalTime < 320)
             const isMorphing = globalTime >= 320 && phaseTimer > 0 && phaseTimer <= 180;

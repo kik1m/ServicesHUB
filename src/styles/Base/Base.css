@@ -35,6 +35,13 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent; /* Removes translucent tap highlight on mobile WebKit */
+}
+
+/* Make scrolling & dragging feel native by preventing accidental text selection on touch targets */
+a, button, [role="button"], .toolCard, .categoryCard, .heroCategoryBadge, img {
+  -webkit-user-select: none; /* Safari */
+  user-select: none;         /* Standard */
 }
 
 html,

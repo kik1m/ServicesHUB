@@ -31,6 +31,16 @@ export default function BackgroundStars() {
         ];
 
         let stars = [];
+        let shootingStar = {
+            active: false,
+            x: 0,
+            y: 0,
+            dx: 0,
+            dy: 0,
+            length: 0,
+            life: 0,
+            decay: 0
+        };
 
         const spawnStars = () => {
             stars = [];
@@ -67,6 +77,7 @@ export default function BackgroundStars() {
             ctx.clearRect(0, 0, width, height);
             time++;
 
+            // Draw Background Stars
             for (let i = 0; i < stars.length; i++) {
                 const s = stars[i];
                 const twinkle = Math.sin(time * s.twinkleSpeed + s.twinkleOffset);
@@ -91,6 +102,46 @@ export default function BackgroundStars() {
                     ctx.lineTo(s.x, s.y + s.size * 2.5);
                     ctx.stroke();
                     ctx.globalAlpha = 1;
+                }
+            }
+
+            // --- 🌠 Subtle Shooting Star Logic ---
+            if (!shootingStar.active && Math.random() < 0.0006) { // Occurs rarely (about once every 20-30 seconds of active viewing)
+                shootingStar.active = true;
+                shootingStar.x = Math.random() * width * 1.2;     // Start from top right mostly
+                shootingStar.y = Math.random() * height * 0.25;    // Upper section of screen
+                shootingStar.dx = -7 - Math.random() * 8;         // Move diagonally left and fast
+                shootingStar.dy = 3 + Math.random() * 4;          // Move down
+                shootingStar.length = 70 + Math.random() * 90;
+                shootingStar.life = 1.0;
+                shootingStar.decay = 0.015 + Math.random() * 0.015; // Smoothly fades out in 35-65 frames
+            }
+
+            if (shootingStar.active) {
+                const speed = Math.hypot(shootingStar.dx, shootingStar.dy);
+                const endX = shootingStar.x - (shootingStar.dx / speed) * shootingStar.length;
+                const endY = shootingStar.y - (shootingStar.dy / speed) * shootingStar.length;
+
+                const grad = ctx.createLinearGradient(shootingStar.x, shootingStar.y, endX, endY);
+                // Elegant bright white center fading into a subtle space-cyan tail
+                grad.addColorStop(0, `rgba(255, 255, 255, ${shootingStar.life * 0.85})`);
+                grad.addColorStop(0.12, `hsla(195, 100%, 80%, ${shootingStar.life * 0.5})`);
+                grad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+
+                ctx.beginPath();
+                ctx.strokeStyle = grad;
+                ctx.lineWidth = 1.2; // Incredibly delicate and professional
+                ctx.moveTo(shootingStar.x, shootingStar.y);
+                ctx.lineTo(endX, endY);
+                ctx.stroke();
+
+                // Move and decay life
+                shootingStar.x += shootingStar.dx;
+                shootingStar.y += shootingStar.dy;
+                shootingStar.life -= shootingStar.decay;
+
+                if (shootingStar.life <= 0 || shootingStar.x < -100 || shootingStar.y > height + 100) {
+                    shootingStar.active = false;
                 }
             }
 
