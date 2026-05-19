@@ -19,7 +19,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: radial-gradient(circle at 50% -20%, rgba(0, 136, 204, 0.15) 0%, transparent 70%);
+    background: transparent;
     pointer-events: none;
     z-index: 1;
 }
