@@ -143,8 +143,6 @@ export default function BackgroundStars() {
                     shootingStar.active = false;
                 }
             }
-
-            reqId = requestAnimationFrame(draw);
         };
 
         // Debounced scroll opacity — avoids per-frame style thrashing
