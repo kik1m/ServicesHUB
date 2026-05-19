@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 /**
  * 🌠 BackgroundStars — Desktop-only animated star canvas.
@@ -14,10 +14,18 @@ import React, { useEffect, useRef } from 'react';
  */
 export default function BackgroundStars() {
     const canvasRef = useRef(null);
+    const [isDesktop, setIsDesktop] = useState(false);
+
+    useEffect(() => {
+        const check = () => setIsDesktop(window.innerWidth >= 768);
+        check();
+        window.addEventListener('resize', check);
+        return () => window.removeEventListener('resize', check);
+    }, []);
 
     useEffect(() => {
         // ─── MOBILE GUARD: no canvas on mobile ───────────────────────────
-        if (window.innerWidth < 768) return;
+        if (!isDesktop) return;
 
         const canvas = canvasRef.current;
         if (!canvas) return;
@@ -152,7 +160,9 @@ export default function BackgroundStars() {
             cancelAnimationFrame(reqId);
             if (scrollRaf) cancelAnimationFrame(scrollRaf);
         };
-    }, []);
+    }, [isDesktop]);
+
+    if (!isDesktop) return null;
 
     return (
         <canvas
@@ -166,8 +176,6 @@ export default function BackgroundStars() {
                 zIndex:        0,
                 opacity:       1,
                 transition:    'opacity 0.4s ease-out',
-                // Hidden on mobile via CSS — no rendering ever starts
-                display:       'none',
             }}
             className="desktop-stars-canvas"
         />

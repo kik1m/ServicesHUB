@@ -628,7 +628,7 @@ export default function InteractiveParticles() {
         };
     }, [shouldRender]);
 
-    if (!shouldRender) return <div style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none', background: 'transparent' }} />;
+    if (!shouldRender) return null;
 
     return (
         <canvas ref={canvasRef} style={{
