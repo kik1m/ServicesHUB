@@ -53,6 +53,24 @@ body {
 
 body {
   background-color: var(--bg-dark);
+  color: var(--text-main);
+  font-family: var(--font-family);
+  line-height: 1.6;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Beautiful Fixed Background Layer: Solves mobile scroll jumping and Chromium GPU glitching */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -2; /* Deepest layer — behind stars and all elements */
+  pointer-events: none;
+  background-color: var(--bg-dark);
   background-image:
     /* Vertical depth gradient */
     linear-gradient(
@@ -64,16 +82,10 @@ body {
     );
   background-size: cover;
   background-position: center;
-  background-attachment: fixed;
-  color: var(--text-main);
-  font-family: var(--font-family);
-  line-height: 1.6;
-  overflow-x: hidden;
-  -webkit-font-smoothing: antialiased;
 }
 
-/* 🌟 Option 1: Dynamic breathing background glow restricted strictly to the Home Page */
-html[data-page="home"] body {
+/* 🌟 Dynamic breathing background glow restricted strictly to the Home Page */
+html[data-page="home"] body::before {
   background-image:
     /* Dynamic hue glow — breathes with the particle engine */
     radial-gradient(
