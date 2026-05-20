@@ -88,10 +88,13 @@ export const useSearchEngine = ({
             if (!Object.keys(newParams).includes('page') && newParams.page === undefined) params.delete('page');
             
             const newUrl = `${pathname}?${params.toString()}`;
-            // ⚡ FIX: Use Next.js router with scroll: false to prevent the page from jumping
-            // Next.js 14 intercepts native history.replaceState and forces a scroll jump by default!
-            router.replace(newUrl, { scroll: false });
+            // ⚡ ELITE FIX: Use native history API to update the URL without triggering Next.js!
+            // If we use router.replace, Next.js re-runs the Server Component (generateMetadata), 
+            // which triggers the <Suspense fallback={null}> boundary, unmounting the page and 
+            // forcing a scroll-to-top! Native history bypasses Next.js completely.
+            window.history.replaceState(null, '', newUrl);
         }
+
     }, [pathname, syncUrl, router]);
 
     // 🎯 Rule #10: Sync fixed category when it arrives asynchronously

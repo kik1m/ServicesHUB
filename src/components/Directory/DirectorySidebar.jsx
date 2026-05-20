@@ -64,13 +64,6 @@ const DirectorySidebar = memo((props) => {
                             ))
                         ) : (
                             <>
-                                <button 
-                                    className={`${styles.filterBtn} ${!selectedCategory ? styles.active : ''}`}
-                                    onClick={() => setSelectedCategory(null)}
-                                >
-                                    <span>All Categories</span>
-                                    <ChevronRight size={14} />
-                                </button>
 
                                 {displayedCategories.map(cat => (
                                     <button 
