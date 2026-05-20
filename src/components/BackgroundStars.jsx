@@ -46,6 +46,8 @@ export default function BackgroundStars() {
             stars = [];
             for (const cfg of STAR_CONFIG) {
                 for (let i = 0; i < cfg.count; i++) {
+                    const hue = 200 + (Math.random() - 0.5) * 60;
+                    const sat = 10  + Math.random() * 30;
                     stars.push({
                         x:             Math.random() * width,
                         y:             Math.random() * height,
@@ -53,8 +55,7 @@ export default function BackgroundStars() {
                         baseAlpha:     cfg.minAlpha + Math.random() * (cfg.maxAlpha - cfg.minAlpha),
                         twinkleSpeed:  cfg.twinkleSpeed + Math.random() * cfg.twinkleSpeed,
                         twinkleOffset: Math.random() * Math.PI * 2,
-                        hue:           200 + (Math.random() - 0.5) * 60,
-                        sat:           10  + Math.random() * 30,
+                        colorString:   `hsl(${hue | 0}, ${sat | 0}%, 95%)`
                     });
                 }
             }
@@ -92,14 +93,15 @@ export default function BackgroundStars() {
                 const alpha   = s.baseAlpha + twinkle * (s.baseAlpha * 0.5);
                 if (alpha <= 0) continue;
 
+                ctx.globalAlpha = alpha;
+                ctx.fillStyle = s.colorString;
                 ctx.beginPath();
                 ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
-                ctx.fillStyle = `hsla(${s.hue}, ${s.sat}%, 95%, ${alpha})`;
                 ctx.fill();
 
                 if (s.size > 1.4 && alpha > 0.6) {
                     ctx.globalAlpha = alpha * 0.35;
-                    ctx.strokeStyle = `hsla(${s.hue}, ${s.sat}%, 95%, 1)`;
+                    ctx.strokeStyle = s.colorString;
                     ctx.lineWidth   = 0.4;
                     ctx.beginPath();
                     ctx.moveTo(s.x - s.size * 2.5, s.y);
@@ -107,9 +109,9 @@ export default function BackgroundStars() {
                     ctx.moveTo(s.x, s.y - s.size * 2.5);
                     ctx.lineTo(s.x, s.y + s.size * 2.5);
                     ctx.stroke();
-                    ctx.globalAlpha = 1;
                 }
             }
+            ctx.globalAlpha = 1;
 
             // Shooting star
             if (!shootingStar.active && Math.random() < 0.0006) {

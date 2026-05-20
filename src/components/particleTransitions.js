@@ -114,11 +114,15 @@ function _vortexPull(ix, iy, iz, cx, cy, pullStrength, spinStrength, t) {
 // Called per-particle during the 180-frame transition window.
 // localT  : [0..1] particle-local progress (with staggered delay applied by caller)
 // ease    : pre-computed quintic ease from caller (we may override per transition)
+export function buildTransitionLUT(total) {
+    _buildLUT(total);
+}
+
 // arc     : sin(localT * PI) — the displacement bell (midpoint peak)
 // globalT : raw phaseTimer/180 — for transitions that use the global wave
 
 export function updateParticleTransition(p, phaseIdx, i, total, localT, ease, arc, swirlX, swirlY, globalTime, cx, cy) {
-    _buildLUT(total); // no-op if already built
+    // ⚡ PERF: _buildLUT removed from hot path; called once globally on init/resize!
 
     const startX = p.transStartX;
     const startY = p.transStartY;

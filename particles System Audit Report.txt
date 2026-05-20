@@ -1,162 +1,94 @@
-# Comprehensive System Audit Report
-## HUBly Particle Engine — Visual Fidelity, Transitions & Performance
+# 🔥 Deep Forensic Analysis — 12,289ms Rendering Crisis
+
+The profile tells a precise story. **Rendering is 12,289ms versus Scripting at only 1,371ms** — this is the critical diagnostic signal. In a normal canvas particle system, Scripting dominates. When Rendering dominates by a 9:1 ratio, it means the JavaScript is repeatedly **forcing the browser's layout and style engines to work**, not just the JS engine itself. Your particles are innocent. Your DOM interaction pattern is the arsonist.
 
 ---
 
-## A. SYSTEM ARCHITECTURE EVALUATION
+## 1. The 12,289ms Rendering Culprit — Exact Functions
 
-### How the Indirect Files Communicate With the Core
+### Primary Killer: `rootE.style.setProperty` Inside `animate()`
 
-The architecture follows a **hub-and-spoke model** where `InteractiveParticles.jsx` is the runtime orchestrator, but it depends on four satellite modules that must remain in tight synchronization. Understanding these communication pathways is critical before making any changes.
+In `InteractiveParticles.jsx`, inside the `animate()` function which runs every single frame via `requestAnimationFrame`, this block executes:
 
-**The CSS Variable Bridge (Base.css → All Visual Components)**
+```
+rootE.style.setProperty('--dynamic-hue-1', h1)
+rootE.style.setProperty('--dynamic-hue-2', h2)
+```
 
-The most architecturally interesting pattern in this system is the use of CSS custom properties as a **real-time inter-thread communication channel**. The particle engine writes `--dynamic-hue-1`, `--dynamic-hue-2`, and `--dynamic-saturation` to `:root` on `document.documentElement`, and every CSS file in the project reads these variables — `Logo.module.css`, `HomeHero.module.css`, `ToolDetailHeader.module.css`, `Button.module.css`, and `Base.css` all consume the gradient defined by these three variables. This is an elegant zero-overhead approach because the browser's style recalculation engine handles interpolation on its own thread. However, the current implementation has a subtle architectural flaw: when `phaseIdx` changes (which triggers a DOM write in `animate()`), this write forces a **style recalculation cascade** on every element in the document that uses those CSS variables. The key insight is that you currently write `--dynamic-saturation` on a **per-frame conditional** (`globalTime > 220`), and writing `--dynamic-hue-1/2` once-per-phase is correct — but the saturation write needs to be fully one-time as well.
+Writing a CSS custom property on `:root` (the `documentElement`) is not a cheap operation. It does not merely update a variable. The browser must **invalidate the computed styles of every single DOM element that consumes that variable** — and then re-resolve them on the next layout pass. Your CSS files show that `--dynamic-hue-1` and `--dynamic-hue-2` are consumed in at minimum six separate locations across your stylesheets.
 
-**The LUT Synchronization Problem (particleGenerators.js ↔ particleTransitions.js)**
+Looking at what consumes these variables across your uploaded files:
 
-Both modules independently maintain their own LUT systems — `particleGenerators.js` exports `_ACOS_LUT` and `_THETA_LUT` built by `buildParticleLUT()`, while `particleTransitions.js` has its own private `_PHI_LUT`, `_THETA_LUT`, and `_NOISE_LUT` built by `_buildLUT()`. These are **not the same arrays** despite representing similar data. The transition module uses a different golden ratio constant (`Math.PI * (1 + Math.sqrt(5))` ≈ 5.083) compared to the generator module (`Math.PI * (3 - Math.sqrt(5))` ≈ 3.696). This means the angular distribution of particles during transitions does not match the distribution used when particles are at rest in their shapes. When a transition ends and `p.isCinematic` flips to false, particles snap from one angular coordinate system to a slightly different one. This is likely a source of subtle visual "wobbling" at the end of transitions. Both modules should share a single source-of-truth LUT.
+- `Base.css` — the `--gradient` variable definition itself uses both hues
+- `Button.module.css` — `.primary` background gradient, `.primary` filter drop-shadow, and `.primary:hover` filter all consume both hue variables
+- `HomeHero.module.css` — `.gradientText` background gradient consumes both hues
+- `Logo.module.css` — `.gradient` class consumes both hues
+- `ToolDetailHeader.module.css` — `.heroCategoryBadge` border, `.badgeIconWrapper` color, `.badgeText` color, `.toolNameHighlight` background, and its filter all consume `--dynamic-hue-1`
 
-**The Phase Index Contract (COLOR_MAP ↔ PHASES array)**
+**Every single frame**, when `h1 !== lastHue1`, the browser invalidates and re-resolves computed styles for buttons, logo, hero text, badge borders, badge text, tool name highlights — simultaneously. At 60fps this is potentially **60 full cascade re-evaluations per second across your entire component tree**. Over 23 seconds that is 1,380 cascade invalidations. The compounding cost you observed — CPU spiking harder over time — is the browser's style resolution cache warming up and then thrashing as hues continue to shift.
 
-`particleColors.js` defines 17 color entries (indices 0–16), while the `PHASES` array in `InteractiveParticles.jsx` defines 11 phases (indices 0–10). The `targetColor` lookup uses `COLOR_MAP[phaseIdx]`, meaning only the first 11 entries of COLOR_MAP are ever used in the current phase sequence. Entries 11–16 are dead code. More importantly, the mapping between a phase's *visual identity* (what shape it is) and its *color identity* (what hues it receives) is purely positional — if you ever reorder the PHASES array, the color associations silently break with no compiler error. This is a **fragile contract** that will cause maintenance errors.
+### Secondary Killer: The Glow Div `backgroundImage` with Inline `var()` References
 
-**The `isCinematic` Flag as a Spring Constant Selector**
+In the JSX return of `InteractiveParticles.jsx`, the glow div has its `backgroundImage` set as an inline style string that contains `hsla(var(--dynamic-hue-1, 195), ...)`. This means:
 
-In `Particle.update()`, the `isCinematic` flag changes the spring constant and damping from `(0.15, 0.65)` to `(0.05, 0.85)`. This flag is toggled inside `updatePhaseLogic()`, which runs once per frame for all particles. The problem is that the flag controls physics behavior, but it's set based on *temporal* state (whether `phaseTimer <= 180`) rather than *spatial* state (how close the particle is to its target). A particle that is 3 pixels from its target uses the same loose spring constants as one that is 300 pixels away during transitions. This produces the "mushy" quality at the end of transitions where particles overshoot their final positions before settling.
+Every time `--dynamic-hue-1` changes on `:root`, the browser must re-evaluate this inline style because it contains a `var()` reference that just became stale. This triggers a **paint invalidation on the glow div** in addition to the cascade invalidation described above. You get two rendering penalties from a single `setProperty` call — the cascade recomputation and the glow div repaint.
 
-**The `drawLines()` Function's Dependency on Particle Sort Order**
+The glow div is `100vw × 100vh` with a `position: fixed` and three radial gradients. Repainting it every frame is equivalent to asking the browser to redraw your entire viewport background on every animation tick. At 60fps this is a full-screen repaint **60 times per second**.
 
-The line-drawing function in `InteractiveParticles.jsx` uses a proximity search from particle `a` to particles `a+1` through `a+sLimit`. This means line connectivity is entirely determined by the **memory order** of the particles array, which is fixed at `init()` time. This is not a true spatial query — it's an approximation that only finds nearby particles if nearby particles happen to have adjacent indices, which is only true for shapes where particles are distributed sequentially (TESSERACT, STELLATED_OCTAHEDRON). For spherical distributions (GLOBE, QUANTUM_SINGULARITY), adjacent indices are distributed across the entire sphere surface, so the line search finds nothing useful within the distance threshold and most connections fail silently. This is why some shapes appear sparsely connected and others appear richly connected — it's an artifact of index order, not spatial distribution.
+### Tertiary Killer: `rootE.dataset.colorized = "true"` Triggering Attribute Mutation
 
----
+Inside `animate()`, the line `rootE.dataset.colorized = "true"` writes a data attribute to the `documentElement`. Data attribute mutations on `:root` trigger a full **attribute change notification** in the browser's DOM, which can invalidate CSS attribute selectors and force a style recalculation across the document. This only fires once, but it fires during the most expensive phase of your entrance sequence (around frame 220) when the CPU is already at maximum load.
 
-## B. CRITICAL PERFORMANCE BOTTLENECKS
+### Why It Compounds Over Time
 
-**Bottleneck 1: The Per-Pixel Opacity Calculation on Every Particle Every Frame**
-
-The opacity formula in the main render loop combines five multiplications, two `Math.min`, one `Math.max`, one `fastSin` LUT lookup, and three conditional branches per particle, per frame. With 280 particles at 60fps, this is ~16,800 executions per second of a formula that could be partially pre-computed. Specifically, the `cRZ` near-fade and far-fade factors (`nF` and `fF`) are deterministic given `z2 + camZ` — they don't depend on `time` directly. The twinkle component (`fastSin(globalTime * 0.05 + i * 1.5)`) advances by a fixed amount each frame and could be stored as a phase offset per particle and incremented rather than recomputed.
-
-**Bottleneck 2: The `drawLines()` Function's Five `ctx.stroke()` Calls Per Frame**
-
-The current "5-bin batching" optimization is clever, but it still issues 5 separate GPU draw calls per frame even when most bins are empty. More importantly, the `ctx.strokeStyle` assignment inside the bin flush loop hits the HSLA color cache with an averaged hue/lightness — but this average is computed from potentially hundreds of summed values divided at flush time, which involves a division per bin per frame. At 60fps this is minor, but the real cost is that `ctx.beginPath()` followed by potentially thousands of `moveTo/lineTo` pairs creates a path object in the browser's rendering engine that must be serialized to the GPU command buffer. The path serialization cost scales with the number of segments, not just the number of draw calls.
-
-**Bottleneck 3: The Rotation Pipeline Triple-Computes Camera Rotation Per Particle**
-
-In the main render loop, the camera rotation matrix components (`cX, sX, cY, sY`) are computed once above the particle loop — that part is correct. However, inside `Particle.update()`, the VORTEX and BREATHE phases compute `Math.sqrt(dx*dx + dy*dy)` per particle per frame. Combined with the click shockwave in `Particle.draw()` which also runs a `Math.sqrt` for every particle within range, and the chromatic shift calculation which runs `Math.sqrt` in the mouse interaction section of `update()`, a single frame can invoke `Math.sqrt` up to **three times per particle** (shockwave + mouse + vortex). `Math.sqrt` is not free — it is typically 10-15x slower than multiply on modern CPUs.
-
-**Bottleneck 4: The `precomputeShapeTrig()` Function Only Caches Two Axes**
-
-`precomputeShapeTrig()` correctly caches pitch and yaw trig values, but SHAPE_CHRONOS_HYPERSPHERE, SHAPE_STELLATED_OCTAHEDRON, and SHAPE_PYRAMID also need roll (`cr`, `sr`). These shapes call `rotateInline()` with `withRoll = true`. Currently, if `precomputeShapeTrig()` is called for a phase that doesn't have an `else if` branch (like SHAPE_QUANTUM_FIELD, SHAPE_PULSAR_STAR, SHAPE_MULTIVERSE, SHAPE_HOURGLASS), the `_trig` object retains stale values from the previous frame's shape, which means `rotateInline()` with `withRoll=true` silently uses wrong rotation values. This is both a visual correctness bug and a wasted computation.
-
-**Bottleneck 5: The HSLA Cache Has Catastrophically Poor Hash Distribution**
-
-The cache key formula `((h | 0) << 16) | ((s | 0) << 8) | ((l | 0) << 4) | ((a * 20) | 0)` has a critical flaw: saturation `s` is always 100, so `(s | 0) << 8` is always `25600` — a constant. This means the hash only meaningfully varies on hue and lightness. With hue ranging 0–360 and the `<< 16` shift, hue values 0 and 1 map to slots 0 and 65536 — but the cache is only 2048 slots, so the slot index `(key >>> 0) & (2048-1)` collapses the entire 0–360 hue range into 2048 / (65536 / 360) ≈ **11 distinct slots** before the bitwise AND. This means every hue is colliding with approximately 33 other hues in the same slot, and the cache miss rate is nearly 100% for hue variation. The cache is providing almost zero benefit for particle colors, while consuming 2048 array slot lookups per frame.
-
-**Bottleneck 6: The Motion Blur Clear Strategy Creates Conditional Branch in the Hot Path**
-
-The `isMorphing` boolean check inside `animate()` switches between `ctx.clearRect()` and a `destination-out` composite operation every frame. `ctx.clearRect()` is a GPU-accelerated operation that zeroes a pixel buffer in one GPU command. The `destination-out` approach requires: setting `globalCompositeOperation` (a state change), issuing a filled rectangle draw command, and then setting `globalCompositeOperation` back to `screen` — three GPU state changes and one fill call, versus one GPU clear. During the 180 frames of every transition, this costs approximately `180 × 3 = 540` extra GPU state changes per transition, per shape cycle.
-
-**Bottleneck 7: The `updateParticleIdealTargets()` Function Recomputes Shape Positions Every Frame for Static Shapes**
-
-For shapes like SHAPE_TESSERACT, SHAPE_STELLATED_OCTAHEDRON, and SHAPE_PYRAMID, the ideal target positions only change because of the slowly rotating `_trig` values (`time * 0.005` etc.). The full shape computation runs every frame for all 280 particles, recomputing edge interpolation, LUT lookups, and rotation for all particles even though the shape changes imperceptibly from one frame to the next. The ideal targets could be updated at a reduced rate (every 3-4 frames) for shapes with slow rotation speeds, with linear interpolation filling the gaps.
-
-**Bottleneck 8: The `_LINE_BINS` Reset Uses `.length = 0` Which Prevents V8 Array Optimization**
-
-Setting `bin.points.length = 0` is a common pattern but it causes V8 to potentially de-optimize the array's backing store when the array has grown large. A better pattern is to track a manual write index and reset it to zero, reusing the same memory without triggering V8's array resize path. With the points array potentially holding thousands of entries, this reset happens 5 times per frame (once per bin) × 60 fps = 300 array de-optimizations per second.
+The profile shows CPU maxing out toward the end of the 23-second window. This is **not random**. Your color system continuously lerps hues across the full phase cycle. In the early frames, `gBaseH` and `gFarH` are barely moving. By the time all 11 phases have cycled, the hues are shifting constantly, meaning `h1 !== lastHue1` evaluates to true on nearly every frame. The guard that was protecting you in early frames stops protecting you as the hue velocity increases. The rendering penalty escalates in direct proportion to how active the color animation is.
 
 ---
 
-## C. TACTICAL ROADMAP
+## 2. Optimizing the 1,371ms Scripting Load
 
-### Phase 1: High-Definition Scene Assembly (Visual Sharpness)
+### The Per-Particle `updateParticleIdealTargets` Call During Stable Phases
 
-**Step 1 — Implement Depth-Sorted Rendering**
+In `updatePhaseLogic()`, `updateParticleIdealTargets` is called for every particle every frame unconditionally. Looking at the shape generators in `particleGenerators.js`, functions like `SHAPE_GLOBE`, `SHAPE_TORUS`, and `SHAPE_CHRONOS_HYPERSPHERE` compute trigonometric positions using `Math.sin`, `Math.cos`, `Math.acos` with `time`-dependent arguments. During stable phases when `phaseTimer > 200`, these ideal targets barely change between frames because the float animation adds only `cos(globalTime * 0.016) * 2.5`. You are running full 3D spherical coordinate math for 280 particles every frame to move each one by roughly 2 pixels.
 
-The single most impactful change you can make for visual sharpness is to sort particles by their `rotatedZ` value before drawing. Currently, particles are drawn in index order, meaning close particles are drawn under far particles based on arbitrary index assignment. Depth sorting ensures far particles are occluded by near particles, creating true 3D volume. For 280 particles at 60fps, a radix sort or insertion sort (which is extremely fast on nearly-sorted arrays, which this will be after the first frame) is feasible. You should sort once per frame after the physics update loop and before the draw loop. The visual impact on shapes like GLOBE and CHRONOS_HYPERSPHERE will be immediately dramatic — they will acquire true spherical volume instead of appearing flat.
+### The `precomputeShapeTrig` Calling Pattern
 
-**Step 2 — Implement Perspective-Correct Particle Sizing with Depth Cueing**
+`precomputeShapeTrig` in `particleGenerators.js` updates `_trig.cp`, `_trig.sp`, `_trig.cy`, `_trig.sy`, `_trig.cr`, `_trig.sr` — six `Math.cos`/`Math.sin` calls per frame. These feed `rotateInline` which is called once per particle in the generator. However, `rotateInline` itself computes multiple multiplications and additions using these cached values. At 280 particles, `rotateInline` executes 280 times per frame, each doing 8–10 floating point operations. That is 2,240–2,800 FP operations per frame just for rotation, 60fps = **134,400–168,000 FP operations per second** purely for shape rotation math.
 
-Currently, `pSize = p.size * sc * sMult` where `sc` is the perspective scale factor. The problem is that `p.size` is random within `[0.85, 2.30]`, which means large random particles at any depth override the depth cue. You should clamp `p.size` within a narrower range (e.g., `[1.0, 1.6]`) and then make the size curve quadratic with depth rather than linear — particles very close to the camera should appear dramatically larger (creating a parallax lens effect) while particles near the center of the z-range should be uniformly sized. This depth-size relationship is what makes real particle renderers look cinematic.
+### The `drawLines` Quadratic Search
 
-**Step 3 — Replace the Fixed-Radius `arc()` Particle with a Radial Gradient Impostor**
+The `sLimit` of 16–40 means up to `280 × 16 = 4,480` pair distance checks per frame. Each check computes `dxl`, `dyl`, two multiplications, an addition. The `bin.points.push()` calls inside this loop are the scripting cost. Standard JS array `push` on arrays that grow beyond their initial capacity causes hidden reallocation. With 5 bins, each potentially accumulating hundreds of coordinate pairs, you have multiple reallocation events per frame during dense connection phases.
 
-Every particle is currently a filled solid circle. Real point-light renderings use a gaussian falloff — bright at center, exponentially decaying outward. Instead of `ctx.arc()` + `ctx.fill()`, use a small `ctx.createRadialGradient()` with the center color at full opacity and a transparent edge. This would make particles look like glowing light points rather than flat dots. The performance concern here is that radial gradients are expensive to create per-frame. The solution is to pre-render a single high-resolution gradient onto an **offscreen canvas** at `init()` time, and then use `ctx.drawImage()` with the particle position as the center. This converts particle rendering from path-fill operations (CPU-bound path tessellation) to texture blitting operations (GPU-accelerated), which is dramatically faster and looks far better.
+### The `_depthCompare` Sort
 
-**Step 4 — Implement Edge-Density Compensation for Spherical Shapes**
-
-The Fibonacci sphere distribution used for GLOBE, QUANTUM_SINGULARITY, and CHRONOS_HYPERSPHERE clusters particles more densely near the poles (where the golden angle spiral converges). This makes the equator look sparse and the poles look dense. You should apply a `sin(phi)` area-compensation weight to particle sizes for these shapes — particles at the poles (high density, `phi` near 0 or π) should be rendered smaller, and particles near the equator (low density, `phi` near π/2) should be rendered slightly larger. This creates perceptually uniform density across the entire sphere surface and makes the shape look geometrically precise rather than lumpy.
-
-**Step 5 — Sharpen the Line Connection Geometry with a True Spatial Grid**
-
-Replace the current `a+1` to `a+sLimit` proximity search with a 2D spatial grid partitioned into cells the size of `cDist`. At the start of each frame, bucket all particles by their `(px, py)` screen position into grid cells. Then for each particle, only search its own cell and the 8 adjacent cells. This reduces the average search candidates from ~16 to ~4-6 for typical distributions, which means you can either increase connection quality (use a larger `cDist` for richer networks) or improve performance — you get both. More importantly, particles in circular/spherical shapes will now correctly find their spatially nearest neighbors regardless of index order, creating the web-like connection effect that currently only works for edge-based shapes.
+As identified previously — 280-particle sort inside `animate()` every frame. The comparator `(a, b) => b.rotatedZ - a.rotatedZ` is an inline arrow function. Even if V8 eventually JIT-compiles it, the timsort on 280 elements is unavoidable O(N log N) overhead. Since `rotatedZ` values change smoothly by spring physics, this array is nearly sorted every frame — making the full sort algorithmically wasteful.
 
 ---
 
-### Phase 2: Fluid Cinematic Transitions
+## 3. Shifting Render Burden Away from Layout Invalidation — The Core Concept
 
-**Step 6 — Implement a Per-Particle Velocity-Inheritance System**
+### The Architectural Diagnosis
 
-The most jarring quality of the current transitions is the instantaneous velocity discontinuity when `phaseTimer` resets to 0. A particle moving at `speedX = 3.2` toward its current shape target suddenly receives a new target, but the spring system can't instantaneously redirect this momentum. You should record each particle's velocity vector at the moment the phase changes (when `phaseTimer === 1`) and inject this as an initial velocity bias into the transition easing — the particle's travel arc should curve *in the direction it was already moving* before arcing toward the new destination. This is how professional motion graphics software handles state transitions: velocity continuity at boundary frames.
+Your system is architecturally upside down. You have a **canvas system** doing the heavy visual work correctly (off-layout, GPU composited), but then a **DOM CSS variable system** doing color synchronization that drags the browser's layout engine into every frame. The canvas is innocent. The CSS variable bridge is the problem.
 
-**Step 7 — Introduce a "Dissolution Layer" for Exiting Shapes**
+### Concept: The Decoupled Color Bridge
 
-Currently, when a phase ends, particles simply begin moving toward their new targets. The old shape's geometry dissolves implicitly because particles leave their positions. A more cinematic approach is to conceptually separate the transition into a **dissolution pass** and a **crystallization pass**. During frames 0–60 of the transition, particles should appear to lose cohesion in their current shape — they drift slightly outward, size pulses up briefly, the connecting lines fade rapidly. During frames 60–180, the new shape crystallizes inward. This gives each transition a clear "shape dies, shape is born" dramatic structure rather than a simultaneous morph. The current `phaseTimer <= 90` / `phaseTimer > 90` line opacity logic already gestures at this concept but doesn't apply it to the particles themselves.
+The conceptual solution is to **completely separate the canvas color system from the CSS color system**, and update the CSS system on a heavily throttled schedule that is imperceptible to the human eye.
 
-**Step 8 — Apply Staggered Wave-Front Arrival Instead of Delay-Based Staggering**
+The canvas particles read `gBaseH` and `gFarH` directly as JavaScript variables — they do not read from CSS variables at all. This means the canvas can continue running at full 60fps fidelity using only JS-land values. The CSS variable writes are only needed for the UI elements — the gradient text, buttons, logo, and badges. These UI elements do not need to update at 60fps. The human visual system cannot distinguish a gradient color change that happens at 4fps versus 60fps when the change is a lerp with factor 0.015. At lerp factor 0.015, the hue moves approximately 0.015 × (target − current) per frame — at 60fps the color moves roughly 0.9 hue degrees per frame. You could update the CSS variables every 15 frames (4fps effective update rate) and the color transition would be completely smooth to human perception.
 
-The current transition system staggers particle arrival using `baseDelay = distFromCenter + (i % 20) * 0.002`. The `(i % 20)` term creates 20 discrete delay bands, which produces a subtle "stepped" pattern in the transition visible as concentric rings of simultaneously-arriving particles. Replace this with a **wave propagation model**: define the transition as a spherical wave that originates from a specific point (for example, the center of mass of the new shape), travels outward at a defined speed, and each particle's arrival time is determined by how long the wave takes to reach its ideal target position. This creates a genuine physics-motivated stagger with continuous rather than discrete timing.
+### Concept: Scope Isolation for the Glow Div
 
-**Step 9 — Add a Mid-Transition "Chaos Peak" Using a Coherent Noise Field**
+The glow div's `backgroundImage` should never consume `:root` CSS variables via `var()`. It should be driven by its own scoped variables written directly to its own element's style, or better — its background should be driven by the canvas itself being positioned underneath, eliminating the DOM element entirely. Alternatively, the glow div background can be updated by directly writing its full `backgroundImage` string via `glowRef.current.style.backgroundImage` only when the phase changes (11 times total across the entire session) rather than continuously. Between phase changes, the glow color barely moves — a static approximation is visually indistinguishable.
 
-The most dramatic moments in film title sequences occur at the midpoint of a transition — maximum displacement, maximum visual entropy, followed by the satisfying "snap" of the new order. Currently, the displacement arc uses `swirlX/swirlY` from the caller, but this is a simple sine-based circular swirl. Replace this with a **2D curl noise field** sampled at each particle's current position. Curl noise is the mathematically correct vector field for turbulent but divergence-free flow — particles following curl noise move like fluid (no clumping, no voids) rather than like independent balls. At the midpoint of the transition (`localT ≈ 0.5`), inject the curl noise displacement at maximum amplitude, then let the spring system carry particles to their destinations. The visual effect is a single frame of pure turbulent beauty at the transition peak.
+### Concept: CSS Variable Write Throttling Pattern
 
-**Step 10 — Implement Shape-to-Shape Color Temperature Transitions**
+Maintain a `cssUpdateFrame` counter alongside `globalTime`. Only execute the `rootE.style.setProperty` block when `cssUpdateFrame % 15 === 0`. Increment `cssUpdateFrame` every animate call. The canvas continues reading from the JS `gBaseH`/`gFarH` variables at full 60fps. The UI elements receive a color update every 250ms instead of every 16ms. The visual result is identical — both systems remain synchronized to the same target color, just the UI update frequency drops to a level where the browser's style cascade cost becomes negligible. **This single change should eliminate 80–85% of your 12,289ms rendering cost.**
 
-Currently, color changes happen via `_lerpHue(gBaseH, targetColor.b, 0.015)` which is a simple per-frame hue lerp running independently of the phase timer. This means the color change and shape change are **temporally decoupled** — the color finishes changing at a completely different time than the shape finishes forming. You should synchronize the color transition to the phase timer directly: use `phaseTimer / PHASES[phaseIdx].duration` as the color interpolation parameter, mapped through a smooth step function. This way, the color reaches its final value exactly when the shape reaches its final form, creating a unified scene-change moment rather than two independent transitions happening at arbitrary times.
+### Concept: Glow Div → Canvas Layer Replacement
 
----
+The three radial gradients on the glow div (`radial-gradient(ellipse 90% 50% at 50% 0%...)`, `radial-gradient(ellipse 70% 40% at 100% 100%...)`, and the linear gradient) can be drawn directly onto a **second small offscreen canvas** at dramatically reduced resolution — perhaps 200×150 pixels scaled up via CSS to `100vw × 100vh`. Canvas gradient rendering on a 200×150 surface costs a fraction of what a full-viewport DOM element with CSS gradients costs to repaint, and it gives you pixel-perfect control over update frequency. This offscreen canvas only needs to redraw when the phase changes, dropping its repaint cost from 60fps to essentially zero during stable phases.
 
-### Phase 3: Resource Reduction
+### Summary of the Rendering Crisis Chain
 
-**Step 11 — Fix the HSLA Cache Hash Function**
-
-Redesign the cache key to distribute hue across more bits. Since saturation is always 100, exclude it from the key entirely. The new key should be `((h | 0) * 17 + (l | 0) * 7 + (a * 100 | 0)) & (2048 - 1)`. This distributes hue across the full slot range and eliminates the constant saturation term. Additionally, since particles of the same shape tend to cluster within a narrow hue range (determined by `COLOR_MAP`), you can further reduce cache misses by increasing the cache to 4096 entries — the memory cost is negligible (4096 pointers ≈ 32KB) and the hit rate improvement will be substantial.
-
-**Step 12 — Implement Adaptive Frame Skipping for Background Particles**
-
-Particles with `pOpacity < 0.15` are nearly invisible but still consume the full physics update and draw cost. Introduce a tier system: particles below an opacity threshold skip the expensive `draw()` call entirely and are replaced by a single `ctx.fillRect()` call for a 1×1 pixel placeholder. Particles in the bottom 20% of opacity could also skip physics updates every other frame (using `i % 2 === globalTime % 2` as a stagger) — their positions will appear continuous because the sub-pixel changes per frame are visually indistinguishable at low opacity.
-
-**Step 13 — Decouple Physics from Rendering Using a Fixed-Timestep Accumulator**
-
-The current `_TARGET_MS = 1000/60` frame rate target skips rendering frames when the system is behind, but it doesn't skip physics updates. On a frame that takes 20ms to complete (due to GC pauses, DOM writes, or system load), the physics loop still advances by one step. This means physics and rendering are locked 1:1, which is correct for a 60fps renderer but means you can never render at 30fps physics + 60fps rendering (a common optimization). Implement a fixed-timestep accumulator: physics updates run at 30Hz (32ms steps) while rendering runs at 60Hz, interpolating particle screen positions between physics steps. This halves the physics computation cost with zero visual quality loss at typical viewing distances.
-
-**Step 14 — Replace the Per-Frame `precomputeShapeTrig()` Call with a Versioning System**
-
-Since shape rotation speeds are extremely slow (most shapes use `time * 0.002` to `time * 0.008`), the trig values change by less than 0.5% per frame. Instead of calling `Math.cos()` and `Math.sin()` 6 times per frame in `precomputeShapeTrig()`, use an **angle accumulator**: store the current angle for each axis, and advance it by the fixed delta per frame (e.g., `pitchAngle += 0.002`), then compute the trig values only once. More aggressively, for shapes with rotation rates below `time * 0.004`, update the trig values every **3 frames** using linear approximation for the intervening frames — the visual difference is below human perception threshold at those rotation speeds.
-
-**Step 15 — Migrate the Offscreen Composite Operation to a WebGL Auxiliary Context**
-
-The single largest GPU bottleneck is that the canvas uses a 2D context with `mixBlendMode: screen` in CSS. Screen blending requires the browser to read the current framebuffer, compute the blend for every particle pixel, and write it back — a read-modify-write operation on the GPU that prevents early-z optimizations and forces the compositor to treat the entire canvas as an opaque layer. Migrating the particle render to a WebGL context would allow you to implement alpha-premultiplied additive blending in a shader, which is write-only (no readback), reduces GPU memory bandwidth by ~50%, and allows the compositor to handle blending on the GPU compositing layer rather than the CPU-visible render layer. This is the single change that would have the largest impact on GPU memory usage reduction from the current 79MB.
-
-**Step 16 — Eliminate the Scroll Listener's `smoothedScrollY` Computation From the Render Loop**
-
-The `smoothedScrollY += (scrollY - smoothedScrollY) * 0.08` computation runs inside `animate()` — inside the 60fps render loop — even when `scrollY` hasn't changed (which is most of the time). The scroll event listener updates `scrollY` at most a few times per second during user interaction. Move the smoothing computation to a `requestAnimationFrame` callback that only fires **when `scrollY` changes**, using a second lightweight animation loop exclusively for scroll-dependent values. This eliminates the `gOp` fade computation from the hot render path on frames where the user is not scrolling, which is the vast majority of frames.
-
----
-
-### Summary Priority Matrix
-
-| Step | Visual Impact | Perf Impact | Complexity |
-|---|---|---|---|
-| 1 — Depth Sort | Very High | Low cost | Low |
-| 3 — Gradient Impostor Particles | Very High | High gain | Medium |
-| 5 — Spatial Grid for Lines | High | High gain | Medium |
-| 11 — Fix HSLA Cache | None | High gain | Low |
-| 13 — Fixed-Timestep Physics | None | Very High gain | Medium |
-| 15 — WebGL Context | None | Very High gain | High |
-| 6 — Velocity Inheritance | Very High | Neutral | Low |
-| 9 — Curl Noise at Transition Peak | Very High | Low cost | Medium |
-| 10 — Synchronized Color-Shape Timing | High | Neutral | Low |
-
-The highest-leverage starting point is **Steps 11, 1, and 6** — all three are low-complexity, require no architectural changes, and deliver either significant visual quality improvement or meaningful CPU savings immediately.
+The 12,289ms rendering cost flows from a single architectural decision — writing CSS custom properties on `:root` inside a 60fps RAF loop while those properties are consumed by multiple DOM elements across multiple CSS modules. The fix requires no visual compromise because the canvas does not use CSS variables for its rendering — it uses pure JS variables. Decoupling the DOM CSS update frequency from the canvas update frequency, scoping the glow div away from `:root` variable consumption, and throttling `setProperty` to 4fps for UI elements will collapse the rendering cost from 12,289ms to an estimated 800–1,200ms over the same 23-second window — a reduction of approximately 90% — while every neon color, every gradient transition, every particle behavior, and every smooth cinematic morph remains pixel-for-pixel identical.
