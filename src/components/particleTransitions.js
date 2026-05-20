@@ -30,7 +30,7 @@ function _buildLUT(total) {
     _THETA_LUT = new Float32Array(total);
     _NOISE_LUT = new Float32Array(total);
     const TAU = Math.PI * 2;
-    const GOLDEN = Math.PI * (1 + Math.sqrt(5));
+    const GOLDEN = Math.PI * (3 - Math.sqrt(5));
     for (let i = 0; i < total; i++) {
         const prog = i / total;
         _PHI_LUT[i]   = Math.acos(Math.max(-1, Math.min(1, 1 - 2 * prog)));

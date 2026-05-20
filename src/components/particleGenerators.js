@@ -270,9 +270,9 @@ export function updateParticleIdealTargets(p, phaseName, i, total, time, cx, cy)
         // ─────────────────────────────────────────────────────────────────────
         const { v, e } = _TESS;
         const ei = i % e.length;
-        // Perfect distribution of particles across the edge length
-        const particlesPerEdge = Math.max(1, Math.floor(total / e.length));
-        const ep = Math.floor(i / e.length) / (particlesPerEdge - 1 || 1);
+        // Perfect distribution of particles across the edge length (capped strictly at 1.0)
+        const maxSteps = Math.floor((total - 1) / e.length);
+        const ep = Math.min(1.0, Math.floor(i / e.length) / (maxSteps || 1));
         const [ai, bi] = e[ei];
         const r = rotateInline(
             v[ai][0] + (v[bi][0] - v[ai][0]) * ep,
@@ -280,7 +280,8 @@ export function updateParticleIdealTargets(p, phaseName, i, total, time, cx, cy)
             v[ai][2] + (v[bi][2] - v[ai][2]) * ep,
             true
         );
-        ix = cx + r.x + rx * 0.08; iy = cy + r.y + ry * 0.08; iz = r.z + rz * 0.08; // was *0.3
+        // Zeroed out the random noise completely to form perfectly razor-sharp mathematical edges!
+        ix = cx + r.x; iy = cy + r.y; iz = r.z;
 
     } else if (phaseName === 'SHAPE_STELLATED_OCTAHEDRON') {
         // ── HD UPGRADE ──────────────────────────────────────────────────────
@@ -289,9 +290,9 @@ export function updateParticleIdealTargets(p, phaseName, i, total, time, cx, cy)
         // star tips — they should be needle-sharp. ep also improved to uniform.
         // ─────────────────────────────────────────────────────────────────────
         const ei = i % _MERK_EDGES.length;
-        // Perfect distribution of particles across the edge length
-        const particlesPerEdge = Math.max(1, Math.floor(total / _MERK_EDGES.length));
-        const ep = Math.floor(i / _MERK_EDGES.length) / (particlesPerEdge - 1 || 1);
+        // Perfect distribution of particles across the edge length (capped strictly at 1.0)
+        const maxSteps = Math.floor((total - 1) / _MERK_EDGES.length);
+        const ep = Math.min(1.0, Math.floor(i / _MERK_EDGES.length) / (maxSteps || 1));
         const [pa, pb] = _MERK_EDGES[ei];
         const r = rotateInline(
             pa[0] + (pb[0] - pa[0]) * ep,
