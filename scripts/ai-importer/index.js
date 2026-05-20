@@ -320,6 +320,12 @@ async function runDailyImport(urlsToProcess = []) {
     console.log(`⏭️ Skipped: ${stats.skipped}`);
     console.log(`❌ Failed:  ${stats.failed}`);
     console.log(`===================================`);
+
+    // 🔴 Exit with error code if NOTHING was added/updated (all failed/skipped)
+    // This ensures the worker correctly marks the job as FAILED instead of COMPLETED
+    if (stats.failed > 0 && stats.added === 0 && stats.updated === 0) {
+        process.exit(1);
+    }
 }
 
 const args = process.argv.slice(2);
