@@ -1,4 +1,4 @@
-require('dotenv').config();
+require('dotenv').config({ path: require('path').resolve(__dirname, '.env') });
 const { supabaseAdmin } = require('./supabaseClient');
 const { scrapeUrlToMarkdown } = require('./scraper');
 const { processToolData } = require('./geminiProcessor');

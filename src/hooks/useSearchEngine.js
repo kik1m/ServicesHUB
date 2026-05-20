@@ -24,24 +24,28 @@ export const useSearchEngine = ({
     const pathname = usePathname();
     const searchParams = useSearchParams();
     
-    // 1. Local State Fallbacks (for modals/syncUrl=false)
-    const [localQuery, setLocalQuery] = useState('');
-    const [localCategory, setLocalCategory] = useState(fixedCategory);
+    // 1. Read URL params once on initial render (server-safe)
+    // Using a function initializer avoids the isMounted double-render flash
+    // that caused the scroll jump bug when selecting a category on first visit.
+    const getInitialParam = (key, fallback) => {
+        if (typeof window === 'undefined') return fallback;
+        const params = new URLSearchParams(window.location.search);
+        return params.get(key) || fallback;
+    };
+
+    const [localQuery, setLocalQuery] = useState(() => getInitialParam('q', ''));
+    const [localCategory, setLocalCategory] = useState(() => getInitialParam('category', fixedCategory || 'All'));
     const [localCategoryId, setLocalCategoryId] = useState(fixedCategoryId);
-    const [localPrice, setLocalPrice] = useState('All');
-    const [localSort, setLocalSort] = useState('featured');
-    const [localPage, setLocalPage] = useState(0);
+    const [localPrice, setLocalPrice] = useState(() => getInitialParam('price', 'All'));
+    const [localSort, setLocalSort] = useState(() => getInitialParam('sort', 'featured'));
+    const [localPage, setLocalPage] = useState(() => parseInt(getInitialParam('page', '0'), 10) || 0);
 
-    // 2. Source of Truth Extraction
-    // Use local states as the primary source of truth after initial mount to prevent Next.js server re-renders
-    const [isMounted, setIsMounted] = useState(false);
-    useEffect(() => setIsMounted(true), []);
-
-    const searchQuery = (syncUrl && !isMounted) ? (searchParams.get('q') || '') : localQuery;
-    const selectedCategory = (syncUrl && !isMounted) ? (searchParams.get('category') || 'All') : localCategory;
-    const selectedPrice = (syncUrl && !isMounted) ? (searchParams.get('price') || 'All') : localPrice;
-    const sortBy = (syncUrl && !isMounted) ? (searchParams.get('sort') || 'featured') : localSort;
-    const rawPage = (syncUrl && !isMounted) ? parseInt(searchParams.get('page') || '0', 10) : localPage;
+    // Source of truth is always local state (no isMounted toggle needed)
+    const searchQuery = localQuery;
+    const selectedCategory = localCategory;
+    const selectedPrice = localPrice;
+    const sortBy = localSort;
+    const rawPage = localPage;
     const page = isNaN(rawPage) ? 0 : rawPage;
 
     // 🎯 Sync fixedCategoryId when it changes
@@ -49,16 +53,8 @@ export const useSearchEngine = ({
         if (fixedCategoryId) setLocalCategoryId(fixedCategoryId);
     }, [fixedCategoryId]);
 
-    // Sync initial URL params to local state on mount
-    useEffect(() => {
-        if (syncUrl) {
-            setLocalQuery(searchParams.get('q') || '');
-            setLocalCategory(searchParams.get('category') || fixedCategory || 'All');
-            setLocalPrice(searchParams.get('price') || 'All');
-            setLocalSort(searchParams.get('sort') || 'featured');
-            setLocalPage(parseInt(searchParams.get('page') || '0', 10) || 0);
-        }
-    }, [syncUrl, searchParams, fixedCategory]);
+    // NOTE: We no longer need to sync URL → local state on mount
+    // because local state is already initialized from the URL above.
 
     // 3. Partitioned States (Derived synchronously to prevent Scroll Jump & Render Flash)
     const [categories, setCategories] = useState(categoriesCache || []);
