@@ -7,6 +7,16 @@ export const trackVisit = async (path) => {
   try {
     if (typeof window === 'undefined') return;
 
+    // 🛡️ SMART FILTERS: Ignore Localhost & Bots for 100% accurate human stats
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+      return; // Ignore local development visits
+    }
+
+    const botPattern = /bot|crawler|spider|crawling|googlebot|bingbot|yandex|baiduspider|slurp|lighthouse|vercel/i;
+    if (navigator.userAgent && botPattern.test(navigator.userAgent)) {
+      return; // Ignore automated bot visits
+    }
+
     // 1. الحصول على أو إنشاء ID فريد للزائر
     let visitorId = localStorage.getItem('hubly_visitor_id');
     if (!visitorId) {
