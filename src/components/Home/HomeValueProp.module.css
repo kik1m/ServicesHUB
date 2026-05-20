@@ -30,7 +30,7 @@
   padding: 3rem 2rem;
   text-align: center;
   border-radius: 32px;
-  transition: all 0.4s ease;
+  transition: transform 0.4s ease, opacity 0.4s ease, background-color 0.4s ease, border-color 0.4s ease, color 0.4s ease, filter 0.4s ease;
   background: var(--bg-card);
   border: 1px solid var(--border);
 }

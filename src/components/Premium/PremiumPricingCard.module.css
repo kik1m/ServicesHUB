@@ -32,7 +32,7 @@
     position: relative;
     z-index: 1;
     box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
-    transition: all 0.4s ease;
+    transition: transform 0.4s ease, opacity 0.4s ease, background-color 0.4s ease, border-color 0.4s ease, color 0.4s ease, filter 0.4s ease;
 }
 
 .glassPanel::after {

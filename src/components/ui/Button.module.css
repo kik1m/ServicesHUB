@@ -6,13 +6,19 @@
     border-radius: 12px;
     font-weight: 700;
     cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    /* ⚡ PERF: Only transition GPU-compositable properties (transform, opacity).
+       'transition: all' forces box-shadow recalculation on CPU every frame! */
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                filter 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     text-decoration: none;
     border: 1px solid transparent;
     font-family: var(--font-family);
     white-space: nowrap;
     position: relative;
     font-size: 0.95rem;
+    /* ⚡ PERF: Promote button to its own GPU layer to prevent compositing failures */
+    will-change: transform;
 }
 
 .btn:disabled {
@@ -25,14 +31,16 @@
     background: linear-gradient(135deg, hsl(var(--dynamic-hue-1, 195), calc(var(--dynamic-saturation, 0) * 1%), 45%) 0%, hsl(var(--dynamic-hue-2, 275), calc(var(--dynamic-saturation, 0) * 1%), 55%) 100%);
     color: white;
     border: none;
-    box-shadow: 0 4px 15px hsla(var(--dynamic-hue-1, 195), calc(var(--dynamic-saturation, 0) * 1%), 50%, 0.4);
+    /* ⚡ PERF: filter:drop-shadow is GPU-compositable unlike box-shadow! */
+    filter: drop-shadow(0 4px 15px hsla(var(--dynamic-hue-1, 195), calc(var(--dynamic-saturation, 0) * 1%), 50%, 0.4));
 }
 
 
 .primary:hover {
-    box-shadow: 0 8px 25px hsla(var(--dynamic-hue-1, 195), calc(var(--dynamic-saturation, 0) * 1%), 50%, 0.6);
+    filter: drop-shadow(0 8px 25px hsla(var(--dynamic-hue-1, 195), calc(var(--dynamic-saturation, 0) * 1%), 50%, 0.6));
     transform: translateY(-2px);
 }
+
 
 
 .secondary {

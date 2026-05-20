@@ -32,7 +32,7 @@
     font-size: 0.85rem;
     font-weight: 500;
     cursor: pointer;
-    transition: all 0.3s;
+    transition: transform 0.3s, opacity 0.3s, background-color 0.3s, border-color 0.3s, color 0.3s, filter 0.3s;
 }
 
 .toggleBtn:hover {
@@ -57,7 +57,7 @@
     backdrop-filter: blur(20px);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 20px;
-    transition: all 0.3s;
+    transition: transform 0.3s, opacity 0.3s, background-color 0.3s, border-color 0.3s, color 0.3s, filter 0.3s;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
 }
 
@@ -125,7 +125,7 @@
     color: #000;
     cursor: pointer;
     flex-shrink: 0;
-    transition: all 0.3s;
+    transition: transform 0.3s, opacity 0.3s, background-color 0.3s, border-color 0.3s, color 0.3s, filter 0.3s;
 }
 
 .submitBtn:disabled {
@@ -221,7 +221,7 @@
     padding: 2px 8px;
     border-radius: 20px;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: transform 0.2s, opacity 0.2s, background-color 0.2s, border-color 0.2s, color 0.2s, filter 0.2s;
     white-space: nowrap;
     flex-shrink: 0;
 }

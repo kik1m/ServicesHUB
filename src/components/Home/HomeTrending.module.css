@@ -73,7 +73,7 @@
   text-decoration: none;
   color: inherit;
   border: 1px solid rgba(255, 60, 60, 0.2);
-  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), background-color 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), border-color 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), color 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), filter 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   border-radius: 20px;
   background: linear-gradient(135deg, rgba(255, 60, 60, 0.04) 0%, rgba(200, 20, 20, 0.01) 100%);
   position: relative;
