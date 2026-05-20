@@ -1,4 +1,4 @@
-require('dotenv').config({ path: require('path').resolve(__dirname, '../../.env.local') });
+require('dotenv').config({ path: require('path').resolve(__dirname, '../../.env.local'), quiet: true });
 const { supabaseAdmin } = require('./supabaseClient');
 const { generateAISeo } = require('./seoGenerator');
 
@@ -7,19 +7,37 @@ async function fixSingleToolSeo(identifier) {
     
     // Clean identifier (could be a full URL or a slug)
     let slug = identifier;
+    let searchUrl = identifier;
+    
     if (identifier.includes('http')) {
-        const urlObj = new URL(identifier);
-        slug = urlObj.pathname.split('/').filter(Boolean).pop();
+        try {
+            const urlObj = new URL(identifier);
+            const pathParts = urlObj.pathname.split('/').filter(Boolean);
+            if (pathParts.length > 0 && pathParts[0] === 'tool') {
+                // Handle hubly-tools.com/tool/synthesia
+                slug = pathParts[1];
+            } else if (pathParts.length > 0) {
+                // Handle synthesia.io/video-generator (fallback to last path segment)
+                slug = pathParts.pop();
+            } else {
+                // Handle https://www.synthesia.io/ -> synthesia
+                slug = urlObj.hostname.replace('www.', '').split('.')[0];
+            }
+        } catch (e) {
+            slug = identifier;
+        }
     }
 
     const { data: tool, error } = await supabaseAdmin
         .from('tools')
         .select('*')
-        .or(`slug.eq.${slug},website_url.eq.${identifier}`)
+        .or(`slug.eq."${slug}",url.eq."${searchUrl}",url.eq."${searchUrl.replace(/\/$/, '')}"`)
         .single();
 
     if (error || !tool) {
         console.error(`❌ Could not find tool with slug or URL: ${identifier}`);
+        console.error(`💡 TIP: The tool must be imported into the database first before updating its SEO.`);
+        console.error(`💡 Try running the '📥 Full Import' task for this URL first.`);
         process.exit(1);
     }
 

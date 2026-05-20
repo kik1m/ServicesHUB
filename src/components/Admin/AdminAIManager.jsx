@@ -224,8 +224,8 @@ const AdminAIManager = ({ activeTab }) => {
                                                 <strong>Target:</strong> {job.payload?.url || job.payload?.target || 'Global Action'}
                                             </p>
                                             {job.status === 'FAILED' && job.logs && (
-                                                <div className={styles.jobErrorLog}>
-                                                    {job.logs.slice(0, 200)}...
+                                                <div className={styles.jobErrorLog} style={{ whiteSpace: 'pre-wrap', maxHeight: '150px', overflowY: 'auto', fontSize: '0.85rem' }}>
+                                                    {job.logs}
                                                 </div>
                                             )}
                                         </div>
