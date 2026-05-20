@@ -279,6 +279,170 @@
     color: #52525b;
 }
 
+/* Command Form Styles */
+.commandForm {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.inputGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.inputGroup label {
+    font-size: 0.85rem;
+    color: #a1a1aa;
+    font-weight: 500;
+}
+
+.selectInput, .textInput {
+    background: #0f172a;
+    border: 1px solid #1e293b;
+    color: #e2e8f0;
+    padding: 12px 16px;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.selectInput:focus, .textInput:focus {
+    border-color: #38bdf8;
+    box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.1);
+}
+
+.submitBtn {
+    background: linear-gradient(135deg, #00a3ff, #8b5cf6);
+    color: white;
+    border: none;
+    padding: 12px 16px;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: opacity 0.2s, transform 0.1s;
+    margin-top: 8px;
+}
+
+.submitBtn:hover:not(:disabled) {
+    opacity: 0.9;
+}
+
+.submitBtn:active:not(:disabled) {
+    transform: scale(0.98);
+}
+
+.submitBtn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    filter: grayscale(0.5);
+}
+
+.submitMessage {
+    font-size: 0.85rem;
+    margin-top: 8px;
+    padding: 10px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.successMsg {
+    background: rgba(34, 197, 94, 0.1);
+    color: #4ade80;
+    border: 1px solid rgba(34, 197, 94, 0.2);
+}
+
+.errorMsg {
+    background: rgba(239, 68, 68, 0.1);
+    color: #f87171;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+/* Job Queue Cards */
+.jobCard {
+    background: #0f172a;
+    border: 1px solid #1e293b;
+    border-radius: 12px;
+    padding: 16px;
+    transition: border-color 0.3s;
+}
+
+.jobPENDING { border-left: 3px solid #71717a; }
+.jobPROCESSING { border-left: 3px solid #38bdf8; }
+.jobCOMPLETED { border-left: 3px solid #4ade80; }
+.jobFAILED { border-left: 3px solid #f87171; }
+
+.jobHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.jobTypeBox {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.jobTypeName {
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: #e2e8f0;
+}
+
+.jobBody {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.jobTarget {
+    font-size: 0.85rem;
+    color: #a1a1aa;
+    margin: 0;
+    word-break: break-all;
+}
+
+.jobTarget strong {
+    color: #71717a;
+}
+
+.jobErrorLog {
+    margin-top: 8px;
+    padding: 10px;
+    background: rgba(239, 68, 68, 0.05);
+    border-radius: 6px;
+    border: 1px solid rgba(239, 68, 68, 0.1);
+    color: #fca5a5;
+    font-family: 'Fira Code', monospace;
+    font-size: 0.75rem;
+    white-space: pre-wrap;
+}
+
+/* Status Icons */
+.statusPending { color: #a1a1aa; }
+.statusProcessing { color: #38bdf8; }
+.statusCompleted { color: #4ade80; }
+.statusFailed { color: #f87171; }
+
+.spin {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
 @media (max-width: 1024px) {
     .grid {
         grid-template-columns: 1fr;
