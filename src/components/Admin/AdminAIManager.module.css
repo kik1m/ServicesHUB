@@ -162,6 +162,11 @@
     position: relative;
 }
 
+.logsWrapperCol {
+    display: flex;
+    flex-direction: column;
+}
+
 .logsPanel::before {
     content: '';
     position: absolute;

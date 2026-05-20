@@ -1,6 +1,6 @@
 'use client';
 import React, { useState, useEffect } from 'react';
-import { Bot, RefreshCw, AlertCircle, Clock, Terminal, Send, CheckCircle, XCircle, Loader2 } from 'lucide-react';
+import { Bot, RefreshCw, AlertCircle, Clock, Terminal, Send, CheckCircle, XCircle, Loader2, History } from 'lucide-react';
 import { supabase } from '../../lib/supabaseClient';
 import styles from './AdminAIManager.module.css';
 
@@ -9,7 +9,8 @@ import styles from './AdminAIManager.module.css';
  */
 const AdminAIManager = ({ activeTab }) => {
     const [jobs, setJobs] = useState([]);
-    const [isLoadingJobs, setIsLoadingJobs] = useState(true);
+    const [agentLogs, setAgentLogs] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
     
     // Command Form State
     const [jobType, setJobType] = useState('IMPORT_TOOL');
@@ -17,31 +18,39 @@ const AdminAIManager = ({ activeTab }) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitMessage, setSubmitMessage] = useState('');
 
-    const fetchJobs = async () => {
-        setIsLoadingJobs(true);
+    const fetchData = async () => {
+        setIsLoading(true);
         try {
-            const { data, error } = await supabase
+            // Fetch Live Queue
+            const { data: queueData, error: queueError } = await supabase
                 .from('ai_jobs')
                 .select('*')
                 .order('created_at', { ascending: false })
-                .limit(15);
+                .limit(5);
             
-            if (error) {
-                // If table doesn't exist yet, silently fail
-                if (error.code !== '42P01') console.error(error);
-                return;
-            }
-            setJobs(data || []);
+            if (queueError && queueError.code !== '42P01') console.error(queueError);
+            setJobs(queueData || []);
+
+            // Fetch Historical Logs
+            const { data: historyData, error: historyError } = await supabase
+                .from('ai_agent_logs')
+                .select('*')
+                .order('run_date', { ascending: false })
+                .limit(10);
+
+            if (historyError) console.error(historyError);
+            setAgentLogs(historyData || []);
+
         } catch (err) {
-            console.error('Failed to fetch AI jobs:', err);
+            console.error('Failed to fetch AI data:', err);
         } finally {
-            setIsLoadingJobs(false);
+            setIsLoading(false);
         }
     };
 
     useEffect(() => {
         if (activeTab === 'ai-manager') {
-            fetchJobs();
+            fetchData();
         }
     }, [activeTab]);
 
@@ -65,7 +74,7 @@ const AdminAIManager = ({ activeTab }) => {
             
             setSubmitMessage('✅ Task queued successfully! The local worker will process it instantly.');
             setTargetInput('');
-            fetchJobs(); // Refresh list immediately
+            fetchData(); // Refresh list immediately
         } catch (err) {
             console.error('Failed to queue job:', err);
             setSubmitMessage('❌ Failed to queue task. Check if ai_jobs table exists.');
@@ -99,7 +108,7 @@ const AdminAIManager = ({ activeTab }) => {
                         <p className={styles.subtitle}>Queue heavy AI tasks to be processed securely by your local worker.</p>
                     </div>
                 </div>
-                <button onClick={fetchJobs} className={styles.refreshBtn} title="Refresh Jobs">
+                <button onClick={fetchData} className={styles.refreshBtn} title="Refresh Data">
                     <RefreshCw size={18} />
                 </button>
             </header>
@@ -163,44 +172,87 @@ const AdminAIManager = ({ activeTab }) => {
                     </div>
                 </section>
 
-                {/* Live Worker Queue Section */}
-                <section className={styles.logsPanel}>
-                    <h3 className={styles.sectionTitle}>
-                        <Clock size={18} /> Live Worker Queue
-                    </h3>
-                    
-                    <div className={styles.logsContainer}>
-                        {isLoadingJobs ? (
-                            <div className={styles.loadingLogs}>Fetching queue status...</div>
-                        ) : jobs.length === 0 ? (
-                            <div className={styles.emptyLogs}>Queue is empty. Dispatch a task to start.</div>
-                        ) : (
-                            jobs.map((job) => (
-                                <div key={job.id} className={`${styles.jobCard} ${styles[`job${job.status}`]}`}>
-                                    <div className={styles.jobHeader}>
-                                        <div className={styles.jobTypeBox}>
-                                            {getStatusIcon(job.status)}
-                                            <span className={styles.jobTypeName}>{job.job_type}</span>
-                                        </div>
-                                        <span className={styles.logDate}>
-                                            {new Date(job.created_at).toLocaleString()}
-                                        </span>
-                                    </div>
-                                    <div className={styles.jobBody}>
-                                        <p className={styles.jobTarget}>
-                                            <strong>Target:</strong> {job.payload?.url || job.payload?.target || 'Global Action'}
-                                        </p>
-                                        {job.status === 'FAILED' && job.logs && (
-                                            <div className={styles.jobErrorLog}>
-                                                {job.logs.slice(0, 200)}...
+                {/* Logs Section */}
+                <div className={styles.logsWrapperCol}>
+                    {/* Live Worker Queue Section */}
+                    <section className={styles.logsPanel} style={{ marginBottom: '24px' }}>
+                        <h3 className={styles.sectionTitle}>
+                            <Clock size={18} /> Live Worker Queue
+                        </h3>
+                        
+                        <div className={styles.logsContainer} style={{ minHeight: '150px' }}>
+                            {isLoading ? (
+                                <div className={styles.loadingLogs}>Fetching queue status...</div>
+                            ) : jobs.length === 0 ? (
+                                <div className={styles.emptyLogs}>Queue is empty. Dispatch a task to start.</div>
+                            ) : (
+                                jobs.map((job) => (
+                                    <div key={job.id} className={`${styles.jobCard} ${styles[`job${job.status}`]}`}>
+                                        <div className={styles.jobHeader}>
+                                            <div className={styles.jobTypeBox}>
+                                                {getStatusIcon(job.status)}
+                                                <span className={styles.jobTypeName}>{job.job_type}</span>
                                             </div>
-                                        )}
+                                            <span className={styles.logDate}>
+                                                {new Date(job.created_at).toLocaleString()}
+                                            </span>
+                                        </div>
+                                        <div className={styles.jobBody}>
+                                            <p className={styles.jobTarget}>
+                                                <strong>Target:</strong> {job.payload?.url || job.payload?.target || 'Global Action'}
+                                            </p>
+                                            {job.status === 'FAILED' && job.logs && (
+                                                <div className={styles.jobErrorLog}>
+                                                    {job.logs.slice(0, 200)}...
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
-                                </div>
-                            ))
-                        )}
-                    </div>
-                </section>
+                                ))
+                            )}
+                        </div>
+                    </section>
+
+                    {/* Historical Logs Section */}
+                    <section className={styles.logsPanel}>
+                        <h3 className={styles.sectionTitle}>
+                            <History size={18} /> Historical Operation Logs
+                        </h3>
+                        
+                        <div className={styles.logsContainer} style={{ maxHeight: '400px' }}>
+                            {isLoading ? (
+                                <div className={styles.loadingLogs}>Fetching historical data...</div>
+                            ) : agentLogs.length === 0 ? (
+                                <div className={styles.emptyLogs}>No historical operations recorded yet.</div>
+                            ) : (
+                                agentLogs.map((log) => (
+                                    <div key={log.id} className={styles.logCard}>
+                                        <div className={styles.logHeader}>
+                                            <span className={styles.logDate}>
+                                                <Clock size={14} />
+                                                {new Date(log.run_date).toLocaleString()}
+                                            </span>
+                                            <div className={styles.logBadges}>
+                                                <span className={`${styles.badge} ${styles.added}`}>+{log.added_count} Added</span>
+                                                <span className={`${styles.badge} ${styles.updated}`}>~{log.updated_count} Updated</span>
+                                                {log.failed_count > 0 && <span className={`${styles.badge} ${styles.failed}`}>-{log.failed_count} Failed</span>}
+                                            </div>
+                                        </div>
+                                        <div className={styles.logBody}>
+                                            {log.details && Array.isArray(log.details) && log.details.map((detail, idx) => (
+                                                <div key={idx} className={`${styles.detailRow} ${styles[detail.status?.toLowerCase()] || ''}`}>
+                                                    <span className={styles.detailStatus}>[{detail.status}]</span>
+                                                    <span className={styles.detailName}>{detail.name || detail.url}</span>
+                                                    {detail.message && <span className={styles.detailMsg}>- {detail.message}</span>}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                ))
+                            )}
+                        </div>
+                    </section>
+                </div>
             </div>
         </div>
     );
