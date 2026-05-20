@@ -62,7 +62,8 @@ body {
     );
   background-size: cover;
   background-position: center;
-  background-attachment: fixed;
+  /* background-attachment: fixed REMOVED — this property forces full-page repaint
+     on every scroll frame, preventing GPU compositing and causing scroll jank. */
   color: var(--text-main);
   font-family: var(--font-family);
   line-height: 1.6;
@@ -97,6 +98,11 @@ html[data-page="home"] body {
 @media (min-width: 768px) {
   .desktop-stars-canvas {
     display: block !important;
+    /* ⚡ PERF: Isolate canvas to its own GPU layer.
+       This prevents scroll events from invalidating the canvas texture,
+       eliminating one of the main causes of scroll jank on desktop. */
+    will-change: transform;
+    transform: translateZ(0);
   }
 }
 
