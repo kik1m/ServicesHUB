@@ -1,5 +1,17 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
 
+/* ⚡ PERF: Register CSS properties to enable 60fps GPU-accelerated smooth transitions */
+@property --dynamic-hue-1 {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 195;
+}
+@property --dynamic-hue-2 {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 275;
+}
+
 :root {
   --primary: #0088cc;
   --primary-rgb: 0, 136, 204;
@@ -11,7 +23,7 @@
   --bg-card-hover: rgba(255, 255, 255, 0.08);
   --text-main: #ffffff;
   --text-muted: rgba(255, 255, 255, 0.6);
-  --gradient: linear-gradient(135deg, hsl(var(--dynamic-hue-1, 195), calc(var(--dynamic-saturation, 0) * 1%), 55%) 0%, hsl(var(--dynamic-hue-2, 275), calc(var(--dynamic-saturation, 0) * 1%), 60%) 100%);
+  --gradient: linear-gradient(135deg, hsl(var(--dynamic-hue-1), calc(var(--dynamic-saturation, 0) * 1%), 55%) 0%, hsl(var(--dynamic-hue-2), calc(var(--dynamic-saturation, 0) * 1%), 60%) 100%);
   --dynamic-saturation: 0; /* Starts at 0 (gray/dead). Particles animate this to 100 (alive). */
   --border: rgba(255, 255, 255, 0.08);
   --font-family: 'Outfit', sans-serif;
@@ -28,6 +40,10 @@
   --warning: #ffb74d;
   --warning-rgb: 255, 183, 77;
   --accent-gold: #FFD700;
+
+  /* ⚡ PERF: CSS will automatically interpolate the variables smoothly over 2 seconds! */
+  transition: --dynamic-hue-1 2s cubic-bezier(0.4, 0, 0.2, 1),
+              --dynamic-hue-2 2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 
