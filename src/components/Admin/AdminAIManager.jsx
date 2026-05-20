@@ -2,7 +2,16 @@
 import React, { useState, useEffect } from 'react';
 import { Bot, RefreshCw, AlertCircle, Clock, Terminal, Send, CheckCircle, XCircle, Loader2, History } from 'lucide-react';
 import { supabase } from '../../lib/supabaseClient';
+import Select from '../ui/Select';
 import styles from './AdminAIManager.module.css';
+
+const JOB_OPTIONS = [
+    { value: 'IMPORT_TOOL', label: '📥 Full Import (Scrape & Add Tool)' },
+    { value: 'UPDATE_PRICING', label: '💸 Update Pricing Only' },
+    { value: 'FIX_SINGLE_SEO', label: '🎯 Update Single Tool SEO' },
+    { value: 'FORMAT_BLOG', label: '📝 Format Blog Article (AI)' },
+    { value: 'FIX_SEO', label: '🔍 Run Global SEO Maintenance (All Tools)' }
+];
 
 /**
  * AdminAIManager - Elite Autonomous AI Controller & Command Hub
@@ -121,18 +130,13 @@ const AdminAIManager = ({ activeTab }) => {
                     </h3>
                     
                     <form onSubmit={handleQueueJob} className={styles.commandForm}>
-                        <div className={styles.inputGroup}>
-                            <label>Task Type</label>
-                            <select 
-                                value={jobType} 
-                                onChange={(e) => setJobType(e.target.value)}
-                                className={styles.selectInput}
-                            >
-                                <option value="IMPORT_TOOL">📥 Full Import (Scrape & Add Tool)</option>
-                                <option value="UPDATE_PRICING">💸 Update Pricing Only</option>
-                                <option value="FORMAT_BLOG">📝 Format Blog Article (AI)</option>
-                                <option value="FIX_SEO">🔍 Run Global SEO Maintenance</option>
-                            </select>
+                        <div className={styles.inputGroup} style={{ zIndex: 10 }}>
+                            <Select 
+                                label="Task Type"
+                                options={JOB_OPTIONS}
+                                value={jobType}
+                                onChange={setJobType}
+                            />
                         </div>
 
                         {jobType !== 'FIX_SEO' && (
@@ -142,10 +146,28 @@ const AdminAIManager = ({ activeTab }) => {
                                     type="text" 
                                     value={targetInput}
                                     onChange={(e) => setTargetInput(e.target.value)}
-                                    placeholder={jobType === 'FORMAT_BLOG' ? "Enter Blog ID or URL..." : "https://example.com/pricing"}
+                                    placeholder={
+                                        jobType === 'FORMAT_BLOG' ? "Enter Blog ID or URL..." : 
+                                        jobType === 'FIX_SINGLE_SEO' ? "Enter Tool URL or Slug..." : 
+                                        "https://example.com/pricing"
+                                    }
                                     className={styles.textInput}
                                     required
                                 />
+                                <div className={styles.guideTextDynamic}>
+                                    {jobType === 'IMPORT_TOOL' && (
+                                        <span>💡 <strong>Format:</strong> Main URL. If pricing is on a separate page, use a pipe ( | ) separator.<br/>Example: <code>https://tool.com | https://tool.com/pricing</code></span>
+                                    )}
+                                    {jobType === 'UPDATE_PRICING' && (
+                                        <span>💡 <strong>Format:</strong> Enter the tool URL or pricing URL to update pricing data without affecting the description.<br/>Example: <code>https://tool.com/pricing</code></span>
+                                    )}
+                                    {jobType === 'FIX_SINGLE_SEO' && (
+                                        <span>💡 <strong>Format:</strong> Enter the full tool URL or its slug to generate and inject targeted AI SEO.<br/>Example: <code>https://hubly.com/tool/chatgpt</code> or just <code>chatgpt</code></span>
+                                    )}
+                                    {jobType === 'FORMAT_BLOG' && (
+                                        <span>💡 <strong>Format:</strong> Enter the Blog ID or URL. The AI will automatically format the raw content and inject SEO links.</span>
+                                    )}
+                                </div>
                             </div>
                         )}
 

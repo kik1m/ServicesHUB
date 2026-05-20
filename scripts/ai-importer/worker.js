@@ -29,6 +29,9 @@ const processJob = async (job) => {
             case 'FIX_SEO':
                 command = `node scripts/ai-importer/fixSeo.js`;
                 break;
+            case 'FIX_SINGLE_SEO':
+                command = `node scripts/ai-importer/fixSingleSeo.js "${job.payload.url || job.payload.target}"`;
+                break;
             case 'FORMAT_BLOG':
                 command = `echo "Blog formatting script not yet implemented. Received URL: ${job.payload.url}"`;
                 break;

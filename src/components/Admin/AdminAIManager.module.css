@@ -304,6 +304,25 @@
     font-weight: 500;
 }
 
+.guideTextDynamic {
+    font-size: 0.8rem;
+    color: #71717a;
+    background: rgba(255,255,255,0.02);
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px dashed #27272a;
+    line-height: 1.6;
+    margin-top: 4px;
+}
+
+.guideTextDynamic code {
+    background: #18181b;
+    color: #38bdf8;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: 'Fira Code', monospace;
+}
+
 .selectInput, .textInput {
     background: #0f172a;
     border: 1px solid #1e293b;
