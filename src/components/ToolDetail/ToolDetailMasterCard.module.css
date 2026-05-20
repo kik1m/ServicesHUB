@@ -134,7 +134,7 @@
 .iconicFavBtn {
     height: 52px; /* Adjusted from 58px for tighter fit */
     width: 52px;
-    padding: 0;
+    padding: 0 !important; /* OVERRIDE .md PADDING */
     border-radius: 16px;
     display: flex;
     align-items: center;

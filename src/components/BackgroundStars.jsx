@@ -85,12 +85,22 @@ export default function BackgroundStars() {
             resizeTimeout = setTimeout(drawStaticStars, 200);
         };
 
+        const handleScroll = () => {
+            if (!canvasRef.current) return;
+            // Native GPU opacity adjustment, ZERO React re-renders!
+            // Fade completely to 0 as scroll reaches 500px down.
+            const op = Math.max(0, 0.85 - (window.scrollY / 500) * 0.85);
+            canvasRef.current.style.opacity = op;
+        };
+
         // Draw immediately, then only on debounced resize
         drawStaticStars();
         window.addEventListener('resize', debouncedResize);
+        window.addEventListener('scroll', handleScroll, { passive: true });
 
         return () => {
             window.removeEventListener('resize', debouncedResize);
+            window.removeEventListener('scroll', handleScroll);
             clearTimeout(resizeTimeout);
         };
     }, [isDesktop]);

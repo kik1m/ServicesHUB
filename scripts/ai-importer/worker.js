@@ -1,4 +1,4 @@
-require('dotenv').config({ path: require('path').resolve(__dirname, '.env') });
+require('dotenv').config({ path: require('path').resolve(__dirname, '../../.env.local') });
 const { supabaseAdmin } = require('./supabaseClient');
 const { exec } = require('child_process');
 

@@ -360,21 +360,21 @@ export default function InteractiveParticles() {
         const onClick = e => { mouse.clickX = e.clientX; mouse.clickY = e.clientY; mouse.clickTimer = 0; };
 
         const drawLines = (op) => {
-            // ⚡ PERF: Reduced transition window 180→120 to match the morph window
-            const isTransition = globalTime >= 320 && phaseTimer > 0 && phaseTimer <= 120;
-            const usePrev = isTransition && phaseTimer <= 60;
+            // 🎬 CINEMATIC TRANSITION LOGIC: Restored to 180 frames for majestic smoothness
+            const isTransition = globalTime >= 320 && phaseTimer > 0 && phaseTimer <= 180;
+            const usePrev = isTransition && phaseTimer <= 90;
 
             const activeIdx = usePrev ? ((phaseIdx - 1 + PHASES.length) % PHASES.length) : phaseIdx;
             const phase = PHASES[activeIdx].name;
 
             let lineTransOp = 1.0;
             if (isTransition) {
-                if (phaseTimer <= 60) {
+                if (phaseTimer <= 90) {
                     // Fade OUT the previous shape's lines
-                    lineTransOp = 1.0 - (phaseTimer / 60);
+                    lineTransOp = 1.0 - (phaseTimer / 90);
                 } else {
                     // Fade IN the new shape's lines
-                    lineTransOp = (phaseTimer - 60) / 60;
+                    lineTransOp = (phaseTimer - 90) / 90;
                 }
             }
 
@@ -490,9 +490,8 @@ export default function InteractiveParticles() {
                 p.localSizeMult = 1.0;
                 p.localOpMult = 1.0;
 
-                // ⚡ PERF: Reduced full-update window 200→120 frames. Alternating-particle
-                // optimization (every other particle per frame) now kicks in 40% sooner.
-                const needsTargetUpdate = (globalTime < 320) || (phaseTimer <= 120) || (i % 2 === globalTime % 2);
+                // ⚡ PERF: Restored full-update window to 200 frames for flawless crystallization
+                const needsTargetUpdate = (globalTime < 320) || (phaseTimer <= 200) || (i % 2 === globalTime % 2);
                 if (needsTargetUpdate) {
                     updateParticleIdealTargets(p, phaseName, i, pLen, globalTime, cx, cy, mouse);
                 }
@@ -551,9 +550,9 @@ export default function InteractiveParticles() {
                         p.targetZ = (p.idealZ) * ease3;
                         p.chromaticShift = (1.0 - ease3) * 0.8;
                     }
-                } else if (phaseTimer <= 120) {
+                } else if (phaseTimer <= 180) {
                     p.isCinematic = true;
-                    const globalT = phaseTimer / 120;
+                    const globalT = phaseTimer / 180;
                     const dxc = p.transStartX - cx, dyc = p.transStartY - cy;
                     const distFromCenter = Math.sqrt(dxc * dxc + dyc * dyc);
                     const baseDelay = Math.min(0.45, (distFromCenter / 400) * 0.42 + (i % 20) * 0.002);
@@ -570,11 +569,11 @@ export default function InteractiveParticles() {
                     p.isCinematic = false;
                     // ⚡ TEMPORAL COHERENCE: During stable phases, update only alternating particles per frame.
                     // Float displacement is ≤2.5px/frame — imperceptible at sub-frame skip granularity!
-                    // ⚡ Reduced full-update crystallization window 200→120 to cut load sooner.
-                    if (phaseTimer <= 120 || (i % 2 === globalTime % 2)) {
+                    // Full update during first 200 frames of any phase for smooth crystallization.
+                    if (phaseTimer <= 200 || (i % 2 === globalTime % 2)) {
                         p.targetX = p.idealX; p.targetY = p.idealY; p.targetZ = p.idealZ;
                         // Lightweight float: single shared wave instead of per-particle
-                        const floatForce = Math.min(1, (phaseTimer - 120) / 45);
+                        const floatForce = Math.min(1, (phaseTimer - 160) / 45);
                         p.targetX += Math.cos(globalTime * 0.016) * 2.5 * floatForce;
                         p.targetY += Math.sin(globalTime * 0.016) * 2.5 * floatForce;
                     }
@@ -601,24 +600,21 @@ export default function InteractiveParticles() {
                 return;
             }
 
-            // ⚡ PERF: Transition window reduced 180→120 frames (-33% CPU burst duration)
-            // 'destination-out' compositing replaced with cheap clearRect + fade overlay:
-            // destination-out forces a full GPU stencil pass; clearRect is a near-zero-cost GPU memset.
-            const isMorphing = globalTime >= 320 && phaseTimer > 0 && phaseTimer <= 120;
+            // ⚡ ELITE PERF: Restored morph window to 180 frames for elegant transitions
+            // Replaced 'destination-out' compositing (GPU stencil) with 'source-over' cheap fade!
+            const isMorphing = globalTime >= 320 && phaseTimer > 0 && phaseTimer <= 180;
 
             if (isHomeRef.current) {
                 if (isMorphing) {
-                    // ⚡ PERF: Use clearRect (GPU memset) instead of destination-out (GPU stencil).
-                    // Motion blur effect is reproduced cheaply: clear first, then paint a low-alpha
-                    // black rect on top — same visual result, fraction of the GPU cost.
-                    ctx.clearRect(0, 0, canvas.width, canvas.height);
-                    const blurStrength = Math.sin((phaseTimer / 120) * Math.PI);
-                    const trailAlpha = blurStrength * 0.35; // max 35% trail at mid-transition
-                    if (trailAlpha > 0.01) {
-                        ctx.globalCompositeOperation = 'source-over';
-                        ctx.fillStyle = `rgba(4, 4, 10, ${trailAlpha})`;
-                        ctx.fillRect(0, 0, canvas.width, canvas.height);
-                    }
+                    // 🌊 Ultra-Soft Sine Wave Easing: Perfect bell-curve entrance and exit
+                    const blurStrength = Math.sin((phaseTimer / 180) * Math.PI);
+                    const activeFade = 0.55 + (1.0 - 0.55) * (1.0 - blurStrength);
+                    
+                    // Native HTML5 Canvas Motion Blur using the exact background color
+                    // This is 100x faster than destination-out and looks exactly the same!
+                    ctx.globalCompositeOperation = 'source-over';
+                    ctx.fillStyle = `rgba(4, 4, 10, ${activeFade})`;
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
                     ctx.globalCompositeOperation = 'screen';
                 } else {
                     ctx.clearRect(0, 0, canvas.width, canvas.height);

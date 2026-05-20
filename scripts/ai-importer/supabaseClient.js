@@ -1,11 +1,11 @@
-require('dotenv').config({ path: require('path').resolve(__dirname, '.env') });
+require('dotenv').config({ path: require('path').resolve(__dirname, '../../.env.local') });
 const { createClient } = require('@supabase/supabase-js');
 
-const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 if (!supabaseUrl || !supabaseServiceKey) {
-    console.error("❌ CRITICAL ERROR: Supabase credentials are missing in .env");
+    console.error("❌ CRITICAL ERROR: Supabase credentials are missing in root .env.local");
     process.exit(1);
 }
 
