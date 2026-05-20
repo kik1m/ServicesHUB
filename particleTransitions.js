@@ -195,19 +195,40 @@ export function updateParticleTransition(p, phaseIdx, i, total, localT, ease, ar
     // brightest burst; particles ahead of and behind it are calm.
     // ─────────────────────────────────────────────────────────────────────────
     } else if (phaseIdx === 1) {
-        // 💥 SUPERNOVA SHOCKWAVE BURST (For Quantum Singularity)
-        // Particles violently blast outwards in an expanding spherical wave, then get forcefully sucked back into the singularity.
-        const blastSpeed = arc * 280;
-        const angle = (i / total) * Math.PI * 2 + localT * Math.PI * 4;
-        const phi = _PHI_LUT[i % _LUT_N];
-        
-        const bx = Math.sin(phi) * Math.cos(angle) * blastSpeed;
-        const by = Math.cos(phi) * blastSpeed;
-        const bz = Math.sin(phi) * Math.sin(angle) * blastSpeed;
-        
-        p.targetX = baseX + bx;
-        p.targetY = baseY + by;
-        p.targetZ = baseZ + bz;
+        const phi   = _PHI_LUT[i % _LUT_N];
+        const theta = _THETA_LUT[i % _LUT_N] + localT * Math.PI * 2.5;
+
+        // The shockwave front is a radial distance that expands then collapses
+        const waveRadius = localT < 0.55
+            ? _expoOut(localT / 0.55) * 320  // expanding 0→320
+            : (1 - _expoOut((localT - 0.55) / 0.45)) * 320; // collapsing 320→0
+
+        // Each particle's natural distance from center at this moment
+        const particleR = Math.abs(_NOISE_LUT[i % _LUT_N]) * 60 + 40; // 40..100
+
+        // How close this particle is to the wave front (0 = on the wave, 1 = far from it)
+        const waveDist = Math.abs(waveRadius - particleR) / 90;
+        const onWave = Math.max(0, 1 - waveDist); // bell around the wave front
+
+        // Spherical displacement direction
+        const bx = Math.sin(phi) * Math.cos(theta);
+        const by = Math.cos(phi);
+        const bz = Math.sin(phi) * Math.sin(theta);
+
+        // Peak impulse at wave front, tapers away from it
+        const blastPower = onWave * _sinBell(localT) * 280;
+        const implosionPull = localT > 0.5 ? _quintInOut((localT - 0.5) * 2) * -180 : 0;
+        const totalForce = blastPower + implosionPull;
+
+        p.targetX = baseX + bx * totalForce;
+        p.targetY = baseY + by * totalForce;
+        p.targetZ = baseZ + bz * totalForce;
+
+        // Flare: particles brighten dramatically as the wave hits them
+        p.localSizeMult = 1.0 + onWave * 2.2;
+        p.localOpMult   = 1.0 + onWave * 0.6;
+        // Slight chromatic bloom on the wave ring — NOT full whitening
+        p.chromaticShift = onWave * 0.25;
 
     // ─────────────────────────────────────────────────────────────────────────
     // TRANSITION 2 → SHAPE_CHRONOS_HYPERSPHERE: "Triple-Axis Gyroscopic Unwinding"

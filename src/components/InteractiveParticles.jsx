@@ -526,8 +526,8 @@ export default function InteractiveParticles() {
                     p.targetX = p.idealX; p.targetY = p.idealY; p.targetZ = p.idealZ;
                     // Lightweight float: single shared wave instead of per-particle
                     const floatForce = Math.min(1, (phaseTimer - 160) / 45);
-                    p.targetX += Math.cos(globalTime * 0.016 + i * 0.5) * 2.5 * floatForce;
-                    p.targetY += Math.sin(globalTime * 0.016 + i * 0.5) * 2.5 * floatForce;
+                    p.targetX += Math.cos(globalTime * 0.016) * 2.5 * floatForce;
+                    p.targetY += Math.sin(globalTime * 0.016) * 2.5 * floatForce;
                 }
             }
         };

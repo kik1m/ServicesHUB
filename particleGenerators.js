@@ -270,9 +270,8 @@ export function updateParticleIdealTargets(p, phaseName, i, total, time, cx, cy)
         // ─────────────────────────────────────────────────────────────────────
         const { v, e } = _TESS;
         const ei = i % e.length;
-        // Perfect distribution of particles across the edge length
-        const particlesPerEdge = Math.max(1, Math.floor(total / e.length));
-        const ep = Math.floor(i / e.length) / (particlesPerEdge - 1 || 1);
+        // HD: uniform 16-step distribution along each edge (was biased hash)
+        const ep = ((i * 3 + Math.floor(i / e.length)) % 16) / 15;
         const [ai, bi] = e[ei];
         const r = rotateInline(
             v[ai][0] + (v[bi][0] - v[ai][0]) * ep,
@@ -289,9 +288,8 @@ export function updateParticleIdealTargets(p, phaseName, i, total, time, cx, cy)
         // star tips — they should be needle-sharp. ep also improved to uniform.
         // ─────────────────────────────────────────────────────────────────────
         const ei = i % _MERK_EDGES.length;
-        // Perfect distribution of particles across the edge length
-        const particlesPerEdge = Math.max(1, Math.floor(total / _MERK_EDGES.length));
-        const ep = Math.floor(i / _MERK_EDGES.length) / (particlesPerEdge - 1 || 1);
+        // HD: uniform edge stride instead of biased hash
+        const ep = ((i * 5 + Math.floor(i / _MERK_EDGES.length) * 3) % 14) / 13;
         const [pa, pb] = _MERK_EDGES[ei];
         const r = rotateInline(
             pa[0] + (pb[0] - pa[0]) * ep,
@@ -299,8 +297,8 @@ export function updateParticleIdealTargets(p, phaseName, i, total, time, cx, cy)
             pa[2] + (pb[2] - pa[2]) * ep,
             true
         );
-        // Zeroed out the random noise completely to form perfectly razor-sharp mathematical edges!
-        ix = cx + r.x; iy = cy + r.y; iz = r.z;
+        ix = cx + r.x; iy = cy + r.y; iz = r.z; // was + rx * 0.4 — zeroed for crisp edges
+
     } else if (phaseName === 'SHAPE_DYSON_SPHERE') {
         // ── HD UPGRADE ──────────────────────────────────────────────────────
         // 3 rings now have precise, explicitly distinct radii (155, 185, 215)
@@ -389,17 +387,18 @@ export function updateParticleIdealTargets(p, phaseName, i, total, time, cx, cy)
         } else {
             const isTop = i % 2 === 0;
             const lengthProg = ((prog - 0.65) / 0.35);
-            // Reduced height from 390 to 180 to keep particles dense and avoid the "scattered dots" look
-            const h = (isTop ? 1 : -1) * (35 + lengthProg * 180);
-            const rad = 6 + lengthProg * 15; // slightly narrower helix
-            const angle = lengthProg * Math.PI * 12 + time * 0.2; // adjusted pitch
-            const pulse = 1.0 + Math.sin(lengthProg * Math.PI * 4 - time * 0.1) * 0.4;
+            const h = (isTop ? 1 : -1) * (38 + lengthProg * 390);
+            const rad = 6 + lengthProg * 18; // narrower helix
+            const angle = lengthProg * Math.PI * 16 + time * 0.2; // tighter pitch
+            // HD: smooth sinusoidal pulse instead of hard binary step
+            const pulse = 1.0 + Math.sin(lengthProg * Math.PI * 4 - time * 0.1) * 0.3;
             ix = cx + Math.cos(angle) * rad * pulse;
             iy = cy + Math.sin(angle) * rad * pulse;
             iz = h;
         }
         const r = rotateInline(ix - cx, iy - cy, iz, true);
-        ix = cx + r.x + rx * 0.2; iy = cy + r.y + ry * 0.2; iz = r.z + rz * 0.2; // Restored volume
+        ix = cx + r.x + rx * 0.1; iy = cy + r.y + ry * 0.1; iz = r.z + rz * 0.1; // was *0.2
+
     } else if (phaseName === 'SHAPE_HOURGLASS') {
         // ── HD UPGRADE ──────────────────────────────────────────────────────
         // Ribbon count reduced 4 → 2. With 4 ribbons the figure-8 looked fat
