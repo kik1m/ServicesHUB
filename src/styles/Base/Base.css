@@ -1,16 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
 
-/* ⚡ PERF: CSS Houdini Properties for native, zero-CPU color transitions */
-@property --dynamic-hue-1 { syntax: '<number>'; inherits: true; initial-value: 195; }
-@property --dynamic-hue-2 { syntax: '<number>'; inherits: true; initial-value: 275; }
-@property --dynamic-saturation { syntax: '<number>'; inherits: true; initial-value: 0; }
-
 :root {
-  /* ⚡ GPU Acceleration: Smoothly morph variables over 1.8s natively! */
-  transition: --dynamic-hue-1 1.8s cubic-bezier(0.16, 1, 0.3, 1),
-              --dynamic-hue-2 1.8s cubic-bezier(0.16, 1, 0.3, 1),
-              --dynamic-saturation 2.4s ease-in-out;
-
   --primary: #0088cc;
   --primary-rgb: 0, 136, 204;
   --primary-glow: rgba(0, 136, 204, 0.4);

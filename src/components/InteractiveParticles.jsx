@@ -598,14 +598,8 @@ export default function InteractiveParticles() {
             gBaseH = lerpHue(gBaseH, targetColor.b, 0.015); // Ultra luxurious smooth color morph
             gFarH = lerpHue(gFarH, targetColor.f, 0.015);
 
-            // ⚡ PERF: Update CSS vars ONLY on our isolated glowRef div
-            // This stops the 4000ms UpdateLayoutTree catastrophe!
-            const h1 = gBaseH | 0, h2 = gFarH | 0, sat = gSat | 0;
-            if (glowRef.current) {
-                if (Math.abs(h1 - lastHue1) > 0) { glowRef.current.style.setProperty('--dynamic-hue-1', h1); lastHue1 = h1; }
-                if (Math.abs(h2 - lastHue2) > 0) { glowRef.current.style.setProperty('--dynamic-hue-2', h2); lastHue2 = h2; }
-                if (Math.abs(sat - lastSat) > 0) { glowRef.current.style.setProperty('--dynamic-saturation', sat); lastSat = sat; }
-            }
+            // ⚡ The variables are now updated globally ONLY ONCE per phase, 
+            // inheriting down to all elements without any frame-by-frame layout recalculation!
 
             // ⚡ ELITE UI SYNC (Zero-CPU): Update the global UI exactly ONCE per phase!
             // By setting the target colors directly to CSS variables registered with @property,
