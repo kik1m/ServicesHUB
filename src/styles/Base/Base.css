@@ -71,28 +71,7 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* 🌟 Dynamic breathing background glow restricted strictly to the Home Page */
-html[data-page="home"] body {
-  background-image:
-    radial-gradient(
-      ellipse 90% 50% at 50% 0%,
-      hsla(var(--dynamic-hue-1, 195), 90%, 30%, 0.22) 0%,
-      hsla(var(--dynamic-hue-1, 195), 70%, 20%, 0.08) 40%,
-      transparent 70%
-    ),
-    radial-gradient(
-      ellipse 70% 40% at 100% 100%,
-      hsla(var(--dynamic-hue-2, 275), 80%, 25%, 0.14) 0%,
-      transparent 65%
-    ),
-    linear-gradient(
-      180deg,
-      #04040a 0%,
-      #070709 35%,
-      #060609 70%,
-      #04040a 100%
-    );
-}
+
 
 /* ─── Desktop-only: show the animated stars canvas ─────────────────────── */
 @media (min-width: 768px) {

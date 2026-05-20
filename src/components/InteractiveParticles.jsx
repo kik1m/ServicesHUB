@@ -221,6 +221,7 @@ class Particle {
  */
 export default function InteractiveParticles() {
     const canvasRef = useRef(null);
+    const glowRef = useRef(null); // ⚡ PERF: Isolated layer for CSS vars
     const [shouldRender, setShouldRender] = useState(true);
     const [isAlive, setIsAlive] = useState(false);
     const pathname = usePathname();
@@ -231,14 +232,7 @@ export default function InteractiveParticles() {
 
     useEffect(() => {
         isHomeRef.current = isHome;
-        if (!isHome) {
-            const rootE = document.documentElement;
-            rootE.style.setProperty('--dynamic-saturation', '100');
-            if (!rootE.style.getPropertyValue('--dynamic-hue-1')) {
-                rootE.style.setProperty('--dynamic-hue-1', '195');
-                rootE.style.setProperty('--dynamic-hue-2', '275');
-            }
-        }
+        // ⚡ PERF: No longer polluting the global documentElement with CSS vars!
         if (triggerLoopCheckRef.current) {
             triggerLoopCheckRef.current();
         }
@@ -272,7 +266,7 @@ export default function InteractiveParticles() {
         for (let i = 0; i < LUT_SIZE; i++) SIN_LUT[i] = Math.sin(i / LUT_SIZE * Math.PI * 2);
         const fastSin = x => SIN_LUT[(x * (LUT_SIZE / (Math.PI * 2)) | 0) & (LUT_SIZE - 1)];
 
-        const rootE = document.documentElement;
+        // ⚡ PERF: Don't read DOM elements if we don't have to
         const scrollC = document.querySelector('.content') || document.querySelector('.app-container');
 
         const PHASES = [
@@ -592,11 +586,14 @@ export default function InteractiveParticles() {
             gBaseH = lerpHue(gBaseH, targetColor.b, 0.015); // Ultra luxurious smooth color morph
             gFarH = lerpHue(gFarH, targetColor.f, 0.015);
 
-            // ⚡ PERF: Only write CSS vars when values changed by at least 0.5 units
+            // ⚡ PERF: Update CSS vars ONLY on our isolated glowRef div
+            // This stops the 4000ms UpdateLayoutTree catastrophe!
             const h1 = gBaseH | 0, h2 = gFarH | 0, sat = gSat | 0;
-            if (Math.abs(h1 - lastHue1) > 0) { rootE.style.setProperty('--dynamic-hue-1', h1); lastHue1 = h1; }
-            if (Math.abs(h2 - lastHue2) > 0) { rootE.style.setProperty('--dynamic-hue-2', h2); lastHue2 = h2; }
-            if (Math.abs(sat - lastSat) > 0) { rootE.style.setProperty('--dynamic-saturation', sat); lastSat = sat; }
+            if (glowRef.current) {
+                if (Math.abs(h1 - lastHue1) > 0) { glowRef.current.style.setProperty('--dynamic-hue-1', h1); lastHue1 = h1; }
+                if (Math.abs(h2 - lastHue2) > 0) { glowRef.current.style.setProperty('--dynamic-hue-2', h2); lastHue2 = h2; }
+                if (Math.abs(sat - lastSat) > 0) { glowRef.current.style.setProperty('--dynamic-saturation', sat); lastSat = sat; }
+            }
 
             smoothedScrollY += (scrollY - smoothedScrollY) * 0.08;
             camX += ((mouse.x !== null ? (mouse.x - canvas.width / 2) * 0.28 : 0) - camX) * 0.08;
@@ -725,10 +722,25 @@ export default function InteractiveParticles() {
     if (!shouldRender) return <div style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none', background: 'transparent' }} />;
 
     return (
-        <canvas ref={canvasRef} style={{
-            position: 'absolute', top: 0, left: 0, width: '100vw', height: '100vh',
-            zIndex: 0, pointerEvents: 'none', mixBlendMode: 'screen',
-            opacity: (isAlive && isHome) ? 0.88 : 0, transition: 'opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1)'
-        }} />
+        <>
+            {/* ⚡ PERF: Isolated background glow layer. Setting CSS vars here only repaints this specific div! */}
+            <div ref={glowRef} style={{
+                position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh',
+                zIndex: -1, pointerEvents: 'none',
+                opacity: (isAlive && isHome) ? 1 : 0, transition: 'opacity 0.8s ease',
+                backgroundImage: `
+                    radial-gradient(ellipse 90% 50% at 50% 0%, hsla(var(--dynamic-hue-1, 195), 90%, 30%, 0.22) 0%, hsla(var(--dynamic-hue-1, 195), 70%, 20%, 0.08) 40%, transparent 70%),
+                    radial-gradient(ellipse 70% 40% at 100% 100%, hsla(var(--dynamic-hue-2, 275), 80%, 25%, 0.14) 0%, transparent 65%),
+                    linear-gradient(180deg, #04040a 0%, #070709 35%, #060609 70%, #04040a 100%)
+                `,
+                willChange: 'transform',
+                transform: 'translateZ(0)'
+            }} />
+            <canvas ref={canvasRef} style={{
+                position: 'absolute', top: 0, left: 0, width: '100vw', height: '100vh',
+                zIndex: 0, pointerEvents: 'none', mixBlendMode: 'screen',
+                opacity: (isAlive && isHome) ? 0.88 : 0, transition: 'opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1)'
+            }} />
+        </>
     );
 }

@@ -88,9 +88,11 @@ export const useSearchEngine = ({
             if (!Object.keys(newParams).includes('page') && newParams.page === undefined) params.delete('page');
             
             const newUrl = `${pathname}?${params.toString()}`;
-            window.history.replaceState(null, '', newUrl);
+            // ⚡ FIX: Use Next.js router with scroll: false to prevent the page from jumping
+            // Next.js 14 intercepts native history.replaceState and forces a scroll jump by default!
+            router.replace(newUrl, { scroll: false });
         }
-    }, [pathname, syncUrl]);
+    }, [pathname, syncUrl, router]);
 
     // 🎯 Rule #10: Sync fixed category when it arrives asynchronously
     useEffect(() => {
