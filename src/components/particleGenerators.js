@@ -4,6 +4,23 @@
  * Pre-computes expensive data at module level for hot-path speed.
  * ⚡ PERF: Rotation trig values are pre-computed once per frame outside the particle loop.
  */
+// ─── Pre-computed per-particle angle cache (Diff 8) ─────────────
+export let _ACOS_LUT = null;
+export let _THETA_LUT = null;
+let _LUT_SIZE = 0;
+
+export function buildParticleLUT(total) {
+    if (_LUT_SIZE === total) return;
+    _LUT_SIZE = total;
+    _ACOS_LUT  = new Float32Array(total);
+    _THETA_LUT = new Float32Array(total);
+    const GOLDEN = Math.PI * (3 - Math.sqrt(5));
+    for (let i = 0; i < total; i++) {
+        const prog = i / total;
+        _ACOS_LUT[i]  = Math.acos(1 - 2 * prog);
+        _THETA_LUT[i] = (GOLDEN * i) % (Math.PI * 2);
+    }
+}
 
 // ─── Pre-compute Tesseract edges once (module level, never GC'd) ─────────────
 const _TESS = (() => {
@@ -176,8 +193,8 @@ export function updateParticleIdealTargets(p, phaseName, i, total, time, cx, cy)
         }
 
     } else if (phaseName === 'SHAPE_GLOBE') {
-        const phi   = Math.acos(1 - 2 * prog);
-        const theta = GOLDEN_ANGLE * i;
+        const phi   = _ACOS_LUT[i];
+        const theta = _THETA_LUT[i];
         // ⚡ Use pre-computed trig
         const r = rotateInline(
             Math.sin(phi) * Math.cos(theta) * 200,

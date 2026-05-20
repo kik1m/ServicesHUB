@@ -1,6 +1,6 @@
 'use client';
 import React, { useEffect, useRef, useState } from 'react';
-import { updateParticleIdealTargets, precomputeShapeTrig } from './particleGenerators';
+import { updateParticleIdealTargets, precomputeShapeTrig, buildParticleLUT } from './particleGenerators';
 import { updateParticleTransition } from './particleTransitions';
 import { COLOR_MAP } from './particleColors';
 import { usePathname } from 'next/navigation';
@@ -14,16 +14,18 @@ const _lerpHue = (a, b, t) => {
     return res % 360;
 };
 
-// ⚡ PERF: Module-level HSLA Caching Map to eliminate string allocations
-const COLOR_CACHE = new Map();
+// ⚡ PERF: Bounded ring-buffer HSLA cache — 2048 slots, zero heap growth
+const _CACHE_SIZE = 2048;
+const _CACHE_KEYS = new Int32Array(_CACHE_SIZE).fill(-1);
+const _CACHE_VALS = new Array(_CACHE_SIZE).fill(null);
 const getCachedHsla = (h, s, l, a) => {
     const key = ((h | 0) << 16) | ((s | 0) << 8) | ((l | 0) << 4) | ((a * 20) | 0);
-    let cached = COLOR_CACHE.get(key);
-    if (!cached) {
-        cached = `hsla(${h | 0},${s | 0}%,${l | 0}%,${a.toFixed(2)})`;
-        COLOR_CACHE.set(key, cached);
-    }
-    return cached;
+    const slot = (key >>> 0) & (_CACHE_SIZE - 1);
+    if (_CACHE_KEYS[slot] === key) return _CACHE_VALS[slot];
+    const val = `hsla(${h | 0},${s | 0}%,${l | 0}%,${a.toFixed(2)})`;
+    _CACHE_KEYS[slot] = key;
+    _CACHE_VALS[slot] = val;
+    return val;
 };
 
 // ⚡ PERF: Reusable, zero-allocation flat array structure for line connection batching
@@ -33,6 +35,9 @@ const _LINE_BINS = Array.from({ length: 5 }, () => ({
     sumLit: 0,
     sumScale: 0
 }));
+
+// ⚡ PERF: Module level Set for zero-allocation boundary checks
+const _WRAP_PHASES = new Set(['WANDER', 'WANDER_FAST', 'EXPLODE', 'BREATHE', 'VORTEX']);
 
 /**
  * 🌌 Particle Class - Highly Optimized 3D Physics
@@ -180,7 +185,7 @@ class Particle {
 
         this.x += this.speedX; this.y += this.speedY; this.z += this.speedZ;
 
-        if (['WANDER', 'WANDER_FAST', 'EXPLODE', 'BREATHE', 'VORTEX'].includes(phaseName)) {
+        if (_WRAP_PHASES.has(phaseName)) {
             if (this.x > this.canvas.width) this.x = 0; else if (this.x < 0) this.x = this.canvas.width;
             if (this.y > this.canvas.height) this.y = 0; else if (this.y < 0) this.y = this.canvas.height;
             if (this.z > 300) this.z = -200; else if (this.z < -200) this.z = 300;
@@ -300,6 +305,8 @@ export default function InteractiveParticles() {
             // which will directly stop the fans from spinning loudly!
             const n = Math.min(Math.floor((canvas.width * canvas.height) / 3000), 280);
             for (let i = 0; i < n; i++) particles.push(new Particle(canvas, i, n));
+            // ⚡ PERF: Build pre-computed trig LUT once per init (Diff 8)
+            buildParticleLUT(n);
         };
 
         // ⚡ PERF: Cap devicePixelRatio to 1 — cuts GPU memory by 50-75% on Retina/HiDPI screens
@@ -314,7 +321,7 @@ export default function InteractiveParticles() {
             if (DPR !== 1) ctx.scale(DPR, DPR);
             init();
         };
-        const onScroll = e => scrollY = Math.max(window.scrollY || 0, document.documentElement.scrollTop || 0, document.body.scrollTop || 0, e?.target?.scrollTop || 0);
+        const onScroll = () => { scrollY = window.scrollY; };
         let lx = null, ly = null;
         const onMove = e => { if (lx !== null) mouse.speed = Math.sqrt((e.clientX - lx) ** 2 + (e.clientY - ly) ** 2); lx = mouse.x = e.clientX; ly = mouse.y = e.clientY; };
         const onLeave = () => { mouse.x = mouse.y = lx = ly = null; mouse.speed = 0; };
@@ -586,17 +593,8 @@ export default function InteractiveParticles() {
             const pName = PHASES[phaseIdx].name;
             const targetColor = COLOR_MAP[phaseIdx] || { b: 195, f: 275 };
 
-            const lerpHue = (a, b, t) => {
-                let d = b - a;
-                while (d > 180) d -= 360;
-                while (d < -180) d += 360;
-                let res = a + d * t;
-                while (res < 0) res += 360;
-                return res % 360;
-            };
-
-            gBaseH = lerpHue(gBaseH, targetColor.b, 0.015); // Ultra luxurious smooth color morph
-            gFarH = lerpHue(gFarH, targetColor.f, 0.015);
+            gBaseH = _lerpHue(gBaseH, targetColor.b, 0.015); // Ultra luxurious smooth color morph
+            gFarH = _lerpHue(gFarH, targetColor.f, 0.015);
 
             // ⚡ The variables are now updated globally ONLY ONCE per phase, 
             // inheriting down to all elements without any frame-by-frame layout recalculation!
@@ -681,7 +679,8 @@ export default function InteractiveParticles() {
             if (!isLooping) return;
             reqId = requestAnimationFrame(animateLoop);
             if (ts - _lastFrame < _TARGET_MS - 1) return;
-            _lastFrame = ts;
+            _lastFrame += _TARGET_MS; // anchor-advance, not ts-snap
+            if (ts - _lastFrame > _TARGET_MS * 3) _lastFrame = ts; // re-sync after tab-hidden
             animate();
         };
 

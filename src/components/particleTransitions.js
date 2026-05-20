@@ -2,6 +2,12 @@
 // Completely re-engineered with 11 profoundly diverse, geometrically deep transformation models.
 // Whitening/excessive chromatic shift removed to preserve natural, elegant particle colors.
 
+// ⚡ PERF: Pre-allocate octant vectors to prevent 280 array allocations per frame
+const _OCTANT_DIRS = [
+    [1,1,1], [-1,1,1], [1,-1,1], [-1,-1,1],
+    [1,1,-1], [-1,1,-1], [1,-1,-1], [-1,-1,-1]
+];
+
 export function updateParticleTransition(p, phaseIdx, i, total, localT, ease, arc, swirlX, swirlY, globalTime, cx, cy) {
     // 💥 The baseline interpolation between the old shape and the new shape
     const startX = p.transStartX;
@@ -103,11 +109,7 @@ export function updateParticleTransition(p, phaseIdx, i, total, localT, ease, ar
         const currentZ = startZ + (idealZ - startZ) * ease;
         
         const corner = i % 8;
-        const dirs = [
-            [1,1,1], [-1,1,1], [1,-1,1], [-1,-1,1],
-            [1,1,-1], [-1,1,-1], [1,-1,-1], [-1,-1,-1]
-        ];
-        const dir = dirs[corner];
+        const dir = _OCTANT_DIRS[corner];
         const dist = arc * 220;
         
         p.targetX = currentX + dir[0] * dist;
