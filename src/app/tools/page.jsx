@@ -7,18 +7,18 @@ export const revalidate = 3600; // ISR: Revalidate every hour
 
 export async function generateMetadata(props) {
     const searchParams = await props.searchParams;
-    const isSearchMode = Object.keys(searchParams || {}).length > 0;
     const searchQuery = searchParams?.q || '';
+    const isTextSearch = !!searchQuery;
 
     return {
-        title: searchQuery 
+        title: isTextSearch 
             ? `"${searchQuery}" AI Tools, SaaS & Software | HUBly Discovery` 
             : "AI & SaaS Tools Directory | Elite Discovery Hub",
-        description: isSearchMode && searchQuery
+        description: isTextSearch
             ? `Explore the most relevant AI and SaaS tools matching your search for "${searchQuery}".`
             : "Access our curated directory of premium AI and SaaS tools. Filter by category, pricing, and ratings to find your next favorite software.",
         robots: {
-            index: !isSearchMode, // Prevents indexing of infinite search permutations
+            index: !isTextSearch, // Only block indexing for open-ended text searches; allow categories
             follow: true,
         },
         openGraph: {

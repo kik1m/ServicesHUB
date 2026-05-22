@@ -46,6 +46,7 @@ const SmartBanner = memo((props) => {
                                 alt={currentTool?.name}
                                 className={styles.bannerImg}
                                 fallbackText={currentTool?.name?.charAt(0)}
+                                priority={true}
                             />
                         )}
                     </div>
