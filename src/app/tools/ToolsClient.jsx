@@ -7,6 +7,8 @@ import { useBannerState } from '../../hooks/useBannerState';
 import { TOOLS_UI_CONSTANTS } from '../../constants/toolsConstants';
 import { SEARCH_UI_CONSTANTS } from '../../constants/searchConstants';
 import { useAuth } from '../../context/AuthContext';
+import { useQuery } from '@tanstack/react-query';
+import { queryOptions } from '../../lib/queryOptions';
 
 // Import Global UI Atoms
 import PageHero from '../../components/ui/PageHero';
@@ -28,9 +30,12 @@ import styles from './Tools.module.css';
  * Rule #1: Logic Isolation
  * Rule #31: Component Resilience via Safeguard
  */
-const ToolsClient = ({ bannerTools }) => {
+const ToolsClient = () => {
+    // 1. Fetch Banner Tools purely on the client so we don't block SSR navigation
+    const { data: bannerTools = [], isLoading: isBannerLoading } = useQuery(queryOptions.bannerTools(20));
+
     // Isolated banner state manager
-    const banner = useBannerState(bannerTools, false);
+    const banner = useBannerState(bannerTools, isBannerLoading);
 
     // 1. Hook into the Unified Search Engine
     const {
@@ -82,7 +87,7 @@ const ToolsClient = ({ bannerTools }) => {
                 currentIndex={banner.currentIndex}
                 next={banner.next}
                 prev={banner.prev}
-                isLoading={false}
+                isLoading={isBannerLoading}
             />
 
             <PageHero

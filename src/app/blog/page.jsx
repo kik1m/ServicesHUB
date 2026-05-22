@@ -37,18 +37,8 @@ export async function generateMetadata() {
 export default async function BlogPage() {
     const { ITEMS_PER_PAGE } = BLOG_CONSTANTS.GRID;
     
-    // Parallel Fetching for Elite Performance
-    const [postsRes, categoriesRes] = await Promise.all([
-        blogService.getPosts({ 
-            page: 0, 
-            itemsPerPage: ITEMS_PER_PAGE 
-        }),
-        blogService.getCategories()
-    ]);
-
-    const initialCategories = categoriesRes.data 
-        ? [BLOG_CONSTANTS.FILTERS.ALL, ...categoriesRes.data.map(c => c.name)]
-        : [BLOG_CONSTANTS.FILTERS.ALL];
+    // Data is fetched strictly on the client using React Query to ensure 
+    // an instantaneous route transition and display of component-specific Skeletons.
 
     const jsonLd = {
         "@context": "https://schema.org",
@@ -72,10 +62,7 @@ export default async function BlogPage() {
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
             />
-            <BlogClient 
-                initialPosts={postsRes.data || []}
-                initialCategories={initialCategories}
-            />
+            <BlogClient />
         </>
     );
 }

@@ -40,19 +40,16 @@ export async function generateMetadata(props) {
 }
 
 export default async function ToolsPage() {
-    // 1. Fetch initial tools for SSR (Page 1) and banner tools concurrently
-    const [bannerRes] = await Promise.all([
-        toolsService.getBannerTools(20)
-    ]);
+    // We no longer block the route transition with an SSR fetch here.
+    // The banner tools will be fetched on the client side to ensure 
+    // an instantaneous, skeleton-first navigation experience.
 
     // We pass banner tools down. The actual search results are managed 
     // by useSearchEngine on the client to preserve the dynamic interactive experience.
     
     return (
         <Suspense fallback={null}>
-            <ToolsClient 
-                bannerTools={bannerRes.data || []}
-            />
+            <ToolsClient />
         </Suspense>
     );
 }

@@ -61,6 +61,9 @@ export const AuthProvider = ({ children }) => {
                 ...sessionUser,
                 full_name: metaName || prev?.full_name
             }));
+            
+            // 🚀 ELITE FIX: Instantly unblock UI. We don't wait for full profile fetch!
+            setLoading(false);
 
             // --- ELITE WELCOME LOGIC (Email & Notification) ---
             try {

@@ -35,11 +35,8 @@ export async function generateMetadata() {
 }
 
 export default async function ComparePage() {
-    // Parallel Fetching for Elite Performance
-    const [recentRes, bannerRes] = await Promise.all([
-        compareService.getRecentComparisons(),
-        toolsService.getBannerTools(20)
-    ]);
+    // Data is fetched strictly on the client using React Query to ensure 
+    // an instantaneous route transition and display of component-specific Skeletons.
 
     const jsonLd = [
         {
@@ -66,10 +63,7 @@ export default async function ComparePage() {
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
             />
             <Suspense fallback={null}>
-                <CompareClient 
-                    initialRecentComparisons={recentRes.data || []}
-                    bannerTools={bannerRes.data || []}
-                />
+                <CompareClient />
             </Suspense>
         </>
     );
