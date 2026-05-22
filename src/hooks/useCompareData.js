@@ -80,11 +80,14 @@ export const useCompareData = ({
         if (!t2Slug) setLocalTool2(null);
     }, [t2Slug]);
 
+    const activeT1 = localTool1?.slug || t1Slug;
+    const activeT2 = localTool2?.slug || t2Slug;
+
     // 5. React Query: AI Dynamic Comparison
     const { data: aiResults = initialAiResults || null, isLoading: isAiLoading, error: queryAiError } = useQuery({
-        queryKey: ['compare', 'ai', t1Slug, t2Slug],
+        queryKey: ['compare', 'ai', activeT1, activeT2],
         queryFn: async () => {
-            const resAi = await fetch(`/api/generate-comparison?slug1=${t1Slug}&slug2=${t2Slug}`);
+            const resAi = await fetch(`/api/generate-comparison?slug1=${activeT1}&slug2=${activeT2}`);
             if (!resAi.ok) {
                 let errMsg = `AI API Error: ${resAi.status}`;
                 try {
@@ -107,7 +110,7 @@ export const useCompareData = ({
         },
         initialData: initialAiResults || undefined,
         initialDataUpdatedAt: initialAiResults ? Date.now() : undefined,
-        enabled: !!t1Slug && !!t2Slug,
+        enabled: !!activeT1 && !!activeT2,
         staleTime: 1000 * 60 * 60 * 24
     });
 
@@ -116,8 +119,8 @@ export const useCompareData = ({
 
     const handleSelect = useCallback((tool) => {
         const currentSlot = isSelectingFor;
-        let nextT1 = t1Slug;
-        let nextT2 = t2Slug;
+        let nextT1 = activeT1;
+        let nextT2 = activeT2;
 
         queryClient.setQueryData(['tool', tool.slug], tool);
 
@@ -138,51 +141,85 @@ export const useCompareData = ({
 
         // Defer heavy Next.js routing to prevent main-thread freezing and click-drop
         setTimeout(() => {
+            const isDynamicRoute = !!params?.slug;
+
             if (nextT1 && nextT2) {
                 if (!user && !authLoading) {
-                    router.replace(`/auth?redirect=/compare/${nextT1}-vs-${nextT2}`);
+                    router.replace(`/auth?redirect=/compare/${nextT1}-vs-${nextT2}`, { scroll: false });
                 } else {
-                    router.replace(`/compare/${nextT1}-vs-${nextT2}`);
+                    if (isDynamicRoute) {
+                        router.replace(`/compare/${nextT1}-vs-${nextT2}`, { scroll: false });
+                    } else {
+                        const newParams = new URLSearchParams(searchParams);
+                        newParams.set('t1', nextT1);
+                        newParams.set('t2', nextT2);
+                        router.replace(`/compare?${newParams.toString()}`, { scroll: false });
+                    }
                 }
             } else {
-                const params = new URLSearchParams(searchParams);
-                if (nextT1) params.set('t1', nextT1);
-                else params.delete('t1');
-                if (nextT2) params.set('t2', nextT2);
-                else params.delete('t2');
-                router.replace(`/compare?${params.toString()}`);
+                const newParams = new URLSearchParams(searchParams);
+                if (nextT1) newParams.set('t1', nextT1);
+                else newParams.delete('t1');
+                if (nextT2) newParams.set('t2', nextT2);
+                else newParams.delete('t2');
+                
+                if (isDynamicRoute) {
+                    router.replace(`/compare?${newParams.toString()}`, { scroll: false });
+                } else {
+                    router.replace(`/compare?${newParams.toString()}`, { scroll: false });
+                }
             }
         }, 50);
-    }, [isSelectingFor, searchParams, t1Slug, t2Slug, user, authLoading, router, queryClient, setLocalTool1, setLocalTool2]);
+    }, [isSelectingFor, searchParams, params?.slug, activeT1, activeT2, user, authLoading, router, queryClient, setLocalTool1, setLocalTool2]);
 
     const clearTool = useCallback((slot) => {
         if (slot === 'tool1') setLocalTool1(null);
         if (slot === 'tool2') setLocalTool2(null);
 
-        const nextT1 = slot === 'tool1' ? null : t1Slug;
-        const nextT2 = slot === 'tool2' ? null : t2Slug;
+        const nextT1 = slot === 'tool1' ? null : activeT1;
+        const nextT2 = slot === 'tool2' ? null : activeT2;
 
         setTimeout(() => {
+            const isDynamicRoute = !!params?.slug;
+            
             if (!nextT1 && !nextT2) {
-                router.replace('/compare');
+                router.replace('/compare', { scroll: false });
             } else if (nextT1 && nextT2) {
-                router.replace(`/compare/${nextT1}-vs-${nextT2}`);
+                if (isDynamicRoute) {
+                    router.replace(`/compare/${nextT1}-vs-${nextT2}`, { scroll: false });
+                } else {
+                    const newParams = new URLSearchParams();
+                    newParams.set('t1', nextT1);
+                    newParams.set('t2', nextT2);
+                    router.replace(`/compare?${newParams.toString()}`, { scroll: false });
+                }
             } else {
-                const params = new URLSearchParams();
-                if (nextT1) params.set('t1', nextT1);
-                if (nextT2) params.set('t2', nextT2);
-                router.replace(`/compare?${params.toString()}`);
+                const newParams = new URLSearchParams();
+                if (nextT1) newParams.set('t1', nextT1);
+                if (nextT2) newParams.set('t2', nextT2);
+                router.replace(`/compare?${newParams.toString()}`, { scroll: false });
             }
         }, 50);
-    }, [t1Slug, t2Slug, router, setLocalTool1, setLocalTool2]);
+    }, [activeT1, activeT2, params?.slug, router, setLocalTool1, setLocalTool2]);
 
     const resetComparison = useCallback(() => {
         setLocalTool1(null);
         setLocalTool2(null);
         setTimeout(() => {
-            router.replace('/compare');
+            router.replace('/compare', { scroll: false });
         }, 50);
     }, [router, setLocalTool1, setLocalTool2]);
+
+    // Client-side SEO: Update tab title when interacting dynamically
+    useEffect(() => {
+        const t1Name = localTool1?.name || tool1?.name;
+        const t2Name = localTool2?.name || tool2?.name;
+        if (t1Name && t2Name) {
+            document.title = `${t1Name} vs ${t2Name} - Expert AI Comparison | HUBly`;
+        } else {
+            document.title = 'Expert AI & SaaS Tool Comparison | HUBly Side-by-Side';
+        }
+    }, [localTool1?.name, tool1?.name, localTool2?.name, tool2?.name]);
 
     return {
         tool1: localTool1 || tool1,

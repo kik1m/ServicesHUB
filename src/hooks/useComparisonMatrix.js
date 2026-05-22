@@ -4,7 +4,8 @@ import { useState, useEffect, useMemo } from 'react';
  * useComparisonMatrix - Logic Hook
  * Extracted from ComparisonMatrix Elite v5.0
  */
-export const useComparisonMatrix = (tool1, tool2, isAiLoading, aiResults) => {
+export const useComparisonMatrix = (tool1, tool2, isAiLoading, aiResults, aiError) => {
+    const effectivelyLoading = isAiLoading || (!!tool1 && !!tool2 && !aiResults && !aiError);
     const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
     const [activeTab, setActiveTab] = useState(1); // For mobile switcher
 
@@ -27,10 +28,23 @@ export const useComparisonMatrix = (tool1, tool2, isAiLoading, aiResults) => {
     };
 
     // Scores logic
-    const aiScore1 = aiResults?.scores?.tool1;
-    const aiScore2 = aiResults?.scores?.tool2;
-    const score1 = isAiLoading ? 80 : ((aiScore1 != null) ? aiScore1 : calculateDisplayScore(tool1));
-    const score2 = isAiLoading ? 80 : ((aiScore2 != null) ? aiScore2 : calculateDisplayScore(tool2));
+    let aiScore1 = aiResults?.scores?.tool1;
+    let aiScore2 = aiResults?.scores?.tool2;
+
+    // AI logic failsafe: LLMs occasionally swap the numerical scores in JSON relative to their explicitly stated winner. 
+    // We enforce that the designated winner must have the higher score.
+    if (tool1IsWinner && aiScore1 != null && aiScore2 != null && aiScore1 < aiScore2) {
+        const temp = aiScore1;
+        aiScore1 = aiScore2;
+        aiScore2 = temp;
+    } else if (tool2IsWinner && aiScore1 != null && aiScore2 != null && aiScore2 < aiScore1) {
+        const temp = aiScore1;
+        aiScore1 = aiScore2;
+        aiScore2 = temp;
+    }
+
+    const score1 = effectivelyLoading ? 80 : ((aiScore1 != null) ? aiScore1 : calculateDisplayScore(tool1));
+    const score2 = effectivelyLoading ? 80 : ((aiScore2 != null) ? aiScore2 : calculateDisplayScore(tool2));
 
     // Winner & Metadata
     const displayWinner = tool1IsWinner ? 1 : tool2IsWinner ? 2 : (score1 > score2 ? 1 : score1 < score2 ? 2 : 0);
@@ -49,13 +63,13 @@ export const useComparisonMatrix = (tool1, tool2, isAiLoading, aiResults) => {
     const loadingMessage = LOADING_MESSAGES[loadingMessageIndex];
 
     useEffect(() => {
-        if (isAiLoading) {
+        if (effectivelyLoading) {
             const interval = setInterval(() => {
                 setLoadingMessageIndex((prev) => (prev + 1) % LOADING_MESSAGES.length);
             }, 3000);
             return () => clearInterval(interval);
         }
-    }, [isAiLoading, LOADING_MESSAGES.length]);
+    }, [effectivelyLoading, LOADING_MESSAGES.length]);
 
     // Fallback Matrix Logic
     const fallbackMatrix = useMemo(() => {

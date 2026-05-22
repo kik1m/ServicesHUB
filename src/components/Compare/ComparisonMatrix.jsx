@@ -32,7 +32,7 @@ const ComparisonMatrix = ({ tool1, tool2, isLoading, isTool1Loading, isTool2Load
         displayWinner,
         isScoreFromAI,
         fallbackMatrix
-    } = useComparisonMatrix(tool1, tool2, isAiLoading, aiResults);
+    } = useComparisonMatrix(tool1, tool2, isAiLoading, aiResults, aiError);
 
     const headers = content?.headers || { feature: "Feature", tool1: "Tool 1", tool2: "Tool 2" };
 

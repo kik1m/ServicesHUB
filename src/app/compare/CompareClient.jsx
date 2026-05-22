@@ -13,6 +13,7 @@ import ToolCompareColumn from '../../components/Compare/ToolCompareColumn';
 import ComparisonMatrix from '../../components/Compare/ComparisonMatrix';
 import CompareBuilder from '../../components/Compare/CompareBuilder';
 import RecentComparisons from '../../components/Compare/RecentComparisons';
+import CompareReviews from '../../components/Compare/CompareReviews';
 import Button from '../../components/ui/Button';
 import { useToast } from '../../context/ToastContext';
 
@@ -123,13 +124,6 @@ export default function CompareClient({
                     />
                 </div>
                 
-                {(!tool1 || !tool2) && (
-                    <RecentComparisons 
-                        comparisons={recentComparisons} 
-                        isLoading={isRecentLoading} 
-                    />
-                )}
-
                 <ComparisonMatrix 
                     tool1={tool1} 
                     tool2={tool2} 
@@ -142,6 +136,17 @@ export default function CompareClient({
                     content={COMPARE_UI_CONSTANTS?.matrix}
                     error={error}
                     onRetry={resetComparison}
+                />
+
+                {/* Review Section using unified component */}
+                {tool1 && tool2 && (
+                    <CompareReviews tool1={tool1} tool2={tool2} />
+                )}
+
+                {/* Recent Comparisons always visible for SEO and discovery */}
+                <RecentComparisons 
+                    comparisons={recentComparisons} 
+                    isLoading={isRecentLoading} 
                 />
 
                 {isComparisonReady && (
