@@ -52,7 +52,7 @@
   height: 60px;
   width: auto;
   object-fit: contain;
-  /* Sync logo color with the particle engine: starts grayscale, fades into color */
+  /* Sync logo color with the particle engine: starts grayscale, fades into color natively via CSS transitions */
   filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.1)) grayscale(calc(100% - var(--dynamic-saturation, 0) * 1%));
 }
 
@@ -89,8 +89,8 @@
 .gradientText {
   background: linear-gradient(
     135deg, 
-    hsl(var(--dynamic-hue-1, 195), calc(var(--dynamic-saturation, 0) * 1%), 60%) 0%, 
-    hsl(var(--dynamic-hue-2, 275), calc(var(--dynamic-saturation, 0) * 1%), 50%) 100%
+    hsl(var(--dynamic-hue-1, 280), calc(var(--dynamic-saturation, 0) * 1%), 60%) 0%, 
+    hsl(var(--dynamic-hue-2, 190), calc(var(--dynamic-saturation, 0) * 1%), 50%) 100%
   );
   -webkit-background-clip: text;
   background-clip: text;

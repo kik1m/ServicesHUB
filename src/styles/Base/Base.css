@@ -4,12 +4,24 @@
 @property --dynamic-hue-1 {
   syntax: '<number>';
   inherits: true;
-  initial-value: 195;
+  initial-value: 280;
 }
 @property --dynamic-hue-2 {
   syntax: '<number>';
   inherits: true;
-  initial-value: 275;
+  initial-value: 190;
+}
+
+@property --dynamic-accent {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 280;
+}
+
+@property --dynamic-saturation {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 0;
 }
 
 :root {
@@ -41,9 +53,12 @@
   --warning-rgb: 255, 183, 77;
   --accent-gold: #FFD700;
 
-  /* ⚡ PERF: CSS will automatically interpolate the variables smoothly over 2 seconds! */
-  transition: --dynamic-hue-1 2s cubic-bezier(0.4, 0, 0.2, 1),
-              --dynamic-hue-2 2s cubic-bezier(0.4, 0, 0.2, 1);
+  /* ⚡ NATIVE GPU ANIMATION: JS writes values ONCE per scene. 
+     The browser handles the 0.75s transition natively, eliminating JS-driven style recalculation spikes. 
+     0.75s perfectly matches the 45-frame particle transition duration (45/60 = 0.75). */
+  transition: --dynamic-hue-1 0.75s cubic-bezier(0.4, 0, 0.2, 1),
+              --dynamic-hue-2 0.75s cubic-bezier(0.4, 0, 0.2, 1),
+              --dynamic-saturation 0.75s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 

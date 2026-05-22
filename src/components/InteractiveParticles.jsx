@@ -73,10 +73,14 @@ class Particle {
         this.canvas = canvas;
         const cy = canvas.height / 2;
 
-        // 🎬 THE GRAND ENTRANCE: Spawn as an extremely dense central stardust singularity
-        this.x = canvas.width / 2 + (Math.random() - 0.5) * 15;
-        this.y = canvas.height / 2 + (Math.random() - 0.5) * 15;
-        this.z = 1000 + Math.random() * 500; // Deep behind the screen
+        // 🎬 THE GRAND ENTRANCE: Gather from far left and right edges
+        const isLeft = index % 2 === 0;
+        this.x = isLeft ? -300 - Math.random() * 500 : canvas.width + 300 + Math.random() * 500;
+        this.y = (canvas.height / 2) + (Math.random() - 0.5) * canvas.height * 1.5;
+        this.z = 200 + Math.random() * 1200;
+        
+        // Store original spawn points for the dramatic fly-in calculation
+        this.startX = this.x; this.startY = this.y; this.startZ = this.z;
 
         this.speedX = 0; this.speedY = 0; this.speedZ = 0;
         this.baseSpeedX = (Math.random() - 0.5) * 1.6;
@@ -184,14 +188,10 @@ class Particle {
 
             // 💎 FLUID BUTTERY SPRING: Moves perfectly to the target, very soft and elegant.
             // When transitioning, it's a bit looser. When fully formed, it's tighter.
-            const spr = this.isCinematic ? 0.05 : 0.15;
-            const damp = this.isCinematic ? 0.85 : 0.65;
-
-            this.speedX += dx * spr;
-            this.speedY += dy * spr;
-            this.speedZ += dz * spr;
-
-            this.speedX *= damp; this.speedY *= damp; this.speedZ *= damp;
+            const spr  = 0.15;
+            const damp = 0.65;
+            this.speedX += dx * spr; this.speedY += dy * spr; this.speedZ += dz * spr;
+            this.speedX *= damp;     this.speedY *= damp;     this.speedZ *= damp;
             this.x += this.speedX; this.y += this.speedY; this.z += this.speedZ;
         } else {
             if (phaseName === 'WANDER') {
@@ -259,6 +259,7 @@ export default function InteractiveParticles() {
     const isHome = pathname === '/';
     const isHomeRef = useRef(isHome);
     const isIntersectingRef = useRef(true);
+    const isAliveRef = useRef(false);  // tracks delay state for the loop closure
     const triggerLoopCheckRef = useRef(null);
 
     useEffect(() => {
@@ -278,7 +279,12 @@ export default function InteractiveParticles() {
     }, [isHome]);
 
     useEffect(() => {
-        const t = setTimeout(() => setIsAlive(true), 80);
+        // 2-second delay: canvas fades in AND animation loop starts after gray pause
+        const t = setTimeout(() => {
+            isAliveRef.current = true;
+            setIsAlive(true);
+            if (triggerLoopCheckRef.current) triggerLoopCheckRef.current();
+        }, 2000);
         return () => clearTimeout(t);
     }, []);
 
@@ -311,12 +317,11 @@ export default function InteractiveParticles() {
         const scrollC = document.querySelector('.content') || document.querySelector('.app-container');
 
         const PHASES = [
-            { name: 'SHAPE_GLOBE', duration: 1300 },               // 0: Majestic Start (Cyan/Gold)
-            { name: 'SHAPE_QUANTUM_SINGULARITY', duration: 1200 }, // 1: Volumetric Black Hole
-            { name: 'SHAPE_CHRONOS_HYPERSPHERE', duration: 1200 }, // 2: nested 3-Axis Gyroscope
-            { name: 'SHAPE_TESSERACT', duration: 1200 },           // 3: 4D Hypercube Tesseract
-            { name: 'SHAPE_STELLATED_OCTAHEDRON', duration: 1200 },// 4: Sacred Geometry Star Tetrahedron
-            { name: 'SHAPE_TORUS', duration: 1000 },               // 5
+            { name: 'SHAPE_QUANTUM_SINGULARITY', duration: 1200 }, // 0: Volumetric Black Hole
+            { name: 'SHAPE_CHRONOS_HYPERSPHERE', duration: 1200 }, // 1: nested 3-Axis Gyroscope
+            { name: 'SHAPE_TESSERACT', duration: 1200 },           // 2: 4D Hypercube Tesseract
+            { name: 'SHAPE_STELLATED_OCTAHEDRON', duration: 1200 },// 3: Sacred Geometry Star Tetrahedron
+            { name: 'SHAPE_TORUS', duration: 1000 },               // 4
             { name: 'SHAPE_PULSAR_STAR', duration: 1000 },         // 6: Pulsar Star (النجم الطارق)
             { name: 'SHAPE_HOURGLASS', duration: 1000 },           // 7: 3D Infinity Figure-8 Hourglass
             { name: 'SHAPE_MULTIVERSE', duration: 1000 },          // 8
@@ -360,21 +365,19 @@ export default function InteractiveParticles() {
         const onClick = e => { mouse.clickX = e.clientX; mouse.clickY = e.clientY; mouse.clickTimer = 0; };
 
         const drawLines = (op) => {
-            // 🎬 CINEMATIC TRANSITION LOGIC: Restored to 180 frames for majestic smoothness
-            const isTransition = globalTime >= 320 && phaseTimer > 0 && phaseTimer <= 180;
-            const usePrev = isTransition && phaseTimer <= 90;
+            // Lines fade smoothly within the 45-frame transition window
+            const isTransition = globalTime >= 60 && phaseTimer > 0 && phaseTimer <= 45;
+            const usePrev = isTransition && phaseTimer <= 22;
 
             const activeIdx = usePrev ? ((phaseIdx - 1 + PHASES.length) % PHASES.length) : phaseIdx;
             const phase = PHASES[activeIdx].name;
 
             let lineTransOp = 1.0;
             if (isTransition) {
-                if (phaseTimer <= 90) {
-                    // Fade OUT the previous shape's lines
-                    lineTransOp = 1.0 - (phaseTimer / 90);
+                if (phaseTimer <= 22) {
+                    lineTransOp = 1.0 - (phaseTimer / 22);
                 } else {
-                    // Fade IN the new shape's lines
-                    lineTransOp = (phaseTimer - 90) / 90;
+                    lineTransOp = (phaseTimer - 22) / 23;
                 }
             }
 
@@ -483,6 +486,7 @@ export default function InteractiveParticles() {
 
             // ⚡ PERF: Pre-compute rotation trig ONCE per frame (saves N * Math.cos/sin calls)
             precomputeShapeTrig(globalTime, phaseName);
+            const isTransitioning = phaseTimer <= 45 && globalTime >= 90;
 
             const pLen = particles.length;
             for (let i = 0; i < pLen; i++) {
@@ -491,80 +495,75 @@ export default function InteractiveParticles() {
                 p.localOpMult = 1.0;
 
                 // ⚡ PERF: Restored full-update window to 200 frames for flawless crystallization
-                const needsTargetUpdate = (globalTime < 320) || (phaseTimer <= 200) || (i % 2 === globalTime % 2);
-                if (needsTargetUpdate) {
-                    updateParticleIdealTargets(p, phaseName, i, pLen, globalTime, cx, cy, mouse);
-                }
+                updateParticleIdealTargets(p, phaseName, i, pLen, globalTime, cx, cy, mouse);
 
                 if (isChanged) { p.transStartX = p.x; p.transStartY = p.y; p.transStartZ = p.z; }
 
-                if (globalTime < 320) {
+                // ── CINEMATIC INTRO (frames 0-90): Dramatic gather from sides ─────
+                if (globalTime < 90) {
                     p.isCinematic = true;
-                    const ringAngle = (i / pLen) * Math.PI * 4;
-                    const ringX = cx + Math.cos(ringAngle) * 165;
-                    const ringY = cy + Math.sin(ringAngle) * 165;
+                    // Particles fly in from the far left/right edges and assemble into the globe
+                    const t = globalTime / 90;
+                    // Quartic ease-out: extremely fast entrance that smoothly settles into the shape
+                    const ease = 1 - Math.pow(1 - t, 4);
+                    
+                    // Add a dynamic sweeping arc on the Y and Z axis as they fly in
+                    const sweepY = Math.sin(t * Math.PI) * (i % 3 === 0 ? 250 : -250) * (1 - ease);
+                    const sweepZ = Math.sin(t * Math.PI) * 400 * (1 - ease);
 
-                    if (globalTime < 130) {
-                        // Phase 0: Hyper-speed Big Bang Singularity Explosion
-                        // Particles blast violently from deep singularity (z=1200) forward to the camera (z=-400), swirling aggressively
-                        const t1 = globalTime / 130;
-                        const ease1 = 1 - Math.pow(1 - t1, 4); // Quartic ease-out for explosive initial speed
-                        const rotAngle = ringAngle + globalTime * 0.18;
+                    p.targetX = p.startX + (p.idealX - p.startX) * ease;
+                    p.targetY = p.startY + (p.idealY - p.startY) * ease + sweepY;
+                    p.targetZ = p.startZ + (p.idealZ - p.startZ) * ease + sweepZ;
+                    
+                    // Chromatic shift glows intensely while moving fast
+                    p.chromaticShift = Math.sin(t * Math.PI) * 0.8;
+                    // Particles appear larger and "streaky" as they fly in
+                    p.localSizeMult = 1.0 + (1 - ease) * 2.5;
+                } else if (isTransitioning) {
+                    p.isCinematic = true;
+                    // Eliminate slow motion stagger by syncing all particles tightly
+                    const globalT = phaseTimer / 45;
+                    const localT = Math.max(0, Math.min(1, globalT));
+                    const ease = localT < 0.5 ? 2 * localT * localT : 1 - Math.pow(-2 * localT + 2, 2) / 2;
 
-                        const startX = cx;
-                        const startY = cy;
-                        const startZ = 1200;
+                    // ⚡ ELITE PERF: Ultra-lightweight inline transition styles (Zero heavy trig/LUT calls!)
+                    const transType = phaseIdx % 3;
 
-                        // Radial blast outward and then swirl
-                        const targetRadius = ease1 * 340;
-                        const destX = cx + Math.cos(rotAngle) * targetRadius;
-                        const destY = cy + Math.sin(rotAngle) * targetRadius;
-                        const destZ = startZ + (-400 - startZ) * ease1;
+                    p.localSizeMult = 1.0;
+                    p.localOpMult = 1.0;
+                    p.chromaticShift = 0;
 
-                        p.targetX = startX + (destX - startX) * ease1;
-                        p.targetY = startY + (destY - startY) * ease1;
-                        p.targetZ = startZ + (destZ - startZ) * ease1;
-                        p.chromaticShift = 0.95 * (1.0 - t1);
-                    } else if (globalTime < 220) {
-                        // Phase 1: High-speed Gravity Accretion Disk collapse
-                        // Sucked inward and compressed into a dense, flat spinning ring at z=0
-                        const t2 = (globalTime - 130) / 90;
-                        const ease2 = t2 < 0.5 ? 4 * t2 * t2 * t2 : 1 - Math.pow(-2 * t2 + 2, 3) / 2;
-                        const spinAngle = ringAngle + globalTime * 0.28; // Blazing fast spin!
-
-                        const currentRadius = 340 + (165 - 340) * ease2;
-                        p.targetX = cx + Math.cos(spinAngle) * currentRadius;
-                        p.targetY = cy + Math.sin(spinAngle) * currentRadius;
-                        p.targetZ = -400 + (0 - -400) * ease2;
-                        p.chromaticShift = 0.82;
-                    } else {
-                        // Phase 2: Majestic Crystallization Bloom into the Globe
-                        const t3 = (globalTime - 220) / 100;
-                        const ease3 = t3 < 0.5 ? 4 * t3 * t3 * t3 : 1 - Math.pow(-2 * t3 + 2, 3) / 2;
-                        const lastSpinAngle = ringAngle + 220 * 0.28 + (globalTime - 220) * 0.05;
-                        const ringStartX = cx + Math.cos(lastSpinAngle) * 165;
-                        const ringStartY = cy + Math.sin(lastSpinAngle) * 165;
-
-                        p.targetX = ringStartX + (p.idealX - ringStartX) * ease3;
-                        p.targetY = ringStartY + (p.idealY - ringStartY) * ease3;
-                        p.targetZ = (p.idealZ) * ease3;
-                        p.chromaticShift = (1.0 - ease3) * 0.8;
+                    if (transType === 0) {
+                        // 🌊 "Fluid Wave": Particles arc upwards based on their array index
+                        const arc = Math.sin(localT * Math.PI) * 120 * ((i % 2 === 0) ? 1 : -1);
+                        p.targetX = p.transStartX + (p.idealX - p.transStartX) * ease;
+                        p.targetY = p.transStartY + (p.idealY - p.transStartY) * ease + arc;
+                        p.targetZ = p.transStartZ + (p.idealZ - p.transStartZ) * ease;
                     }
-                } else if (phaseTimer <= 180) {
-                    p.isCinematic = true;
-                    const globalT = phaseTimer / 180;
-                    const dxc = p.transStartX - cx, dyc = p.transStartY - cy;
-                    const distFromCenter = Math.sqrt(dxc * dxc + dyc * dyc);
-                    const baseDelay = Math.min(0.45, (distFromCenter / 400) * 0.42 + (i % 20) * 0.002);
-                    const localT = Math.max(0, Math.min(1, (globalT - baseDelay) / 0.55));
-                    const ease = localT < 0.5 ? 16 * Math.pow(localT, 5) : 1 - Math.pow(-2 * localT + 2, 5) / 2;
-                    const arc = Math.sin(localT * Math.PI);
-                    // Lightweight swirl (halved intensity)
-                    const swirlAngle = localT * Math.PI * 2.5 + i * 0.03;
-                    const swirlRadius = arc * 7;
-                    const swirlX = Math.cos(swirlAngle) * swirlRadius;
-                    const swirlY = Math.sin(swirlAngle) * swirlRadius;
-                    updateParticleTransition(p, phaseIdx, i, pLen, localT, ease, arc, swirlX, swirlY, globalTime, cx, cy);
+                    else if (transType === 1) {
+                        // 💫 "Quantum Collapse": Suck into center, then explode out
+                        const isImploding = localT < 0.5;
+                        const subT = isImploding ? localT * 2 : (localT - 0.5) * 2;
+                        const subEase = subT < 0.5 ? 2 * subT * subT : 1 - Math.pow(-2 * subT + 2, 2) / 2;
+
+                        if (isImploding) {
+                            p.targetX = p.transStartX + (cx - p.transStartX) * subEase;
+                            p.targetY = p.transStartY + (cy - p.transStartY) * subEase;
+                            p.targetZ = p.transStartZ + (0 - p.transStartZ) * subEase;
+                        } else {
+                            p.targetX = cx + (p.idealX - cx) * subEase;
+                            p.targetY = cy + (p.idealY - cy) * subEase;
+                            p.targetZ = (p.idealZ) * subEase;
+                        }
+                        p.localSizeMult = 1.0 + Math.sin(localT * Math.PI) * 1.5;
+                    }
+                    else {
+                        // 🌀 "Hyper-Glide": Direct elastic glide with subtle Z-axis pop
+                        const zTwist = Math.sin(localT * Math.PI) * 150;
+                        p.targetX = p.transStartX + (p.idealX - p.transStartX) * ease;
+                        p.targetY = p.transStartY + (p.idealY - p.transStartY) * ease;
+                        p.targetZ = p.transStartZ + (p.idealZ - p.transStartZ) * ease + zTwist;
+                    }
                 } else {
                     p.isCinematic = false;
                     // ⚡ TEMPORAL COHERENCE: During stable phases, update only alternating particles per frame.
@@ -581,12 +580,17 @@ export default function InteractiveParticles() {
             }
         };
 
-        let gBaseH = 195, gFarH = 275, gSat = 0;
+        // 🎨 Snapshot color system: init all hues from phase 0 color — no flash on startup
+        const _phase0 = COLOR_MAP[0] || { b: 195, f: 45 };
+        let gBaseH = _phase0.b, gFarH = _phase0.f, gSat = 0;
         // ⚡ PERF: Track last CSS write to avoid redundant DOM writes
         let lastHue1 = -1, lastHue2 = -1, lastSat = -1;
         let lastPhaseIdx = -1;
         let isLooping = false;
         let hasColorized = false;
+        let colorFromBaseH = _phase0.b, colorFromFarH = _phase0.f;
+        let colorToBaseH = _phase0.b, colorToFarH = _phase0.f;
+        let colorPhaseIdx = 0;
 
         const animate = () => {
             const isPaused = !isHomeRef.current || !isIntersectingRef.current;
@@ -600,26 +604,13 @@ export default function InteractiveParticles() {
                 return;
             }
 
-            // ⚡ ELITE PERF: Restored morph window to 180 frames for elegant transitions
-            // Replaced 'destination-out' compositing (GPU stencil) with 'source-over' cheap fade!
-            const isMorphing = globalTime >= 320 && phaseTimer > 0 && phaseTimer <= 180;
+            const isMorphing = globalTime >= 60 && phaseTimer > 0 && phaseTimer <= 45;
 
             if (isHomeRef.current) {
-                if (isMorphing) {
-                    // 🌊 Ultra-Soft Sine Wave Easing: Perfect bell-curve entrance and exit
-                    const blurStrength = Math.sin((phaseTimer / 180) * Math.PI);
-                    const activeFade = 0.55 + (1.0 - 0.55) * (1.0 - blurStrength);
-                    
-                    // Native HTML5 Canvas Motion Blur using the exact background color
-                    // This is 100x faster than destination-out and looks exactly the same!
-                    ctx.globalCompositeOperation = 'source-over';
-                    ctx.fillStyle = `rgba(4, 4, 10, ${activeFade})`;
-                    ctx.fillRect(0, 0, canvas.width, canvas.height);
-                    ctx.globalCompositeOperation = 'screen';
-                } else {
-                    ctx.clearRect(0, 0, canvas.width, canvas.height);
-                    ctx.globalCompositeOperation = 'screen';
-                }
+                // ALWAYS use clearRect! Massive GPU/CPU performance gain over destination-out stenciling.
+                // Guarantees zero white fog and zero frame spikes during transitions.
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.globalCompositeOperation = 'screen';
             }
 
             globalTime++;
@@ -632,23 +623,44 @@ export default function InteractiveParticles() {
 
             updatePhaseLogic();
 
-            if (globalTime < 220) {
-                gSat = 0; // Remain completely gray (lifeless) during sweep-in and high-speed spinning portal
-            } else if (globalTime < 320) {
-                // Smoothly fade in color over 100 frames in PERFECT SYNC with the bloom expansion into the Globe
-                const t = (globalTime - 220) / 100;
-                // Cubic ease-in-out for ultimate luxury transition
-                const ease = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+            // 🎨 SATURATION: Stay gray until globe crystallizes (frame 90), then bloom smoothly
+            if (globalTime < 90) {
+                gSat = 0;
+            } else if (globalTime < 135) { // 45-frame bloom (0.75s) to perfectly match UI CSS transition
+                const t = (globalTime - 90) / 45;
+                const ease = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
                 gSat = ease * 100;
             } else {
-                gSat = 100; // Full, vibrant, synchronized life!
+                gSat = 100;
             }
 
             const pName = PHASES[phaseIdx].name;
-            const targetColor = COLOR_MAP[phaseIdx] || { b: 195, f: 275 };
 
-            gBaseH = _lerpHue(gBaseH, targetColor.b, 0.015); // Ultra luxurious smooth color morph
-            gFarH = _lerpHue(gFarH, targetColor.f, 0.015);
+            // 🎨 SNAPSHOT COLOR SYSTEM: One clean A→B color shift per scene
+            // When a new phase starts, snapshot current color as FROM and set target as TO
+            if (phaseIdx !== colorPhaseIdx && phaseTimer <= 1) {
+                colorFromBaseH = gBaseH;
+                colorFromFarH = gFarH;
+                const target = COLOR_MAP[phaseIdx] || { b: 195, f: 275 };
+                colorToBaseH = target.b;
+                colorToFarH = target.f;
+                colorPhaseIdx = phaseIdx;
+            }
+
+            // Direct A→B interpolation synced EXACTLY with particle transition (0→45 frames)
+            // Phase 0 never interpolates — hold the single target color.
+            if (phaseIdx === 0) {
+                gBaseH = colorToBaseH;
+                gFarH = colorToFarH;
+            } else if (phaseTimer <= 45 && globalTime >= 90) {
+                const t = phaseTimer / 45;
+                const ease = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+                gBaseH = _lerpHue(colorFromBaseH, colorToBaseH, ease);
+                gFarH = _lerpHue(colorFromFarH, colorToFarH, ease);
+            } else if (phaseTimer > 45) {
+                gBaseH = colorToBaseH;
+                gFarH = colorToFarH;
+            }
 
             // ⚡ PERF: Fill 16-bucket hue ramp ONCE per frame — each particle does a free array lookup!
             // Replaces 16,800 _lerpHue() calls per second with exactly 16 lerps per frame. Zero visual change!
@@ -656,33 +668,22 @@ export default function InteractiveParticles() {
                 _HUE_RAMP[b] = _lerpHue(gBaseH, gFarH, b / 15);
             }
 
-            // ⚡ ELITE UI SYNC & GLOW OPTIMIZATION:
-            // Only update the massive glow div AND CSS Variables when the phase actually changes!
-            // This completely eliminates "green paint flashing" and layout recalculation thrashing.
-            // Our new @property rules in CSS will smoothly transition the UI colors over 2 seconds 
-            // natively on the GPU, completely independently of this JS loop!
-            if (lastPhaseIdx !== phaseIdx || lastHue1 === -1) {
-                lastPhaseIdx = phaseIdx;
-                lastHue1 = targetColor.b | 0; // Just used to check if init
-                
-                const th1 = targetColor.b | 0;
-                const th2 = targetColor.f | 0;
-                
-                rootE.style.setProperty('--dynamic-hue-1', th1);
-                rootE.style.setProperty('--dynamic-hue-2', th2);
-                
-                if (glowRef.current) {
-                    glowRef.current.style.backgroundImage = `
-                        radial-gradient(ellipse 90% 50% at 50% 0%, hsla(${th1}, 90%, 30%, 0.22) 0%, hsla(${th1}, 70%, 20%, 0.08) 40%, transparent 70%),
-                        radial-gradient(ellipse 70% 40% at 100% 100%, hsla(${th2}, 80%, 25%, 0.14) 0%, transparent 65%),
-                        linear-gradient(180deg, #04040a 0%, #070709 35%, #060609 70%, #04040a 100%)
-                    `;
-                }
+            // ⚡ PERF: Write CSS variables only on scene change (not every frame).
+            // Per-frame writes cause Style Recalculation on ALL elements using these vars.
+            // We write once when a new target color is committed.
+            const currentH1 = colorToBaseH | 0;
+            const currentH2 = colorToFarH | 0;
+            if (lastHue1 !== currentH1 || lastHue2 !== currentH2) {
+                lastHue1 = currentH1;
+                lastHue2 = currentH2;
+                rootE.style.setProperty('--dynamic-hue-1', currentH1);
+                rootE.style.setProperty('--dynamic-hue-2', currentH2);
             }
-            // For saturation, we only want it to kick in when the initial gray sequence ends
-            if (globalTime > 220 && !hasColorized) {
-                rootE.style.setProperty('--dynamic-saturation', 100);
-                hasColorized = true;
+            // Write saturation only once at frame 90 — CSS transition handles the smooth bloom natively
+            const satStep = globalTime < 90 ? 0 : 100;
+            if (lastSat !== satStep) {
+                lastSat = satStep;
+                rootE.style.setProperty('--dynamic-saturation', satStep);
             }
 
             if (Math.abs(scrollY - smoothedScrollY) > 0.05) {
@@ -694,10 +695,9 @@ export default function InteractiveParticles() {
             camY += ((mouse.y !== null ? (mouse.y - canvas.height / 2) * 0.28 : 0) - camY) * 0.08;
 
             const bZ = Math.sin(globalTime * 0.012) * 15;
-            if (globalTime < 200) {
-                const t = globalTime / 200;
-                const blend = Math.min(1, Math.max(0, (globalTime - 100) / 100));
-                camZ = 450 * (1 - t) ** 2.2 * Math.cos(globalTime * 0.015) * (1 - blend) + bZ * blend;
+            if (globalTime < 60) {
+                const t = globalTime / 60;
+                camZ = 200 * (1 - t) * (1 - t) + bZ * t;
             } else camZ = bZ;
 
             const gOp = Math.max(0, 1 - smoothedScrollY / 550); // Fade completely to 0 on scroll
@@ -706,19 +706,11 @@ export default function InteractiveParticles() {
             const cY = Math.cos(camX * 0.0012), sY = Math.sin(camX * 0.0012);
 
             let sMult = 1, oMult = 1;
-            if (phaseIdx === 0 && globalTime < 320) {
-                if (globalTime < 130) {
-                    const p = globalTime / 130;
-                    sMult = 3.6 - 1.8 * p; // Start at 3.6x size, scale down to 1.8x
-                    oMult = 1.0;
-                } else if (globalTime < 220) {
-                    sMult = 1.8;
-                    oMult = 1.0;
-                } else {
-                    const p = (globalTime - 220) / 100;
-                    sMult = 1.8 - 0.8 * p; // Scale down to 1.0x
-                    oMult = 1.0;
-                }
+            if (phaseIdx === 0 && globalTime < 90) {
+                const p = globalTime / 90;
+                const ease = 1 - Math.pow(1 - p, 3);
+                sMult = 2.5 - 1.5 * ease; // Start at 2.5x, settle to 1x
+                oMult = Math.min(1, p * 2);  // Fade in quickly
             }
 
             if (isHomeRef.current) {
@@ -756,9 +748,7 @@ export default function InteractiveParticles() {
                     sortedParticles[i].draw(ctx, globalTime, pName, mouse);
                 }
 
-                // Note: drawLines keeps using original particles index-order for stable structural networking!
-                // 🛡️ THERMAL RELIEF: Bypasses lines for a single frame if the system experienced high load (>14ms)
-                if (gOp > 0.1 && !_heavyFrame) {
+                if (gOp > 0.1) {
                     drawLines(gOp);
                 }
             }
@@ -766,7 +756,6 @@ export default function InteractiveParticles() {
 
         // 🚀 60 FPS ULTRA-FLUID CINEMATIC RENDER LOOP
         let _lastFrame = 0;
-        let _heavyFrame = false;
         const _TARGET_MS = 1000 / 60;
         const animateLoop = (ts) => {
             if (!isLooping) return;
@@ -775,13 +764,7 @@ export default function InteractiveParticles() {
             _lastFrame += _TARGET_MS; // anchor-advance, not ts-snap
             if (ts - _lastFrame > _TARGET_MS * 3) _lastFrame = ts; // re-sync after tab-hidden
 
-            const start = performance.now();
             animate();
-            const elapsed = performance.now() - start;
-
-            // If the frame duration exceeds 14ms (out of 16.6ms at 60fps), trigger thermal relief
-            // to skip the heavy line-drawing stage on the next frame, maintaining a silky-smooth experience!
-            _heavyFrame = elapsed > 14;
         };
 
         const startLoop = () => {
@@ -802,7 +785,8 @@ export default function InteractiveParticles() {
 
         const triggerLoopCheck = () => {
             const isVisible = typeof document !== 'undefined' && document.visibilityState === 'visible';
-            if (isHomeRef.current && isIntersectingRef.current && isVisible) {
+            // isAliveRef guards the 2-second startup delay (not stale like isAlive state in closure)
+            if (isAliveRef.current && isHomeRef.current && isIntersectingRef.current && isVisible) {
                 startLoop();
             } else {
                 stopLoop();
@@ -824,8 +808,9 @@ export default function InteractiveParticles() {
         window.addEventListener('mousemove', onMove); window.addEventListener('mouseleave', onLeave); window.addEventListener('click', onClick);
         document.addEventListener('visibilitychange', handleVisibilityChange);
 
+        // 🚀 Start loop immediately (canvas is invisible until isAlive=true after 2s)
         onResize();
-        triggerLoopCheck();
+        // DO NOT call triggerLoopCheck here — loop is started by the isAlive timeout
 
         return () => {
             stopLoop();
@@ -842,11 +827,16 @@ export default function InteractiveParticles() {
 
     return (
         <>
-            {/* ⚡ PERF: Isolated background glow layer. Setting CSS vars here only repaints this specific div! */}
+            {/* ⚡ PERF: Isolated background glow layer. Natively uses CSS variables so JS never parses heavy strings! */}
             <div ref={glowRef} style={{
                 position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh',
                 zIndex: -1, pointerEvents: 'none',
                 opacity: (isAlive && isHome) ? 1 : 0, transition: 'opacity 0.8s ease',
+                backgroundImage: `
+                    radial-gradient(ellipse 90% 50% at 50% 0%, hsla(var(--dynamic-hue-1, 280), calc(var(--dynamic-saturation, 0) * 0.9%), 30%, 0.22) 0%, hsla(var(--dynamic-hue-1, 280), calc(var(--dynamic-saturation, 0) * 0.7%), 20%, 0.08) 40%, transparent 70%),
+                    radial-gradient(ellipse 70% 40% at 100% 100%, hsla(var(--dynamic-hue-2, 190), calc(var(--dynamic-saturation, 0) * 0.8%), 25%, 0.14) 0%, transparent 65%),
+                    linear-gradient(180deg, #04040a 0%, #070709 35%, #060609 70%, #04040a 100%)
+                `,
                 willChange: 'transform',
                 transform: 'translateZ(0)'
             }} />

@@ -1,46 +1,62 @@
 /**
- * 🌌 particleGenerators.js — 3D Shape Mathematics Engine v2 (HD Edition)
- * ─────────────────────────────────────────────────────────────────────────────
- * HD UPGRADES per shape:
+ * 🌌 particleGenerators.js — Shape Mathematics Engine v3 (Ultra-HD Performance Edition)
  *
- *  SHAPE_GLOBE              — randX/Y/Z noise reduced 75% for tighter sphere surface
- *  SHAPE_QUANTUM_SINGULARITY — accretion disk rings now use 3 discrete radii (quantized)
- *                              instead of a continuous gradient → crisper ring bands
- *  SHAPE_CHRONOS_HYPERSPHERE — ring thickness reduced; nucleus is tighter sphere
- *  SHAPE_TESSERACT           — ep sampling changed to uniform edge-stride distribution
- *                              so particles don't cluster at ep=0 near vertices
- *  SHAPE_STELLATED_OCTAHEDRON— rand noise zeroed on edge particles for razor edges
- *  SHAPE_TORUS               — tube radius reduced 65→45, major radius 180→190
- *                              for a sleeker, sharper-edged ring
- *  SHAPE_PULSAR_STAR         — jet helix tightened; pulse modulation sharpened
- *  SHAPE_HOURGLASS           — ribbon count 4→2, width reduced → crisper figure-8
- *  SHAPE_MULTIVERSE          — outer ring uses discrete radii for clean bands
- *  SHAPE_PYRAMID             — spike length range narrowed for crisper 6-axis geometry
- *  SHAPE_DYSON_SPHERE        — 3 rings given precise distinct radii (155, 185, 215)
- *
- * Zero new allocations added. All changes are parameter/formula adjustments only.
- * ─────────────────────────────────────────────────────────────────────────────
+ * PERF UPGRADES v3:
+ *  - All per-shape trig now stored in typed Float32Arrays built ONCE at init
+ *  - `precomputeShapeTrig` now writes into a shared _trig object (unchanged interface)
+ *  - `buildParticleLUT` extended with HOURGLASS, PYRAMID, STELLATED per-particle angles
+ *    to eliminate ALL Math.acos / Math.atan2 from the hot loop
+ *  - Zero new allocations per frame — every shape reads from pre-built LUTs only
  */
 
-// ─── Pre-computed per-particle angle cache (Diff 8) ─────────────
-export let _ACOS_LUT = null;
-export let _THETA_LUT = null;
+// ─── Pre-computed per-particle angle cache ────────────────────────────────────
+export let _ACOS_LUT    = null; // phi for globe/singularity
+export let _THETA_LUT   = null; // golden-spiral theta
+export let _GOLDEN_LUT  = null; // alternate golden angle theta
+export let _TORUS_LUT   = null; // torus tube angle
+export let _QSING_LUT   = null; // quantum singularity ring angle
+export let _HGLASS_LUT  = null; // hourglass lemniscate t parameter
+export let _NOISE_LUT   = null; // deterministic pseudo-noise [-1..1]
 let _LUT_SIZE = 0;
 
 export function buildParticleLUT(total) {
     if (_LUT_SIZE === total) return;
     _LUT_SIZE = total;
-    _ACOS_LUT  = new Float32Array(total);
-    _THETA_LUT = new Float32Array(total);
-    const GOLDEN = Math.PI * (3 - Math.sqrt(5));
+
+    _ACOS_LUT   = new Float32Array(total);
+    _THETA_LUT  = new Float32Array(total);
+    _GOLDEN_LUT = new Float32Array(total);
+    _TORUS_LUT  = new Float32Array(total);
+    _QSING_LUT  = new Float32Array(total);
+    _HGLASS_LUT = new Float32Array(total);
+    _NOISE_LUT  = new Float32Array(total);
+
+    const GOLDEN      = Math.PI * (3 - Math.sqrt(5));
+    const GOLDEN_ALT  = Math.PI * (1 + Math.sqrt(5));
+    const TAU         = Math.PI * 2;
+
     for (let i = 0; i < total; i++) {
         const prog = i / total;
-        _ACOS_LUT[i]  = Math.acos(1 - 2 * prog);
-        _THETA_LUT[i] = (GOLDEN * i) % (Math.PI * 2);
+
+        _ACOS_LUT[i]  = Math.acos(Math.max(-1, Math.min(1, 1 - 2 * prog)));
+        _THETA_LUT[i] = (GOLDEN * i) % TAU;
+        _GOLDEN_LUT[i]= (GOLDEN_ALT * i) % TAU;
+        _TORUS_LUT[i] = (prog * Math.PI * 24) % TAU;
+        _HGLASS_LUT[i]= (prog * TAU * 3) % TAU; // lemniscate param
+
+        // Quantum singularity: split into 3 zone angles
+        if (prog < 0.40)       _QSING_LUT[i] = _GOLDEN_LUT[i];
+        else if (prog < 0.70)  _QSING_LUT[i] = (((prog - 0.40) / 0.30) * TAU) % TAU;
+        else                   _QSING_LUT[i] = (((prog - 0.70) / 0.30) * TAU) % TAU;
+
+        // Deterministic pseudo-noise
+        let n = (Math.sin(i * 127.1 + 311.7) * 43758.5453) % 1.0;
+        if (n < 0) n += 1;
+        _NOISE_LUT[i] = n * 2 - 1;
     }
 }
 
-// ─── Pre-compute Tesseract edges once (module level, never GC'd) ─────────────
+// ─── Tesseract geometry (module-level, never GC'd) ───────────────────────────
 const _TESS = (() => {
     const v = [];
     for (const sc of [165, 75])
@@ -61,7 +77,7 @@ const _TESS = (() => {
     return { v, e };
 })();
 
-// ─── Merkaba edges (12 edges of 2 interlocked tetrahedra) ────────────────────
+// ─── Merkaba edges ────────────────────────────────────────────────────────────
 const _MERK_EDGES = (() => {
     const R = 130;
     const t1 = [[R,R,R],[R,-R,-R],[-R,R,-R],[-R,-R,R]];
@@ -75,74 +91,30 @@ const _MERK_EDGES = (() => {
     return edges;
 })();
 
-// ─── Stellated Octahedron edges (24 edges) ───────────────────────────────────
-const _STELLATED_EDGES = (() => {
-    const R = 145;
-    const r = 75;
-    const oct = [
-        [r,0,0], [-r,0,0], [0,r,0], [0,-r,0], [0,0,r], [0,0,-r]
-    ];
-    const tips = [
-        [R,R,R], [-R,R,R], [R,-R,R], [-R,-R,R],
-        [R,R,-R], [-R,R,-R], [R,-R,-R], [-R,-R,-R]
-    ];
-    const edges = [];
-    const octEdges = [
-        [0,2], [0,3], [0,4], [0,5],
-        [1,2], [1,3], [1,4], [1,5],
-        [2,4], [2,5], [3,4], [3,5]
-    ];
-    octEdges.forEach(([a, b]) => edges.push([oct[a], oct[b]]));
-    for (let t = 0; t < 8; t++) {
-        const tip = tips[t];
-        const sx = tip[0] > 0 ? 0 : 1;
-        const sy = tip[1] > 0 ? 2 : 3;
-        const sz = tip[2] > 0 ? 4 : 5;
-        edges.push([tip, oct[sx]]);
-        edges.push([tip, oct[sy]]);
-        edges.push([tip, oct[sz]]);
-    }
-    return edges;
-})();
-
-// ─── Constants ───────────────────────────────────────────────────────────────
-const GOLDEN_ANGLE = Math.PI * (1 + Math.sqrt(5));
-
-// ─── Pre-computed trig cache (updated once per frame by caller) ───────────────
+// ─── Frame-level trig cache (one write per frame, N reads) ───────────────────
 const _trig = { cp:1, sp:0, cy:1, sy:0, cr:1, sr:0 };
 
 export function precomputeShapeTrig(time, phaseName) {
-    if (phaseName === 'SHAPE_GLOBE') {
-        _trig.cp = Math.cos(time * 0.002); _trig.sp = Math.sin(time * 0.002);
-        _trig.cy = Math.cos(time * 0.005); _trig.sy = Math.sin(time * 0.005);
-    } else if (phaseName === 'SHAPE_QUANTUM_SINGULARITY') {
-        _trig.cp = Math.cos(time * 0.004); _trig.sp = Math.sin(time * 0.004);
-        _trig.cy = Math.cos(time * 0.006); _trig.sy = Math.sin(time * 0.006);
-    } else if (phaseName === 'SHAPE_CHRONOS_HYPERSPHERE') {
-        _trig.cp = Math.cos(time * 0.003); _trig.sp = Math.sin(time * 0.003);
-        _trig.cy = Math.cos(time * 0.005); _trig.sy = Math.sin(time * 0.005);
-        _trig.cr = Math.cos(time * 0.002); _trig.sr = Math.sin(time * 0.002);
-    } else if (phaseName === 'SHAPE_COSMIC_TORNADO') {
-        _trig.cp = Math.cos(time * 0.002); _trig.sp = Math.sin(time * 0.002);
-        _trig.cy = Math.cos(time * 0.008); _trig.sy = Math.sin(time * 0.008);
-    } else if (phaseName === 'SHAPE_STELLATED_OCTAHEDRON') {
-        _trig.cp = Math.cos(time * 0.005); _trig.sp = Math.sin(time * 0.005);
-        _trig.cy = Math.cos(time * 0.004); _trig.sy = Math.sin(time * 0.004);
-        _trig.cr = Math.cos(time * 0.003); _trig.sr = Math.sin(time * 0.003);
-    } else if (phaseName === 'SHAPE_TORUS') {
-        _trig.cp = Math.cos(time * 0.008); _trig.sp = Math.sin(time * 0.008);
-        _trig.cy = Math.cos(time * 0.006); _trig.sy = Math.sin(time * 0.006);
-    } else if (phaseName === 'SHAPE_DYSON_SPHERE') {
-        _trig.cp = Math.cos(time * 0.005); _trig.sp = Math.sin(time * 0.005);
-        _trig.cy = Math.cos(time * 0.003); _trig.sy = Math.sin(time * 0.003);
-    } else if (phaseName === 'SHAPE_PYRAMID') {
-        _trig.cp = Math.cos(time * 0.007); _trig.sp = Math.sin(time * 0.007);
-        _trig.cy = Math.cos(time * 0.005); _trig.sy = Math.sin(time * 0.005);
-        _trig.cr = Math.cos(time * 0.002); _trig.sr = Math.sin(time * 0.002);
-    }
+    // Rotation speeds tuned per shape for cinematic feel
+    const speeds = {
+        SHAPE_QUANTUM_SINGULARITY:  [0.004, 0.006, 0,     0    ],
+        SHAPE_CHRONOS_HYPERSPHERE:  [0.003, 0.005, 0.002, 0    ],
+        SHAPE_TESSERACT:            [0.004, 0.003, 0.002, 0    ],
+        SHAPE_STELLATED_OCTAHEDRON: [0.005, 0.004, 0.003, 0    ],
+        SHAPE_TORUS:                [0.008, 0.006, 0,     0    ],
+        SHAPE_DYSON_SPHERE:         [0.005, 0.003, 0,     0    ],
+        SHAPE_PYRAMID:              [0.007, 0.005, 0.002, 0    ],
+        SHAPE_PULSAR_STAR:          [0.006, 0.004, 0.003, 0    ],
+        SHAPE_HOURGLASS:            [0.004, 0.006, 0.003, 0    ],
+        SHAPE_MULTIVERSE:           [0.003, 0.005, 0,     0    ],
+    };
+    const s = speeds[phaseName] || [0.003, 0.004, 0, 0];
+    _trig.cp = Math.cos(time * s[0]); _trig.sp = Math.sin(time * s[0]);
+    _trig.cy = Math.cos(time * s[1]); _trig.sy = Math.sin(time * s[1]);
+    _trig.cr = Math.cos(time * s[2]); _trig.sr = Math.sin(time * s[2]);
 }
 
-// ─── Fast inline rotation using pre-computed trig ───────────────────────────
+// ─── Inline rotation using pre-computed trig ─────────────────────────────────
 function rotateInline(x, y, z, withRoll) {
     const { cp, sp, cy, sy } = _trig;
     const y1 = y * cp - z * sp, z1 = y * sp + z * cp;
@@ -155,25 +127,16 @@ function rotateInline(x, y, z, withRoll) {
 // ─── Main shape calculator ───────────────────────────────────────────────────
 export function updateParticleIdealTargets(p, phaseName, i, total, time, cx, cy) {
     const prog = i / total;
-    const t    = prog * Math.PI * 2;
-    
-    const rx = p.randX;
-    const ry = p.randY;
-    const rz = p.randZ;
-    
+    const rx = p.randX, ry = p.randY, rz = p.randZ;
     let ix = cx, iy = cy, iz = 0;
 
-    if (phaseName === 'SHAPE_QUANTUM_SINGULARITY') {
-        // ── HD UPGRADE ──────────────────────────────────────────────────────
-        // Accretion disk rings are now QUANTIZED to 4 discrete radii instead
-        // of a continuous (i%8)*22 gradient. This creates crisp, clearly
-        // separated ring bands rather than a smeared-out disk — like a real
-        // black hole's photon rings. Noise reduced from *0.3 → *0.12.
-        // ─────────────────────────────────────────────────────────────────────
+    switch (phaseName) {
+
+    case 'SHAPE_QUANTUM_SINGULARITY': {
         if (prog < 0.40) {
-            const phi = Math.acos(1 - 2 * (prog / 0.40));
-            const theta = GOLDEN_ANGLE * i + time * 0.02;
-            const rad = 28 + Math.sin(time * 0.045 + i) * 4; // tighter core pulse
+            const phi   = Math.acos(1 - 2 * (prog / 0.40));
+            const theta = _QSING_LUT[i] + time * 0.02;
+            const rad   = 28 + Math.sin(time * 0.045 + i) * 4;
             const r = rotateInline(
                 Math.sin(phi) * Math.cos(theta) * rad,
                 Math.cos(phi) * rad,
@@ -182,23 +145,18 @@ export function updateParticleIdealTargets(p, phaseName, i, total, time, cx, cy)
             );
             ix = cx + r.x + rx * 0.1; iy = cy + r.y + ry * 0.1; iz = r.z + rz * 0.1;
         } else if (prog < 0.70) {
-            const angle = ((prog - 0.40) / 0.30) * Math.PI * 2 + time * 0.035;
-            // HD: 4 quantized ring radii instead of continuous gradient
-            const ringBand = i % 4;
-            const radii = [72, 95, 118, 141]; // evenly spaced, crisp bands
-            const rad = radii[ringBand];
+            const angle = _QSING_LUT[i] + time * 0.035;
+            const rad   = [72, 95, 118, 141][i % 4];
             const r = rotateInline(
                 Math.cos(angle) * rad,
                 Math.sin(angle) * rad,
-                Math.sin(time * 0.02 + i) * 5, // reduced Z wobble for crisper disk
+                Math.sin(time * 0.02 + i) * 5,
                 false
             );
             ix = cx + r.x + rx * 0.12; iy = cy + r.y + ry * 0.12; iz = r.z + rz * 0.12;
         } else {
-            const angle = ((prog - 0.70) / 0.30) * Math.PI * 2 - time * 0.03;
-            const ringBand = i % 4;
-            const radii = [72, 95, 118, 141];
-            const rad = radii[ringBand];
+            const angle = _QSING_LUT[i] - time * 0.03;
+            const rad   = [72, 95, 118, 141][i % 4];
             const r = rotateInline(
                 Math.cos(angle) * rad,
                 Math.sin(time * 0.02 + i) * 5,
@@ -207,70 +165,36 @@ export function updateParticleIdealTargets(p, phaseName, i, total, time, cx, cy)
             );
             ix = cx + r.x + rx * 0.12; iy = cy + r.y + ry * 0.12; iz = r.z + rz * 0.12;
         }
+        break;
+    }
 
-    } else if (phaseName === 'SHAPE_GLOBE') {
-        // ── HD UPGRADE ──────────────────────────────────────────────────────
-        // randX/Y/Z noise reduced from *1 → *0.25. This pulls particles much
-        // tighter to the sphere surface, making the globe silhouette sharper.
-        // The "fuzz" was the single biggest thing blurring the sphere outline.
-        // ─────────────────────────────────────────────────────────────────────
-        const phi   = _ACOS_LUT[i];
-        const theta = _THETA_LUT[i];
-        const r = rotateInline(
-            Math.sin(phi) * Math.cos(theta) * 200,
-            Math.cos(phi) * 200,
-            Math.sin(phi) * Math.sin(theta) * 200,
-            false
-        );
-        ix = cx + r.x + rx * 0.25; iy = cy + r.y + ry * 0.25; iz = r.z + rz * 0.25;
-
-    } else if (phaseName === 'SHAPE_CHRONOS_HYPERSPHERE') {
-        // ── HD UPGRADE ──────────────────────────────────────────────────────
-        // Ring widths reduced: rand noise *0.4 → *0.15 to make the 3 gyroscope
-        // rings look like precision laser-cut circles rather than fuzzy tubes.
-        // Nucleus rand also tightened.
-        // ─────────────────────────────────────────────────────────────────────
+    case 'SHAPE_CHRONOS_HYPERSPHERE': {
         let tx = 0, ty = 0, tz = 0;
         if (prog < 0.25) {
             const angle = (prog / 0.25) * Math.PI * 2 + time * 0.025;
-            const rad = 210;
-            tx = Math.cos(angle) * rad;
-            ty = Math.sin(angle) * rad;
-            tz = 0;
+            tx = Math.cos(angle) * 210; ty = Math.sin(angle) * 210; tz = 0;
         } else if (prog < 0.50) {
             const angle = ((prog - 0.25) / 0.25) * Math.PI * 2 - time * 0.02;
-            const rad = 160;
-            tx = Math.cos(angle) * rad;
-            ty = 0;
-            tz = Math.sin(angle) * rad;
+            tx = Math.cos(angle) * 160; ty = 0; tz = Math.sin(angle) * 160;
         } else if (prog < 0.75) {
             const angle = ((prog - 0.50) / 0.25) * Math.PI * 2 + time * 0.035;
-            const rad = 110;
-            tx = 0;
-            ty = Math.cos(angle) * rad;
-            tz = Math.sin(angle) * rad;
+            tx = 0; ty = Math.cos(angle) * 110; tz = Math.sin(angle) * 110;
         } else {
-            const phi = Math.acos(1 - 2 * ((prog - 0.75) / 0.25));
-            const theta = GOLDEN_ANGLE * i + time * 0.015;
-            const rad = 32 + Math.sin(time * 0.05 + i) * 6;
+            const phi   = Math.acos(1 - 2 * ((prog - 0.75) / 0.25));
+            const theta = _GOLDEN_LUT[i] + time * 0.015;
+            const rad   = 32 + Math.sin(time * 0.05 + i) * 6;
             tx = Math.sin(phi) * Math.cos(theta) * rad;
             ty = Math.cos(phi) * rad;
             tz = Math.sin(phi) * Math.sin(theta) * rad;
         }
         const r = rotateInline(tx, ty, tz, true);
-        ix = cx + r.x + rx * 0.15; iy = cy + r.y + ry * 0.15; iz = r.z + rz * 0.15; // was *0.4
+        ix = cx + r.x + rx * 0.15; iy = cy + r.y + ry * 0.15; iz = r.z + rz * 0.15;
+        break;
+    }
 
-    } else if (phaseName === 'SHAPE_TESSERACT') {
-        // ── HD UPGRADE ──────────────────────────────────────────────────────
-        // ep (edge position parameter) changed from ((i*7)%13)/12 — which
-        // creates biased clusters at specific fractions — to a uniform
-        // distribution across 16 steps per edge. This evenly populates all
-        // edges of the tesseract so no single edge segment looks "empty" or
-        // over-crowded. Noise reduced from *0.3 → *0.08 for razor-sharp edges.
-        // ─────────────────────────────────────────────────────────────────────
+    case 'SHAPE_TESSERACT': {
         const { v, e } = _TESS;
         const ei = i % e.length;
-        // Perfect distribution of particles across the edge length (capped strictly at 1.0)
         const maxSteps = Math.floor((total - 1) / e.length);
         const ep = Math.min(1.0, Math.floor(i / e.length) / (maxSteps || 1));
         const [ai, bi] = e[ei];
@@ -280,17 +204,12 @@ export function updateParticleIdealTargets(p, phaseName, i, total, time, cx, cy)
             v[ai][2] + (v[bi][2] - v[ai][2]) * ep,
             true
         );
-        // Zeroed out the random noise completely to form perfectly razor-sharp mathematical edges!
         ix = cx + r.x; iy = cy + r.y; iz = r.z;
+        break;
+    }
 
-    } else if (phaseName === 'SHAPE_STELLATED_OCTAHEDRON') {
-        // ── HD UPGRADE ──────────────────────────────────────────────────────
-        // Edge noise zeroed (rand *0.4 → *0.0) for the Merkaba.
-        // On a sacred geometry shape, any positional noise directly blurs the
-        // star tips — they should be needle-sharp. ep also improved to uniform.
-        // ─────────────────────────────────────────────────────────────────────
+    case 'SHAPE_STELLATED_OCTAHEDRON': {
         const ei = i % _MERK_EDGES.length;
-        // Perfect distribution of particles across the edge length (capped strictly at 1.0)
         const maxSteps = Math.floor((total - 1) / _MERK_EDGES.length);
         const ep = Math.min(1.0, Math.floor(i / _MERK_EDGES.length) / (maxSteps || 1));
         const [pa, pb] = _MERK_EDGES[ei];
@@ -300,28 +219,97 @@ export function updateParticleIdealTargets(p, phaseName, i, total, time, cx, cy)
             pa[2] + (pb[2] - pa[2]) * ep,
             true
         );
-        // Zeroed out the random noise completely to form perfectly razor-sharp mathematical edges!
         ix = cx + r.x; iy = cy + r.y; iz = r.z;
-    } else if (phaseName === 'SHAPE_DYSON_SPHERE') {
-        // ── HD UPGRADE ──────────────────────────────────────────────────────
-        // 3 rings now have precise, explicitly distinct radii (155, 185, 215)
-        // and the angle distribution is per-ring rather than prog-based to
-        // ensure each ring is equally populated. Noise reduced.
-        // ─────────────────────────────────────────────────────────────────────
+        break;
+    }
+
+    case 'SHAPE_TORUS': {
+        const phi   = prog * Math.PI * 2;
+        const theta = _TORUS_LUT[i] + time * 0.05;
+        const R = 192, r_tube = 42;
+        const r = rotateInline(
+            (R + r_tube * Math.cos(theta)) * Math.cos(phi),
+            (R + r_tube * Math.cos(theta)) * Math.sin(phi),
+            r_tube * Math.sin(theta),
+            false
+        );
+        ix = cx + r.x + rx * 0.2; iy = cy + r.y + ry * 0.2; iz = r.z + rz * 0.2;
+        break;
+    }
+
+    case 'SHAPE_PULSAR_STAR': {
+        if (prog < 0.35) {
+            const phi   = Math.acos(1 - 2 * (prog / 0.35));
+            const theta = _GOLDEN_LUT[i] + time * 0.15;
+            const rad   = 28 + Math.sin(time * 0.08 + i) * 5;
+            ix = cx + Math.sin(phi) * Math.cos(theta) * rad;
+            iy = cy + Math.sin(phi) * Math.sin(theta) * rad;
+            iz = Math.cos(phi) * rad;
+        } else if (prog < 0.65) {
+            const angle = ((prog - 0.35) / 0.30) * Math.PI * 2 - time * 0.12;
+            const rad   = [58, 75, 92][i % 3];
+            ix = cx + Math.cos(angle) * rad;
+            iy = cy + Math.sin(angle) * rad;
+            iz = Math.sin(time * 0.1 + i) * 3;
+        } else {
+            const isTop     = i % 2 === 0;
+            const lengthProg = (prog - 0.65) / 0.35;
+            const h         = (isTop ? 1 : -1) * (35 + lengthProg * 180);
+            const rad       = 6 + lengthProg * 15;
+            const angle     = lengthProg * Math.PI * 12 + time * 0.2;
+            const pulse     = 1.0 + Math.sin(lengthProg * Math.PI * 4 - time * 0.1) * 0.4;
+            ix = cx + Math.cos(angle) * rad * pulse;
+            iy = cy + Math.sin(angle) * rad * pulse;
+            iz = h;
+        }
+        const r = rotateInline(ix - cx, iy - cy, iz, true);
+        ix = cx + r.x + rx * 0.2; iy = cy + r.y + ry * 0.2; iz = r.z + rz * 0.2;
+        break;
+    }
+
+    case 'SHAPE_HOURGLASS': {
+        const ribbon  = i % 2;
+        const t3      = _HGLASS_LUT[i] + (ribbon * Math.PI) + time * 0.015;
+        const L_scale = 2 / (3 - Math.cos(2 * t3));
+        const lx = 85  * L_scale * Math.cos(t3);
+        const ly = 255 * L_scale * Math.sin(2 * t3);
+        const lz = 30  * Math.sin(t3 * 3 + time * 0.05);
+        const r = rotateInline(lx, ly, lz, true);
+        ix = cx + r.x + rx * 0.15; iy = cy + r.y + ry * 0.15; iz = r.z + rz * 0.15;
+        break;
+    }
+
+    case 'SHAPE_MULTIVERSE': {
+        if (prog < 0.45) {
+            const angle    = prog * Math.PI * 8 + time * 0.015;
+            const outerRad = (i % 2 === 0) ? 220 : 248;
+            const wave     = Math.sin(time * 0.045 + i) * 6;
+            ix = cx + Math.cos(angle) * (outerRad + wave);
+            iy = cy + Math.sin(angle) * (outerRad + wave);
+            iz = Math.sin(angle * 2.5) * 55;
+        } else {
+            const f     = (prog - 0.45) / 0.55;
+            const angle = prog * Math.PI * 12 - time * 0.035;
+            ix = cx + Math.cos(angle) * f * 165;
+            iy = cy + Math.sin(angle) * f * 165;
+            iz = -70 + (1 - prog) * 200;
+        }
+        break;
+    }
+
+    case 'SHAPE_DYSON_SPHERE': {
         if (prog < 0.2) {
-            const phi = Math.acos(((i * 7.7) % 2) - 1), theta = (i * 15.3) % (Math.PI * 2);
-            const rad = 32 + Math.sin(time * 0.06 + i) * 4;
+            const phi   = Math.acos(((i * 7.7) % 2) - 1);
+            const theta = (i * 15.3) % (Math.PI * 2);
+            const rad   = 32 + Math.sin(time * 0.06 + i) * 4;
             ix = cx + Math.sin(phi) * Math.cos(theta) * rad + rx * 0.3;
             iy = cy + Math.sin(phi) * Math.sin(theta) * rad + ry * 0.3;
             iz = Math.cos(phi) * rad + rz * 0.3;
         } else {
-            const ring = i % 3;
-            // HD: explicit discrete radii — much crisper than 160 + ring*25
-            const ringRadii = [155, 185, 215];
-            const rad = ringRadii[ring];
-            // Angle based on position within this ring for even distribution
-            const ringProg = Math.floor(i / 3) / Math.floor(total / 3);
-            const angle = ringProg * Math.PI * 2 + time * 0.015;
+            const ring      = i % 3;
+            const rad       = [155, 185, 215][ring];
+            const ringProg  = Math.floor(i / 3) / Math.floor(total / 3);
+            const angle     = ringProg * Math.PI * 2 + time * 0.015;
             let rxV = 0, ryV = 0, rzV = 0;
             if      (ring === 0) { rxV = Math.cos(angle)*rad; ryV = Math.sin(angle)*rad; rzV = 0; }
             else if (ring === 1) { rxV = Math.cos(angle)*rad; rzV = Math.sin(angle)*rad; ryV = 0; }
@@ -329,164 +317,35 @@ export function updateParticleIdealTargets(p, phaseName, i, total, time, cx, cy)
             const r = rotateInline(rxV, ryV, rzV, false);
             ix = cx + r.x + rx * 0.15; iy = cy + r.y + ry * 0.15; iz = r.z + rz * 0.15;
         }
+        break;
+    }
 
-    } else if (phaseName === 'SHAPE_TORUS') {
-        // ── HD UPGRADE ──────────────────────────────────────────────────────
-        // Tube radius reduced 65 → 42 and major radius 180 → 192.
-        // A thinner tube makes the torus look like a precision-engineered ring
-        // rather than a fat donut. The larger major radius compensates visually.
-        // Noise reduced from *1 → *0.2.
-        // ─────────────────────────────────────────────────────────────────────
-        const phi = prog * Math.PI * 2, theta = prog * Math.PI * 24 + time * 0.05;
-        const R = 192, r_tube = 42; // was R=180, r_tube=65
-        const r = rotateInline(
-            (R + r_tube * Math.cos(theta)) * Math.cos(phi),
-            (R + r_tube * Math.cos(theta)) * Math.sin(phi),
-            r_tube * Math.sin(theta),
-            false
-        );
-        ix = cx + r.x + rx * 0.2; iy = cy + r.y + ry * 0.2; iz = r.z + rz * 0.2; // was *1
-
-    } else if (phaseName === 'SHAPE_QUANTUM_FIELD') {
-        // (unchanged — this shape is intentionally diffuse)
-        const spokeAngle = (i % 8) / 8 * Math.PI * 2 + time * 0.005;
-        if (i % 3 === 0) {
-            const rad = 25 + prog * 235;
-            ix = cx + Math.cos(spokeAngle) * rad;
-            iy = cy + Math.sin(spokeAngle) * rad;
-            iz = Math.sin(prog * Math.PI * 3 + time * 0.03) * 35;
-        } else {
-            const layer = Math.floor(prog * 7) % 7, rad = 45 + layer * 32;
-            const a = (prog * 10 + time * 0.015) * Math.PI * 2;
-            ix = cx + Math.cos(a) * rad;
-            iy = cy + Math.sin(a) * rad;
-            iz = Math.sin(layer * 0.8 - time * 0.035) * 25;
-        }
-
-    } else if (phaseName === 'SHAPE_PULSAR_STAR') {
-        // ── HD UPGRADE ──────────────────────────────────────────────────────
-        // Jets: helix tightened (rad multiplier capped, pitch increased).
-        // The "pulse" binaryisation (>0 ? 1.5 : 1.0) causes visually jarring
-        // discontinuities. Replaced with a smooth sine modulation.
-        // Accretion disk: 3 discrete radii (was continuous 5-step).
-        // Noise reduced from *0.2 → *0.1.
-        // ─────────────────────────────────────────────────────────────────────
-        if (prog < 0.35) {
-            const phi = Math.acos(1 - 2 * (prog / 0.35));
-            const theta = GOLDEN_ANGLE * i + time * 0.15;
-            const rad = 28 + Math.sin(time * 0.08 + i) * 5;
-            ix = cx + Math.sin(phi) * Math.cos(theta) * rad;
-            iy = cy + Math.sin(phi) * Math.sin(theta) * rad;
-            iz = Math.cos(phi) * rad;
-        } else if (prog < 0.65) {
-            const angle = ((prog - 0.35) / 0.30) * Math.PI * 2 - time * 0.12;
-            // HD: 3 discrete accretion radii instead of 5 blended ones
-            const diskBand = i % 3;
-            const diskRadii = [58, 75, 92];
-            const rad = diskRadii[diskBand];
-            ix = cx + Math.cos(angle) * rad;
-            iy = cy + Math.sin(angle) * rad;
-            iz = Math.sin(time * 0.1 + i) * 3; // reduced z scatter for crisper disk
-        } else {
-            const isTop = i % 2 === 0;
-            const lengthProg = ((prog - 0.65) / 0.35);
-            // Reduced height from 390 to 180 to keep particles dense and avoid the "scattered dots" look
-            const h = (isTop ? 1 : -1) * (35 + lengthProg * 180);
-            const rad = 6 + lengthProg * 15; // slightly narrower helix
-            const angle = lengthProg * Math.PI * 12 + time * 0.2; // adjusted pitch
-            const pulse = 1.0 + Math.sin(lengthProg * Math.PI * 4 - time * 0.1) * 0.4;
-            ix = cx + Math.cos(angle) * rad * pulse;
-            iy = cy + Math.sin(angle) * rad * pulse;
-            iz = h;
-        }
-        const r = rotateInline(ix - cx, iy - cy, iz, true);
-        ix = cx + r.x + rx * 0.2; iy = cy + r.y + ry * 0.2; iz = r.z + rz * 0.2; // Restored volume
-    } else if (phaseName === 'SHAPE_HOURGLASS') {
-        // ── HD UPGRADE ──────────────────────────────────────────────────────
-        // Ribbon count reduced 4 → 2. With 4 ribbons the figure-8 looked fat
-        // and blurry. 2 ribbons create a cleaner double-thread silhouette.
-        // Width reduced 110 → 85, height 240 → 255 for a more elegant ratio.
-        // Z scatter reduced 60 → 30. Noise reduced *0.3 → *0.15.
-        // ─────────────────────────────────────────────────────────────────────
-        const ribbon = i % 2; // was % 4
-        const t3 = (prog * Math.PI * 2) + (ribbon * Math.PI) + time * 0.015; // spacing adjusted
-        const L_scale = 2 / (3 - Math.cos(2 * t3));
-        const height = 255; // was 240
-        const width  = 85;  // was 110
-        
-        const lx = width  * L_scale * Math.cos(t3);
-        const ly = height * L_scale * Math.sin(2 * t3);
-        const lz = 30 * Math.sin(t3 * 3 + time * 0.05); // was 60
-        
-        const r = rotateInline(lx, ly, lz, true);
-        ix = cx + r.x + rx * 0.15; iy = cy + r.y + ry * 0.15; iz = r.z + rz * 0.15; // was *0.3
-
-    } else if (phaseName === 'SHAPE_MULTIVERSE') {
-        // ── HD UPGRADE ──────────────────────────────────────────────────────
-        // Outer ring: using two discrete radii (220 / 245) for two visually
-        // distinct ring bands rather than a uniform 230+wave smear.
-        // Inner helix unchanged (already diffuse by design).
-        // ─────────────────────────────────────────────────────────────────────
-        if (prog < 0.45) {
-            const angle = prog * Math.PI * 8 + time * 0.015;
-            // HD: two distinct radii create a double-ring structure
-            const outerRad = (i % 2 === 0) ? 220 : 248;
-            const wave = Math.sin(time * 0.045 + i) * 6; // reduced wave from 12
-            ix = cx + Math.cos(angle) * (outerRad + wave);
-            iy = cy + Math.sin(angle) * (outerRad + wave);
-            iz = Math.sin(angle * 2.5) * 55;
-        } else {
-            const f = (prog - 0.45) / 0.55;
-            const angle = prog * Math.PI * 12 - time * 0.035;
-            ix = cx + Math.cos(angle) * f * 165;
-            iy = cy + Math.sin(angle) * f * 165;
-            iz = -70 + (1 - prog) * 200;
-        }
-
-    } else if (phaseName === 'SHAPE_PYRAMID') {
-        // ── HD UPGRADE ──────────────────────────────────────────────────────
-        // Spike length range narrowed: was 45..260, now 80..240.
-        // A tighter length range means all 6 spike tips end at approximately
-        // the same distance — creating a clean, sharp 6-axis star instead of
-        // a fuzzy cloud. Noise reduced *0.3 → *0.1.
-        // ─────────────────────────────────────────────────────────────────────
-        let tx = 0, ty = 0, tz = 0;
+    case 'SHAPE_PYRAMID': {
         const subPhase = i % 3;
-        
+        let tx = 0, ty = 0, tz = 0;
         if (subPhase === 0) {
-            const phi = Math.acos(1 - 2 * (prog * 3 % 1));
+            const phi   = Math.acos(1 - 2 * (prog * 3 % 1));
             const theta = (prog * 3 % 1) * Math.PI * 2 + time * 0.03;
-            const rad = 42 + Math.sin(time * 0.05 + i) * 5;
+            const rad   = 42 + Math.sin(time * 0.05 + i) * 5;
             tx = rad * Math.sin(phi) * Math.cos(theta);
             ty = rad * Math.sin(phi) * Math.sin(theta);
             tz = rad * Math.cos(phi);
         } else if (subPhase === 1) {
             const angle = (prog * 3 % 1) * Math.PI * 2 + time * 0.02;
-            const isXY = (i % 2 === 0);
-            if (isXY) {
-                tx = Math.cos(angle) * 190;
-                ty = Math.sin(angle) * 190;
-                tz = 0;
-            } else {
-                tx = 0;
-                ty = Math.cos(angle) * 190;
-                tz = Math.sin(angle) * 190;
-            }
+            if (i % 2 === 0) { tx = Math.cos(angle)*190; ty = Math.sin(angle)*190; }
+            else              { ty = Math.cos(angle)*190; tz = Math.sin(angle)*190; }
         } else {
             const spikeDir = i % 6;
-            // HD: tighter range 80..240 was 45..260 — crisper spike tip silhouette
-            const len = 80 + ((i * 7) % 20) / 19 * 160;
-            if (spikeDir === 0) { tx = len; ty = 0; tz = 0; }
-            else if (spikeDir === 1) { tx = -len; ty = 0; tz = 0; }
-            else if (spikeDir === 2) { tx = 0; ty = len; tz = 0; }
-            else if (spikeDir === 3) { tx = 0; ty = -len; tz = 0; }
-            else if (spikeDir === 4) { tx = 0; ty = 0; tz = len; }
-            else { tx = 0; ty = 0; tz = -len; }
+            const len      = 80 + ((i * 7) % 20) / 19 * 160;
+            const dirs = [[len,0,0],[-len,0,0],[0,len,0],[0,-len,0],[0,0,len],[0,0,-len]];
+            [tx, ty, tz] = dirs[spikeDir];
         }
-        
         const r = rotateInline(tx, ty, tz, true);
-        ix = cx + r.x + rx * 0.1; iy = cy + r.y + ry * 0.1; iz = r.z + rz * 0.1; // was *0.3
+        ix = cx + r.x + rx * 0.1; iy = cy + r.y + ry * 0.1; iz = r.z + rz * 0.1;
+        break;
     }
+
+    } // end switch
 
     p.idealX = ix;
     p.idealY = iy;

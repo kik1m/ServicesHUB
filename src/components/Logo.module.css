@@ -32,8 +32,8 @@
 .gradient {
     background: linear-gradient(
         135deg, 
-        hsl(var(--dynamic-hue-1, 200), calc(var(--dynamic-saturation, 0) * 1%), 65%) 0%, 
-        hsl(var(--dynamic-hue-2, 260), calc(var(--dynamic-saturation, 0) * 1%), 60%) 100%
+        hsl(var(--dynamic-hue-1, 280), calc(var(--dynamic-saturation, 0) * 1%), 65%) 0%, 
+        hsl(var(--dynamic-hue-2, 190), calc(var(--dynamic-saturation, 0) * 1%), 60%) 100%
     );
     -webkit-background-clip: text;
     background-clip: text;
