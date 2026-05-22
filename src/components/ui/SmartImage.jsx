@@ -101,8 +101,8 @@ const SmartImage = ({
                     onLoad={handleLoad}
                     onError={handleError}
                     loading={priority ? "eager" : "lazy"}
-                    width={800}
-                    height={600}
+                    width={400}
+                    height={400}
                 />
             ) : (
                 /* Elite next/image for trusted/configured sources */
