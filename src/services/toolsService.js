@@ -258,10 +258,20 @@ export const toolsService = {
         } else if (sortBy === 'alphabetical') {
             query = query.order('name', { ascending: true });
         } else if (sortBy === 'featured') {
-            query = query.order('is_featured', { ascending: false }).order('created_at', { ascending: false });
+            if (searchQuery) {
+                // If the user is actively searching by text, prioritizing featured tools globally will push exact text matches 
+                // off the first page. Thus, we degrade to newest-first, allowing the frontend relevance sort to shine.
+                query = query.order('created_at', { ascending: false });
+            } else {
+                query = query.order('is_featured', { ascending: false }).order('created_at', { ascending: false });
+            }
         } else {
             // Default: featured first, then newest
-            query = query.order('is_featured', { ascending: false }).order('created_at', { ascending: false });
+            if (searchQuery) {
+                query = query.order('created_at', { ascending: false });
+            } else {
+                query = query.order('is_featured', { ascending: false }).order('created_at', { ascending: false });
+            }
         }
 
         // Secondary stable order

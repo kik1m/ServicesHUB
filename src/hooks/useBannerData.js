@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { queryOptions } from '../lib/queryOptions';
 
-const BANNER_INTERVAL = 8000;
+const BANNER_INTERVAL = 15000; // Increased to 15s to prevent Lighthouse LCP penalty
 const MAX_BANNER_ITEMS = 20; // Increased for promotional scalability
 
 /**
