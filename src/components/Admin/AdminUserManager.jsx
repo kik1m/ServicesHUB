@@ -1,7 +1,7 @@
 'use client';
 import React, { memo } from 'react';
 import { ADMIN_UI_CONSTANTS } from '../../constants/adminConstants';
-import { Award, Mail, Calendar, User, Shield } from 'lucide-react';
+import { Award, Mail, Calendar, User, Shield, Zap } from 'lucide-react';
 import Skeleton from '../ui/Skeleton';
 import SmartImage from '../ui/SmartImage';
 import Safeguard from '../ui/Safeguard';
@@ -78,7 +78,7 @@ const AdminUserManager = memo(({ activeTab, allUsers = [], subscribers = [], isL
                                             <div className={styles.info}>
                                                 <div className={styles.nameRow}>
                                                     <h5>{u?.full_name || labels.anonymous}</h5>
-                                                    {u?.is_premium && <Award size={16} className={styles.premiumIcon} title={labels.premiumHint} />}
+                                                    {u?.is_premium && <Zap size={16} className={styles.premiumIcon} title={labels.premiumHint} />}
                                                 </div>
                                                 <p className={styles.role}>{u?.role}</p>
                                                 <p className={styles.date}>

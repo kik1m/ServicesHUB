@@ -18,7 +18,7 @@ import styles from './HomeComparisons.module.css';
  */
 const HomeComparisons = ({ comparisons = [], isLoading, error }) => {
     const visibleComparisons = useMemo(() => {
-        return (comparisons || []).filter(c => c?.tool1 && c?.tool2).slice(0, 6);
+        return (comparisons || []).filter(c => c?.tool1 && c?.tool2).slice(0, 4);
     }, [comparisons]);
 
     return (

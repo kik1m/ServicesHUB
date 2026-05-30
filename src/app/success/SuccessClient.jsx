@@ -11,17 +11,18 @@ import SuccessActions from '@/components/Success/SuccessActions';
 import styles from './page.module.css';
 
 export default function SuccessClient() {
-    const { loading, type, toolName } = useSuccessData();
+    const { loading, type, toolName, tierId } = useSuccessData();
 
     return (
         <main className={styles.successPage} aria-live="polite">
             <div className={styles.contentWrapper}>
                 <SuccessHero 
                     type={type} 
+                    tierId={tierId}
                     toolName={toolName}
                     isLoading={loading}
                 />
-                <SuccessMessage type={type} toolName={toolName} isLoading={loading} />
+                <SuccessMessage type={type} tierId={tierId} toolName={toolName} isLoading={loading} />
                 <SuccessActions type={type} isLoading={loading} />
             </div>
         </main>

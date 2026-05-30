@@ -17,6 +17,7 @@ import HomeValueProp from '../components/Home/HomeValueProp';
 import HomePublisherCTA from '../components/Home/HomePublisherCTA';
 import HomeBlogSection from '../components/Home/HomeBlogSection';
 import { HOME_UI_CONSTANTS } from '../constants/homeConstants';
+import AIFloatingButton from '../components/ui/AIFloatingButton';
 import styles from './page.module.css';
 
 /**
@@ -65,7 +66,6 @@ export default function HomeClient({
                 statsCount={stats} 
                 isLoading={loading}
                 content={HOME_UI_CONSTANTS.hero}
-                popularCategories={categories}
             />
 
             <HomeStatsBar 
@@ -111,6 +111,9 @@ export default function HomeClient({
             />
 
             <VideoGuide />
+
+            {/* AI Copilot Floating Action Button */}
+            <AIFloatingButton onClick={() => router.push('/ai-engine')} />
         </div>
     );
 }

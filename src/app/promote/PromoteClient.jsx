@@ -1,6 +1,7 @@
 'use client';
 import React from 'react';
-import { Rocket } from 'lucide-react';
+import Link from 'next/link';
+import { Rocket, Info, ArrowRight } from 'lucide-react';
 import { usePromoteData } from '@/hooks/usePromoteData';
 
 // Import Global UI Components
@@ -62,6 +63,7 @@ export default function PromoteClient() {
                     </section>
 
                     <section className={styles.plansArea}>
+
                         <PromotionPlans 
                             plans={PLANS}
                             handlePromote={handlePromote}

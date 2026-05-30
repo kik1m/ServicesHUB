@@ -46,3 +46,11 @@ api/
 # Performance traces
 Trace.json
 Trace1.json
+
+# Custom Ignores
+*.sql
+scratch_*
+scratch*
+archive/
+*.log
+build.log

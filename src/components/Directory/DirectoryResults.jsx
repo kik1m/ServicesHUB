@@ -14,11 +14,13 @@ import styles from './DirectoryResults.module.css';
  * Rule #11: Infinite Scroll implementation
  */
 const DirectoryResults = (props) => {
-    const { results, totalResults, isLoading, loadingMore, hasMore, setPage, sortBy, setSortBy, error, refetch, onToolClick, className = '', content, headerExtra, onClearFilters } = props;
+    const { results, totalResults, isLoading, loadingMore, hasMore, setPage, sortBy, setSortBy, pricingFilter, error, refetch, onToolClick, className = '', content, headerExtra, onClearFilters } = props;
 
     const observerTarget = useRef(null);
     const safeResults = results?.filter(Boolean) ?? [];
     const isInitialLoad = isLoading && safeResults.length === 0;
+    
+    const { pricingModels, selectedPrice, setSelectedPrice } = pricingFilter || {};
 
     useEffect(() => {
         const target = observerTarget.current;
@@ -43,29 +45,46 @@ const DirectoryResults = (props) => {
                             <Skeleton width="120px" height="18px" borderRadius="4px" />
                         ) : (
                             <p className={styles.resultCount}>
-                                Showing <span className={styles.resultCountHighlight}>{safeResults.length}</span> {totalResults ? `of ${totalResults}` : ''} {content?.found}
+                                Showing <span className={styles.resultCountHighlight}>{safeResults.length}</span> {totalResults ? `of ${totalResults}` : ''} {content?.found || "Tools Found"}
                             </p>
                         )}
                     </div>
 
-                    {headerExtra && <div className={styles.headerExtra}>{headerExtra}</div>}
+                    <div className={styles.inlineFiltersContainer}>
+                        {pricingModels && setSelectedPrice && (
+                            <div className={styles.filterItem}>
+                                {isInitialLoad ? (
+                                    <Skeleton width="160px" height="44px" borderRadius="12px" />
+                                ) : (
+                                    <Select
+                                        value={selectedPrice || 'All'}
+                                        onChange={(val) => setSelectedPrice(val === 'All' ? 'All' : val)}
+                                        options={pricingModels}
+                                        placeholder="All Pricing"
+                                        variant="outline"
+                                    />
+                                )}
+                            </div>
+                        )}
 
-                    <div className={styles.sortContainer}>
-                        <span className={styles.sortLabel}>{content?.sortBy || "Sort by:"}</span>
-                        {isInitialLoad ? (
-                            <Skeleton width="180px" height="44px" borderRadius="12px" />
-                        ) : (
-                            <div className={styles.sortSelectBox}>
-                                <Select
-                                    value={sortBy}
-                                    onChange={(v) => setSortBy(v)}
-                                    options={SORT_OPTIONS}
-                                    variant="outline"
-                                />
+                        {sortBy !== undefined && setSortBy !== undefined && (
+                            <div className={styles.filterItem}>
+                                {isInitialLoad ? (
+                                    <Skeleton width="160px" height="44px" borderRadius="12px" />
+                                ) : (
+                                    <Select
+                                        value={sortBy}
+                                        onChange={(v) => setSortBy(v)}
+                                        options={SORT_OPTIONS}
+                                        variant="outline"
+                                    />
+                                )}
                             </div>
                         )}
                     </div>
                 </div>
+
+                {headerExtra && <div className={styles.headerExtraBlock}>{headerExtra}</div>}
 
                 <div className={props.mode === 'lite' ? styles.resultsGridLite : styles.resultsGrid}>
                     {safeResults.length > 0 ? (

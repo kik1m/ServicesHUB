@@ -100,7 +100,7 @@ export const compareService = {
         }
     },
 
-    async getRecentComparisons() {
+    async getRecentComparisons(limit = 6) {
         try {
             const { data, error } = await supabase
                 .from('tool_comparisons')
@@ -112,7 +112,7 @@ export const compareService = {
                     ai_report_json
                 `)
                 .order('created_at', { ascending: false })
-                .limit(4);
+                .limit(limit);
 
             if (error) throw error;
             return { data: data || [], error: null };
@@ -137,6 +137,23 @@ export const compareService = {
             return { data: data?.ai_report_json || null, error: null };
         } catch (error) {
             console.error('Error checking comparison cache:', error);
+            return { data: null, error };
+        }
+    },
+
+    async getCustomComparisonById(id) {
+        if (!id) return { data: null, error: 'No ID provided' };
+        try {
+            const { data, error } = await supabase
+                .from('custom_comparisons')
+                .select('tool1_id, tool2_id, user_query, ai_report_json')
+                .eq('id', id)
+                .single();
+                
+            if (error) throw error;
+            return { data, error: null };
+        } catch (error) {
+            console.error('Error fetching custom comparison:', error);
             return { data: null, error };
         }
     }

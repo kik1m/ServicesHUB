@@ -57,8 +57,67 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: 'api.screenshotone.com',
-      }
+      },
+      {
+        // Allow ALL external image sources (tool logos from any domain)
+        protocol: 'https',
+        hostname: '**',
+      },
     ],
+  },
+  async redirects() {
+    return [
+      {
+        source: '/faq',
+        destination: '/docs',
+        permanent: true,
+      },
+      {
+        source: '/about',
+        destination: '/docs',
+        permanent: true,
+      },
+      {
+        source: '/help',
+        destination: '/docs',
+        permanent: true,
+      },
+      {
+        source: '/terms',
+        destination: '/docs/terms',
+        permanent: true,
+      },
+      {
+        source: '/privacy',
+        destination: '/docs/privacy',
+        permanent: true,
+      },
+    ];
+  },
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          {
+            key: 'X-XSS-Protection',
+            value: '1; mode=block',
+          },
+          {
+            key: 'X-Frame-Options',
+            value: 'SAMEORIGIN',
+          },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff',
+          },
+          {
+            key: 'Content-Security-Policy',
+            value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' blob: data: https:; font-src 'self' https://fonts.gstatic.com data:; connect-src 'self' https://uwyidshwfvjlzfgbtmac.supabase.co wss://uwyidshwfvjlzfgbtmac.supabase.co https://api.openrouter.ai https://generativelanguage.googleapis.com;",
+          },
+        ],
+      },
+    ];
   },
 };
 

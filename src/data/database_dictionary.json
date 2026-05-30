@@ -1,0 +1,299 @@
+{
+  "description": "This is the complete HUBly AI Data Dictionary. It explains ALL the tables and EVERY SINGLE FIELD in the database to ensure 100% accurate SQL generation.",
+  "tables": {
+    "profiles": {
+      "description": "Stores user accounts, profile details, AI quotas, and preferences.",
+      "fields": {
+        "id": "UUID (Primary Key)",
+        "full_name": "Text. User's display name.",
+        "avatar_url": "Text. URL to profile picture.",
+        "bio": "Text. Short biography.",
+        "role": "Text. E.g., 'admin', 'user'.",
+        "membership": "Text. Current membership level.",
+        "updated_at": "Timestamp of last update.",
+        "is_premium": "Boolean. True if user has premium plan.",
+        "premium_since": "Timestamp. When they became premium.",
+        "website": "Text. User's personal website URL.",
+        "twitter": "Text. X/Twitter handle.",
+        "github": "Text. GitHub handle.",
+        "linkedin": "Text. LinkedIn URL.",
+        "ai_search_count": "Integer. Total AI searches performed.",
+        "last_ai_search_at": "Timestamp of their last AI search.",
+        "followers_count": "Integer. Number of users following them.",
+        "following_count": "Integer. Number of users they follow.",
+        "email": "Text. User's email address.",
+        "experience_level": "Text. Self-reported experience level.",
+        "primary_goal": "Text. Their primary goal on HUBly.",
+        "job_title": "Text. Self-reported job title.",
+        "long_term_memory": "JSONB. Dynamic memory of what the AI learned about the user.",
+        "ai_messages_today": "Integer. Daily quota tracking for AI chat.",
+        "ai_last_reset_date": "Date. When the quota was last reset.",
+        "workspace_context": "JSONB. Current workspace state/context."
+      }
+    },
+    "tools": {
+      "description": "Stores all AI tools published on the HUBly platform.",
+      "fields": {
+        "id": "UUID (Primary Key)",
+        "name": "Text. Name of the tool.",
+        "slug": "Text. URL-friendly unique identifier.",
+        "short_description": "Text. Brief tagline.",
+        "description": "Text. Full detailed description.",
+        "features": "JSONB. Array or object of tool features.",
+        "category_id": "UUID. Links to categories.id.",
+        "pricing_type": "Text. (e.g., Free, Paid, Freemium).",
+        "pricing_details": "Text. Short pricing summary.",
+        "url": "Text. External URL to the tool.",
+        "image_url": "Text. URL for the tool's cover image.",
+        "is_approved": "Boolean. True if approved by admins.",
+        "is_verified": "Boolean. True if verified tool owner.",
+        "is_featured": "Boolean. True if currently featured.",
+        "rating": "Numeric. Average user rating (1-5).",
+        "reviews_count": "Integer. Total number of reviews.",
+        "creator_id": "UUID. User who originally created the tool.",
+        "created_at": "Timestamp. When it was added to HUBly.",
+        "user_id": "UUID. The current owner/submitter.",
+        "featured_until": "Timestamp. Expiration of featured status.",
+        "icon_name": "Text. Name of UI icon.",
+        "view_count": "BigInt. Number of times tool page was viewed.",
+        "click_count": "BigInt. Number of external link clicks.",
+        "updated_at": "Timestamp.",
+        "pending_changes": "JSONB. Edits waiting for approval.",
+        "use_cases": "Array of text. Use cases for the tool.",
+        "pricing_details_full": "Text. Detailed pricing text.",
+        "pricing_url": "Text. Direct link to pricing page."
+      }
+    },
+    "reviews": {
+      "description": "User reviews and ratings for tools.",
+      "fields": {
+        "id": "UUID (Primary Key)",
+        "tool_id": "UUID. Links to tools.id.",
+        "user_id": "UUID. Links to profiles.id.",
+        "rating": "Integer (1-5). Rating given.",
+        "comment": "Text. The review body.",
+        "created_at": "Timestamp.",
+        "parent_id": "UUID. If it's a reply to another review.",
+        "is_owner_reply": "Boolean. True if the reply is from the tool owner."
+      }
+    },
+    "categories": {
+      "description": "Categories for AI tools.",
+      "fields": {
+        "id": "UUID (Primary Key)",
+        "name": "Text. Category name.",
+        "slug": "Text. URL slug.",
+        "icon_name": "Text. UI icon name.",
+        "created_at": "Timestamp."
+      }
+    },
+    "user_projects": {
+      "description": "Projects built by users using AI.",
+      "fields": {
+        "id": "UUID (Primary Key)",
+        "user_id": "UUID. Links to profiles.id.",
+        "name": "Varchar. Project name.",
+        "tech_stack": "Text. Recommended tools.",
+        "budget": "Text. Estimated budget.",
+        "skill_level": "Text. Required skill.",
+        "status": "Varchar. Project status (e.g., 'planning', 'active').",
+        "created_at": "Timestamp.",
+        "updated_at": "Timestamp."
+      }
+    },
+    "reports": {
+      "description": "User reports against tools (spam, broken).",
+      "fields": {
+        "id": "UUID (Primary Key)",
+        "tool_id": "UUID. Links to tools.id.",
+        "user_id": "UUID. Links to profiles.id.",
+        "reason": "Text. Why it was reported.",
+        "status": "Text. Status of the report.",
+        "created_at": "Timestamp."
+      }
+    },
+    "favorites": {
+      "description": "User bookmarked tools.",
+      "fields": {
+        "user_id": "UUID. Links to profiles.id.",
+        "tool_id": "UUID. Links to tools.id."
+      }
+    },
+    "follows": {
+      "description": "Social following system.",
+      "fields": {
+        "id": "UUID (Primary Key)",
+        "follower_id": "UUID. User who follows.",
+        "following_id": "UUID. User being followed.",
+        "created_at": "Timestamp."
+      }
+    },
+    "analytics": {
+      "description": "Platform traffic and analytics.",
+      "fields": {
+        "id": "UUID (Primary Key)",
+        "visitor_id": "Text. Unique visitor session.",
+        "page_path": "Text. Route visited.",
+        "country": "Text. Visitor location.",
+        "visit_date": "Date.",
+        "created_at": "Timestamp."
+      }
+    },
+    "seo_metadata": {
+      "description": "Dynamic SEO tags for pages.",
+      "fields": {
+        "id": "UUID (Primary Key)",
+        "entity_id": "UUID. ID of the tool or post.",
+        "entity_type": "Text. 'tool' or 'blog'.",
+        "title": "Text. SEO Title.",
+        "description": "Text. SEO Description.",
+        "keywords": "JSONB.",
+        "og_image": "Text. Social preview image.",
+        "schema_markup": "JSONB. Structured data.",
+        "search_intent": "Text.",
+        "content_hash": "Text.",
+        "ai_model": "Text. Model used to generate SEO.",
+        "last_optimized": "Timestamp.",
+        "data_hash": "Text."
+      }
+    },
+    "tool_comparisons": {
+      "description": "Cached AI comparisons of 2 tools.",
+      "fields": {
+        "id": "UUID (Primary Key)",
+        "tool1_id": "UUID. First tool.",
+        "tool2_id": "UUID. Second tool.",
+        "ai_report_json": "JSONB. The generated comparison report.",
+        "created_at": "Timestamp."
+      }
+    },
+    "tool_promotions": {
+      "description": "Featured tools paid promotions.",
+      "fields": {
+        "id": "UUID (Primary Key)",
+        "tool_id": "UUID. Links to tools.id.",
+        "status": "Text.",
+        "plan_name": "Text.",
+        "created_at": "Timestamp."
+      }
+    },
+    "blog_posts": {
+      "description": "HUBly articles and blogs.",
+      "fields": {
+        "id": "UUID (Primary Key)",
+        "title": "Text.",
+        "excerpt": "Text.",
+        "content": "Text.",
+        "category": "Text.",
+        "image_url": "Text.",
+        "author_name": "Text.",
+        "created_at": "Timestamp.",
+        "slug": "Text."
+      }
+    },
+    "blog_categories": {
+      "description": "Categories for blog posts.",
+      "fields": {
+        "id": "UUID (Primary Key)",
+        "name": "Text.",
+        "slug": "Text.",
+        "created_at": "Timestamp."
+      }
+    },
+    "newsletter_subscribers": {
+      "description": "Mailing list subscribers.",
+      "fields": {
+        "id": "UUID (Primary Key)",
+        "email": "Text.",
+        "created_at": "Timestamp."
+      }
+    },
+    "notifications": {
+      "description": "In-app notifications.",
+      "fields": {
+        "id": "UUID (Primary Key)",
+        "user_id": "UUID. Receiver.",
+        "title": "Text.",
+        "content": "Text.",
+        "type": "Text. Category of notification.",
+        "is_unread": "Boolean.",
+        "created_at": "Timestamp.",
+        "metadata": "JSONB."
+      }
+    },
+    "ai_agent_logs": {
+      "description": "Logs for automated background scripts.",
+      "fields": {
+        "id": "UUID (Primary Key)",
+        "run_date": "Timestamp.",
+        "total_processed": "Int4.",
+        "added_count": "Int4.",
+        "updated_count": "Int4.",
+        "skipped_count": "Int4.",
+        "failed_count": "Int4.",
+        "details": "JSONB."
+      }
+    },
+    "ai_jobs": {
+      "description": "Queue for heavy AI tasks.",
+      "fields": {
+        "id": "UUID (Primary Key)",
+        "job_type": "Text.",
+        "payload": "JSONB.",
+        "status": "Text.",
+        "logs": "Text.",
+        "created_at": "Timestamp.",
+        "updated_at": "Timestamp."
+      }
+    },
+    "ai_sessions": {
+      "description": "AI Chat Sessions.",
+      "fields": {
+        "id": "UUID (Primary Key)",
+        "user_id": "UUID. Owner of session.",
+        "tool1_id": "UUID (optional).",
+        "tool2_id": "UUID (optional).",
+        "is_public": "Boolean.",
+        "created_at": "Timestamp.",
+        "title": "Text."
+      }
+    },
+    "ai_messages": {
+      "description": "Messages inside an AI session.",
+      "fields": {
+        "id": "UUID (Primary Key)",
+        "session_id": "UUID. Links to ai_sessions.",
+        "role": "Varchar ('user', 'model', 'system').",
+        "content": "Text.",
+        "created_at": "Timestamp."
+      }
+    },
+    "platform_docs": {
+      "description": "HUBly knowledge base documentation.",
+      "fields": {
+        "id": "UUID (Primary Key)",
+        "slug": "Text.",
+        "section": "Text.",
+        "title": "Text.",
+        "content": "Text.",
+        "last_updated": "Timestamp.",
+        "created_at": "Timestamp."
+      }
+    },
+    "internal_knowledge": {
+      "description": "Admin-only strategic knowledge.",
+      "fields": {
+        "id": "UUID (Primary Key)",
+        "title": "Text.",
+        "content": "Text.",
+        "created_at": "Timestamp."
+      }
+    }
+  },
+  "sql_tips": [
+    "To find the most active users by tools published, JOIN profiles and tools on profiles.id = tools.user_id.",
+    "For user views on a tool, check tools.view_count.",
+    "Always use EXACT table and column names.",
+    "Do not include semicolons at the end of your SQL queries."
+  ]
+}

@@ -40,6 +40,7 @@ export const useCompareData = ({
     const [localTool1, setLocalTool1] = useState(null);
     const [localTool2, setLocalTool2] = useState(null);
     const [isSelectingFor, setIsSelectingFor] = useState(null);
+    const [userIntent, setUserIntent] = useState('');
 
     // 2. React Query: Recent Comparisons
     const { data: recentComparisons = initialRecentComparisons || [], isLoading: isRecentLoading } = useQuery({
@@ -85,9 +86,15 @@ export const useCompareData = ({
 
     // 5. React Query: AI Dynamic Comparison
     const { data: aiResults = initialAiResults || null, isLoading: isAiLoading, error: queryAiError } = useQuery({
-        queryKey: ['compare', 'ai', activeT1, activeT2],
+        queryKey: ['compare', 'ai', activeT1, activeT2, userIntent],
         queryFn: async () => {
-            const resAi = await fetch(`/api/generate-comparison?slug1=${activeT1}&slug2=${activeT2}`);
+            const url = new URL('/api/generate-comparison', window.location.origin);
+            url.searchParams.append('slug1', activeT1);
+            url.searchParams.append('slug2', activeT2);
+            if (userIntent) {
+                url.searchParams.append('intentQuery', userIntent);
+            }
+            const resAi = await fetch(url.toString());
             if (!resAi.ok) {
                 let errMsg = `AI API Error: ${resAi.status}`;
                 try {
@@ -238,6 +245,8 @@ export const useCompareData = ({
         isAiLoading,
         aiError,
         recentComparisons,
-        isRecentLoading
+        isRecentLoading,
+        userIntent,
+        setUserIntent
     };
 };

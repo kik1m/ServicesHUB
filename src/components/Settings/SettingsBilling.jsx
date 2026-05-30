@@ -1,6 +1,6 @@
 'use client';
 import React, { memo } from 'react';
-import { CreditCard, Sparkles } from 'lucide-react';
+import { CreditCard, Sparkles, Zap } from 'lucide-react';
 import Skeleton from '../ui/Skeleton';
 import Button from '../ui/Button';
 import Safeguard from '../ui/Safeguard';
@@ -34,7 +34,7 @@ const SettingsBilling = memo(({ profile, isLoading, error, onRetry }) => {
                 <div className={styles.settingsCard}>
                     <div className={styles.billingStatusContainer}>
                         <div className={`${styles.billingIconBox} ${isPremium ? styles.premiumActive : ''}`}>
-                            {isPremium ? <Sparkles size={40} className={styles.glowIcon} /> : <CreditCard size={40} />}
+                            {isPremium ? <Zap size={40} className={styles.glowIcon} /> : <CreditCard size={40} />}
                         </div>
 
                         <div className={styles.billingTextContent}>
@@ -53,13 +53,13 @@ const SettingsBilling = memo(({ profile, isLoading, error, onRetry }) => {
                                     as="a"
                                     href="/premium" 
                                     className={styles.btnPremiumUpgrade}
-                                    icon={Sparkles}
+                                    icon={Zap}
                                 >
                                     Upgrade to Premium
                                 </Button>
                             ) : (
                                 <div className={styles.premiumStatusBadge}>
-                                    <Sparkles size={16} /> Verified Premium
+                                    <Zap size={16} /> Verified Premium
                                 </div>
                             )}
                         </div>

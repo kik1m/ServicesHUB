@@ -1,7 +1,7 @@
 'use client';
 import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { Search, ChevronDown, Bell, User, Star, Menu, X } from 'lucide-react';
 import { useQueryClient, useQuery } from '@tanstack/react-query';
 import { useAuth } from '../context/AuthContext';
@@ -34,6 +34,7 @@ const Navbar = () => {
     const { data: profile } = useQuery(queryOptions.profile(user?.id, user));
 
     const router = useRouter();
+    const pathname = usePathname();
     const queryClient = useQueryClient();
     const { unreadCount } = useNotifications(user?.id);
     
@@ -115,6 +116,8 @@ const Navbar = () => {
             document.removeEventListener('mousedown', handleClickOutside);
         };
     }, [activeDropdown, closeAll]);
+
+    if (pathname && pathname.startsWith('/ai-engine')) return null;
 
     return (
         <nav 
@@ -215,6 +218,7 @@ const Navbar = () => {
                                         </button>
                                         {activeDropdown === 'notifications' && (
                                             <NotificationPanel 
+                                                user={user}
                                                 onClose={closeAll} 
                                                 className={styles.notifDropdown}
                                             />
@@ -245,6 +249,7 @@ const Navbar = () => {
                                                 onClose={closeAll} 
                                                 handleLogout={handleLogout} 
                                                 user={user}
+                                                profile={profile}
                                                 className={styles.accountDropdown}
                                             />
                                         )}

@@ -42,6 +42,7 @@ export default function SettingsPage() {
         handleAvatarUpload,
         handlePasswordUpdate,
         handleNotificationToggle,
+        handleDeleteAIMemory,
         fetchSettings,
         authUser
     } = useSettingsData();
@@ -75,6 +76,7 @@ export default function SettingsPage() {
                     setShowNewPassword={setShowNewPassword}
                     showConfirmPassword={showConfirmPassword} 
                     setShowConfirmPassword={setShowConfirmPassword}
+                    handleDeleteAIMemory={handleDeleteAIMemory}
                     saving={saving}
                     isLoading={loading}
                 />

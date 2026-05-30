@@ -11,13 +11,13 @@ import { PREMIUM_UI_CONSTANTS } from '../constants/premiumConstants';
  * Rule #14: Constants SSOT
  */
 export const usePremiumData = () => {
-    const { user } = useAuth();
+    const { user, loading: authLoading } = useAuth();
     const { showToast } = useToast();
     const router = useRouter();
     const [loading, setLoading] = useState(false);
-    const { messages, pricing } = PREMIUM_UI_CONSTANTS;
+    const { messages, plans } = PREMIUM_UI_CONSTANTS;
 
-    const handleUpgrade = async () => {
+    const handleUpgrade = async (variantId) => {
         if (!user) {
             router.push('/auth');
             return;
@@ -25,11 +25,14 @@ export const usePremiumData = () => {
 
         setLoading(true);
         try {
+            const plan = plans.find(p => p.variantId === variantId);
+            
             const data = await lsPaymentService.createCheckout({
                 userId: user.id,
                 itemType: 'account_premium',
-                planName: pricing.planName,
-                variantId: pricing.variantId
+                planName: plan?.planName || 'Premium Plan',
+                variantId: variantId,
+                tierId: plan?.id || 'pro'
             });
 
             if (data?.url) {
@@ -51,6 +54,7 @@ export const usePremiumData = () => {
 
     return {
         user,
+        authLoading,
         loading,
         handleUpgrade
     };

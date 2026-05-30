@@ -39,7 +39,7 @@ export const SEARCH_UI_CONSTANTS = {
 };
 
 export const PRICING_MODELS = [
-    { value: 'All', label: 'All' },
+    { value: 'All', label: 'All Pricing' },
     { value: 'Free', label: 'Free' },
     { value: 'Freemium', label: 'Freemium' },
     { value: 'Premium', label: 'Premium' },

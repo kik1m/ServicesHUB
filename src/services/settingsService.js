@@ -36,11 +36,11 @@ export const settingsService = {
 
         const { error } = await supabase
             .from('profiles')
-            .upsert({
-                id: userId,
+            .update({
                 ...profileData,
                 updated_at: new Date().toISOString()
-            });
+            })
+            .eq('id', userId);
 
         if (error) throw error;
         return true;

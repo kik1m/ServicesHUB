@@ -18,8 +18,9 @@ export async function GET(request) {
     const slug1 = searchParams.get('slug1');
     const slug2 = searchParams.get('slug2');
     const userId = searchParams.get('userId');
+    const intentQuery = searchParams.get('intentQuery');
 
-    console.log(`[AI-API] Request received for: ${slug1} vs ${slug2}`);
+    console.log(`[AI-API] Request received for: ${slug1} vs ${slug2} | Intent: ${intentQuery || 'None'}`);
 
     if (!slug1 || !slug2) {
         return NextResponse.json({ error: 'Both slug1 and slug2 are required.' }, { status: 400 });
@@ -74,14 +75,15 @@ export async function GET(request) {
         const idA = toolA.id;
         const idB = toolB.id;
 
-        // 2. Check DB cache FIRST
-        const { data: cachedComparison } = await supabase
-            .from('tool_comparisons')
-            .select('tool1_id, tool2_id, ai_report_json')
-            .or(`and(tool1_id.eq.${idA},tool2_id.eq.${idB}),and(tool1_id.eq.${idB},tool2_id.eq.${idA})`)
-            .maybeSingle();
+        // 2. Check DB cache FIRST (Only if no custom intent is provided)
+        if (!intentQuery) {
+            const { data: cachedComparison } = await supabase
+                .from('tool_comparisons')
+                .select('tool1_id, tool2_id, ai_report_json')
+                .or(`and(tool1_id.eq.${idA},tool2_id.eq.${idB}),and(tool1_id.eq.${idB},tool2_id.eq.${idA})`)
+                .maybeSingle();
 
-        if (cachedComparison && cachedComparison.ai_report_json) {
+            if (cachedComparison && cachedComparison.ai_report_json) {
             let report = cachedComparison.ai_report_json;
             console.log(`⚡ Serving cached comparison for ${slug1} vs ${slug2}`);
 
@@ -120,10 +122,15 @@ export async function GET(request) {
 
             return NextResponse.json({ data: report, source: 'cache' });
         }
+        } // End of intentQuery cache check
 
-        // 3. No cache found - Generate with AI
+        // 3. No cache found or Custom Intent - Generate with AI
+        const promptContext = intentQuery 
+            ? `The user has a VERY SPECIFIC context/task: "${intentQuery}". You MUST tailor your ENTIRE analysis—verdict, scores, why_buy, and matrix insights—explicitly to determine which tool is best for this exact scenario. Do not give a generic comparison.` 
+            : `Analyze these tools deeply in a general, objective manner.`;
+
         const prompt = `
-        You are an elite AI SaaS consultant. Analyze these tools deeply:
+        You are an elite AI SaaS consultant. ${promptContext}
         
         TOOL 1: ${toolA.name}
         Description: ${toolA.description}
@@ -207,27 +214,81 @@ export async function GET(request) {
             if (keySuccess) break; 
         }
 
+        // --- 🌐 OPENROUTER FALLBACK ENGINE ---
+        if (!aiReport && process.env.OPENROUTER_API_KEY) {
+            console.warn(`[AI-API] All Gemini keys exhausted. Falling back to OpenRouter (google/gemini-2.5-flash)`);
+            try {
+                const orResponse = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        model: 'google/gemini-2.5-flash',
+                        messages: [{ role: 'user', content: prompt }]
+                    })
+                });
+                if (orResponse.ok) {
+                    const orData = await orResponse.json();
+                    let responseText = orData.choices[0]?.message?.content || "";
+                    const startIdx = responseText.indexOf('{');
+                    const endIdx = responseText.lastIndexOf('}');
+                    if (startIdx !== -1 && endIdx !== -1) {
+                        aiReport = JSON.parse(responseText.substring(startIdx, endIdx + 1));
+                        console.log(`  ✅ Comparison Analysis successful with OpenRouter fallback`);
+                    }
+                } else {
+                    console.error('[AI-API] OpenRouter fallback HTTP error', await orResponse.text());
+                }
+            } catch (e) {
+                console.error('[AI-API] OpenRouter fallback failed', e);
+            }
+        }
+
         if (!aiReport) throw lastError || new Error('AI_GENERATION_FAILED');
 
-        // Background SEO Generation (Don't wait)
-        try {
-            generateAISeo(`${slug1}-vs-${slug2}`, {
-                tool1: toolA,
-                tool2: toolB,
-                verdict: aiReport.verdict.winner,
-                strategic_overview: aiReport.strategic_overview
-            }, 'comparison');
-        } catch (seoErr) {
-            console.warn(`⚠️ SEO Error:`, seoErr.message);
+        // Background SEO Generation (Only for generic comparisons)
+        if (!intentQuery) {
+            try {
+                generateAISeo(`${slug1}-vs-${slug2}`, {
+                    tool1: toolA,
+                    tool2: toolB,
+                    verdict: aiReport.verdict.winner,
+                    strategic_overview: aiReport.strategic_overview
+                }, 'comparison');
+            } catch (seoErr) {
+                console.warn(`⚠️ SEO Error:`, seoErr.message);
+            }
         }
 
         // Cache and Usage Update logic...
         const sortedIds = [idA, idB].sort();
-        await supabase.from('tool_comparisons').upsert({
-            tool1_id: sortedIds[0],
-            tool2_id: sortedIds[1],
-            ai_report_json: aiReport
-        }, { onConflict: 'tool1_id,tool2_id' });
+        
+        if (!intentQuery) {
+            // Standard cache
+            await supabase.from('tool_comparisons').upsert({
+                tool1_id: sortedIds[0],
+                tool2_id: sortedIds[1],
+                ai_report_json: aiReport
+            }, { onConflict: 'tool1_id,tool2_id' });
+        } else {
+            // Save to custom_comparisons
+            try {
+                const { data: customRecord } = await supabase.from('custom_comparisons').insert({
+                    tool1_id: idA,
+                    tool2_id: idB,
+                    user_query: intentQuery,
+                    ai_report_json: aiReport
+                }).select('id').single();
+                
+                if (customRecord) {
+                    aiReport.custom_id = customRecord.id;
+                }
+            } catch (err) {
+                console.warn("Failed to save custom comparison (table might not exist yet):", err.message);
+            }
+        }
 
         if (userId && !isPremium) {
             const now = new Date();

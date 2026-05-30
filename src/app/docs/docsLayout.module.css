@@ -1,0 +1,65 @@
+.docsContainer {
+    min-height: 100vh;
+    background: var(--bg-primary);
+}
+
+.layout {
+    display: flex;
+    max-width: 1440px;
+    margin: 0 auto;
+}
+
+.mainContent {
+    flex: 1;
+    min-width: 0; /* Prevent flex overflow */
+    padding: 3rem 4rem;
+}
+
+.contentWrapper {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.mobileHeader {
+    display: none;
+}
+
+@media (max-width: 992px) {
+    .layout {
+        flex-direction: column;
+    }
+
+    .mainContent {
+        padding: 2rem 1.5rem;
+    }
+
+    .mobileHeader {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem 1.5rem;
+        background: var(--bg-secondary);
+        border-bottom: 1px solid var(--border-color);
+        position: sticky;
+        top: 60px; /* Assuming global navbar is 60px on mobile */
+        z-index: 30;
+    }
+
+    .menuBtn {
+        background: transparent;
+        border: none;
+        color: var(--text-primary);
+        cursor: pointer;
+        padding: 0.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 6px;
+        background: rgba(255, 255, 255, 0.05);
+    }
+
+    .mobileTitle {
+        font-weight: 600;
+        font-size: 1.1rem;
+    }
+}

@@ -4,9 +4,8 @@ import Safeguard from '../ui/Safeguard';
 import { SUCCESS_UI_CONSTANTS } from '../../constants/successConstants';
 import styles from './SuccessMessage.module.css';
 
-const SuccessMessage = ({ type, toolName, isLoading, error, onRetry }) => {
-    const messages = SUCCESS_UI_CONSTANTS?.messages || {};
-    const types = SUCCESS_UI_CONSTANTS?.types || {};
+const SuccessMessage = ({ type, tierId, toolName, isLoading, error, onRetry }) => {
+    const getMessages = SUCCESS_UI_CONSTANTS?.getMessages;
 
     if (isLoading) {
         return (
@@ -22,24 +21,16 @@ const SuccessMessage = ({ type, toolName, isLoading, error, onRetry }) => {
         );
     }
 
-    const isPremium = type === types?.PREMIUM;
-    const content = isPremium ? messages?.premium : messages?.promotion;
+    const content = getMessages ? getMessages(type, tierId, toolName) : { title: "Success!", description: "Operation completed." };
 
     return (
         <Safeguard error={error} onRetry={onRetry}>
             <div className={styles.messageContent}>
                 <h1 className={styles.successTitle}>
-                    <span className="gradient-text">{content?.title}</span>
+                    <span className="gradient-text">{content.title}</span>
                 </h1>
                 <p className={styles.successMessageText}>
-                    {isPremium 
-                        ? content?.description 
-                        : (
-                            <span>
-                                Your tool <b>{toolName || 'your tool'}</b> is now successfully promoted. It will be featured on our platform according to your selected plan.
-                            </span>
-                        )
-                    }
+                    {content.description}
                 </p>
             </div>
         </Safeguard>

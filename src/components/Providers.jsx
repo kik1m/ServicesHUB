@@ -6,6 +6,8 @@ import { AuthProvider } from '../context/AuthContext';
 import { ToastProvider } from '../context/ToastContext';
 import { useAnalytics } from '../hooks/useAnalytics';
 
+import OnboardingWrapper from './Auth/OnboardingWrapper';
+
 function AnalyticsTracker() {
   useAnalytics();
   return null;
@@ -16,10 +18,12 @@ export default function Providers({ children }) {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <ToastProvider>
-          <React.Suspense fallback={null}>
-            <AnalyticsTracker />
-          </React.Suspense>
-          {children}
+          <OnboardingWrapper>
+            <React.Suspense fallback={null}>
+              <AnalyticsTracker />
+            </React.Suspense>
+            {children}
+          </OnboardingWrapper>
         </ToastProvider>
       </AuthProvider>
     </QueryClientProvider>

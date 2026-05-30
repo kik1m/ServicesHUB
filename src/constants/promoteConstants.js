@@ -4,7 +4,7 @@
  */
 export const PROMOTE_UI_CONSTANTS = {
     seo: {
-        title: "Promote Your Tool | ServicesHUB",
+        title: "Promote Your Tool | HUBly",
         description: "Boost your tool's visibility and reach thousands of AI developers and seekers with our premium promotion packages."
     },
     hero: {
@@ -74,6 +74,21 @@ export const PROMOTE_UI_CONSTANTS = {
             glow: "rgba(191, 90, 242, 0.3)",
             cta: "Go Enterprise",
             variantId: "1597146"
+        },
+        {
+            id: 'custom',
+            name: "Custom / Agency",
+            price: "Contact Us",
+            amount: 0,
+            period: "",
+            desc: "Bespoke marketing & bulk tool promotion.",
+            features: ["Multiple Tool Submissions", "Custom Ad Placements", "Dedicated Account Manager", "White-glove Onboarding", "Custom Analytics Reports"],
+            recommended: false,
+            theme: "#10b981",
+            glow: "rgba(16, 185, 129, 0.3)",
+            cta: "Contact Sales",
+            variantId: "contact"
         }
     ]
 };
+

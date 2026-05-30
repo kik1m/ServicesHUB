@@ -3,6 +3,7 @@ import { useSearchParams } from 'next/navigation';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { sendNotification } from '../utils/notifications';
+import { useQueryClient } from '@tanstack/react-query';
 
 import { lsPaymentService } from '../services/lsPaymentService';
 import { promotionService } from '../services/promotionService';
@@ -15,13 +16,15 @@ export const useSuccessData = () => {
     const { user, loading: authLoading } = useAuth();
     const [loading, setLoading] = useState(true);
     const { showToast } = useToast();
+    const queryClient = useQueryClient();
     const searchParams = useSearchParams();
-    const { types, messages } = SUCCESS_UI_CONSTANTS;
+    const { types, getMessages } = SUCCESS_UI_CONSTANTS;
     
     // Ref to prevent double execution in Strict Mode or re-renders
     const hasRun = useRef(false);
     
     const type = searchParams.get('type') || types.PROMOTION;
+    const tierId = searchParams.get('tierId') || 'pro';
     const [toolName, setToolName] = useState(searchParams.get('toolName') || '');
     const toolId = searchParams.get('toolId');
     const shouldSync = searchParams.get('sync') === 'true';
@@ -51,9 +54,9 @@ export const useSuccessData = () => {
             }
         }
 
-        // 3. Get localized content
+        // 3. Get localized content dynamically
         const isPremium = type === types.PREMIUM;
-        const content = isPremium ? messages.premium : messages.promotion;
+        const content = getMessages(type, tierId, resolvedToolName);
 
         if (user) {
             try {
@@ -63,20 +66,22 @@ export const useSuccessData = () => {
                     await lsPaymentService.syncLocalPayment({
                         userId: user.id,
                         itemType: type,
-                        toolId: toolId
+                        toolId: toolId,
+                        tierId: tierId
                     });
                 }
+                
+                // 🚀 Invalidate Profile Cache to update UI (Premium Badge, Tier, etc) instantly
+                queryClient.invalidateQueries({ queryKey: ['profile', user.id] });
 
                 // 🔔 Persistent Notification
-                const finalNotif = isPremium 
-                    ? content.notification 
-                    : `Your tool "${resolvedToolName || 'the tool'}" promotion is now active and featured on the homepage.`;
+                const finalNotif = content.notification;
 
                 await sendNotification(user.id, content.toast, finalNotif, 'subscription');
                 showToast(content.toast, 'success');
 
-                // 📧 Elite Email Delivery (New Rule)
-                const planName = type === types.PREMIUM ? 'Prime Member' : (toolId ? 'Featured/Authority' : 'Promotion');
+                // 📧 Elite Email Delivery
+                const planName = isPremium ? (tierId === 'elite' ? 'Elite Tier' : 'Pro Tier') : (toolId ? 'Featured' : 'Promotion');
                 
                 await fetch('/api/send-email', {
                     method: 'POST',
@@ -99,7 +104,7 @@ export const useSuccessData = () => {
         }
         
         setLoading(false);
-    }, [user, authLoading, showToast, toolName, toolId, type, types, messages, shouldSync]);
+    }, [user, authLoading, showToast, toolName, toolId, type, tierId, types, getMessages, shouldSync, queryClient]);
 
     useEffect(() => {
         handleSuccessEffect();
@@ -109,6 +114,7 @@ export const useSuccessData = () => {
         loading,
         type,
         toolName,
+        tierId,
         user
     };
 };

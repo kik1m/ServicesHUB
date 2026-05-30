@@ -110,6 +110,7 @@ export const useDashboardData = () => {
         stats,
         isCreator,
         isPremium: user?.is_premium || false,
+        subscriptionTier: user?.subscription_tier || 'free',
         user,
         isLoading: toolsLoading || favoritesLoading || authLoading,
         toolsLoading: toolsLoading,

@@ -16,7 +16,8 @@ import {
     FileText,
     Search,
     Bell,
-    CheckCircle2
+    CheckCircle2,
+    Bot
 } from 'lucide-react';
 
 export const NAV_LABELS = {
@@ -32,6 +33,7 @@ export const NAV_LABELS = {
 
 // 🌟 Main Navbar Links (Visible outside)
 export const NAV_LINKS = [
+    { label: 'AI Studio', path: '/ai-engine', icon: Bot },
     { label: 'Tools', path: '/tools', icon: LayoutGrid },
     { label: 'Comparison', path: '/compare', icon: RefreshCcw },
     { label: 'Promote', path: '/promote', icon: Sparkles },
@@ -40,12 +42,11 @@ export const NAV_LINKS = [
 // 🧠 Smart More Dropdown (Verified Real Routes)
 export const MORE_GROUPS = [
     {
-        title: 'Premium & Tools',
+        title: 'Explore & Features',
         links: [
-            { label: 'Categories', path: '/categories', icon: Zap },
-            { label: 'Blog', path: '/blog', icon: Rss },
-            { label: 'Premium Membership', path: '/premium', icon: Star },
-            { label: 'Advanced Search', path: '/tools', icon: Search },
+            { label: 'Categories', path: '/categories', icon: Star },
+            { label: 'Premium Membership', path: '/premium', icon: Zap },
+            { label: 'Blog & Articles', path: '/blog', icon: Rss },
         ]
     },
     {
@@ -53,14 +54,14 @@ export const MORE_GROUPS = [
         links: [
             { label: 'About HUBly', path: '/about', icon: Info },
             { label: 'Contact Us', path: '/contact', icon: Mail },
-            { label: 'Help & FAQ', path: '/faq', icon: HelpCircle },
+            { label: 'Documentation Hub', path: '/docs', icon: HelpCircle },
         ]
     },
     {
         title: 'Legal & Compliance',
         links: [
-            { label: 'Privacy Policy', path: '/privacy', icon: Shield },
-            { label: 'Terms of Service', path: '/terms', icon: FileText },
+            { label: 'Privacy Policy', path: '/docs/privacy', icon: Shield },
+            { label: 'Terms of Service', path: '/docs/terms', icon: FileText },
         ]
     }
 ];
@@ -78,11 +79,12 @@ export const MOBILE_GROUPS = [
     {
         title: 'Explore',
         links: [
+            { label: 'AI Studio', path: '/ai-engine' },
             { label: 'Tools Directory', path: '/tools', icon: LayoutGrid },
             { label: 'Compare Engine', path: '/compare', icon: RefreshCcw },
-            { label: 'Categories', path: '/categories', icon: Zap },
+            { label: 'Categories', path: '/categories', icon: Star },
             { label: 'Blog & Articles', path: '/blog', icon: Rss },
-            { label: 'Premium Upgrade', path: '/premium', icon: Star },
+            { label: 'Premium Upgrade', path: '/premium', icon: Zap },
         ]
     },
     {
@@ -114,11 +116,44 @@ export const MOBILE_GROUPS = [
     {
         title: 'Support & Legal',
         links: [
-            { label: 'Help & FAQ', path: '/faq', icon: HelpCircle },
+            { label: 'Documentation Hub', path: '/docs', icon: HelpCircle },
             { label: 'Contact Us', path: '/contact', icon: Mail },
             { label: 'About Platform', path: '/about', icon: Info },
-            { label: 'Privacy Policy', path: '/privacy', icon: Shield },
-            { label: 'Terms of Service', path: '/terms', icon: FileText },
+            { label: 'Privacy Policy', path: '/docs/privacy', icon: Shield },
+            { label: 'Terms of Service', path: '/docs/terms', icon: FileText },
+        ]
+    }
+];
+
+// 🦶 Unified Footer Links
+export const FOOTER_GROUPS = [
+    {
+        title: 'Explore',
+        links: [
+            { label: 'AI Studio', path: '/ai-engine' },
+            { label: 'Tools Directory', path: '/tools' },
+            { label: 'Compare Engine', path: '/compare' },
+            { label: 'Categories', path: '/categories' },
+            { label: 'Blog & Articles', path: '/blog' },
+            { label: 'Premium Membership', path: '/premium' }
+        ]
+    },
+    {
+        title: 'Platform',
+        links: [
+            { label: 'Submit Tool', path: '/submit' },
+            { label: 'Promote Tool', path: '/promote' },
+            { label: 'About Us', path: '/about' },
+            { label: 'Contact', path: '/contact' },
+        ]
+    },
+    {
+        title: 'Documentation',
+        links: [
+            { label: 'Docs Home', path: '/docs' },
+            { label: 'AI Assistant Guide', path: '/docs/ai-assistant' },
+            { label: 'Privacy Policy', path: '/docs/privacy' },
+            { label: 'Terms of Service', path: '/docs/terms' },
         ]
     }
 ];

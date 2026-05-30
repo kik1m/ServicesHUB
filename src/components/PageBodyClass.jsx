@@ -10,8 +10,11 @@ export default function PageBodyClass() {
     const pathname = usePathname();
 
     useEffect(() => {
-        const isHome = pathname === '/';
-        document.documentElement.setAttribute('data-page', isHome ? 'home' : 'other');
+        let pageType = 'other';
+        if (pathname === '/') pageType = 'home';
+        else if (pathname?.startsWith('/ai-engine')) pageType = 'ai-engine';
+        
+        document.documentElement.setAttribute('data-page', pageType);
     }, [pathname]);
 
     return null;

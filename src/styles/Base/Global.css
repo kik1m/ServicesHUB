@@ -377,7 +377,6 @@
   /* Force content area to be at least one full screen height */
   width: 100%;
   max-width: 100%;
-  overflow-x: hidden;
 }
 
 .page-content-transition {
@@ -481,11 +480,14 @@
   box-shadow: 0 10px 25px rgba(0, 136, 204, 0.1);
 }
 
-/* --- GLOBAL RESPONSIVE FIXES (MIGRATED BLOCKS) --- */
-html,
-body {
+/* --- GLOBAL RESPONSIVE FIXES --- */
+/* NOTE: overflow-x: hidden on html only — applying it to body breaks position: sticky */
+html {
   max-width: 100vw;
   overflow-x: hidden;
+}
+body {
+  max-width: 100vw;
 }
 
 .no-scroll {
@@ -595,4 +597,19 @@ body {
   opacity: 0 !important;
   pointer-events: none !important;
   visibility: hidden !important;
+}
+
+/* --- AI Engine Full Screen Lock --- */
+html[data-page='ai-engine'], 
+html[data-page='ai-engine'] body {
+  overflow: hidden !important;
+  height: 100vh !important;
+  max-height: 100vh !important;
+}
+
+html[data-page='ai-engine'] .content {
+  padding-top: 0 !important;
+  height: 100vh !important;
+  max-height: 100vh !important;
+  overflow: hidden !important;
 }

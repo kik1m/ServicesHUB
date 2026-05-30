@@ -27,6 +27,8 @@ export const useSettingsData = () => {
     const [profile, setProfile] = useState({
         full_name: '',
         role: '',
+        experience_level: '',
+        primary_goal: '',
         bio: '',
         avatar_url: '',
         website: '',
@@ -83,7 +85,9 @@ export const useSettingsData = () => {
             // Only update columns that definitely exist in the profiles table
             const sanitizedProfile = {
                 full_name: profile.full_name,
-                role: profile.role,
+                job_title: profile.job_title,
+                experience_level: profile.experience_level,
+                primary_goal: profile.primary_goal,
                 bio: profile.bio,
                 avatar_url: profile.avatar_url,
                 website: profile.website,
@@ -220,6 +224,27 @@ export const useSettingsData = () => {
         }
     }, [authUser, showToast]);
 
+    const handleDeleteAIMemory = useCallback(async () => {
+        if (!authUser) return;
+        const confirmDelete = window.confirm('Are you sure you want to permanently delete your AI Memory? HUBly AI will forget all context about your projects. This action cannot be undone.');
+        if (!confirmDelete) return;
+
+        try {
+            setSaving(true);
+            // Delete the long_term_memory field from the profiles table
+            const { error: updateError } = await supabase.from('profiles').update({ long_term_memory: null }).eq('id', authUser.id);
+            
+            if (updateError) throw updateError;
+            
+            showToast('AI Memory successfully deleted. (GDPR Compliance)', 'success');
+        } catch (err) {
+            console.error('Memory Deletion Error:', err);
+            showToast('Failed to delete AI memory.', 'error');
+        } finally {
+            setSaving(false);
+        }
+    }, [authUser, showToast]);
+
     return {
         activeTab, setActiveTab,
         loading, saving, uploading,
@@ -229,7 +254,7 @@ export const useSettingsData = () => {
         showNewPassword, setShowNewPassword,
         showConfirmPassword, setShowConfirmPassword,
         handleProfileUpdate, handleAvatarUpload, handlePasswordUpdate,
-        handleNotificationToggle,
+        handleNotificationToggle, handleDeleteAIMemory,
         fetchSettings, authUser
     };
 };

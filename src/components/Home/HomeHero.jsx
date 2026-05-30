@@ -14,7 +14,7 @@ import styles from './HomeHero.module.css';
  * HomeHero - Elite Entry Point
  * Rule #29: Pure View with Safeguard protection
  */
-const HomeHero = ({ searchQuery, setSearchQuery, statsCount, isLoading, error, content, popularCategories = [] }) => {
+const HomeHero = ({ searchQuery, setSearchQuery, statsCount, isLoading, error, content }) => {
     const router = useRouter();
 
     const handleSearch = useCallback(() => {
@@ -69,26 +69,7 @@ const HomeHero = ({ searchQuery, setSearchQuery, statsCount, isLoading, error, c
                         )}
                     </div>
 
-                    <div className={styles.popularTags}>
-                        <span>{content.popularLabel}</span>
-                        {isLoading ? (
-                            <div className={styles.skeletonTags}>
-                                {SKELETON_COUNTS.HERO_TAGS.map(i => <Skeleton key={`skeleton-tag-${i}`} className={styles.skeletonTagInner} />)}
-                            </div>
-                        ) : (
-                            popularCategories.slice(0, 5).map(cat => (
-                                <Button 
-                                    key={cat.id} 
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => handleTagClick(cat.name)} 
-                                    className={styles.tagLink}
-                                >
-                                    {cat.name}
-                                </Button>
-                            ))
-                        )}
-                    </div>
+
 
                     <div className={styles.trustLogos}>
                         <p>{content.logosPrefix}</p>

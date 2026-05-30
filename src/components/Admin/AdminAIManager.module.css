@@ -84,6 +84,7 @@
     display: flex;
     flex-direction: column;
     gap: 20px;
+    min-width: 0;
 }
 
 .sectionTitle {
@@ -165,6 +166,7 @@
 .logsWrapperCol {
     display: flex;
     flex-direction: column;
+    min-width: 0;
 }
 
 .logsPanel::before {
@@ -450,6 +452,8 @@
     font-family: 'Fira Code', monospace;
     font-size: 0.75rem;
     white-space: pre-wrap;
+    word-break: break-word;
+    overflow-wrap: anywhere;
 }
 
 /* Status Icons */

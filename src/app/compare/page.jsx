@@ -1,14 +1,17 @@
 import React, { Suspense } from 'react';
 import { compareService } from '../../services/compareService';
 import { toolsService } from '../../services/toolsService';
+import { seoService } from '../../services/seoService';
+import { SEO_CONFIG } from '../../constants/seoManifest';
 import CompareClient from './CompareClient';
 
 // Rule #2: ISR Revalidation
 export const revalidate = 3600; // 1 hour
 
 export async function generateMetadata() {
-    const title = 'Expert AI & SaaS Tool Comparison | HUBly Side-by-Side';
-    const description = 'AI-powered structured comparison engine for software analysis. Compare features, pricing, and performance of leading AI tools side-by-side.';
+    const dynamicSeo = await seoService.getMetadata(SEO_CONFIG.global.pageIds.compare, 'page');
+    const title = dynamicSeo?.title || 'Expert AI & SaaS Tool Comparison | HUBly Side-by-Side';
+    const description = dynamicSeo?.description || 'AI-powered structured comparison engine for software analysis. Compare features, pricing, and performance of leading AI tools side-by-side.';
     const url = 'https://www.hubly-tools.com/compare';
 
     return {

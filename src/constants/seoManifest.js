@@ -37,19 +37,32 @@ export const SEO_CONFIG = {
             search: "00000000-0000-0000-0000-000000000014",
             submit: "00000000-0000-0000-0000-000000000015",
             success: "00000000-0000-0000-0000-000000000016",
-            notfound: "00000000-0000-0000-0000-000000000017"
+            notfound: "00000000-0000-0000-0000-000000000017",
+            ai_engine: "00000000-0000-0000-0000-000000000018",
+            dashboard: "00000000-0000-0000-0000-000000000019",
+            admin: "00000000-0000-0000-0000-000000000020",
+            settings: "00000000-0000-0000-0000-000000000021",
+            profile: "00000000-0000-0000-0000-000000000022",
+            reset_password: "00000000-0000-0000-0000-000000000023",
+            notifications: "00000000-0000-0000-0000-000000000024",
+            docs: "00000000-0000-0000-0000-000000000025"
         }
     },
     pages: {
         home: {
-            title: "HUBly: Discover Top AI Tools & SaaS - The Ultimate Directory",
-            description: "The world's most advanced directory for discovering and comparing AI and SaaS tools. Find the perfect resource for your workflow.",
-            keywords: ["AI directory", "SaaS comparison", "Top AI tools 2026", "AI discovery"]
+            title: "HUBly — Discover, Compare & Launch the World's Best AI & SaaS Tools",
+            description: "The world's most advanced hub to discover, compare, and deploy AI tools, SaaS platforms, and automation software. Trusted by professionals worldwide.",
+            keywords: ["AI directory", "SaaS comparison", "Top AI tools 2026", "AI discovery", "best AI software"]
         },
         tools: {
-            title: "Discover Premium AI Tools & Software Directory",
-            description: "Explore our curated collection of elite AI and SaaS tools. Filter by category, pricing, and ratings.",
-            keywords: ["Software search", "Tool discovery", "SaaS comparison"]
+            title: "AI & SaaS Tools Directory — Browse 500+ Premium Resources | HUBly",
+            description: "Explore our curated library of elite AI tools, SaaS platforms, and automation software. Advanced filters by category, pricing, and ratings help you find the perfect match.",
+            keywords: ["Software search", "Tool discovery", "SaaS comparison", "AI tools library", "browse AI software"]
+        },
+        ai_engine: {
+            title: "HUBly AI Studio — Your Expert AI for Projects, Strategy & Tool Discovery",
+            description: "Turn any idea into a full action plan. HUBly AI Studio guides beginners, professionals, and engineers through project planning, tool selection, complex comparisons, and execution strategies — powered by advanced AI.",
+            keywords: ["AI project planner", "AI assistant", "smart tool recommendation", "AI strategy", "project execution AI", "AI for beginners", "AI for engineers"]
         },
         blog: {
             title: "HUBly Magazine: AI & SaaS Insights, Trends & Analysis",
@@ -150,6 +163,16 @@ export const SEO_CONFIG = {
             title: "404 - Page Not Found",
             description: "The page you are looking for does not exist. Explore our directory to find what you need.",
             keywords: ["Error 404", "Not found"]
+        },
+        docs: {
+            title: "HUBly Documentation & Guides",
+            description: "Comprehensive guides, API documentation, and resources for HUBly.",
+            keywords: ["Docs", "API", "Documentation"]
+        },
+        reset_password: {
+            title: "Reset Your Password",
+            description: "Securely reset your HUBly account password.",
+            noindex: true
         }
     }
 };

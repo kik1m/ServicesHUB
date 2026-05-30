@@ -18,6 +18,7 @@ const SettingsSecurity = memo(({
     setShowNewPassword,
     showConfirmPassword, 
     setShowConfirmPassword,
+    handleDeleteAIMemory,
     saving,
     isLoading,
     error,
@@ -87,6 +88,40 @@ const SettingsSecurity = memo(({
                     </Button>
                 </div>
             </form>
+
+            {/* AI Data & Privacy Section (GDPR Compliance) */}
+            <div className={`${styles.fadeIn} ${styles.privacySection}`} style={{ marginTop: '30px' }}>
+                <div className={styles.settingsCard} style={{ borderColor: '#ef4444' }}>
+                    <div className={styles.securityHeader}>
+                        <ShieldCheck size={32} className={styles.securityIcon} style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444' }} />
+                        <div>
+                            <h2 className={styles.settingsSectionTitle} style={{ color: '#ef4444' }}>AI Data & Privacy (GDPR)</h2>
+                            <p className={styles.settingsSectionSubtitle}>Manage what HUBly AI remembers about you and your projects.</p>
+                        </div>
+                    </div>
+                    
+                    <div style={{ padding: '24px', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
+                            <div>
+                                <h4 style={{ color: '#e2e8f0', margin: '0 0 8px 0', fontSize: '1rem' }}>Delete AI Long-Term Memory</h4>
+                                <p style={{ color: '#94a3b8', margin: '0', fontSize: '0.9rem', maxWidth: '500px', lineHeight: '1.5' }}>
+                                    Permanently erase all context, project details, and preferences that HUBly AI has learned about you over time. This action cannot be reversed.
+                                </p>
+                            </div>
+                            <Button 
+                                type="button" 
+                                variant="outline" 
+                                icon={Save} 
+                                onClick={handleDeleteAIMemory}
+                                style={{ borderColor: 'rgba(239, 68, 68, 0.5)', color: '#ef4444' }}
+                                disabled={saving}
+                            >
+                                Delete AI Memory
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </Safeguard>
     );
 });

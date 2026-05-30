@@ -9,7 +9,7 @@ console.log("=======================================================\n");
 
 const processJob = async (job) => {
     console.log(`\n⏳ Picked up job [${job.job_type}] for: ${job.payload?.url || job.payload?.target || 'N/A'}`);
-    
+
     // Mark as processing
     await supabaseAdmin
         .from('ai_jobs')
@@ -18,7 +18,7 @@ const processJob = async (job) => {
 
     return new Promise((resolve) => {
         let command = '';
-        
+
         switch (job.job_type) {
             case 'IMPORT_TOOL':
                 command = `node scripts/ai-importer/index.js "${job.payload.url}"`;
@@ -40,23 +40,45 @@ const processJob = async (job) => {
         }
 
         console.log(`▶ Executing: ${command}`);
-        
+
         // maxBuffer set to 10MB to prevent crashes on very large scrapes
         exec(command, { maxBuffer: 1024 * 1024 * 10 }, async (error, stdout, stderr) => {
             const finalLog = stdout + (stderr ? '\n[ERRORS/WARNINGS]\n' + stderr : '');
-            const finalStatus = error ? 'FAILED' : 'COMPLETED';
-            
-            console.log(`✅ Job finished. Status: ${finalStatus}`);
-            
+
+            // Smarter status detection: if process didn't crash (no error) but nothing was added/updated, it's a real failure
+            let finalStatus = 'COMPLETED';
+            if (error) {
+                finalStatus = 'FAILED';
+            } else if (stdout) {
+                // Parse the run report to detect silent failures (skipped/failed with nothing added)
+                const addedMatch = stdout.match(/🆕 Added:\s+(\d+)/);
+                const updatedMatch = stdout.match(/📈 Updated:\s+(\d+)/);
+                const skippedMatch = stdout.match(/⏭️ Skipped:\s+(\d+)/);
+                const failedMatch = stdout.match(/❌ Failed:\s+(\d+)/);
+
+                if (addedMatch && updatedMatch) {
+                    const added = parseInt(addedMatch[1]);
+                    const updated = parseInt(updatedMatch[1]);
+                    const skipped = skippedMatch ? parseInt(skippedMatch[1]) : 0;
+                    const failed = failedMatch ? parseInt(failedMatch[1]) : 0;
+
+                    if (added === 0 && updated === 0 && (skipped > 0 || failed > 0)) {
+                        finalStatus = 'FAILED'; // Nothing was actually saved — report failure
+                    }
+                }
+            }
+
+            console.log(`${finalStatus === 'COMPLETED' ? '✅' : '❌'} Job finished. Status: ${finalStatus}`);
+
             await supabaseAdmin
                 .from('ai_jobs')
-                .update({ 
+                .update({
                     status: finalStatus,
                     logs: finalLog,
-                    updated_at: new Date().toISOString() 
+                    updated_at: new Date().toISOString()
                 })
                 .eq('id', job.id);
-                
+
             resolve();
         });
     });

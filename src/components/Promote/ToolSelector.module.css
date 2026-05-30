@@ -30,11 +30,12 @@
     background: rgba(255, 255, 255, 0.02);
     border: 1px solid rgba(255, 255, 255, 0.05);
     border-radius: 20px;
-    padding: 1rem 1.5rem;
+    padding: 1.618rem;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 1.5rem;
+    gap: 1.618rem;
+    max-width: 61.8%;
 }
 
 .infoArea {
@@ -81,6 +82,7 @@
         align-items: stretch;
         gap: 1.5rem;
         padding: 1.5rem;
+        max-width: 100%;
     }
     
     .inputArea {
@@ -88,15 +90,15 @@
     }
 }
 
-/* --- SKELETON LAYOUTS (Rule #81) --- */
 .skeletonCard {
     background: rgba(255, 255, 255, 0.02);
     border: 1px solid rgba(255, 255, 255, 0.05);
     border-radius: 20px;
-    padding: 1.5rem 2rem;
+    padding: 1.618rem;
     display: flex;
     align-items: center;
-    gap: 2rem;
+    gap: 1.618rem;
+    max-width: 61.8%;
 }
 
 .skeletonInfo {
@@ -111,6 +113,7 @@
     .skeletonCard {
         flex-direction: column;
         align-items: stretch;
+        max-width: 100%;
     }
     .skeletonAction {
         width: 100%;

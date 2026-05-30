@@ -120,6 +120,8 @@ const ToolsClient = () => {
                             setShowAllCats={setShowAllCats}
                             isOpen={isMobileFiltersOpen}
                             onClose={() => setIsMobileFiltersOpen(false)}
+                            sortBy={sortBy}
+                            setSortBy={setSort}
                         />
 
                         {/* 2. Main Results Column */}
@@ -145,6 +147,7 @@ const ToolsClient = () => {
                                 setPage={setPageNum}
                                 sortBy={sortBy}
                                 setSortBy={setSort}
+                                pricingFilter={pricingFilter}
                                 error={error}
                                 refetch={refresh}
                                 content={SEARCH_UI_CONSTANTS.results}

@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 export async function POST(request) {
     try {
         const body = await request.json();
-        const { userId, itemType, planName, toolId, variantId } = body;
+        const { userId, itemType, planName, toolId, variantId, tierId } = body;
 
         if (!userId || !variantId) {
             return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
@@ -12,6 +12,16 @@ export async function POST(request) {
         if (!process.env.LEMON_SQUEEZY_API_KEY || !process.env.LEMON_SQUEEZY_STORE_ID) {
             console.error('Lemon Squeezy credentials missing in ENV');
             return NextResponse.json({ error: 'Payment gateway not configured' }, { status: 500 });
+        }
+
+        // Build custom data dynamically to avoid sending empty strings
+        const customData = {
+            user_id: userId,
+            item_type: itemType,
+            tier_id: tierId || 'pro'
+        };
+        if (toolId) {
+            customData.tool_id = toolId;
         }
 
         // 🚀 Create Lemon Squeezy Checkout
@@ -27,14 +37,10 @@ export async function POST(request) {
                     type: 'checkouts',
                     attributes: {
                         checkout_data: {
-                            custom: {
-                                user_id: userId,
-                                item_type: itemType,
-                                tool_id: toolId || ''
-                            }
+                            custom: customData
                         },
                         product_options: {
-                            redirect_url: `${process.env.NEXT_PUBLIC_APP_URL}/success?type=${itemType}&toolId=${toolId || ''}&sync=true`,
+                            redirect_url: `${process.env.NEXT_PUBLIC_APP_URL}/success?type=${itemType}&toolId=${toolId || ''}&tierId=${tierId || 'pro'}&sync=true`,
                         },
                         test_mode: true,
                     },

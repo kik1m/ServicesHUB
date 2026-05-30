@@ -1,14 +1,17 @@
 import React from 'react';
 import { blogService } from '../../services/blogService';
 import { BLOG_CONSTANTS } from '../../constants/blogConstants';
+import { seoService } from '../../services/seoService';
+import { SEO_CONFIG } from '../../constants/seoManifest';
 import BlogClient from './BlogClient';
 
 // Rule #2: ISR Revalidation
 export const revalidate = 3600; // 1 hour
 
 export async function generateMetadata() {
-    const title = 'AI & SaaS Magazine - Expert Guides, News & Insights | HUBly';
-    const description = 'Stay updated with the world of AI and SaaS through our handpicked collection of expert articles, tutorials, and news.';
+    const dynamicSeo = await seoService.getMetadata(SEO_CONFIG.global.pageIds.blog, 'page');
+    const title = dynamicSeo?.title || 'AI & SaaS Magazine - Expert Guides, News & Insights | HUBly';
+    const description = dynamicSeo?.description || 'Stay updated with the world of AI and SaaS through our handpicked collection of expert articles, tutorials, and news.';
     const url = 'https://www.hubly-tools.com/blog';
 
     return {

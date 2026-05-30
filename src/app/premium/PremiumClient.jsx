@@ -1,6 +1,7 @@
 'use client';
 import React from 'react';
-import { Zap } from 'lucide-react';
+import Link from 'next/link';
+import { Zap, Info, ArrowRight } from 'lucide-react';
 import { usePremiumData } from '@/hooks/usePremiumData';
 
 // Import Global UI Components
@@ -18,7 +19,7 @@ import styles from './page.module.css';
 
 export default function PremiumClient() {
     const { hero, trust } = PREMIUM_UI_CONSTANTS;
-    const { user, loading, handleUpgrade, error } = usePremiumData();
+    const { user, loading, authLoading, handleUpgrade, error } = usePremiumData();
 
     return (
         <div className={styles.viewWrapper}>
@@ -29,21 +30,23 @@ export default function PremiumClient() {
                 breadcrumbs={hero.breadcrumbs}
                 badge={hero.badge}
                 icon={<Zap size={24} />}
-                isLoading={loading}
+                isLoading={authLoading}
             />
 
             <div className={styles.container}>
                 <section className={styles.pricingSection}>
+
                     <PremiumPricingCard 
                         user={user}
                         loading={loading}
+                        isLoading={authLoading}
                         onUpgrade={handleUpgrade}
                         error={error}
                     />
                 </section>
 
                 <PromoteTrustFooter 
-                    isLoading={loading}
+                    isLoading={authLoading}
                     content={trust}
                 />
 

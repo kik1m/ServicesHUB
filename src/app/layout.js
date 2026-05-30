@@ -4,7 +4,7 @@ import Providers from "../components/Providers";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import PageTransition from "../components/PageTransition";
-import InteractiveParticles from "../components/InteractiveParticles";
+import InteractiveParticles from "../components/InteractiveParticles/InteractiveParticles";
 import BackgroundStars from "../components/BackgroundStars";
 import PageBodyClass from "../components/PageBodyClass";
 const geistSans = Geist({
@@ -18,8 +18,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "HUBLY | Elite AI & SaaS Tool Directory",
-  description: "Discover the best AI and SaaS tools for your workflow.",
+  title: "HUBly \u2014 Discover, Compare & Launch the World's Best AI & SaaS Tools",
+  description: "The world's most advanced hub to discover, compare, and deploy AI tools, SaaS platforms, and automation software. Trusted by professionals worldwide.",
   icons: {
     icon: [
       { url: '/favicon.ico' },

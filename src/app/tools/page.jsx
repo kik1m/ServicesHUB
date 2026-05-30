@@ -3,6 +3,9 @@ import ToolsClient from './ToolsClient';
 import { toolsService } from '../../services/toolsService';
 import { TOOLS_UI_CONSTANTS } from '../../constants/toolsConstants';
 
+import { seoService } from '../../services/seoService';
+import { SEO_CONFIG } from '../../constants/seoManifest';
+
 export const revalidate = 3600; // ISR: Revalidate every hour
 
 export async function generateMetadata(props) {
@@ -10,32 +13,43 @@ export async function generateMetadata(props) {
     const searchQuery = searchParams?.q || '';
     const isTextSearch = !!searchQuery;
 
+    const dynamicSeo = await seoService.getMetadata(SEO_CONFIG.global.pageIds.tools, 'page');
+    const staticSeo  = SEO_CONFIG.pages.tools;
+
+    const baseTitle       = dynamicSeo?.title       || staticSeo.title;
+    const baseDescription = dynamicSeo?.description || staticSeo.description;
+
     return {
-        title: isTextSearch 
-            ? `"${searchQuery}" AI Tools, SaaS & Software | HUBly Discovery` 
-            : "AI & SaaS Tools Directory | Elite Discovery Hub",
+        title: isTextSearch
+            ? `"${searchQuery}" — AI & SaaS Tools Search | HUBly`
+            : baseTitle,
         description: isTextSearch
-            ? `Explore the most relevant AI and SaaS tools matching your search for "${searchQuery}".`
-            : "Access our curated directory of premium AI and SaaS tools. Filter by category, pricing, and ratings to find your next favorite software.",
+            ? `Explore the most relevant AI and SaaS tools matching your search for "${searchQuery}" on HUBly.`
+            : baseDescription,
+        keywords: staticSeo.keywords,
         robots: {
-            index: !isTextSearch, // Only block indexing for open-ended text searches; allow categories
+            index: !isTextSearch,
             follow: true,
         },
         openGraph: {
-            title: "HUBly AI & SaaS Directory",
-            description: "Discover and compare the world's best AI and SaaS software.",
-            url: "https://www.hubly-tools.com/tools",
-            siteName: "HUBly",
-            images: [
-                {
-                    url: 'https://www.hubly-tools.com/og-image.jpg',
-                    width: 1200,
-                    height: 630,
-                    alt: "HUBly AI & SaaS Directory",
-                }
-            ],
+            title: baseTitle,
+            description: baseDescription,
+            url: 'https://www.hubly-tools.com/tools',
+            siteName: SEO_CONFIG.global.siteName,
+            images: [{
+                url: SEO_CONFIG.global.defaultImage,
+                width: 512,
+                height: 512,
+                alt: 'HUBly AI & SaaS Tools Directory',
+            }],
             type: 'website',
-        }
+        },
+        twitter: {
+            card: 'summary_large_image',
+            title: baseTitle,
+            description: baseDescription,
+            images: [SEO_CONFIG.global.defaultImage],
+        },
     };
 }
 

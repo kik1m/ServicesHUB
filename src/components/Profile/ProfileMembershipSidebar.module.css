@@ -92,6 +92,12 @@
   box-shadow: 0 8px 20px rgba(255, 204, 0, 0.2);
 }
 
+.eliteBadge {
+  background: linear-gradient(90deg, #bf5af2, #5e5ce6) !important;
+  color: white !important;
+  box-shadow: 0 8px 20px rgba(191, 90, 242, 0.3) !important;
+}
+
 .centeredFooter {
   display: flex;
   justify-content: center;

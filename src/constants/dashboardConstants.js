@@ -31,6 +31,8 @@ export const DASHBOARD_CONSTANTS = {
         tiers: {
             premium: "PREMIUM",
             free: "FREE",
+            pro: "PRO TIER",
+            elite: "ELITE TIER",
             discovery: "Discovery"
         }
     },

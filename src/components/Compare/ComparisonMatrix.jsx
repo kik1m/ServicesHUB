@@ -18,7 +18,7 @@ import { useComparisonMatrix } from '../../hooks/useComparisonMatrix';
  * 100% powered by AI strategic analysis.
  * Refactored for extreme maintainability and mobile parity.
  */
-const ComparisonMatrix = ({ tool1, tool2, isLoading, isTool1Loading, isTool2Loading, isAiLoading, aiResults, aiError, error, onRetry, content }) => {
+const ComparisonMatrix = ({ tool1, tool2, isLoading, isTool1Loading, isTool2Loading, isAiLoading, aiResults, aiError, error, onRetry, content, userIntent }) => {
 
     // 🛡️ Logic Isolation: All state, calculations, and effects moved to custom hook
     const {
@@ -74,6 +74,7 @@ const ComparisonMatrix = ({ tool1, tool2, isLoading, isTool1Loading, isTool2Load
                                 aiError={aiError}
                                 activeTab={activeTab}
                                 loadingMessage={loadingMessage}
+                                userIntent={userIntent}
                             />
 
                             {/* 🏆 Section 1: Ultimate Verdict Dashboard */}

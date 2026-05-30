@@ -8,7 +8,7 @@ import styles from './DashboardStats.module.css';
 /**
  * DashboardStats - Elite Metric Visualization
  */
-const DashboardStats = memo(({ isCreator, isPremium, stats, isLoading, error, onRetry, content }) => {
+const DashboardStats = memo(({ isCreator, isPremium, subscriptionTier, stats, isLoading, error, onRetry, content }) => {
     if (isLoading) {
         return (
             <div className={styles.statsGrid}>
@@ -43,7 +43,7 @@ const DashboardStats = memo(({ isCreator, isPremium, stats, isLoading, error, on
         if (stat?.type === 'views') value = stats?.totalViews?.toLocaleString() || 0;
         if (stat?.type === 'clicks') value = stats?.totalClicks?.toLocaleString() || 0;
         if (stat?.type === 'favorites') value = stats?.totalFavorites || 0;
-        if (stat?.type === 'tier') value = isPremium ? content?.tiers?.premium : content?.tiers?.free;
+        if (stat?.type === 'tier') value = isPremium ? (content?.tiers?.[subscriptionTier] || content?.tiers?.premium) : content?.tiers?.free;
         if (stat?.type === 'account') value = content?.tiers?.discovery;
 
         return {

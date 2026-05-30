@@ -59,7 +59,7 @@ export async function POST(req) {
 
         // 3. AI SEMANTIC ANALYSIS (Multi-Key Resilience)
         const prompt = `
-        You are the Elite AI Curator for ServicesHUB. 
+        You are the Elite AI Curator for HUBly. 
         USER REQUEST: "${query}"
 
         TOOLS DATABASE:
@@ -147,6 +147,38 @@ export async function POST(req) {
             if (i < apiKeys.length - 1) await new Promise(r => setTimeout(r, 800)); // Small pause before next key
         }
 
+        // --- 🌐 OPENROUTER FALLBACK ENGINE ---
+        if (!analysis && process.env.OPENROUTER_API_KEY) {
+            console.warn(`[AI-Search-API] All Gemini keys exhausted. Falling back to OpenRouter (google/gemini-2.5-flash)`);
+            try {
+                const orResponse = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        model: 'google/gemini-2.5-flash',
+                        messages: [{ role: 'user', content: prompt }]
+                    })
+                });
+                if (orResponse.ok) {
+                    const orData = await orResponse.json();
+                    let responseText = orData.choices[0]?.message?.content || "";
+                    const startIdx = responseText.indexOf('{');
+                    const endIdx = responseText.lastIndexOf('}');
+                    if (startIdx !== -1 && endIdx !== -1) {
+                        analysis = JSON.parse(responseText.substring(startIdx, endIdx + 1));
+                        console.log(`  ✅ Search Analysis successful with OpenRouter fallback`);
+                    }
+                } else {
+                    console.error('[AI-Search-API] OpenRouter fallback HTTP error', await orResponse.text());
+                }
+            } catch (e) {
+                console.error('[AI-Search-API] OpenRouter fallback failed', e);
+            }
+        }
+
         if (!analysis) throw lastError || new Error('AI_GENERATION_FAILED');
         const { selected_slugs, message } = analysis;
 
@@ -183,3 +215,4 @@ export async function POST(req) {
         }, { status: 200 });
     }
 }
+

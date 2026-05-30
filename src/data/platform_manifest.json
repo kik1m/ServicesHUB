@@ -1,0 +1,357 @@
+[
+    {
+        "page_id": "/",
+        "title": "HUBly Homepage (Landing)",
+        "purpose": "The main entry point for the platform, showcasing featured tools, value proposition, and call-to-actions.",
+        "ui_elements": [
+            { "name": "SmartBanner", "type": "carousel", "function": "Displays top sponsored or featured tools at the very top." },
+            { "name": "HomeHero", "type": "section", "function": "Main cinematic DNA particles, value proposition, global search bar, and popular categories." },
+            { "name": "HomeStatsBar", "type": "bar", "function": "Shows live platform stats (Total Tools, Users, Views)." },
+            { "name": "HomeHowItWorks", "type": "section", "function": "Explains how the platform works." },
+            { "name": "HomeCategories", "type": "grid", "function": "Displays popular software categories." },
+            { "name": "HomeTrending", "type": "carousel", "function": "Carousel of currently trending AI/SaaS tools." },
+            { "name": "HomeComparisons", "type": "section", "function": "Showcases recent AI comparisons made by users." },
+            { "name": "HomeLatestArrivals", "type": "grid", "function": "Displays the newest submitted tools." },
+            { "name": "HomeFeatured", "type": "grid", "function": "Highlights premium or editor-picked tools." },
+            { "name": "HomeValueProp", "type": "section", "function": "Reinforces the value of using HUBly." },
+            { "name": "HomePublisherCTA", "type": "section", "function": "Call to action for tool creators to submit their software." },
+            { "name": "HomeBlogSection", "type": "grid", "function": "Recent blog posts and articles." },
+            { "name": "VideoGuide", "type": "modal/video", "function": "Video explaining platform usage." },
+            { "name": "AICopilot_FAB", "type": "floating_button", "function": "Floating Action Button to open the AI Engine chat directly." }
+        ],
+        "backend_apis": [
+            "categoriesService.getHomeCategories",
+            "toolsService.getFeaturedTools",
+            "toolsService.getLatestTools",
+            "toolsService.getTrendingTools",
+            "blogService.getLatestPosts",
+            "compareService.getRecentComparisons",
+            "toolsService.getToolsStats",
+            "profilesService.getUsersCount",
+            "toolsService.getBannerTools"
+        ],
+        "user_flows": ["Discover platform features", "Search globally via Hero", "Navigate to /tools or specific tool categories", "Click floating AI button to ask a question"]
+    },
+    {
+        "page_id": "/tools",
+        "title": "Comprehensive Tools Directory",
+        "purpose": "A unified search engine page to display, filter, and semantically search all available AI/SaaS tools in the HUBly database.",
+        "ui_elements": [
+            { "name": "SmartBanner", "type": "carousel", "function": "Displays promoted tools." },
+            { "name": "PageHero", "type": "section", "function": "Header with title and breadcrumbs." },
+            { "name": "DirectoryFilterToggle", "type": "button", "function": "Mobile toggle to open the sidebar filters." },
+            { "name": "DirectorySidebar", "type": "sidebar", "function": "Contains Category and Pricing model filters." },
+            { "name": "AiSearchAssistant", "type": "input", "function": "Semantic AI search bar that processes natural language queries (e.g. 'tools for writing code')." },
+            { "name": "DirectoryResults", "type": "grid", "function": "Renders brief tool details in cards. Supports infinite scrolling and sorting." },
+            { "name": "DirectorySubmitCTA", "type": "section", "function": "Footer CTA to submit a new tool." }
+        ],
+        "backend_apis": [
+            "queryOptions.bannerTools",
+            "useSearchEngine (Client-side URL syncing and fetching)",
+            "useAiSearch (Semantic AI engine backend)"
+        ],
+        "user_flows": ["Perform a semantic AI search", "Filter by specific category or price", "Sort tools by rating or date", "Click a tool card to view full details"]
+    },
+    {
+        "page_id": "/tool/[slug]",
+        "title": "Tool Details Page",
+        "purpose": "Displays comprehensive information, pricing, reviews, and related alternatives for a specific software tool.",
+        "ui_elements": [
+            { "name": "ToolDetailHero", "type": "section", "function": "Breadcrumbs and main title header." },
+            { "name": "ToolDetailMasterCard", "type": "card", "function": "Main card containing logo, quick stats, Favorite button, Compare button, and External Link." },
+            { "name": "ToolDetailInfo", "type": "section", "function": "Displays the long description and feature lists." },
+            { "name": "ToolDetailPricing", "type": "section", "function": "Displays pricing tiers and models." },
+            { "name": "ToolDetailSidebar", "type": "sidebar", "function": "Shows Publisher info, Share links, and Report Tool button." },
+            { "name": "ToolDetailRelated", "type": "carousel", "function": "Shows alternative or related tools in the same category." },
+            { "name": "ReviewsSection", "type": "section", "function": "Displays user reviews and allows authenticated users to submit a new rating." },
+            { "name": "ReportToolModal", "type": "modal", "function": "Modal to report inaccurate tool info or broken links." }
+        ],
+        "backend_apis": [
+            "toolsService.getToolBySlug",
+            "profilesService.getProfileById (Publisher)",
+            "toolsService.getRelatedTools"
+        ],
+        "user_flows": ["Read detailed tool specs", "Click external link to visit the tool's website", "Save/Favorite the tool", "Click 'Compare' to send tool to the comparison engine", "Leave a review"]
+    },
+    {
+        "page_id": "/categories",
+        "title": "Categories Directory",
+        "purpose": "A browseable grid of all software categories available on the platform.",
+        "ui_elements": [
+            { "name": "SmartBanner", "type": "carousel", "function": "Promoted tools banner." },
+            { "name": "PageHero", "type": "section", "function": "Header with title." },
+            { "name": "CategoriesGrid", "type": "grid", "function": "Displays all categories with their respective tool counts. Includes a text search to quickly find a category." },
+            { "name": "CategoriesSuggestCTA", "type": "section", "function": "Call to action to suggest a missing category." }
+        ],
+        "backend_apis": [
+            "categoriesService.getCategoriesWithCounts",
+            "toolsService.getBannerTools"
+        ],
+        "user_flows": ["Search for a specific category name", "Click a category to view all tools within it", "Suggest a new category"]
+    },
+    {
+        "page_id": "/category/[slug]",
+        "title": "Category Details (Filtered Tools)",
+        "purpose": "Functions similarly to the /tools directory, but pre-filtered and locked to a specific category.",
+        "ui_elements": [
+            { "name": "SmartBanner", "type": "carousel", "function": "Promoted tools banner." },
+            { "name": "PageHero", "type": "section", "function": "Displays the category name and description." },
+            { "name": "DirectorySidebar", "type": "sidebar", "function": "Contains Pricing model filters (Category filter is disabled/hidden)." },
+            { "name": "DirectoryResults", "type": "grid", "function": "Renders tool cards belonging to this category." }
+        ],
+        "backend_apis": [
+            "categoriesService.getCategoryBySlug",
+            "toolsService.getBannerTools"
+        ],
+        "user_flows": ["Browse tools strictly within one category", "Filter by pricing", "Click tool to view details"]
+    },
+    {
+        "page_id": "/compare",
+        "title": "HUBly AI Comparison Engine",
+        "purpose": "Allows users to select two tools and run a deep, AI-driven comparison matrix.",
+        "ui_elements": [
+            { "name": "tool_selector_1", "type": "dropdown", "function": "Select first tool" },
+            { "name": "tool_selector_2", "type": "dropdown", "function": "Select second tool" },
+            { "name": "ai_chat_widget", "type": "component", "function": "Interactive AI copilot for deep reasoning" },
+            { "name": "versus_card", "type": "component", "function": "Visual head-to-head stats comparison" }
+        ],
+        "backend_apis": ["/api/v1/engine/chat", "Supabase: tool_comparisons table"],
+        "user_flows": ["Select 2 tools", "Read automated matrix", "Chat with AI to ask specific questions about the tools"]
+    },
+    {
+        "page_id": "/dashboard",
+        "title": "Creator Dashboard",
+        "purpose": "A comprehensive hub for tool creators to view analytics, manage submissions, and see platform activity.",
+        "ui_elements": [
+            { "name": "DashboardHeader", "type": "section", "function": "Displays greeting and top-level creator status." },
+            { "name": "DashboardStats", "type": "cards", "function": "Shows aggregate analytics: Total Views, Clicks, Avg Rating, Total Favorites." },
+            { "name": "DashboardViewsChart", "type": "chart", "function": "Visualizes tool traffic over time for creators." },
+            { "name": "DashboardToolsTable", "type": "table", "function": "List of the creator's submitted tools with quick actions (Edit, Promote, Delete)." },
+            { "name": "DashboardFavorites", "type": "grid", "function": "For non-creators, highlights their recently saved tools." },
+            { "name": "DashboardWelcomeCTA", "type": "section", "function": "Encourages users to submit their first tool if they have none." }
+        ],
+        "backend_apis": ["useDashboardData (Fetches tools, favorites, charts from Supabase)"],
+        "user_flows": ["Analyze tool performance metrics", "Manage/Delete published tools", "Access edit/promote screens quickly"]
+    },
+    {
+        "page_id": "/submit",
+        "title": "Submit Tool Wizard",
+        "purpose": "A multi-step form allowing creators to list their AI/SaaS software on HUBly.",
+        "ui_elements": [
+            { "name": "PageHero", "type": "section", "function": "Header and Breadcrumbs." },
+            { "name": "StepIndicator", "type": "stepper", "function": "Shows progress across 3 steps: Basic Info, Media, Features." },
+            { "name": "ToolFormBasicInfo", "type": "form_section", "function": "Inputs for name, URL, pricing, category, and description." },
+            { "name": "ToolFormMedia", "type": "form_section", "function": "Upload logo and add YouTube/Demo URLs." },
+            { "name": "ToolFormFeatures", "type": "form_section", "function": "Dynamic inputs to add specific features and use-cases." },
+            { "name": "ToolFormActions", "type": "buttons", "function": "Next, Previous, and Submit controls." },
+            { "name": "SubmitSuccess", "type": "view", "function": "Completion screen after successful submission." }
+        ],
+        "backend_apis": ["useToolForm", "Supabase: insert into tools table", "Supabase Storage: upload image"],
+        "user_flows": ["Fill out basic tool info", "Upload branding media", "Define specific features", "Submit for review"]
+    },
+    {
+        "page_id": "/edit-tool/[id]",
+        "title": "Edit Tool Wizard",
+        "purpose": "Allows creators to modify an existing tool listing. Uses the exact same UI structure as /submit.",
+        "ui_elements": [
+            { "name": "PageHero", "type": "section", "function": "Header showing the tool being edited." },
+            { "name": "StepIndicator", "type": "stepper", "function": "Shows progress." },
+            { "name": "ToolFormBasicInfo", "type": "form_section", "function": "Pre-filled Basic Info." },
+            { "name": "ToolFormMedia", "type": "form_section", "function": "Pre-filled Media." },
+            { "name": "ToolFormFeatures", "type": "form_section", "function": "Pre-filled Features." },
+            { "name": "ToolFormActions", "type": "buttons", "function": "Update button." }
+        ],
+        "backend_apis": ["useToolForm (mode: edit)", "Supabase: update tools table"],
+        "user_flows": ["Update pricing", "Change category", "Modify descriptions or screenshots", "Save changes"]
+    },
+    {
+        "page_id": "/promote",
+        "title": "Promote / Sponsor Tool",
+        "purpose": "Allows tool owners to purchase premium placement (sponsorships, banners, featured spots) for their tools.",
+        "ui_elements": [
+            { "name": "PageHero", "type": "section", "function": "Marketing header for the promotion service." },
+            { "name": "ToolSelector", "type": "dropdown", "function": "Select which of the user's tools to promote." },
+            { "name": "PromotionPlans", "type": "cards", "function": "Displays available sponsorship tiers (e.g., Homepage Banner, Category Featured)." },
+            { "name": "PromoteTrustFooter", "type": "section", "function": "Social proof and guarantees." }
+        ],
+        "backend_apis": ["usePromoteData", "Supabase: read user tools"],
+        "user_flows": ["Select a tool to promote", "Choose a sponsorship tier", "Proceed to checkout/payment"]
+    },
+    {
+        "page_id": "/profile",
+        "title": "Private User Profile",
+        "purpose": "A private hub for the user to manage their saved collections, view their reviews, and see membership status.",
+        "ui_elements": [
+            { "name": "ProfileHero", "type": "section", "function": "Displays the user's avatar, name, and sign-out button." },
+            { "name": "ProfileTabs", "type": "tabs", "function": "Switch between 'Favorites' and 'Reviews'." },
+            { "name": "ProfileStats", "type": "bar", "function": "Quick stats for the user." },
+            { "name": "ProfileCollections", "type": "grid", "function": "Displays all tools the user has favorited/saved." },
+            { "name": "ProfileAboutSidebar", "type": "sidebar", "function": "User biography and social links." },
+            { "name": "ProfileMembershipSidebar", "type": "sidebar", "function": "Displays current subscription tier (e.g., Free, Premium)." }
+        ],
+        "backend_apis": ["useProfileData", "Supabase: profiles, favorites, reviews"],
+        "user_flows": ["View saved tools", "Check membership status", "Logout"]
+    },
+    {
+        "page_id": "/u/[username]",
+        "title": "Public Profile (Portfolio)",
+        "purpose": "A public-facing page showcasing a user's published tools and public favorite collections.",
+        "ui_elements": [
+            { "name": "PublicProfileHero", "type": "section", "function": "Displays avatar, bio, Follow button, and Copy Link." },
+            { "name": "TabsNav", "type": "tabs", "function": "Switch between 'Published Tools' and 'Favorite Collection'." },
+            { "name": "StatsQuickLook", "type": "bar", "function": "Public stats (Published count, Saved count)." },
+            { "name": "ProfilePortfolio", "type": "grid", "function": "Renders the tools belonging to the active tab." }
+        ],
+        "backend_apis": ["usePublicProfileData", "Supabase: getPublicProfile, getPublicTools"],
+        "user_flows": ["View a creator's portfolio", "Follow the creator", "Copy profile link to share"]
+    },
+    {
+        "page_id": "/ai-engine",
+        "title": "Standalone AI Engine Studio",
+        "purpose": "A dedicated full-screen interface for conversing with the HUBly AI Expert without being constrained to a single tool or comparison.",
+        "ui_elements": [
+            { "name": "Sidebar", "type": "sidebar", "function": "Lists past AI sessions, allows renaming/deleting sessions, and starting a new chat." },
+            { "name": "AIChatWidget", "type": "component", "function": "The main conversational interface (messages, input, streaming responses)." },
+            { "name": "SettingsModal", "type": "modal", "function": "Adjust AI tone and language preferences." }
+        ],
+        "backend_apis": ["useAIEngineData", "useAISessions", "/api/v1/engine/chat", "Supabase: ai_sessions, ai_messages"],
+        "user_flows": ["Ask open-ended questions about software", "Resume a past conversation", "Compare multiple tools dynamically"]
+    },
+    {
+        "page_id": "/premium",
+        "title": "HUBly Pro / Premium Upgrade",
+        "purpose": "The pricing and upgrade page for users who want to unlock advanced AI capabilities and API access.",
+        "ui_elements": [
+            { "name": "PageHero", "type": "section", "function": "Value proposition for HUBly Pro." },
+            { "name": "PremiumPricingCard", "type": "card", "function": "Displays pricing tiers, features, and the 'Upgrade Now' button." },
+            { "name": "PromoteTrustFooter", "type": "section", "function": "Social proof and secure payment badges." },
+            { "name": "PremiumFAQ", "type": "accordion", "function": "Frequently asked questions regarding billing and features." }
+        ],
+        "backend_apis": ["usePremiumData", "Stripe / LemonSqueezy Checkout Session"],
+        "user_flows": ["Review Pro features", "Click Upgrade to open payment gateway"]
+    },
+    {
+        "page_id": "/docs/privacy",
+        "title": "Privacy Policy",
+        "purpose": "Legal document detailing data collection, processing, and user rights (GDPR/CCPA compliance).",
+        "ui_elements": [
+            { "name": "DocsCallout", "type": "alert", "function": "Highlights critical info (e.g., public visibility)." },
+            { "name": "DocsFAQ", "type": "accordion", "function": "Common privacy questions." },
+            { "name": "DocsNav", "type": "navigation", "function": "Links to previous/next legal documents." }
+        ],
+        "backend_apis": [],
+        "user_flows": ["Read data policies", "Learn how to export/delete data"]
+    },
+    {
+        "page_id": "/docs/terms",
+        "title": "Terms of Service",
+        "purpose": "Legal document detailing the rules, intellectual property, and acceptable use of the platform.",
+        "ui_elements": [
+            { "name": "DocsCallout", "type": "alert", "function": "Highlights critical terms." },
+            { "name": "DocsNav", "type": "navigation", "function": "Links to related documents." }
+        ],
+        "backend_apis": [],
+        "user_flows": ["Read platform rules"]
+    },
+    {
+        "page_id": "/auth",
+        "title": "Authentication Page",
+        "purpose": "Provides user login, registration, password recovery, and social login capabilities.",
+        "ui_elements": [
+            { "name": "AuthHeader", "type": "section", "function": "Displays auth title, verification warnings, and dynamic resend actions." },
+            { "name": "LoginForm", "type": "form", "function": "Email and password inputs for existing users." },
+            { "name": "SignUpForm", "type": "form", "function": "Registration form for new users." },
+            { "name": "ForgotPasswordForm", "type": "form", "function": "Form to trigger a password reset email." },
+            { "name": "SocialLogins", "type": "section", "function": "OAuth buttons (Google, GitHub, Twitter)." }
+        ],
+        "backend_apis": ["useAuthLogic", "Supabase Auth (signIn, signUp, resetPassword, signInWithOAuth)"],
+        "user_flows": ["Login to account", "Create new account", "Recover password", "Sign in via Google"]
+    },
+    {
+        "page_id": "/reset-password",
+        "title": "Reset Password Page",
+        "purpose": "Allows users who clicked the password reset link in their email to set a new password.",
+        "ui_elements": [
+            { "name": "ResetPasswordHero", "type": "header", "function": "Visual title for the reset action." },
+            { "name": "ResetPasswordForm", "type": "form", "function": "Inputs for new password and confirmation." },
+            { "name": "ResetPasswordSuccess", "type": "view", "function": "Success message with a link to login." }
+        ],
+        "backend_apis": ["useResetPasswordData", "Supabase Auth (updateUser)"],
+        "user_flows": ["Set new password after email recovery"]
+    },
+    {
+        "page_id": "/contact",
+        "title": "Contact Us",
+        "purpose": "A support and inquiry form for users to reach out to the HUBly team.",
+        "ui_elements": [
+            { "name": "PageHero", "type": "section", "function": "Page title and highlight." },
+            { "name": "ContactInfoSidebar", "type": "sidebar", "function": "Displays email, social links, and physical address details." },
+            { "name": "ContactForm", "type": "form", "function": "Inputs for subject and message." }
+        ],
+        "backend_apis": ["useContactData", "Supabase/Email webhook for contact submissions"],
+        "user_flows": ["Submit support ticket", "Inquire about business partnerships"]
+    },
+    {
+        "page_id": "/notifications",
+        "title": "User Notifications",
+        "purpose": "Displays system, promotional, and interaction alerts to logged-in users.",
+        "ui_elements": [
+            { "name": "NotificationsHeader", "type": "section", "function": "Page header." },
+            { "name": "NotificationsListHeader", "type": "section", "function": "Controls to mark all as read or clear all." },
+            { "name": "NotificationCard", "type": "card", "function": "Individual notification item displaying unread status." },
+            { "name": "NotificationsEmptyState", "type": "view", "function": "Fallback UI when there are no notifications." }
+        ],
+        "backend_apis": ["useNotificationsData", "Supabase: notifications table"],
+        "user_flows": ["Check unread notifications", "Clear notification history"]
+    },
+    {
+        "page_id": "/blog",
+        "title": "HUBly Magazine (Blog)",
+        "purpose": "A public blog directory listing articles, expert guides, and news regarding AI and SaaS.",
+        "ui_elements": [
+            { "name": "BlogGrid", "type": "grid", "function": "Displays a grid of blog post cards with pagination." },
+            { "name": "BlogFilters", "type": "filters", "function": "Allows filtering articles by category." },
+            { "name": "BlogNewsletter", "type": "section", "function": "Subscription form for the HUBly newsletter." }
+        ],
+        "backend_apis": ["blogService", "Supabase: blog_posts table"],
+        "user_flows": ["Browse articles", "Filter by category", "Subscribe to newsletter"]
+    },
+    {
+        "page_id": "/blog/[slug]",
+        "title": "Blog Post Detail",
+        "purpose": "Displays the full content of a specific blog post.",
+        "ui_elements": [
+            { "name": "BlogPostHeader", "type": "header", "function": "Title, author, date, and featured image." },
+            { "name": "BlogPostContent", "type": "article", "function": "Renders the HTML/Markdown content of the post." },
+            { "name": "BlogSocialShare", "type": "buttons", "function": "Share the post on Twitter, LinkedIn, etc." }
+        ],
+        "backend_apis": ["blogService (getPostByIdOrSlug)", "Dynamic SEO JSON-LD"],
+        "user_flows": ["Read article", "Share article on social media"]
+    },
+    {
+        "page_id": "/docs",
+        "title": "HUBly Documentation",
+        "purpose": "A comprehensive documentation hub covering platform features, guidelines, and legal terms.",
+        "ui_elements": [
+            { "name": "DocsSidebar", "type": "sidebar", "function": "Navigation menu for all documentation pages." },
+            { "name": "DocsContent", "type": "article", "function": "The main content area rendering Markdown-like components." },
+            { "name": "DocsSearch", "type": "input", "function": "Quick search for documentation articles." }
+        ],
+        "backend_apis": ["Static content / Markdown mapping"],
+        "user_flows": ["Read user guides", "Find API documentation", "Read platform rules"]
+    },
+    {
+        "page_id": "/admin",
+        "title": "Admin Dashboard",
+        "purpose": "Secure gateway for platform administrators to manage tools, users, blog posts, and system settings.",
+        "ui_elements": [
+            { "name": "AdminStats", "type": "cards", "function": "Platform-wide analytics (Total Users, Tools, MRR)." },
+            { "name": "AdminTabs", "type": "tabs", "function": "Switch between Queue, Tools, Blog, Users, Newsletter, Settings." },
+            { "name": "AdminToolManager", "type": "table", "function": "Approve, reject, or edit submitted tools." },
+            { "name": "AdminUserManager", "type": "table", "function": "Manage user accounts and roles." },
+            { "name": "AdminBlogManager", "type": "form", "function": "Create and edit blog posts using a rich text editor." }
+        ],
+        "backend_apis": ["useAdminData", "Supabase Admin (Bypass RLS)", "Numerous administrative RPCs"],
+        "user_flows": ["Approve pending tools", "Ban malicious users", "Publish blog post", "View platform growth"]
+    }
+]
