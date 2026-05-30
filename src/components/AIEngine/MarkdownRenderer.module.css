@@ -376,3 +376,28 @@
     opacity: 0.9;
     color: #fff;
 }
+
+@media (max-width: 768px) {
+    .mdToolCard {
+        padding: 8px;
+        gap: 8px;
+    }
+    
+    .mdToolIconFallback {
+        width: 36px;
+        height: 36px;
+    }
+    
+    .mdToolInfo strong {
+        font-size: 0.95rem;
+    }
+    
+    .mdToolLink {
+        padding: 6px 10px;
+        font-size: 0.8rem;
+    }
+    
+    .tableWrapper {
+        font-size: 0.8rem;
+    }
+}

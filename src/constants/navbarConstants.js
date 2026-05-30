@@ -79,7 +79,7 @@ export const MOBILE_GROUPS = [
     {
         title: 'Explore',
         links: [
-            { label: 'AI Studio', path: '/ai-engine' },
+            { label: 'AI Studio', path: '/ai-engine', icon: Bot },
             { label: 'Tools Directory', path: '/tools', icon: LayoutGrid },
             { label: 'Compare Engine', path: '/compare', icon: RefreshCcw },
             { label: 'Categories', path: '/categories', icon: Star },

@@ -73,12 +73,13 @@
 
 @media (max-width: 768px) {
     .floatingWrapper {
-        bottom: 20px;
-        right: 20px;
+        bottom: 15px;
+        right: 15px;
     }
     
     .aiButton {
-        padding: 12px 24px;
-        font-size: 14px;
+        padding: 10px 18px;
+        font-size: 13px;
+        gap: 6px;
     }
 }

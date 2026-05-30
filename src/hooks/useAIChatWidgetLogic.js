@@ -138,8 +138,9 @@ export function useAIChatWidgetLogic({
 
     useEffect(() => {
         if (textareaRef.current) {
-            textareaRef.current.style.height = 'auto';
-            textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 150)}px`;
+            textareaRef.current.style.height = '';
+            const scrollHeight = textareaRef.current.scrollHeight;
+            textareaRef.current.style.height = `${Math.min(scrollHeight, 150)}px`;
         }
     }, [input]);
 
@@ -147,7 +148,7 @@ export function useAIChatWidgetLogic({
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
             if (input.trim() && !isLoading) {
-                if (textareaRef.current) textareaRef.current.style.height = 'auto';
+                if (textareaRef.current) textareaRef.current.style.height = '';
                 sendMessage(e);
             }
         }

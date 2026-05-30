@@ -17,7 +17,8 @@ export default function AIEngineSidebar({
     setActiveSessionId,
     setActionModal,
     setEditingTitle,
-    handleSessionClick
+    handleSessionClick,
+    isOpen
 }) {
     const filteredSessions = sessions.filter(session => {
         if (!searchQuery) return true;
@@ -36,7 +37,7 @@ export default function AIEngineSidebar({
     };
 
     return (
-        <aside className={styles.sidebar}>
+        <aside className={`${styles.sidebar} ${isOpen ? styles.sidebarOpen : ''}`}>
             <div className={styles.sidebarHeaderRow}>
                 <div className={styles.sidebarHeader}>
                     <Image src="/logo.png" alt={AI_ENGINE_CONSTANTS.sidebar.brandWatermark} width={24} height={24} className={styles.sparkleIcon} />

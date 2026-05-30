@@ -1,7 +1,7 @@
 'use client';
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { Settings } from 'lucide-react';
+import { Settings, Menu } from 'lucide-react';
 import { useAIEngineData } from '../../hooks/useAIEngineData';
 import { useAISessions } from '../../hooks/useAISessions';
 import { useAuth } from '../../context/AuthContext';
@@ -22,6 +22,8 @@ export default function AIEngineClient() {
     const t1Slug = searchParams.get('t1');
     const t2Slug = searchParams.get('t2');
     const sidParam = searchParams.get('sid');
+
+    const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
     const { tool1, tool2, isLoading, error } = useAIEngineData(t1Slug, t2Slug);
 
@@ -168,13 +170,20 @@ export default function AIEngineClient() {
                         setActionModal={setActionModal}
                         setEditingTitle={setEditingTitle}
                         handleSessionClick={handleSessionClick}
+                        isOpen={isMobileSidebarOpen}
                     />
+
+                    {isMobileSidebarOpen && (
+                        <div className={styles.mobileOverlay} onClick={() => setIsMobileSidebarOpen(false)} />
+                    )}
 
                     {/* ── Main Chat Area ── */}
                     <main className={styles.mainArea}>
                         <header className={styles.mainHeader}>
-                            <div style={{ display: 'flex', gap: '8px' }}>
-                                {/* Left side empty for flex alignment, or you could add a subtle logo here if needed */}
+                            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                                <button className={styles.mobileMenuBtn} onClick={() => setIsMobileSidebarOpen(true)}>
+                                    <Menu size={20} />
+                                </button>
                             </div>
                             <div className={styles.activeTools}>
                                 {tool1 && tool2 && (

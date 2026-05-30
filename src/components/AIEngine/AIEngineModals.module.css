@@ -247,3 +247,40 @@
 .modalHeaderDelete {
     color: #ff6b6b !important;
 }
+
+/* ── Mobile Layout Fixes ── */
+@media (max-width: 768px) {
+    .modalContent {
+        padding: 16px !important;
+        max-height: 85vh;
+        overflow-y: auto;
+        width: 100%;
+        max-width: 95vw !important;
+    }
+
+    .modalHeader h3 {
+        font-size: 1.1rem;
+    }
+
+    .modelGrid {
+        gap: 8px;
+    }
+
+    .modelCard {
+        padding: 10px;
+        gap: 10px;
+    }
+
+    .modelCardIcon {
+        width: 34px;
+        height: 34px;
+    }
+
+    .modelCardTitle {
+        font-size: 0.9rem;
+    }
+
+    .modelCardDesc {
+        font-size: 0.7rem;
+    }
+}

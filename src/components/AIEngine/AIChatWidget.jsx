@@ -56,7 +56,7 @@ export default function AIChatWidget(props) {
             />
 
             {/* ── Input / Limits ── */}
-            {isGuestLimitReached || isLimitReached ? (
+            {(isGuestLimitReached || isLimitReached) && !isLoadingAuth ? (
                 <AIChatLimitAlert 
                     isGuestLimitReached={isGuestLimitReached} 
                     countdown={uiProps.countdown} 

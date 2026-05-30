@@ -278,3 +278,20 @@
     text-transform: uppercase;
     margin-top: 13px;
 }
+
+@media (max-width: 1024px) {
+    .sidebar {
+        position: fixed;
+        top: 0;
+        left: -100%;
+        bottom: 0;
+        z-index: 1000;
+        background: #1a1a1a;
+        transition: left 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+        box-shadow: 5px 0 25px rgba(0, 0, 0, 0.5);
+    }
+    
+    .sidebarOpen {
+        left: 0;
+    }
+}
