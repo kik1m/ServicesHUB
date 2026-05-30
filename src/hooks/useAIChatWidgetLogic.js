@@ -15,6 +15,9 @@ export function useAIChatWidgetLogic({
     isCompareMode
 }) {
     const { user, loading } = useAuth();
+    // user.is_premium is undefined until the profile is fetched from the DB.
+    // If it's undefined but the user is logged in, we are still loading the premium state.
+    const isProfileStillLoading = user && user.is_premium === undefined;
     const isPremium = user?.is_premium;
 
     // Premium Workspace State
@@ -155,7 +158,8 @@ export function useAIChatWidgetLogic({
     return {
         user,
         isPremium,
-        isLoadingAuth: loading,
+        isLoadingAuth: loading || isProfileStillLoading,
+        isProfileStillLoading,
         chatProps,
         workspaceProps: {
             isWorkspaceModalOpen, setIsWorkspaceModalOpen,

@@ -89,14 +89,18 @@ export const useAIChat = (tool1, tool2, user, onSessionCreated, initialSessionId
                 });
                 if (response.ok) {
                     const data = await response.json();
-                    const fetchedSuggestions = data.suggestions || [];
+                    const fetchedSuggestions = data.suggestions || ["What's the best tool for me?", "Help me build a project", "Compare top tools"];
                     setSuggestions(fetchedSuggestions);
                     if (fetchedSuggestions.length > 0) {
                         sessionStorage.setItem(cacheKey, JSON.stringify(fetchedSuggestions));
                     }
+                } else {
+                    // Fallback if API fails (e.g., rate limit)
+                    setSuggestions(["What's the best tool for me?", "Help me build a project", "Compare top tools"]);
                 }
             } catch (e) {
                 console.error('Failed to fetch suggestions', e);
+                setSuggestions(["What's the best tool for me?", "Help me build a project", "Compare top tools"]);
             } finally {
                 setIsGeneratingSuggestions(false);
                 isGeneratingSuggestionsRef.current = false;
