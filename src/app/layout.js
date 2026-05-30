@@ -44,6 +44,9 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" data-scroll-behavior="smooth" className={`${geistSans.variable} ${geistMono.variable}`} suppressHydrationWarning>
       <body>
+        <div style={{ display: 'none' }}>
+          Impact-Site-Verification: 91cf02d1-76b7-4889-a2cd-ba0e04c45a2b
+        </div>
         <Providers>
           <PageBodyClass />
           <BackgroundStars />
