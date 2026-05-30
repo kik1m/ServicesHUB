@@ -122,7 +122,7 @@ const SmartBanner = memo((props) => {
                                 </Button>
                                 <Button
                                     as="a"
-                                    href={currentTool?.url}
+                                    href={currentTool?.affiliate_url || currentTool?.url}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     variant="primary"

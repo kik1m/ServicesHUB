@@ -35,14 +35,14 @@ export const metadata = {
       { rel: 'icon', url: '/android-chrome-512x512.png', sizes: '512x512', type: 'image/png' },
     ],
   },
+  other: {
+    'impact-site-verification': '91cf02d1-76b7-4889-a2cd-ba0e04c45a2b'
+  }
 };
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en" data-scroll-behavior="smooth" className={`${geistSans.variable} ${geistMono.variable}`} suppressHydrationWarning>
-      <head>
-        <meta name="impact-site-verification" value="91cf02d1-76b7-4889-a2cd-ba0e04c45a2b" />
-      </head>
       <body>
         <Providers>
           <PageBodyClass />
