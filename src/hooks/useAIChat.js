@@ -226,12 +226,12 @@ export const useAIChat = (tool1, tool2, user, onSessionCreated, initialSessionId
         setStreamPhase('thinking'); // Initial phase
 
         const abortController = new AbortController();
-        let chunkTimeoutId = setTimeout(() => abortController.abort('TIMEOUT'), 60000);
+        let chunkTimeoutId = setTimeout(() => abortController.abort('TIMEOUT'), 180000);
         let hasError = false; // Track if this request failed
 
         const resetChunkTimeout = () => {
             clearTimeout(chunkTimeoutId);
-            chunkTimeoutId = setTimeout(() => abortController.abort('TIMEOUT'), 60000);
+            chunkTimeoutId = setTimeout(() => abortController.abort('TIMEOUT'), 180000);
         };
 
         try {

@@ -10,6 +10,7 @@ import databaseDictionary from '../../../../../data/database_dictionary.json';
 import { MODELS } from '../../../../../config/models.config';
 
 export const runtime = 'nodejs';
+export const maxDuration = 300; // 5 minutes max duration for Vercel
 
 // Use standard env for keys
 const getApiKeys = () => process.env.GEMINI_API_KEY?.split(',') || [];
