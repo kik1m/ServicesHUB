@@ -35,8 +35,10 @@ export const metadata = {
       { rel: 'icon', url: '/android-chrome-512x512.png', sizes: '512x512', type: 'image/png' },
     ],
   },
-  other: {
-    'impact-site-verification': '91cf02d1-76b7-4889-a2cd-ba0e04c45a2b'
+  verification: {
+    other: {
+      'impact-site-verification': ['acc259b1-cb69-4913-a89a-e8061341799c']
+    }
   }
 };
 
@@ -44,10 +46,6 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" data-scroll-behavior="smooth" className={`${geistSans.variable} ${geistMono.variable}`} suppressHydrationWarning>
       <body>
-        <div style={{ position: 'absolute', width: '1px', height: '1px', padding: 0, margin: '-1px', overflow: 'hidden', clip: 'rect(0, 0, 0, 0)', whiteSpace: 'nowrap', borderWidth: 0 }}>
-          Impact-Site-Verification: 64077da1-12fa-4fa5-9014-bd3c2eb9ed30
-        </div>
-        <div dangerouslySetInnerHTML={{ __html: '<!-- Impact-Site-Verification: 64077da1-12fa-4fa5-9014-bd3c2eb9ed30 -->' }} />
         <Providers>
           <PageBodyClass />
           <BackgroundStars />
