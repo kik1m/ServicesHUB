@@ -37,7 +37,7 @@ export const metadata = {
   },
   verification: {
     other: {
-      'impact-site-verification': ['acc259b1-cb69-4913-a89a-e8061341799c']
+      'impact-site-verification': ['1ef4207d-0581-4e54-907b-d6b155551997']
     }
   }
 };
