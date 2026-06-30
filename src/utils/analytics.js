@@ -24,17 +24,26 @@ export const trackVisit = async (path) => {
       localStorage.setItem('hubly_visitor_id', visitorId);
     }
 
-    // 2. الحصول على الدولة (اختياري)
+    // 2. الحصول على الدولة مع fallback مزدوج لتقليل Unknown
     let country = 'Unknown';
     try {
-      // Switched from ipapi.co to get.geojs.io because ipapi blocks CORS on free tier
-      const geoRes = await fetch('https://get.geojs.io/v1/ip/geo.json');
+      // Primary: geojs.io (no CORS issues, free)
+      const geoRes = await fetch('https://get.geojs.io/v1/ip/geo.json', { signal: AbortSignal.timeout(3000) });
       if (geoRes.ok) {
         const geoData = await geoRes.json();
         country = geoData.country || 'Unknown';
       }
     } catch (e) {
-      // Silently fail geo-lookups to not block analytics
+      // Fallback: ipapi.is (alternative free geo service)
+      try {
+        const fallbackRes = await fetch('https://ipapi.is/json/', { signal: AbortSignal.timeout(3000) });
+        if (fallbackRes.ok) {
+          const fallbackData = await fallbackRes.json();
+          country = fallbackData.location?.country || 'Unknown';
+        }
+      } catch (e2) {
+        // Silently fail - Unknown is acceptable
+      }
     }
 
     // 3. إرسال البيانات لـ Supabase (Simple Insert for maximum compatibility)
