@@ -284,3 +284,28 @@
         font-size: 0.7rem;
     }
 }
+
+.modalContentWide {
+    max-width: 450px !important;
+}
+
+.sparklesIcon {
+    color: #00d2ff;
+}
+
+.modalDescription {
+    font-size: 0.95rem;
+    color: #94a3b8;
+    margin-bottom: 20px;
+    line-height: 1.7;
+}
+
+.premiumModelIcon {
+    margin-left: 8px;
+    vertical-align: middle;
+}
+
+.modalActionsBetween {
+    justify-content: space-between !important;
+}
+

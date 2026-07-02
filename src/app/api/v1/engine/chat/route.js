@@ -4,6 +4,7 @@ import { buildSystemPrompt, buildToneAndLangPrompts } from '../_lib/promptBuilde
 import { buildToolsArray } from '../_lib/toolsRegistry';
 import { compressContext } from '../_lib/contextCompressor';
 import { createStream } from '../_lib/streamEngine';
+import { classifyIntentAndGetTemplate } from '../_lib/intentClassifier';
 import { supabaseAdmin } from '../../../../../lib/supabaseAdmin';
 import platformManifest from '../../../../../data/platform_manifest.json';
 import databaseDictionary from '../../../../../data/database_dictionary.json';
@@ -12,13 +13,24 @@ import { MODELS } from '../../../../../config/models.config';
 export const runtime = 'nodejs';
 export const maxDuration = 300; // 5 minutes max duration for Vercel
 
+const corsHeaders = {
+    'Access-Control-Allow-Origin': process.env.NEXT_PUBLIC_SITE_URL || '*',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    'Access-Control-Allow-Credentials': 'true',
+};
+
+export async function OPTIONS() {
+    return new Response(null, { status: 204, headers: corsHeaders });
+}
+
 // Use standard env for keys
 const getApiKeys = () => process.env.GEMINI_API_KEY?.split(',') || [];
 
 export async function POST(req) {
     try {
         const body = await req.json();
-        const { messages, modelType: rawModelType, selectedModel, action, workspaceContext, aiSettings, user_id, tool1Context, tool2Context, experienceLevel } = body;
+        const { messages, modelType: rawModelType, selectedModel, action, workspaceContext, aiSettings, user_id, tool1Context, tool2Context, experienceLevel, mode, activeWorkflowState } = body;
         const modelType = rawModelType || selectedModel; // frontend sends selectedModel, some tests send modelType
 
         // 🛡️ P1: Rate Limiting
@@ -33,7 +45,7 @@ export async function POST(req) {
         const { verifiedUserId, isPremium, subscriptionTier, userRole, userContextPrompt, messagesToday, error: authError, message: authMessage } = await authenticateAndCheckQuota(req, action);
         
         // 🔍 DIAGNOSTIC LOG — Remove after debugging
-        console.log(`[AI Engine] Auth result: userId=${verifiedUserId ? verifiedUserId.slice(0,8)+'...' : 'null'}, role=${userRole}, tier=${subscriptionTier}, model=${modelType}`);
+
 
         
         if (authError) {
@@ -41,8 +53,10 @@ export async function POST(req) {
         }
 
         // 🛡️ P3: Model Tier Enforcement (Admins bypass all tier restrictions)
+        let resolvedModelType = modelType;
         if (action !== 'generate_suggestions' && modelType && userRole !== 'admin') {
             const selectedModel = Object.values(MODELS).find(m => m.id === modelType) || MODELS.GEMINI_FLASH;
+            resolvedModelType = selectedModel.id; // Force valid model name to prevent OpenRouter bypassing
             const tierValue = { 'free': 0, 'pro': 1, 'elite': 2 };
             const userTierVal = tierValue[subscriptionTier] || 0;
             const requiredTierVal = tierValue[selectedModel.minTier] || 0;
@@ -80,7 +94,22 @@ export async function POST(req) {
         }
 
         // 🧠 Phase 3: Persistent Context Compression (Modularized)
-        formattedMessages = await compressContext(formattedMessages, getApiKeys);
+        let dbContextSummary = null;
+        if (body.sessionId) {
+            try {
+                const { data: sumData } = await supabaseAdmin.from('ai_sessions')
+                    .select('context_summary')
+                    .eq('id', body.sessionId)
+                    .single();
+                if (sumData && sumData.context_summary) {
+                    dbContextSummary = sumData.context_summary;
+                }
+            } catch (err) {
+                // Ignore if not found
+            }
+        }
+        
+        formattedMessages = await compressContext(formattedMessages, getApiKeys, body.sessionId, dbContextSummary);
 
         const currentDate = new Date().toISOString().split('T')[0];
 
@@ -90,8 +119,8 @@ export async function POST(req) {
         let categoriesIndex = 'AI Agents, Productivity, Design, Analytics, Development';
         try {
             const [toolsRes, catsRes] = await Promise.all([
-                supabaseAdmin.from('tools').select('name, slug').limit(200),
-                supabaseAdmin.from('categories').select('name').limit(50)
+                supabaseAdmin.from('tools').select('name, slug').limit(150),
+                supabaseAdmin.from('categories').select('name').limit(20)
             ]);
             if (toolsRes.data && toolsRes.data.length > 0) {
                 toolsIndex = toolsRes.data.map(t => `- ${t.name} [slug: ${t.slug}]`).join('\n');
@@ -103,13 +132,30 @@ export async function POST(req) {
             console.warn('[AI Engine] Could not fetch tools/categories index:', fetchErr.message);
         }
 
+        // 🧠 Phase 2: Dynamic Templates based on Intent Classification
+        const combinedUserMsgs = (messages || [])
+            .filter(m => m.role === 'user')
+            .map(m => m.content || '')
+            .join(' ');
+        const { intent, template: domainTemplate } = classifyIntentAndGetTemplate(combinedUserMsgs, workspaceContext);
+        console.log(`[AI Engine] Intent detected: ${intent}`);
+
+        // 🛡️ P2: Schema Validation for AI Settings
+        let validatedAiSettings = { tone: 'default', language: 'auto' };
+        if (aiSettings && typeof aiSettings === 'object') {
+            const allowedTones = ['default', 'concise', 'detailed', 'creative'];
+            const allowedLangs = ['auto', 'en', 'ar'];
+            if (allowedTones.includes(aiSettings.tone)) validatedAiSettings.tone = aiSettings.tone;
+            if (allowedLangs.includes(aiSettings.language)) validatedAiSettings.language = aiSettings.language;
+        }
+
         // 🎭 Phase 3: Build Prompts (Modularized)
-        const { tonePrompt, langPrompt } = buildToneAndLangPrompts(aiSettings);
+        const { tonePrompt, langPrompt } = buildToneAndLangPrompts(validatedAiSettings);
         const { systemInstruction } = buildSystemPrompt({
             currentDate,
             userContextPrompt,
             workspaceContext,
-            aiSettings,
+            aiSettings: validatedAiSettings,
             langPrompt,
             tonePrompt,
             categoriesIndex,
@@ -117,7 +163,10 @@ export async function POST(req) {
             isComparisonMode,
             tool1Context,
             tool2Context,
-            experienceLevel
+            experienceLevel,
+            domainTemplate,
+            mode,
+            activeWorkflowState
         });
 
         // 🚀 Fast Path: Dynamic Suggestions Generation
@@ -149,7 +198,7 @@ export async function POST(req) {
 
         // 🌊 Phase 3: Stream Engine (Modularized)
         const stream = await createStream(
-            modelType,
+            resolvedModelType,
             formattedMessages,
             toolsArray,
             systemInstruction,
@@ -160,7 +209,8 @@ export async function POST(req) {
             body.sessionId,
             tool1Context,
             tool2Context,
-            messages // Pass the raw original messages so we can extract the last user message text
+            messages, // Pass the raw original messages so we can extract the last user message text
+            mode
         );
 
         return new Response(stream, {
@@ -176,4 +226,4 @@ export async function POST(req) {
         console.error('[AI Engine] Chat Endpoint Fatal Error:', error);
         return new Response(JSON.stringify({ error: 'INTERNAL_ERROR', message: error.message }), { status: 500, headers: { 'Content-Type': 'application/json' } });
     }
-}
+} // Force recompile trigger

@@ -12,7 +12,7 @@ export default function AIChatEmptyState({ isGeneratingSuggestions, suggestions,
             <h3>{AI_ENGINE_CONSTANTS.emptyState.title}</h3>
             
             {isCompareMode ? (
-                <div style={{ textAlign: 'center', marginTop: '1rem', color: 'var(--text-secondary)', fontSize: '0.95rem', lineHeight: '1.6', maxWidth: '400px', margin: '1rem auto 0' }}>
+                <div className={styles.compareModeText}>
                     Ask HUBly AI anything about this comparison. Get personalized recommendations and deep insights based on your specific use case.
                 </div>
             ) : (

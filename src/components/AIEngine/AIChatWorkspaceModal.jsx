@@ -1,4 +1,5 @@
 import React from 'react';
+import { createPortal } from 'react-dom';
 import { Settings, X } from 'lucide-react';
 import Button from '../ui/Button';
 import Input from '../ui/Input';
@@ -9,12 +10,14 @@ export default function AIChatWorkspaceModal({ workspaceProps, user }) {
     const { 
         isWorkspaceModalOpen, setIsWorkspaceModalOpen,
         workspaceStep, setWorkspaceStep,
-        workspaceContext, setWorkspaceContext
+        workspaceContext, setWorkspaceContext,
+        mounted
     } = workspaceProps;
 
     if (!isWorkspaceModalOpen) return null;
+    if (!mounted) return null;
 
-    return (
+    return createPortal(
         <div className={styles.modalOverlay}>
             <div className={styles.modalContent}>
                 <button className={styles.closeBtn} onClick={() => setIsWorkspaceModalOpen(false)}>
@@ -24,7 +27,7 @@ export default function AIChatWorkspaceModal({ workspaceProps, user }) {
                     <Settings size={32} />
                     <h3>{AI_ENGINE_CONSTANTS.workspaceModal.title}</h3>
                 </div>
-                <p style={{ fontSize: '0.95rem', color: '#94a3b8', marginBottom: '20px', lineHeight: '1.7' }}>
+                <p className={styles.modalDescription}>
                     {AI_ENGINE_CONSTANTS.workspaceModal.description}
                 </p>
                 
@@ -58,7 +61,7 @@ export default function AIChatWorkspaceModal({ workspaceProps, user }) {
                             value={workspaceContext.goal}
                             onChange={(e) => setWorkspaceContext({...workspaceContext, goal: e.target.value})}
                         />
-                        <div className={styles.modalActions} style={{ justifyContent: 'space-between' }}>
+                        <div className={`${styles.modalActions} ${styles.modalActionsBetween}`}>
                             <Button variant="ghost" onClick={() => setWorkspaceStep(1)}>Back</Button>
                             <Button onClick={() => setWorkspaceStep(3)} disabled={!workspaceContext.goal}>Next</Button>
                         </div>
@@ -75,13 +78,15 @@ export default function AIChatWorkspaceModal({ workspaceProps, user }) {
                             value={workspaceContext.rules}
                             onChange={(e) => setWorkspaceContext({...workspaceContext, rules: e.target.value})}
                         />
-                        <div className={styles.modalActions} style={{ justifyContent: 'space-between' }}>
+                        <div className={`${styles.modalActions} ${styles.modalActionsBetween}`}>
                             <Button variant="ghost" onClick={() => setWorkspaceStep(2)}>Back</Button>
                             <Button variant="primary" onClick={() => setIsWorkspaceModalOpen(false)}>Save Workspace</Button>
                         </div>
                     </div>
                 )}
             </div>
-        </div>
+        </div>,
+        document.body
     );
 }
+

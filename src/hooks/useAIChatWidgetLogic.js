@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useAIChat } from './useAIChat';
-import { supabase } from '../lib/supabaseClient';
 import { MODELS, getModelById } from '../config/models.config';
+import { cleanTextForCopy } from '../utils/markdownToPlainText';
+import { useWorkspace } from './useWorkspace';
 
 export function useAIChatWidgetLogic({ 
     tool1, 
@@ -12,7 +13,8 @@ export function useAIChatWidgetLogic({
     initialSessionId, 
     initialMessages, 
     aiSettings,
-    isCompareMode
+    isCompareMode,
+    workspaceProps
 }) {
     const { user, loading } = useAuth();
     // user.is_premium is undefined until the profile is fetched from the DB.
@@ -20,12 +22,9 @@ export function useAIChatWidgetLogic({
     const isProfileStillLoading = user && user.is_premium === undefined;
     const isPremium = user?.is_premium;
 
-    // Premium Workspace State
-    const [isWorkspaceModalOpen, setIsWorkspaceModalOpen] = useState(false);
-    const [workspaceStep, setWorkspaceStep] = useState(1);
+    // Premium Model Selection State
     const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
     const [isModelModalOpen, setIsModelModalOpen] = useState(false);
-    const [workspaceContext, setWorkspaceContext] = useState(user?.workspace_context || { idea: '', goal: '', rules: '' });
     const [selectedModel, setSelectedModel] = useState(MODELS.GEMINI_FLASH.id);
 
     const handleModelSelect = (value) => {
@@ -41,7 +40,8 @@ export function useAIChatWidgetLogic({
 
     const getSelectedModelConfig = () => getModelById(selectedModel);
 
-    const chatProps = useAIChat(tool1, tool2, user, onSessionCreated, initialSessionId, initialMessages, onSessionTitleGenerated, aiSettings, workspaceContext, selectedModel, isCompareMode);
+    // Core Chat State (will be cleaned up next)
+    const chatProps = useAIChat(tool1, tool2, user, onSessionCreated, initialSessionId, initialMessages, onSessionTitleGenerated, aiSettings, workspaceProps.workspaceContext, selectedModel, isCompareMode);
     
     const { messages, input, setInput, sendMessage, isLoading, isLimitReached, limitResetTime } = chatProps;
 
@@ -59,16 +59,22 @@ export function useAIChatWidgetLogic({
         }
     }, [initialSessionId]);
 
-    // Save Workspace Context
+    // Install debug scrubber for client-side logs
     useEffect(() => {
-        if (!user?.id || !workspaceContext.idea) return;
-        const timer = setTimeout(() => {
-            supabase.from('profiles')
-                .update({ workspace_context: workspaceContext })
-                .eq('id', user.id).then();
-        }, 1000);
-        return () => clearTimeout(timer);
-    }, [workspaceContext, user?.id]);
+        const originalLog = console.log;
+        const originalWarn = console.warn;
+        const originalError = console.error;
+
+        console.log = (...args) => originalLog(...args.map(a => typeof a === 'string' ? a.replace(/(eyJ[a-zA-Z0-9_-]{5,}\.[a-zA-Z0-9_-]{5,}\.[a-zA-Z0-9_-]{5,})/g, '[REDACTED_JWT]').replace(/"workspaceContext":\s*"[^"]+"/g, '"workspaceContext": "[REDACTED]"') : a));
+        console.warn = (...args) => originalWarn(...args.map(a => typeof a === 'string' ? a.replace(/(eyJ[a-zA-Z0-9_-]{5,}\.[a-zA-Z0-9_-]{5,}\.[a-zA-Z0-9_-]{5,})/g, '[REDACTED_JWT]').replace(/"workspaceContext":\s*"[^"]+"/g, '"workspaceContext": "[REDACTED]"') : a));
+        console.error = (...args) => originalError(...args.map(a => typeof a === 'string' ? a.replace(/(eyJ[a-zA-Z0-9_-]{5,}\.[a-zA-Z0-9_-]{5,}\.[a-zA-Z0-9_-]{5,})/g, '[REDACTED_JWT]').replace(/"workspaceContext":\s*"[^"]+"/g, '"workspaceContext": "[REDACTED]"') : a));
+
+        return () => {
+            console.log = originalLog;
+            console.warn = originalWarn;
+            console.error = originalError;
+        };
+    }, []);
 
     // Limit Countdown
     useEffect(() => {
@@ -94,26 +100,6 @@ export function useAIChatWidgetLogic({
         return () => clearInterval(interval);
     }, [isLimitReached, limitResetTime]);
 
-    // Clipboard Formatter
-    const cleanTextForCopy = (rawText) => {
-        if (!rawText) return '';
-        let clean = rawText;
-        clean = clean.replace(/\[check\]/gi, '✅').replace(/\[warn\]/gi, '⚠️').replace(/\[info\]/gi, 'ℹ️')
-            .replace(/\[insight\]/gi, '💡').replace(/\[metrics\]/gi, '📊').replace(/\[architecture\]/gi, '🏗️')
-            .replace(/\[action\]/gi, '🛠️');
-        clean = clean.replace(/\[REASONING\]([\s\S]*?)\[\/REASONING\]/gi, (m, p1) => `🧠 AI Thought Process:\n${p1.trim()}\n\n---\n`);
-        clean = clean.replace(/\[step(\d+)\]/gi, '$1.');
-        clean = clean.replace(/\[\s*TOOL_CARD\s*:\s*(.+?)\s*\]/gi, (m, p1) => {
-            const slug = p1.trim().replace(/^["'{[\]]+|["'}\]]+$/g, '').split('||')[0].trim();
-            return `🚀 Tool: ${slug} (https://hubly.com/tool/${slug})`;
-        });
-        clean = clean.replace(/\[\s*EXTERNAL_TOOL_CARD\s*:\s*(.+?)\s*\]/gi, (m, p1) => {
-            let [name, url, desc] = p1.trim().split('||').map(s => s.trim().replace(/^["'{\[]+|["'}\]]+$/g, ''));
-            return `🌐 ${name || 'External Link'}: ${url || '#'} ${desc ? `- ${desc}` : ''}`;
-        });
-        return clean;
-    };
-
     const copyToClipboard = (text, id) => {
         if (!text) return;
         const cleanedText = cleanTextForCopy(text);
@@ -123,6 +109,25 @@ export function useAIChatWidgetLogic({
     };
 
     const prevMessagesLength = useRef(0);
+    const [showScrollButton, setShowScrollButton] = useState(false);
+
+    const handleScroll = () => {
+        if (!messagesContainerRef.current) return;
+        const { scrollTop, scrollHeight, clientHeight } = messagesContainerRef.current;
+        setShowScrollButton(scrollHeight - scrollTop - clientHeight > 150);
+    };
+
+    useEffect(() => {
+        const container = messagesContainerRef.current;
+        if (container) {
+            container.addEventListener('scroll', handleScroll);
+        }
+        return () => {
+            if (container) {
+                container.removeEventListener('scroll', handleScroll);
+            }
+        };
+    }, []);
 
     const scrollToBottom = () => {
         if (messagesContainerRef.current) {
@@ -134,6 +139,13 @@ export function useAIChatWidgetLogic({
             }
         }
         prevMessagesLength.current = messages.length;
+    };
+
+    const forceScrollToBottom = () => {
+        if (messagesContainerRef.current) {
+            messagesContainerRef.current.scrollTo({ top: messagesContainerRef.current.scrollHeight, behavior: 'smooth' });
+            setShowScrollButton(false);
+        }
     };
 
     useEffect(() => {
@@ -154,6 +166,12 @@ export function useAIChatWidgetLogic({
         }
     };
 
+    const [mounted, setMounted] = useState(false);
+    useEffect(() => {
+        setMounted(true);
+        return () => setMounted(false);
+    }, []);
+
     useEffect(() => { scrollToBottom(); }, [messages]);
 
     return {
@@ -162,20 +180,19 @@ export function useAIChatWidgetLogic({
         isLoadingAuth: loading || isProfileStillLoading,
         isProfileStillLoading,
         chatProps,
-        workspaceProps: {
-            isWorkspaceModalOpen, setIsWorkspaceModalOpen,
-            workspaceStep, setWorkspaceStep,
-            workspaceContext, setWorkspaceContext
-        },
+        workspaceProps,
+        mounted,
         modelProps: {
             selectedModel, handleModelSelect, getSelectedModelConfig,
             isModelModalOpen, setIsModelModalOpen,
-            isUpgradeModalOpen, setIsUpgradeModalOpen
+            isUpgradeModalOpen, setIsUpgradeModalOpen,
+            mounted
         },
         uiProps: {
             messagesEndRef, messagesContainerRef, textareaRef,
             copiedMessageId, copyToClipboard,
             countdown, handleKeyDown,
+            showScrollButton, forceScrollToBottom,
             avatarUrl: user?.user_metadata?.avatar_url || user?.avatar_url,
             displayName: user?.user_metadata?.full_name || user?.full_name || 'You'
         }

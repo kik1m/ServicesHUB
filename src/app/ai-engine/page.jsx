@@ -1,6 +1,6 @@
 import React from 'react';
 import AIEngineClient from './AIEngineClient';
-import AIEngineSkeleton from './AIEngineSkeleton';
+import AIEngineSkeleton from '../../components/AIEngine/AIEngineSkeleton';
 import { seoService } from '../../services/seoService';
 import { SEO_CONFIG } from '../../constants/seoManifest';
 

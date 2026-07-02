@@ -255,7 +255,8 @@
         "tool2_id": "UUID (optional).",
         "is_public": "Boolean.",
         "created_at": "Timestamp.",
-        "title": "Text."
+        "title": "Text.",
+        "context_summary": "Text. Condensed history of previous messages."
       }
     },
     "ai_messages": {

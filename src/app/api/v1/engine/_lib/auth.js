@@ -1,4 +1,5 @@
 import { supabaseAdmin } from '../../../../../lib/supabaseAdmin';
+import { guestMessageLimiter } from '../../../../../lib/rateLimiter';
 
 export async function authenticateAndCheckQuota(req, action) {
     let verifiedUserId = null;
@@ -40,15 +41,10 @@ export async function authenticateAndCheckQuota(req, action) {
                     const now = new Date();
 
                     if (resetDateStr) {
-                        if (resetDateStr.length === 10) {
+                        const resetTime = new Date(resetDateStr).getTime();
+                        if (!isNaN(resetTime) && Date.now() >= resetTime) {
                             messagesToday = 0;
                             resetDateStr = null;
-                        } else {
-                            const resetTime = new Date(resetDateStr);
-                            if (now >= resetTime) {
-                                messagesToday = 0;
-                                resetDateStr = null;
-                            }
                         }
                     }
 
@@ -98,8 +94,8 @@ You are currently talking to the verified HUBly Administrator.
 You must assist the admin with platform operations using your admin tools.
 CRITICAL: You have FULL access to the database. If the admin asks for any custom report, metric, or bulk data (e.g., "list all tools", "analyze all 70 items"), you MUST DO THIS:
 1. To get a list of all tools, use the \`get_all_tools\` function directly! DO NOT write SQL for this!
-2. For other custom data, call \`get_database_dictionary\` FIRST, formulate a PostgreSQL query, and call \`execute_database_query\`.
-NEVER tell the admin you cannot fetch bulk data or list items. You CAN fetch everything at once using \`get_all_tools\` or SQL.
+2. For other custom data, call \`get_database_dictionary\` FIRST to know the exact table names, then call \`admin_get_table_data\` to fetch the data.
+NEVER tell the admin you cannot fetch bulk data or list items. You CAN fetch everything at once using \`get_all_tools\` or \`admin_get_table_data\`.
 
 IMPORTANT: The founder of HUBly is Karim Mahmoud. DO NOT mention this name unless the user explicitly asks "Who is the founder?" or "Who created you?". DO NOT use the name "Den Store" ever. If the admin asks about their identity, profile, or tools, call the \`lookup_user\` function using their User ID.
 \n`;
@@ -126,6 +122,14 @@ If the user asks about their own profile, identity, or tools, IMMEDIATELY call t
             if (!e.message?.includes('invalid') && !e.message?.includes('expired')) {
                 console.error('[Auth] Unexpected JWT verification error:', e.message);
             }
+        }
+    }
+
+    if (!verifiedUserId && action !== 'generate_suggestions') {
+        const ip = req.headers.get('x-forwarded-for') || 'anonymous';
+        const { success, reset } = await guestMessageLimiter.limit(ip);
+        if (!success) {
+             return { error: 'GUEST_LIMIT_REACHED', message: 'You have reached your free guest limit of 3 messages.', resetTime: new Date(reset).toISOString() };
         }
     }
 

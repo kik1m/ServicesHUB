@@ -94,7 +94,7 @@ export const usePromoteData = () => {
         }
 
         if (activePlan && activePlan.name === plan.name) {
-            showToast('هذه الخطة مفعلة بالفعل لهذه الأداة.', 'warning');
+            showToast('This plan is already active for this tool.', 'warning');
             return;
         }
 

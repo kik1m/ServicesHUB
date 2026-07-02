@@ -1,18 +1,28 @@
 import React from 'react';
+import { createPortal } from 'react-dom';
 import { Sparkles, X, Brain, Zap, Star, Crown } from 'lucide-react';
 import { MODELS } from '../../config/models.config';
 import styles from './AIEngineModals.module.css';
 
 export default function AIChatModelsModal({ modelProps }) {
-    const { isModelModalOpen, setIsModelModalOpen, selectedModel, handleModelSelect } = modelProps;
+    const { isModelModalOpen, setIsModelModalOpen, selectedModel, handleModelSelect, mounted } = modelProps;
 
     if (!isModelModalOpen) return null;
+    if (!mounted) return null;
 
     const getIcon = (iconName) => {
         if (iconName === 'Crown') return <Crown size={18} />;
         if (iconName === 'Star') return <Star size={18} />;
         if (iconName === 'Brain') return <Brain size={18} />;
         return <Zap size={18} />;
+    };
+
+    const getModelRGBColor = (id) => {
+        if (id.includes('flash')) return '0, 210, 255';
+        if (id.includes('sonnet')) return '168, 85, 247';
+        if (id.includes('gpt')) return '236, 72, 153';
+        if (id.includes('o1')) return '245, 158, 11';
+        return '0, 210, 255';
     };
 
     const getModelColor = (id) => {
@@ -31,22 +41,22 @@ export default function AIChatModelsModal({ modelProps }) {
         return 'Standard AI model.';
     };
 
-    return (
+    return createPortal(
         <div className={styles.modalOverlay}>
-            <div className={styles.modalContent} style={{ maxWidth: '450px' }}>
+            <div className={`${styles.modalContent} ${styles.modalContentWide}`}>
                 <button className={styles.closeBtn} onClick={() => setIsModelModalOpen(false)}>
                     <X size={24} />
                 </button>
                 
                 <div className={styles.modalHeader}>
-                    <Sparkles size={28} style={{ color: '#00d2ff' }} />
+                    <Sparkles size={28} className={styles.sparklesIcon} />
                     <h3>Select AI Model</h3>
                 </div>
                 
-                <p style={{ fontSize: '0.95rem', color: '#94a3b8', marginBottom: '20px', lineHeight: '1.6' }}>
+                <p className={styles.modalDescription}>
                     Choose the AI model that best fits your current task. Premium models offer advanced reasoning and larger context windows.
                 </p>
-
+ 
                 <div className={styles.modelGrid}>
                     {Object.values(MODELS).map(model => (
                         <div 
@@ -57,9 +67,9 @@ export default function AIChatModelsModal({ modelProps }) {
                             <div 
                                 className={styles.modelCardIcon}
                                 style={{ 
-                                    background: `rgba(${getModelColor(model.id) === '#00d2ff' ? '0,210,255' : getModelColor(model.id) === '#a855f7' ? '168,85,247' : '236,72,153'}, 0.15)`,
+                                    background: `rgba(${getModelRGBColor(model.id)}, 0.15)`,
                                     color: getModelColor(model.id),
-                                    borderColor: `rgba(${getModelColor(model.id) === '#00d2ff' ? '0,210,255' : getModelColor(model.id) === '#a855f7' ? '168,85,247' : '236,72,153'}, 0.3)`
+                                    borderColor: `rgba(${getModelRGBColor(model.id)}, 0.3)`
                                 }}
                             >
                                 {getIcon(model.icon)}
@@ -73,7 +83,7 @@ export default function AIChatModelsModal({ modelProps }) {
                                             size={16} 
                                             color="#FFD700" 
                                             fill="#FFD700" 
-                                            style={{ marginLeft: '8px', verticalAlign: 'middle' }} 
+                                            className={styles.premiumModelIcon}
                                             title="Premium Model" 
                                         />
                                     )}
@@ -84,6 +94,8 @@ export default function AIChatModelsModal({ modelProps }) {
                     ))}
                 </div>
             </div>
-        </div>
+        </div>,
+        document.body
     );
 }
+

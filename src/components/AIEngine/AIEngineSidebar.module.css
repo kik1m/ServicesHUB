@@ -1,14 +1,28 @@
-                                                                                                                        .sidebar {
+.sidebar {
     width: 280px;
-    min-width: 280px;
+    min-width: 0;
     max-width: 280px;
     flex-shrink: 0;
     background: transparent;
     border-right: 1px solid rgba(255, 255, 255, 0.05);
     display: flex;
     flex-direction: column;
-    padding: 21px 13px;
+    padding: 21px 13px 10px 13px;
     height: 100%;
+    transition: margin-left 0.3s cubic-bezier(0.25, 1, 0.5, 1),
+        opacity 0.3s ease,
+        border-color 0.3s ease;
+    margin-left: -280px;
+    opacity: 0;
+    pointer-events: none;
+    box-sizing: border-box;
+    will-change: margin-left, opacity;
+}
+
+.sidebarOpen {
+    margin-left: 0;
+    opacity: 1;
+    pointer-events: auto;
 }
 
 .sidebarHeaderRow {
@@ -48,7 +62,7 @@
 
 .newSessionBtn {
     width: calc(100% - 16px);
-    margin: 0 8px 34px 8px;
+    margin: 0 8px 12px 8px;
     justify-content: center;
     border-radius: 13px;
     padding: 13px;
@@ -65,6 +79,78 @@
     box-shadow: 0 0 15px rgba(0, 210, 255, 0.1) !important;
 }
 
+.headerActions {
+    display: flex;
+    gap: 4px;
+}
+
+.sessionToolFallbackLarge {
+    font-size: 1.1rem !important;
+}
+
+
+.modeToggleContainer {
+    width: calc(100% - 16px);
+    margin: 0 8px 24px 8px;
+    display: flex;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 3px;
+    box-sizing: border-box;
+    gap: 2px;
+}
+
+.modeToggleBtn {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 8px;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 9px;
+    color: #94a3b8;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: none;
+}
+
+.modeToggleBtn:hover {
+    color: #f1f5f9;
+}
+
+.modeToggleBtnActive {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    color: #00d2ff !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25) !important;
+}
+
+.modeToggleBtnActiveWorkflow {
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.12) 0%, rgba(168, 85, 247, 0.12) 100%) !important;
+    border: 1px solid rgba(168, 85, 247, 0.25) !important;
+    color: #e9d5ff !important;
+    box-shadow: 0 4px 12px rgba(168, 85, 247, 0.1) !important;
+}
+
+.modeToggleIcon {
+    flex-shrink: 0;
+    transition: transform 0.25s ease;
+}
+
+.modeToggleBtnActiveWorkflow:hover .modeToggleIcon {
+    transform: scale(1.1);
+}
+
+.modeToggleBtnActive:hover .modeToggleIcon {
+    transform: scale(1.1);
+}
+
+
 .historySection {
     flex: 1;
     overflow-y: auto;
@@ -74,8 +160,14 @@
     padding-right: 8px;
 }
 
-.historySection::-webkit-scrollbar { width: 4px; }
-.historySection::-webkit-scrollbar-track { background: transparent; }
+.historySection::-webkit-scrollbar {
+    width: 4px;
+}
+
+.historySection::-webkit-scrollbar-track {
+    background: transparent;
+}
+
 .historySection::-webkit-scrollbar-thumb {
     background: rgba(255, 255, 255, 0.1);
     border-radius: 4px;
@@ -96,11 +188,11 @@
 .searchContainer {
     display: flex;
     align-items: center;
-    background: rgba(255,255,255,0.03);
+    background: rgba(255, 255, 255, 0.03);
     border-radius: 13px;
     padding: 8px 13px;
     margin: 0 8px 21px 8px;
-    border: 1px solid rgba(255,255,255,0.08);
+    border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .searchIcon {
@@ -187,7 +279,7 @@
     background: rgba(0, 0, 0, 0.2);
     padding: 4px 6px;
     border-radius: 8px;
-    border: 1px solid rgba(255,255,255,0.05);
+    border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .sessionToolImg {
@@ -268,30 +360,134 @@
     color: #ff4c4c;
 }
 
+.sidebarFooter {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 16px;
+    padding: 0 8px;
+}
+
+.footerBtn {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    color: #cbd5e1;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.footerBtn:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
 .brandWatermark {
-    padding: 21px 13px 21px 55px;
-    text-align: left;
-    font-size: 0.8rem;
-    font-weight: 800;
-    color: rgba(255, 255, 255, 0.1);
-    letter-spacing: 0.1em;
+    padding: 14px 0 0 0;
+    margin-top: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    box-sizing: border-box;
+    border-top: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.brandTextContainer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.15);
+    letter-spacing: 0.12em;
     text-transform: uppercase;
-    margin-top: 13px;
+    transition: color 0.2s ease;
+}
+
+.brandTextContainer:hover {
+    color: rgba(255, 255, 255, 0.35);
+}
+
+.brandMiniLogo {
+    opacity: 0.15;
+    filter: grayscale(1);
+    transition: opacity 0.2s ease, filter 0.2s ease;
+}
+
+.brandTextContainer:hover .brandMiniLogo {
+    opacity: 0.4;
+    filter: none;
+}
+
+.premiumWatermark {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 8px;
+    padding: 4px 10px;
+    background: rgba(0, 210, 255, 0.05);
+    border: 1px solid rgba(0, 210, 255, 0.15);
+    border-radius: 100px;
+    font-size: 0.68rem;
+    font-weight: 600;
+    color: #00d2ff;
+    text-transform: none;
+    letter-spacing: normal;
+    box-shadow: 0 2px 8px rgba(0, 210, 255, 0.03);
+    transition: all 0.2s ease;
+}
+
+.premiumWatermark:hover {
+    background: rgba(0, 210, 255, 0.08);
+    border-color: rgba(0, 210, 255, 0.3);
+    box-shadow: 0 4px 12px rgba(0, 210, 255, 0.08);
+}
+
+.premiumIcon {
+    color: #00d2ff;
+    filter: drop-shadow(0 0 4px rgba(0, 210, 255, 0.5));
 }
 
 @media (max-width: 1024px) {
     .sidebar {
         position: fixed;
         top: 0;
-        left: -100%;
+        left: 0;
         bottom: 0;
         z-index: 1000;
         background: #1a1a1a;
-        transition: left 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+        transform: translateX(-100%);
+        transition: transform 0.3s cubic-bezier(0.165, 0.84, 0.44, 1), opacity 0.3s ease;
         box-shadow: 5px 0 25px rgba(0, 0, 0, 0.5);
+        margin-left: 0;
+        width: 280px;
+        min-width: 280px;
+        padding-left: 13px;
+        padding-right: 13px;
+        opacity: 0;
+        pointer-events: none;
     }
-    
+
     .sidebarOpen {
-        left: 0;
+        transform: translateX(0);
+        margin-left: 0;
+        width: 280px;
+        min-width: 280px;
+        padding-left: 13px;
+        padding-right: 13px;
+        opacity: 1;
+        pointer-events: auto;
     }
 }

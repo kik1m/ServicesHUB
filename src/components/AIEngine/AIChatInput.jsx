@@ -25,7 +25,23 @@ export default function AIChatInput({
 }) {
     return (
         <form onSubmit={sendMessage} className={styles.inputArea}>
+            <svg width="0" height="0" className={styles.hiddenSvg}>
+                <defs>
+                    <linearGradient id="modelIconGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stopColor="#00d2ff" />
+                        <stop offset="100%" stopColor="#3a7bd5" />
+                    </linearGradient>
+                </defs>
+            </svg>
             <div className={styles.inputWrapper}>
+                <button 
+                    type="button" 
+                    onClick={() => setIsModelModalOpen(true)} 
+                    className={styles.inlineModelBtn}
+                    title={`Model: ${getSelectedModelConfig().name}`}
+                >
+                    <ActiveModelIcon size={18} stroke="url(#modelIconGradient)" />
+                </button>
                 <textarea
                     ref={textareaRef}
                     value={input}
@@ -42,32 +58,32 @@ export default function AIChatInput({
                     className={styles.sendButton}
                 >
                     {isLoading
-                        ? <Loader2 className={styles.spinner} size={18} />
-                        : <Send size={18} />
+                         ? <Loader2 className={styles.spinner} size={18} />
+                         : <Send size={18} />
                     }
                 </button>
             </div>
-            <div className={styles.usageIndicator}>
-                <div className={styles.premiumControls}>
-                    {isLoadingAuth ? (
-                        <span style={{ opacity: 0 }}>Loading...</span>
-                    ) : isPremium ? (
-                        <span><Sparkles size={12} style={{ display: 'inline', marginRight: '4px', verticalAlign: 'middle', color: '#00d2ff' }} /> {AI_ENGINE_CONSTANTS.input.premiumUsage}</span>
-                    ) : (
-                        <span><Zap size={12} style={{ display: 'inline', marginRight: '4px', verticalAlign: 'middle', color: '#f59e0b' }} /> {globalMessageCount} / 10 {AI_ENGINE_CONSTANTS.input.freeUsage}</span>
-                    )}
-                    <div className={styles.premiumActions}>
-                        <button type="button" onClick={() => setIsModelModalOpen(true)} className={styles.modelBtn}>
-                            <ActiveModelIcon size={14} style={{ color: getSelectedModelConfig().color }} /> {getSelectedModelConfig().name}
-                        </button>
-                        {!isCompareMode && (
-                            <button type="button" onClick={() => isPremium ? setIsWorkspaceModalOpen(true) : setIsUpgradeModalOpen(true)} className={styles.workspaceBtn}>
-                                <Settings size={14} /> Workspace
-                            </button>
+            {(!isPremium || isLoadingAuth) && (
+                <div className={styles.usageIndicator}>
+                    <div className={styles.premiumControls}>
+                        {isLoadingAuth ? (
+                            <span className={styles.loadingText}>Loading...</span>
+                        ) : user ? (
+                            <span className={globalMessageCount >= 8 ? styles.limitTextApproaching : styles.limitTextNormal}>
+                                <Zap size={12} className={`${styles.limitIcon} ${globalMessageCount >= 8 ? styles.limitIconApproaching : styles.limitIconNormal}`} /> 
+                                {globalMessageCount} / 10 {AI_ENGINE_CONSTANTS.input.freeUsage}
+                                {globalMessageCount >= 8 && " (Approaching Limit)"}
+                            </span>
+                        ) : (
+                            <span className={globalMessageCount >= 2 ? styles.limitTextApproaching : styles.limitTextNormal}>
+                                <Zap size={12} className={`${styles.limitIcon} ${globalMessageCount >= 2 ? styles.limitIconApproaching : styles.limitIconNormal}`} /> 
+                                {globalMessageCount} / 3 Guest Messages
+                                {globalMessageCount >= 2 && " (Approaching Limit)"}
+                            </span>
                         )}
                     </div>
                 </div>
-            </div>
+            )}
         </form>
     );
 }

@@ -1,7 +1,8 @@
 'use client';
 import React from 'react';
+import { createPortal } from 'react-dom';
 import Image from 'next/image';
-import { Shield } from 'lucide-react';
+import { Shield, Star, Brain, Zap, ArrowDown } from 'lucide-react';
 import Button from '../ui/Button';
 import { useAIChatWidgetLogic } from '../../hooks/useAIChatWidgetLogic';
 import { AI_ENGINE_CONSTANTS } from '../../constants/aiEngineConstants';
@@ -21,26 +22,33 @@ export default function AIChatWidget(props) {
         chatProps,
         workspaceProps,
         modelProps,
-        uiProps
+        uiProps,
+        mounted
     } = useAIChatWidgetLogic(props);
 
     const { messages, input, setInput, sendMessage, isLoading, streamPhase, isLimitReached, isGuestLimitReached, globalMessageCount, suggestions, isGeneratingSuggestions, retryLastMessage } = chatProps;
-    
+
+    // Determine the active model icon
+    const selectedIconString = modelProps.getSelectedModelConfig().icon;
+    let ActiveModelIcon = Zap;
+    if (selectedIconString === 'Star') ActiveModelIcon = Star;
+    if (selectedIconString === 'Brain') ActiveModelIcon = Brain;
+
     return (
         <div className={`${styles.chatContainer} notranslate`} translate="no">
-            
+
             {/* ── Empty State ── */}
             {messages.length === 0 && !isLoading && (
-                <AIChatEmptyState 
-                    isGeneratingSuggestions={isGeneratingSuggestions} 
-                    suggestions={suggestions} 
-                    sendMessage={sendMessage} 
+                <AIChatEmptyState
+                    isGeneratingSuggestions={isGeneratingSuggestions}
+                    suggestions={suggestions}
+                    sendMessage={sendMessage}
                     isCompareMode={props.isCompareMode}
                 />
             )}
 
             {/* ── Messages ── */}
-            <AIChatMessageList 
+            <AIChatMessageList
                 messages={messages}
                 isLoading={isLoading}
                 tool1={props.tool1}
@@ -55,14 +63,24 @@ export default function AIChatWidget(props) {
                 messagesEndRef={uiProps.messagesEndRef}
             />
 
+            {uiProps.showScrollButton && (
+                <button
+                    className={styles.scrollToBottomBtn}
+                    onClick={uiProps.forceScrollToBottom}
+                    aria-label="Scroll to bottom"
+                >
+                    <ArrowDown size={18} />
+                </button>
+            )}
+
             {/* ── Input / Limits ── */}
             {(isGuestLimitReached || isLimitReached) && !isLoadingAuth ? (
-                <AIChatLimitAlert 
-                    isGuestLimitReached={isGuestLimitReached} 
-                    countdown={uiProps.countdown} 
+                <AIChatLimitAlert
+                    isGuestLimitReached={isGuestLimitReached}
+                    countdown={uiProps.countdown}
                 />
             ) : (
-                <AIChatInput 
+                <AIChatInput
                     input={input}
                     setInput={setInput}
                     sendMessage={sendMessage}
@@ -75,7 +93,7 @@ export default function AIChatWidget(props) {
                     isLoadingAuth={isLoadingAuth}
                     user={user}
                     globalMessageCount={globalMessageCount}
-                    ActiveModelIcon={modelProps.getSelectedModelConfig().icon === 'Star' ? require('lucide-react').Star : (modelProps.getSelectedModelConfig().icon === 'Brain' ? require('lucide-react').Brain : require('lucide-react').Zap)}
+                    ActiveModelIcon={ActiveModelIcon}
                     getSelectedModelConfig={modelProps.getSelectedModelConfig}
                     setIsModelModalOpen={modelProps.setIsModelModalOpen}
                     setIsWorkspaceModalOpen={workspaceProps.setIsWorkspaceModalOpen}
@@ -89,22 +107,23 @@ export default function AIChatWidget(props) {
             <AIChatModelsModal modelProps={modelProps} />
 
             {/* Upgrade Modal */}
-            {modelProps.isUpgradeModalOpen && (
+            {modelProps.isUpgradeModalOpen && mounted && createPortal(
                 <div className={styles.modalOverlay}>
                     <div className={styles.modalContent}>
-                        <div style={{ textAlign: 'center' }}>
-                            <Shield size={48} style={{ color: '#f59e0b', margin: '0 auto 16px' }} />
-                            <h3 style={{ margin: '0 0 12px 0', fontSize: '20px', color: '#fff' }}>{AI_ENGINE_CONSTANTS.upgradeModal.title}</h3>
-                            <p style={{ color: '#cbd5e1', fontSize: '0.95rem', lineHeight: '1.6', marginBottom: '24px' }}>
+                        <div className={styles.upgradeModalBody}>
+                            <Shield size={48} className={styles.upgradeModalIcon} />
+                            <h3 className={styles.upgradeModalTitle}>{AI_ENGINE_CONSTANTS.upgradeModal.title}</h3>
+                            <p className={styles.upgradeModalDesc}>
                                 {AI_ENGINE_CONSTANTS.upgradeModal.description}
                             </p>
-                            <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
+                            <div className={styles.upgradeModalActions}>
                                 <Button variant="ghost" onClick={() => modelProps.setIsUpgradeModalOpen(false)}>Maybe Later</Button>
                                 <Button variant="primary" as="a" href="/premium">{AI_ENGINE_CONSTANTS.upgradeModal.cta}</Button>
                             </div>
                         </div>
                     </div>
-                </div>
+                </div>,
+                document.body
             )}
         </div>
     );

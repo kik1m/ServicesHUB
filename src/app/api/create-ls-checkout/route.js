@@ -9,6 +9,12 @@ export async function POST(request) {
             return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
         }
 
+        console.log('DEBUG CHECKOUT:');
+        console.log('- userId:', userId);
+        console.log('- variantId:', variantId);
+        console.log('- API Key (loaded):', process.env.LEMON_SQUEEZY_API_KEY ? (process.env.LEMON_SQUEEZY_API_KEY.substring(0, 15) + '...' + process.env.LEMON_SQUEEZY_API_KEY.substring(process.env.LEMON_SQUEEZY_API_KEY.length - 15)) : 'MISSING');
+        console.log('- Store ID (loaded):', process.env.LEMON_SQUEEZY_STORE_ID || 'MISSING');
+
         if (!process.env.LEMON_SQUEEZY_API_KEY || !process.env.LEMON_SQUEEZY_STORE_ID) {
             console.error('Lemon Squeezy credentials missing in ENV');
             return NextResponse.json({ error: 'Payment gateway not configured' }, { status: 500 });

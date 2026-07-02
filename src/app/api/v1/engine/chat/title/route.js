@@ -1,5 +1,32 @@
 import { supabaseAdmin } from '../../../../../../lib/supabaseAdmin';
 
+// Simple in-memory rate limiter for the title generation endpoint
+const rateLimitMap = new Map();
+const RATE_LIMIT_WINDOW_MS = 60000; // 1 minute
+const MAX_REQUESTS_PER_WINDOW = 5;
+
+function checkRateLimit(ipOrId) {
+    const now = Date.now();
+    const record = rateLimitMap.get(ipOrId);
+    
+    if (!record) {
+        rateLimitMap.set(ipOrId, { count: 1, resetTime: now + RATE_LIMIT_WINDOW_MS });
+        return true;
+    }
+    
+    if (now > record.resetTime) {
+        rateLimitMap.set(ipOrId, { count: 1, resetTime: now + RATE_LIMIT_WINDOW_MS });
+        return true;
+    }
+    
+    if (record.count >= MAX_REQUESTS_PER_WINDOW) {
+        return false;
+    }
+    
+    record.count += 1;
+    return true;
+}
+
 export async function POST(req) {
     try {
         const { sessionId, userMessage } = await req.json();
@@ -21,6 +48,11 @@ export async function POST(req) {
 
         if (!verifiedUserId) {
             return new Response(JSON.stringify({ error: 'UNAUTHORIZED', message: 'Authentication required.' }), { status: 401 });
+        }
+
+        const ip = req.headers.get('x-forwarded-for') || 'unknown';
+        if (!checkRateLimit(verifiedUserId || ip)) {
+            return new Response(JSON.stringify({ error: 'TOO_MANY_REQUESTS', message: 'Rate limit exceeded.' }), { status: 429 });
         }
 
         // Verify session belongs to this user

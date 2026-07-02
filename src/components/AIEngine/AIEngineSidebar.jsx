@@ -1,6 +1,6 @@
 import React from 'react';
 import Image from 'next/image';
-import { Search, History, MessageSquare, Edit2, Trash2, Plus, ChevronLeft } from 'lucide-react';
+import { Search, History, MessageSquare, Edit2, Trash2, Plus, ChevronLeft, Settings, Layout, X, Sparkles } from 'lucide-react';
 import Button from '../ui/Button';
 import Skeleton from '../ui/Skeleton';
 import { AI_ENGINE_CONSTANTS } from '../../constants/aiEngineConstants';
@@ -18,7 +18,10 @@ export default function AIEngineSidebar({
     setActionModal,
     setEditingTitle,
     handleSessionClick,
-    isOpen
+    onNewChatClick,
+    isOpen,
+    setIsOpen,
+    workspaceProps
 }) {
     const filteredSessions = sessions.filter(session => {
         if (!searchQuery) return true;
@@ -43,25 +46,53 @@ export default function AIEngineSidebar({
                     <Image src="/logo.png" alt={AI_ENGINE_CONSTANTS.sidebar.brandWatermark} width={24} height={24} className={styles.sparkleIcon} />
                     <h2>{AI_ENGINE_CONSTANTS.sidebar.title}</h2>
                 </div>
-                <Button 
-                    variant="ghost" 
-                    icon={ChevronLeft} 
-                    onClick={() => router.push('/')} 
-                    className={styles.backButton} 
-                    title="Back to HUBly Platform" 
-                />
+                <div className={styles.headerActions}>
+                    <Button 
+                        variant="ghost" 
+                        icon={ChevronLeft} 
+                        onClick={() => router.push('/')} 
+                        className={styles.backButton} 
+                        title="Back to Platform" 
+                    />
+                    <Button 
+                        variant="ghost" 
+                        icon={X} 
+                        onClick={() => setIsOpen && setIsOpen(false)} 
+                        className={styles.backButton} 
+                        title="Close Sidebar" 
+                    />
+                </div>
             </div>
 
             <Button
                 className={styles.newSessionBtn}
                 icon={Plus}
-                onClick={() => {
-                    setActiveSessionId(null);
-                    router.push('/ai-engine');
-                }}
+                onClick={onNewChatClick}
             >
                 {AI_ENGINE_CONSTANTS.sidebar.newChat}
             </Button>
+
+            {(() => {
+                const isWorkflow = typeof window !== 'undefined' && window.location.pathname.includes('/workflow');
+                return (
+                    <div className={styles.modeToggleContainer}>
+                        <button
+                            className={`${styles.modeToggleBtn} ${!isWorkflow ? styles.modeToggleBtnActive : ''}`}
+                            onClick={() => !isWorkflow ? null : router.push('/ai-engine')}
+                        >
+                            <MessageSquare size={14} className={styles.modeToggleIcon} />
+                            <span>Chat</span>
+                        </button>
+                        <button
+                            className={`${styles.modeToggleBtn} ${isWorkflow ? styles.modeToggleBtnActiveWorkflow : ''}`}
+                            onClick={() => isWorkflow ? null : router.push('/ai-engine/workflow')}
+                        >
+                            <Sparkles size={14} className={styles.modeToggleIcon} />
+                            <span>Workflow</span>
+                        </button>
+                    </div>
+                );
+            })()}
 
             <div className={styles.historySection}>
                 <h3><History size={14} /> {AI_ENGINE_CONSTANTS.sidebar.recentSessions}</h3>
@@ -131,7 +162,7 @@ export default function AIEngineSidebar({
                                                     )}
                                                 </>
                                             ) : (
-                                                <span className={styles.sessionToolFallback} style={{ fontSize: '1.1rem' }}>✦</span>
+                                                <span className={`${styles.sessionToolFallback} ${styles.sessionToolFallbackLarge}`}>✦</span>
                                             )}
                                         </div>
                                         
@@ -166,9 +197,31 @@ export default function AIEngineSidebar({
                     </ul>
                 )}
             </div>
+            
+            {/* ── Settings Section ── */}
+            <div className={styles.sidebarFooter}>
+                <button className={styles.footerBtn} onClick={() => workspaceProps?.setIsWorkspaceModalOpen(true)}>
+                    <Layout size={16} />
+                    Workspace Settings
+                </button>
+                <button className={styles.footerBtn} onClick={() => setActionModal({ type: 'settings' })}>
+                    <Settings size={16} />
+                    AI Configuration
+                </button>
+            </div>
+
             {/* ── Brand Watermark ── */}
             <div className={styles.brandWatermark}>
-                {AI_ENGINE_CONSTANTS.sidebar.brandWatermark}
+                <div className={styles.brandTextContainer}>
+                    <Image src="/logo.png" alt="HUBly" width={14} height={14} className={styles.brandMiniLogo} />
+                    <span>{AI_ENGINE_CONSTANTS.sidebar.brandWatermark}</span>
+                </div>
+                {user?.is_premium && (
+                    <div className={styles.premiumWatermark}>
+                        <Sparkles size={11} className={styles.premiumIcon} />
+                        <span>Premium: Unlimited Messages</span>
+                    </div>
+                )}
             </div>
         </aside>
     );

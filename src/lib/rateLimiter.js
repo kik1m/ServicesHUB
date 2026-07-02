@@ -47,3 +47,11 @@ export const suggestionsRateLimiter = hasUpstashConfig ? new Ratelimit({
     analytics: true,
     prefix: '@upstash/ratelimit/suggestions',
 }) : fallbackLimiter(10, 60000, 'suggestions');
+
+// Guest message limiter: 3 requests per 24 hours
+export const guestMessageLimiter = hasUpstashConfig ? new Ratelimit({
+    redis: Redis.fromEnv(),
+    limiter: Ratelimit.fixedWindow(3, '24 h'),
+    analytics: true,
+    prefix: '@upstash/ratelimit/guest_msgs',
+}) : fallbackLimiter(3, 86400000, 'guest_msgs');

@@ -104,19 +104,16 @@ export function getAdminTools() {
             parameters: { type: 'object', properties: {} }
         },
         {
-            name: 'get_database_schema',
-            description: '(ADMIN ONLY) Fetches the exact schema of the database: all tables and their columns with data types. Use this before writing SQL queries.',
-            parameters: { type: 'object', properties: {} }
-        },
-        {
-            name: 'execute_database_query',
-            description: '(ADMIN ONLY) Executes a raw PostgreSQL SELECT query directly on the live database. Use get_database_dictionary and get_database_schema first to ensure correct table/column names. Do NOT include a trailing semicolon.',
+            name: 'admin_get_table_data',
+            description: '(ADMIN ONLY) Safely fetch data from any database table or view. Use this instead of raw SQL queries to prevent SQL injection. You must use get_database_dictionary first to know the exact table names.',
             parameters: {
                 type: 'object',
                 properties: {
-                    query: { type: 'string', description: 'A valid PostgreSQL SELECT/WITH/EXPLAIN query WITHOUT a trailing semicolon.' }
+                    table_name: { type: 'string', description: 'Name of the table or view.' },
+                    select_columns: { type: 'string', description: 'Comma-separated columns (e.g. "id, name"). Default: "*"' },
+                    limit: { type: 'number', description: 'Max rows (capped at 500).' }
                 },
-                required: ['query']
+                required: ['table_name']
             }
         },
         {
