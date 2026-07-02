@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import { notFound } from 'next/navigation';
 import { blogService } from '../../../services/blogService';
 import { toolsService } from '../../../services/toolsService';
@@ -61,30 +61,11 @@ export async function generateMetadata(props) {
     };
 }
 
-export default async function BlogPostPage(props) {
-    const params = await props.params;
-    const { slug } = params;
-    
-    // 1. Fetch Post
-    const { data: post, error } = await blogService.getPostByIdOrSlug(slug);
-
-    if (error || !post) {
-        notFound();
-    }
-
-    // 2. Parallel Fetching for Related and Embedded Tools
-    const toolIds = [...(post.content?.matchAll(/\[tool id="([^"]+)"\]/g) || [])].map(m => m[1]);
-    
-    const [relatedRes, toolsRes] = await Promise.all([
-        blogService.getRelatedPosts(post.category, post.id),
-        toolIds.length > 0 ? toolsService.getToolsByIds(toolIds) : Promise.resolve({ data: [] })
-    ]);
-
-    // Attach embedded tools to post object for hydration
-    const postWithTools = {
-        ...post,
-        embeddedTools: toolsRes.data || []
-    };
+// 🚀 ELITE SEO FIX: Streaming JSON-LD Component
+// This fetches the post data for SEO but is wrapped in Suspense so it DOES NOT block navigation!
+async function JsonLdScript({ slug }) {
+    const { data: post } = await blogService.getPostByIdOrSlug(slug);
+    if (!post) return null;
 
     const url = `https://www.hubly-tools.com/blog/${post.slug || post.id}`;
     
@@ -127,15 +108,27 @@ export default async function BlogPostPage(props) {
     ];
 
     return (
+        <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+    );
+}
+
+export default async function BlogPostPage(props) {
+    const params = await props.params;
+    const { slug } = params;
+
+    // Fetch is handled instantly on the client via React Query (Elite Architecture)
+    // The SEO metadata is safely handled in generateMetadata above.
+    
+    return (
         <>
-            <script
-                type="application/ld+json"
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-            />
+            <Suspense fallback={null}>
+                <JsonLdScript slug={slug} />
+            </Suspense>
             <BlogPostClient 
                 id={slug}
-                initialPost={postWithTools}
-                initialRelatedPosts={relatedRes.data || []}
             />
         </>
     );

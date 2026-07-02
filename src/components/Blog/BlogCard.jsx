@@ -1,8 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { useQueryClient } from '@tanstack/react-query';
-import { blogService } from '../../services/blogService';
-import { toolsService } from '../../services/toolsService';
+import { queryOptions } from '../../lib/queryOptions';
 import { Calendar, User, ArrowRight } from 'lucide-react';
 import Button from '../ui/Button';
 import Skeleton from '../ui/Skeleton';
@@ -44,25 +43,7 @@ const BlogCard = ({ post, isLoading, error, onRetry }) => {
 
     const handleMouseEnter = () => {
         if (postIdentifier) {
-            queryClient.prefetchQuery({
-                queryKey: ['blog_post', postIdentifier],
-                queryFn: async () => {
-                    const { data: postData, error: postError } = await blogService.getPostByIdOrSlug(postIdentifier);
-                    if (postError) throw postError;
-
-                    // Fetch embedded tool details to match useBlogPostData.js EXACTLY
-                    const toolIds = [...(postData.content?.matchAll(/\[tool id="([^"]+)"\]/g) || [])].map(m => m[1]);
-                    if (toolIds.length > 0) {
-                        const { data: embeddedTools } = await toolsService.getToolsByIds(toolIds);
-                        postData.embeddedTools = embeddedTools || [];
-                    } else {
-                        postData.embeddedTools = [];
-                    }
-                    
-                    return postData;
-                },
-                staleTime: 1000 * 60 * 10 // Cache for 10 minutes
-            });
+            queryClient.prefetchQuery(queryOptions.blogPost(postIdentifier));
         }
     };
 

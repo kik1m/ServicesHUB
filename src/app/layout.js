@@ -3,9 +3,10 @@ import "../index.css";
 import Providers from "../components/Providers";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
-import InteractiveParticles from "../components/InteractiveParticles";
 import PageTransition from "../components/PageTransition";
-
+import InteractiveParticles from "../components/InteractiveParticles/InteractiveParticles";
+import BackgroundStars from "../components/BackgroundStars";
+import PageBodyClass from "../components/PageBodyClass";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -17,8 +18,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "HUBLY | Elite AI & SaaS Tool Directory",
-  description: "Discover the best AI and SaaS tools for your workflow.",
+  title: "HUBly \u2014 Discover, Compare & Launch the World's Best AI & SaaS Tools",
+  description: "The world's most advanced hub to discover, compare, and deploy AI tools, SaaS platforms, and automation software. Trusted by professionals worldwide.",
   icons: {
     icon: [
       { url: '/favicon.ico' },
@@ -34,13 +35,20 @@ export const metadata = {
       { rel: 'icon', url: '/android-chrome-512x512.png', sizes: '512x512', type: 'image/png' },
     ],
   },
+  verification: {
+    other: {
+      'impact-site-verification': ['1ef4207d-0581-4e54-907b-d6b155551997']
+    }
+  }
 };
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" data-scroll-behavior="smooth" className={`${geistSans.variable} ${geistMono.variable}`}>
+    <html lang="en" data-scroll-behavior="smooth" className={`${geistSans.variable} ${geistMono.variable}`} suppressHydrationWarning>
       <body>
         <Providers>
+          <PageBodyClass />
+          <BackgroundStars />
           <InteractiveParticles />
           <div className="app-container is-ready">
             <Navbar />

@@ -4,7 +4,7 @@
  */
 export const NOTIFICATIONS_UI_CONSTANTS = {
     seo: {
-        title: "Activity Notifications | ServicesHUB",
+        title: "Activity Notifications | HUBly",
         description: "Stay updated with your tool submissions, approval status, and account activity."
     },
     hero: {
@@ -33,3 +33,4 @@ export const NOTIFICATIONS_UI_CONSTANTS = {
         errorClear: "Failed to clear notifications. Please try again."
     }
 };
+

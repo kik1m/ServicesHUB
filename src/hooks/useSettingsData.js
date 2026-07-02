@@ -1,6 +1,7 @@
 'use client';
 import { useState, useCallback, useEffect } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { queryOptions } from '../lib/queryOptions';
 import { supabase } from '../lib/supabaseClient';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
@@ -26,6 +27,8 @@ export const useSettingsData = () => {
     const [profile, setProfile] = useState({
         full_name: '',
         role: '',
+        experience_level: '',
+        primary_goal: '',
         bio: '',
         avatar_url: '',
         website: '',
@@ -46,15 +49,7 @@ export const useSettingsData = () => {
         isLoading: loading, 
         error: queryError, 
         refetch: fetchSettings 
-    } = useQuery({
-        queryKey: ['profile', authUser?.id],
-        queryFn: async () => {
-            const data = await settingsService.getProfile(authUser.id);
-            return data || null;
-        },
-        enabled: !!authUser?.id,
-        staleTime: 1000 * 60 * 60 * 24
-    });
+    } = useQuery(queryOptions.profile(authUser?.id, authUser));
 
     const error = queryError ? 'Failed to load settings.' : null;
 
@@ -66,6 +61,10 @@ export const useSettingsData = () => {
             
             setProfile(prev => ({ 
                 ...prev, 
+                // Priority 1: Auth metadata fallbacks (for instant UI)
+                full_name: authUser?.user_metadata?.full_name || prev.full_name,
+                avatar_url: authUser?.user_metadata?.avatar_url || prev.avatar_url,
+                // Priority 2: Server data (The real source of truth)
                 ...(serverProfile || {}),
                 // Merge preferences from metadata
                 email_notif: prefs.email_notif !== undefined ? prefs.email_notif : prev.email_notif,
@@ -73,7 +72,7 @@ export const useSettingsData = () => {
                 promo_notif: prefs.promo_notif !== undefined ? prefs.promo_notif : prev.promo_notif
             }));
         }
-    }, [serverProfile, authUser?.id]);
+    }, [serverProfile, authUser]);
 
     const handleProfileUpdate = useCallback(async (e) => {
         e.preventDefault();
@@ -86,7 +85,9 @@ export const useSettingsData = () => {
             // Only update columns that definitely exist in the profiles table
             const sanitizedProfile = {
                 full_name: profile.full_name,
-                role: profile.role,
+                job_title: profile.job_title,
+                experience_level: profile.experience_level,
+                primary_goal: profile.primary_goal,
                 bio: profile.bio,
                 avatar_url: profile.avatar_url,
                 website: profile.website,
@@ -223,6 +224,27 @@ export const useSettingsData = () => {
         }
     }, [authUser, showToast]);
 
+    const handleDeleteAIMemory = useCallback(async () => {
+        if (!authUser) return;
+        const confirmDelete = window.confirm('Are you sure you want to permanently delete your AI Memory? HUBly AI will forget all context about your projects. This action cannot be undone.');
+        if (!confirmDelete) return;
+
+        try {
+            setSaving(true);
+            // Delete the long_term_memory field from the profiles table
+            const { error: updateError } = await supabase.from('profiles').update({ long_term_memory: null }).eq('id', authUser.id);
+            
+            if (updateError) throw updateError;
+            
+            showToast('AI Memory successfully deleted. (GDPR Compliance)', 'success');
+        } catch (err) {
+            console.error('Memory Deletion Error:', err);
+            showToast('Failed to delete AI memory.', 'error');
+        } finally {
+            setSaving(false);
+        }
+    }, [authUser, showToast]);
+
     return {
         activeTab, setActiveTab,
         loading, saving, uploading,
@@ -232,7 +254,7 @@ export const useSettingsData = () => {
         showNewPassword, setShowNewPassword,
         showConfirmPassword, setShowConfirmPassword,
         handleProfileUpdate, handleAvatarUpload, handlePasswordUpdate,
-        handleNotificationToggle,
+        handleNotificationToggle, handleDeleteAIMemory,
         fetchSettings, authUser
     };
 };

@@ -85,7 +85,7 @@ const ToolCompareColumn = ({ tool, onClear, onSelect, isLoading, error, onRetry,
                             
                             <div className={styles.actionGroup}>
                                 <Link href={`/tool/${tool?.slug}`} className={styles.detailsBtn}>Details</Link>
-                                <a href={tool?.url} target="_blank" rel="noopener noreferrer" className={styles.visitBtn}>Visit</a>
+                                <a href={tool?.affiliate_url || tool?.url} target="_blank" rel="noopener noreferrer" className={styles.visitBtn}>Visit</a>
                             </div>
                         </div>
                     </div>

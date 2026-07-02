@@ -25,10 +25,11 @@ export default async function sitemap() {
         }));
 
     // 2. Dynamic Pages (Parallel Fetch)
-    const [tools, categories, blogs] = await Promise.all([
+    const [tools, categories, blogs, comparisons] = await Promise.all([
         supabase.from('tools').select('slug, updated_at').eq('is_approved', true),
         supabase.from('categories').select('slug'),
-        supabase.from('blog_posts').select('slug, created_at')
+        supabase.from('blog_posts').select('slug, created_at'),
+        supabase.from('tool_comparisons').select('id, created_at, tool1:tools!tool1_id(slug), tool2:tools!tool2_id(slug)')
     ]);
 
     const toolPages = (tools.data || []).map(t => ({
@@ -52,10 +53,20 @@ export default async function sitemap() {
         priority: 0.7
     }));
 
+    const comparisonPages = (comparisons.data || [])
+        .filter(comp => comp.tool1?.slug && comp.tool2?.slug)
+        .map(comp => ({
+            url: `${baseUrl}/compare/${comp.tool1.slug}-vs-${comp.tool2.slug}`,
+            lastModified: comp.created_at ? new Date(comp.created_at) : new Date(),
+            changeFrequency: 'monthly',
+            priority: 0.5
+        }));
+
     return [
         ...staticPages,
         ...toolPages,
         ...categoryPages,
-        ...blogPages
+        ...blogPages,
+        ...comparisonPages
     ];
 }

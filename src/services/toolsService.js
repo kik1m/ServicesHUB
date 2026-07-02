@@ -184,6 +184,7 @@ export const toolsService = {
         itemsPerPage = 20, // Standardized to 20 for better initial coverage
         searchQuery = '',
         categoryName = 'All',
+        categoryId = null, // New: Direct ID support
         priceFilter = 'All',
         sortBy = 'newest',
         categories = []
@@ -196,7 +197,9 @@ export const toolsService = {
             .eq('is_approved', true);
 
         // 🎯 1. Category Filter (Primary)
-        if (categoryName && categoryName !== 'All') {
+        if (categoryId) {
+            query = query.eq('category_id', categoryId);
+        } else if (categoryName && categoryName !== 'All') {
             const catObj = categories.find(c => c.name === categoryName);
             if (catObj) {
                 query = query.eq('category_id', catObj.id);
@@ -255,10 +258,20 @@ export const toolsService = {
         } else if (sortBy === 'alphabetical') {
             query = query.order('name', { ascending: true });
         } else if (sortBy === 'featured') {
-            query = query.order('is_featured', { ascending: false }).order('created_at', { ascending: false });
+            if (searchQuery) {
+                // If the user is actively searching by text, prioritizing featured tools globally will push exact text matches 
+                // off the first page. Thus, we degrade to newest-first, allowing the frontend relevance sort to shine.
+                query = query.order('created_at', { ascending: false });
+            } else {
+                query = query.order('is_featured', { ascending: false }).order('created_at', { ascending: false });
+            }
         } else {
             // Default: featured first, then newest
-            query = query.order('is_featured', { ascending: false }).order('created_at', { ascending: false });
+            if (searchQuery) {
+                query = query.order('created_at', { ascending: false });
+            } else {
+                query = query.order('is_featured', { ascending: false }).order('created_at', { ascending: false });
+            }
         }
 
         // Secondary stable order

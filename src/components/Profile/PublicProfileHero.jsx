@@ -1,5 +1,5 @@
 import React, { memo, useMemo, useState } from 'react';
-import { Sparkles, Calendar, Globe, Twitter, Github, Linkedin, Share2, Check, LayoutGrid, Heart, Users, UserPlus, UserCheck, UserMinus } from 'lucide-react';
+import { Sparkles, Zap, Calendar, Globe, Twitter, Github, Linkedin, Share2, Check, LayoutGrid, Heart, Users, UserPlus, UserCheck, UserMinus } from 'lucide-react';
 import Button from '../ui/Button';
 import Skeleton from '../ui/Skeleton';
 import SmartImage from '../ui/SmartImage';
@@ -60,7 +60,7 @@ const PublicProfileHero = React.memo(({ profile, toolCount, favCount, isFollowin
                             <div className={styles.avatarGlow}></div>
                             <div className={`${styles.avatarBox} ${isLoading ? styles.loadingBox : ''}`}>
                                 {isLoading ? (
-                                    <Skeleton width="140px" height="140px" borderRadius="32px" />
+                                    <Skeleton width="130px" height="130px" borderRadius="32px" />
                                 ) : (
                                     <SmartImage 
                                         src={profile?.avatar_url} 
@@ -71,43 +71,25 @@ const PublicProfileHero = React.memo(({ profile, toolCount, favCount, isFollowin
                             </div>
                             {!isLoading && (profile?.is_verified || profile?.is_premium || profile?.role?.toLowerCase() === 'admin') && (
                                 <div className={`${styles.verificationBadge} ${profile?.role?.toLowerCase() === 'admin' ? styles.adminBadgeGlow : ''}`}>
-                                    <Sparkles size={16} fill="currentColor" />
+                                    <Zap size={16} fill="currentColor" />
                                 </div>
                             )}
                         </div>
 
                         <div className={styles.contentStack}>
                             <div className={styles.mainIdentityInfo}>
-                                <div className={styles.nameBadgesRow}>
-                                    {isLoading ? (
-                                        <Skeleton width="220px" height="32px" borderRadius="8px" />
-                                    ) : (
-                                        <>
-                                            <h1 className={styles.userName}>{profile?.full_name}</h1>
-                                            {(profile?.role?.toLowerCase() === 'admin' || profile?.is_verified) && (
-                                                <Sparkles size={22} className={styles.nameSparkle} fill="#ffcc00" />
-                                            )}
-                                        </>
-                                    )}
-                                </div>
-
-                                <div className={styles.identityBadgesRow}>
-                                    {isLoading ? (
-                                        <div style={{ display: 'flex', gap: '8px' }}>
-                                            <Skeleton width="80px" height="26px" borderRadius="100px" />
-                                            <Skeleton width="110px" height="26px" borderRadius="100px" />
-                                        </div>
-                                    ) : (
-                                        <>
-                                            <span className={`${styles.rolePill} ${profile?.role?.toLowerCase() === 'admin' ? styles.adminPill : ''}`}>
-                                                {profile?.role?.toUpperCase() || 'MEMBER'}
-                                            </span>
-                                            <span className={styles.datePill}>
-                                                <Calendar size={12} /> JOINED {formattedJoinDate || 'RECENTLY'}
-                                            </span>
-                                        </>
-                                    )}
-                                </div>
+                                {isLoading ? (
+                                    <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
+                                        <Skeleton width="200px" height="32px" borderRadius="8px" />
+                                    </div>
+                                ) : (
+                                    <>
+                                        <h1 className={styles.userName}>{profile?.full_name}</h1>
+                                        {(profile?.role?.toLowerCase() === 'admin' || profile?.is_verified) && (
+                                            <Zap size={22} className={styles.nameSparkle} fill="#ffcc00" />
+                                        )}
+                                    </>
+                                )}
                             </div>
 
                             <div className={styles.statsAndBio}>

@@ -12,7 +12,13 @@ export const authService = {
             email,
             password
         });
-        if (error) throw error;
+        if (error) {
+            // Provide a hint if they try to login before verifying email
+            if (error.message === 'Invalid login credentials') {
+                error.message = "Invalid credentials. If you originally signed up using Google, please use the 'Continue with Google' button. Otherwise, make sure to check your email to verify your standard account first.";
+            }
+            throw error;
+        }
         return data;
     },
 
@@ -24,24 +30,14 @@ export const authService = {
             email,
             password,
             options: {
-                data: { full_name: fullName },
-                emailRedirectTo: `${window.location.origin}/dashboard`
+                data: {
+                    full_name: fullName,
+                    name: fullName
+                }
             }
         });
-        
-        if (error) throw error;
 
-        // Note: AuthContext handles profile creation via "healing logic" 
-        // but we can also do a proactive upsert if needed.
-        if (data?.user) {
-            await supabase.from('profiles').upsert({
-                id: data.user.id,
-                full_name: fullName,
-                email: email, // Store email for admin notifications & cross-referencing
-                role: 'user',
-                updated_at: new Date().toISOString()
-            });
-        }
+        if (error) throw error;
         
         return data;
     },
@@ -80,10 +76,18 @@ export const authService = {
      * Sign in with OAuth provider
      */
     async signInWithSocial(provider) {
+        const redirectUrl = typeof window !== 'undefined' 
+            ? `${window.location.origin}/auth/callback`
+            : undefined;
+
         const { data, error } = await supabase.auth.signInWithOAuth({
             provider,
             options: {
-                redirectTo: window.location.origin + '/dashboard'
+                redirectTo: redirectUrl,
+                queryParams: {
+                    access_type: 'offline',
+                    prompt: 'consent',
+                }
             }
         });
         if (error) throw error;

@@ -2,11 +2,11 @@
 .publicHeroCard {
   position: relative;
   overflow: hidden;
-  padding: 1.5rem 3rem;
+  padding: 1.618rem 2.5rem; /* Slimmer, horizontal-focused */
   background: rgba(255, 255, 255, 0.02);
   border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 32px;
-  margin-bottom: 2.5rem;
+  border-radius: 24px;
+  margin-bottom: 2rem;
 }
 
 .etherealGlow {
@@ -34,9 +34,8 @@
 .identityColumn {
   display: flex;
   align-items: flex-start;
-  gap: 1.5rem;
+  gap: 1.618rem;
   flex: 1;
-  padding-top: 10px;
 }
 
 .avatarContainer {
@@ -54,10 +53,10 @@
 }
 
 .avatarBox {
-  width: 140px;
-  height: 140px;
+  width: 130px;
+  height: 130px;
   background: linear-gradient(135deg, #1a1a1a, #333);
-  border-radius: 32px;
+  border-radius: 28px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -98,43 +97,32 @@
 .contentStack {
   display: flex;
   flex-direction: column;
-  gap: 0.6rem;
+  gap: 1rem;
   flex: 1;
-  padding-top: 12px;
+  padding-top: 10px;
 }
 
 .mainIdentityInfo {
   display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.nameBadgesRow {
-  display: flex;
+  flex-direction: row;
   align-items: center;
-  gap: 0.75rem;
+  flex-wrap: wrap;
+  gap: 0.8rem;
 }
 
 .userName {
-  font-size: 2.4rem;
+  font-size: 1.8rem;
   font-weight: 900;
   color: white;
   margin: 0;
-  letter-spacing: -1.5px;
-  line-height: 0.95;
-  word-break: break-word;
-}
-
-.identityBadgesRow {
-  display: flex;
-  gap: 8px;
-  align-items: center;
+  letter-spacing: -1px;
+  line-height: 1;
 }
 
 .statsAndBio {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.8rem;
 }
 
 .nameSparkle {
@@ -191,7 +179,7 @@
 .socialCountsRow {
   display: flex;
   align-items: center;
-  gap: 1.5rem;
+  gap: 1.618rem;
 }
 
 .socialStat {
@@ -205,7 +193,7 @@
   padding: 6px 12px;
   margin: -6px -12px;
   border-radius: 12px;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1), color 0.3s cubic-bezier(0.4, 0, 0.2, 1), filter 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .clickableStat:hover {
@@ -221,7 +209,7 @@
   font-size: 1.15rem;
   font-weight: 900;
   color: white;
-  transition: all 0.3s ease;
+  transition: transform 0.3s ease, opacity 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease, filter 0.3s ease;
 }
 
 .socialLabel {
@@ -243,7 +231,7 @@
   font-size: 1.05rem;
   line-height: 1.65;
   max-width: 550px;
-  margin-bottom: 1.5rem;
+  margin: 0;
   opacity: 0.9;
 }
 
@@ -255,7 +243,7 @@
   font-size: 0.9rem;
   font-weight: 700;
   text-decoration: none;
-  transition: all 0.3s ease;
+  transition: transform 0.3s ease, opacity 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease, filter 0.3s ease;
 }
 
 .webLink:hover {
@@ -279,7 +267,7 @@
   border: 1px solid rgba(255, 255, 255, 0.05);
   border-radius: 14px;
   color: var(--text-muted);
-  transition: all 0.3s ease;
+  transition: transform 0.3s ease, opacity 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease, filter 0.3s ease;
 }
 
 .socialIcon:hover {
@@ -311,18 +299,18 @@
 .publicHeroCard {
   position: relative;
   overflow: hidden;
-  padding: 2rem;
+  padding: 1.618rem 2.5rem;
   background: rgba(255, 255, 255, 0.02);
   border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 32px;
-  margin-bottom: 2.5rem;
+  border-radius: 24px;
+  margin-bottom: 2rem;
 }
 
 .heroFlexLayout {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 3rem;
+  gap: 2rem;
   position: relative;
   z-index: 10;
 }
@@ -348,7 +336,7 @@
   padding: 10px 18px;
   border-radius: 16px;
   border: 1px solid rgba(255, 255, 255, 0.05);
-  transition: all 0.3s ease;
+  transition: transform 0.3s ease, opacity 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease, filter 0.3s ease;
 }
 
 .statMinimalPill:hover {
@@ -438,7 +426,7 @@
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.1);
   color: var(--text-muted);
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.4s cubic-bezier(0.4, 0, 0.2, 1), color 0.4s cubic-bezier(0.4, 0, 0.2, 1), filter 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .followBtn.following:hover {
@@ -457,7 +445,7 @@
   border-radius: 16px;
   height: 48px;
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-  transition: all 0.3s ease;
+  transition: transform 0.3s ease, opacity 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease, filter 0.3s ease;
 }
 
 .shareBtn.copied {

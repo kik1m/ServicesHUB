@@ -72,7 +72,7 @@ const ToolDetailMasterCard = ({
                     <div className={styles.buttonStack}>
                         <Button 
                             as="a"
-                            href={tool?.url} 
+                            href={tool?.affiliate_url || tool?.url} 
                             target="_blank" 
                             rel="noopener noreferrer" 
                             variant="primary"

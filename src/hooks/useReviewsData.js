@@ -1,5 +1,6 @@
 import { useState, useCallback, useMemo } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { queryOptions } from '../lib/queryOptions';
 import { reviewsService } from '../services/reviewsService';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
@@ -23,16 +24,7 @@ export const useReviewsData = (toolId, labels, onReviewSuccess) => {
     const [replyingTo, setReplyingTo] = useState(null);
     const [replyComment, setReplyComment] = useState('');
 
-    const { data: reviews = [], isLoading, refetch: fetchReviews } = useQuery({
-        queryKey: ['reviews', toolId],
-        queryFn: async () => {
-            const { data, error } = await reviewsService.getReviewsByToolId(toolId);
-            if (error) throw error;
-            return data?.filter(Boolean) ?? [];
-        },
-        enabled: !!toolId,
-        staleTime: 1000 * 60 * 5 // 5 minutes cache
-    });
+    const { data: reviews = [], isLoading, refetch: fetchReviews } = useQuery(queryOptions.reviews(toolId));
 
     const submitReply = async (parentReviewId, isOwner = false) => {
         if (!user) {

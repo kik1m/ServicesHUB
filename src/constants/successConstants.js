@@ -7,18 +7,22 @@ export const SUCCESS_UI_CONSTANTS = {
         PREMIUM: 'account_premium',
         PROMOTION: 'tool_promotion'
     },
-    messages: {
-        premium: {
-            title: "Success!",
-            description: "Congratulations! Your account has been upgraded to Premium for life. Enjoy full access to all exclusive features.",
-            toast: "Premium account activated",
-            notification: "Congratulations. Your lifetime premium membership is now active."
-        },
-        promotion: {
-            title: "Success!",
-            description: "Your tool is now successfully promoted. It will be featured on our platform according to your selected plan.",
-            toast: "Promotion activated",
-            notification: "Your tool promotion is now active and featured on the homepage."
+    getMessages: (type, tierId, toolName) => {
+        if (type === 'account_premium') {
+            const isElite = tierId === 'elite';
+            return {
+                title: "Payment Successful! 🎉",
+                description: `Congratulations! Your account has been upgraded to the ${isElite ? 'Elite' : 'Pro'} tier. Enjoy your advanced AI features and higher limits.`,
+                toast: "Subscription Activated",
+                notification: `Congratulations! Your ${isElite ? 'Elite' : 'Pro'} subscription is now active.`
+            };
+        } else {
+            return {
+                title: "Payment Successful! 🎉",
+                description: `Your tool ${toolName ? `"${toolName}"` : ''} is now successfully promoted. It will be featured on our platform for the next 30 days.`,
+                toast: "Promotion Activated",
+                notification: `Your tool promotion for ${toolName ? `"${toolName}"` : 'the tool'} is now active and featured on the homepage.`
+            };
         }
     },
     actions: {

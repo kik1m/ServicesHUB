@@ -1,6 +1,8 @@
 'use client';
 import React, { useMemo } from 'react';
 import Link from 'next/link';
+import { useQueryClient } from '@tanstack/react-query';
+import { queryOptions } from '../../lib/queryOptions';
 import { ArrowRight, Image as ImageIcon, BookOpen } from 'lucide-react';
 import Skeleton from '../ui/Skeleton';
 import Button from '../ui/Button';
@@ -16,11 +18,19 @@ import styles from './HomeBlogSection.module.css';
  * Rule #29: Pure View with Safeguard protection
  */
 const HomeBlogSection = ({ latestPosts = [], isLoading, error }) => {
+    const queryClient = useQueryClient();
+    
     // Rule #35: Derived Data Stability + Rule #32: Defensive Rendering
     const visiblePosts = useMemo(() => {
         const safePosts = latestPosts?.filter(Boolean) ?? [];
         return safePosts.slice(0, SECTION_LIMITS.BLOG);
     }, [latestPosts]);
+
+    const handleMouseEnter = (postIdentifier) => {
+        if (postIdentifier) {
+            queryClient.prefetchQuery(queryOptions.blogPost(postIdentifier));
+        }
+    };
 
     return (
         <Safeguard error={error}>
@@ -73,6 +83,7 @@ const HomeBlogSection = ({ latestPosts = [], isLoading, error }) => {
                                         key={post.id} 
                                         href={`/blog/${postIdentifier}`} 
                                         className={styles.blogCard}
+                                        onMouseEnter={() => handleMouseEnter(postIdentifier)}
                                     >
                                         <div className={styles.blogCardImage}>
                                             <SmartImage 
@@ -101,4 +112,4 @@ const HomeBlogSection = ({ latestPosts = [], isLoading, error }) => {
     );
 };
 
-export default HomeBlogSection;
+export default React.memo(HomeBlogSection);

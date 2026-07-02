@@ -50,7 +50,7 @@ const SocialLogins = memo(({ onSocialAction, isLoading, error, onRetry }) => {
     }
 
     return (
-        <Safeguard error={error} onRetry={onRetry}>
+        <Safeguard>
             <div className={styles.dividerContainer}>
                 <div className={styles.line}></div>
                 <span className={styles.dividerText}>OR CONTINUE WITH</span>

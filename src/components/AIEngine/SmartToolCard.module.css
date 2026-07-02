@@ -1,0 +1,86 @@
+/* ── Tool Card (AI Recommender) ── */
+.mdToolCardWrapper {
+    display: block;
+    margin: 0.5rem 0;
+    width: 100%;
+}
+
+.mdToolCard {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 0.75rem 1rem;
+    margin: 1rem 0;
+    transition: all 0.2s ease;
+}
+
+.mdToolCard:hover {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(0, 210, 255, 0.3);
+}
+
+.mdToolIconFallback {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #00d2ff, #3a7bd5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: white;
+    flex-shrink: 0;
+}
+
+.mdToolInfo {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.mdToolInfo h4 {
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #e2e8f0;
+}
+
+.mdToolInfo p {
+    margin: 0;
+    font-size: 0.8rem;
+    color: #94a3b8;
+    line-height: 1.2;
+}
+
+.mdToolBadge {
+    display: inline-block;
+    font-size: 0.7rem;
+    padding: 2px 6px;
+    background: rgba(0, 210, 255, 0.1);
+    color: #00d2ff;
+    border-radius: 4px;
+    margin-top: 4px;
+    width: max-content;
+}
+
+.mdToolLink {
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    background: rgba(0, 210, 255, 0.1);
+    color: #00d2ff;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.mdToolLink:hover {
+    background: #00d2ff;
+    color: #020617;
+}

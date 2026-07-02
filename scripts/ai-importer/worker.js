@@ -1,14 +1,14 @@
-﻿require('dotenv').config({ path: require('path').resolve(__dirname, '../../.env.local') });
+require('dotenv').config({ path: require('path').resolve(__dirname, '../../.env.local') });
 const { supabaseAdmin } = require('./supabaseClient');
 const { exec } = require('child_process');
 
 console.log("\n=======================================================");
-console.log("≡اات Elite AI Worker is awake and listening in the background...");
+console.log("🟢 Elite AI Worker is awake and listening in the background...");
 console.log("Leave this terminal open to process AI commands from the Admin Dashboard.");
 console.log("=======================================================\n");
 
 const processJob = async (job) => {
-    console.log(`\nظ│ Picked up job [${job.job_type}] for: ${job.payload?.url || job.payload?.target || 'N/A'}`);
+    console.log(`\n⏳ Picked up job [${job.job_type}] for: ${job.payload?.url || job.payload?.target || 'N/A'}`);
 
     // Mark as processing
     await supabaseAdmin
@@ -39,7 +39,7 @@ const processJob = async (job) => {
                 command = `echo "Unknown job type: ${job.job_type}"`;
         }
 
-        console.log(`ظû╢ Executing: ${command}`);
+        console.log(`▶ Executing: ${command}`);
 
         // maxBuffer set to 10MB to prevent crashes on very large scrapes
         exec(command, { maxBuffer: 1024 * 1024 * 10 }, async (error, stdout, stderr) => {
@@ -51,10 +51,10 @@ const processJob = async (job) => {
                 finalStatus = 'FAILED';
             } else if (stdout) {
                 // Parse the run report to detect silent failures (skipped/failed with nothing added)
-                const addedMatch = stdout.match(/≡اـ Added:\s+(\d+)/);
-                const updatedMatch = stdout.match(/≡اôê Updated:\s+(\d+)/);
-                const skippedMatch = stdout.match(/ظصي╕ Skipped:\s+(\d+)/);
-                const failedMatch = stdout.match(/ظإî Failed:\s+(\d+)/);
+                const addedMatch = stdout.match(/🆕 Added:\s+(\d+)/);
+                const updatedMatch = stdout.match(/📈 Updated:\s+(\d+)/);
+                const skippedMatch = stdout.match(/⏭️ Skipped:\s+(\d+)/);
+                const failedMatch = stdout.match(/❌ Failed:\s+(\d+)/);
 
                 if (addedMatch && updatedMatch) {
                     const added = parseInt(addedMatch[1]);
@@ -63,12 +63,12 @@ const processJob = async (job) => {
                     const failed = failedMatch ? parseInt(failedMatch[1]) : 0;
 
                     if (added === 0 && updated === 0 && (skipped > 0 || failed > 0)) {
-                        finalStatus = 'FAILED'; // Nothing was actually saved ظ¤ report failure
+                        finalStatus = 'FAILED'; // Nothing was actually saved — report failure
                     }
                 }
             }
 
-            console.log(`${finalStatus === 'COMPLETED' ? 'ظ£à' : 'ظإî'} Job finished. Status: ${finalStatus}`);
+            console.log(`${finalStatus === 'COMPLETED' ? '✅' : '❌'} Job finished. Status: ${finalStatus}`);
 
             await supabaseAdmin
                 .from('ai_jobs')

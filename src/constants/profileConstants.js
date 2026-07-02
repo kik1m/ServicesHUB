@@ -6,7 +6,7 @@ export const PROFILE_UI_CONSTANTS = {
     // 1. Private Dashboard Section
     dashboard: {
         seo: {
-            title: "Profile Dashboard | ServicesHUB",
+            title: "Profile Dashboard | HUBly",
             description: "Manage your tool collections, reviews, and professional identity.",
             publicPrefix: "My Profile -"
         },
@@ -47,9 +47,9 @@ export const PROFILE_UI_CONSTANTS = {
     // 2. Public Profile Section
     public: {
         seo: {
-            title: (name) => `${name}'s Professional Portfolio | ServicesHUB`,
-            defaultTitle: "Publisher Profile | ServicesHUB",
-            description: (bio) => bio || "Discover high-quality AI tools and services published by this creator on ServicesHUB."
+            title: (name) => `${name}'s Professional Portfolio | HUBly`,
+            defaultTitle: "Publisher Profile | HUBly",
+            description: (bio) => bio || "Discover high-quality AI tools and services published by this creator on HUBly."
         },
         hero: {
             defaultRole: "Developer",
@@ -107,3 +107,4 @@ export const PROFILE_CONSTANTS = {
     AVATAR_RADIUS: '24px',
     BIO_MAX_LENGTH: 160
 };
+

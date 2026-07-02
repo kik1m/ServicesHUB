@@ -1,5 +1,5 @@
 import React, { memo } from 'react';
-import { ShieldCheck, Sparkles, Calendar, LayoutDashboard, ExternalLink } from 'lucide-react';
+import { ShieldCheck, Sparkles, Zap, Calendar, LayoutDashboard, ExternalLink } from 'lucide-react';
 import Link from 'next/link';
 import Button from '../ui/Button';
 import Skeleton from '../ui/Skeleton';
@@ -55,7 +55,7 @@ const ProfileHero = memo(({ profile, isLoading, error, onRetry, onSignOut, conte
                                 ) : (
                                     <>
                                         <h1 className={styles.nameText}>{profile?.full_name || labels?.DEFAULT_NAME || 'Member'}</h1>
-                                        {(profile?.is_premium || profile?.role?.toLowerCase() === 'admin') && <Sparkles size={20} className={styles.premiumIcon} />}
+                                        {(profile?.is_premium || profile?.role?.toLowerCase() === 'admin') && <Zap size={20} className={styles.premiumIcon} />}
                                     </>
                                 )}
                             </div>

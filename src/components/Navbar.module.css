@@ -4,13 +4,16 @@
     left: 0;
     width: 100%;
     z-index: 1000;
-    backdrop-filter: blur(20px);
+    backdrop-filter: none; /* Removed blur so particles show through */
     background: transparent;
     border-bottom: 1px solid transparent;
     height: 80px;
     display: flex;
     align-items: center;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.4s cubic-bezier(0.4, 0, 0.2, 1), color 0.4s cubic-bezier(0.4, 0, 0.2, 1), filter 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    /* ⚡ PERF: Promote navbar to its own GPU layer to eliminate scroll repaints */
+    will-change: transform;
+    transform: translateZ(0);
 }
 
 .navbarScrolled .navMoreDropdown,
@@ -26,6 +29,7 @@
 .navbarScrolled {
     height: 68px;
     background: rgba(10, 10, 12, 0.85);
+    backdrop-filter: blur(20px);
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     box-shadow: 0 5px 25px rgba(0, 0, 0, 0.4);
     border-bottom-left-radius: 20px;
@@ -83,7 +87,7 @@
 .navSearchContainer {
     flex: 0 1 450px;
     margin: 0 1rem;
-    transition: all 0.3s ease;
+    transition: transform 0.3s ease, opacity 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease, filter 0.3s ease;
 }
 
 .navSearchWrapper {
@@ -93,7 +97,7 @@
     border-radius: 14px;
     display: flex;
     align-items: center;
-    transition: all 0.3s;
+    transition: transform 0.3s, opacity 0.3s, background-color 0.3s, border-color 0.3s, color 0.3s, filter 0.3s;
     cursor: pointer;
     text-decoration: none;
 }
@@ -333,8 +337,26 @@
     transform: scale(1.1);
 }
 
+.navAvatarBox {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 2px solid rgba(0, 163, 255, 0.4);
+    background: rgba(255, 255, 255, 0.05);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.navAvatar {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
 /* Mobile Toggle */
-.menuTogglePremium {
+.menuTogglePremium, .mobileSearchToggle {
     display: none;
     align-items: center;
     justify-content: center;
@@ -344,10 +366,68 @@
     background: rgba(255, 255, 255, 0.03);
     border: 1px solid rgba(255, 255, 255, 0.05);
     border-radius: 12px;
-    transition: all 0.3s;
+    transition: transform 0.3s, opacity 0.3s, background-color 0.3s, border-color 0.3s, color 0.3s, filter 0.3s;
 }
 
+/* Mobile Search Overlay styling (Premium Instagram Dark Theme) */
+.mobileSearchOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100dvh;
+    background: #111111; /* Clean Solid Instagram dark background */
+    z-index: 10002;
+    display: flex;
+    flex-direction: column;
+    padding: 24px 20px;
+    animation: fadeInOverlay 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
 
+.mobileSearchHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.mobileSearchTitle {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: #ffffff;
+    letter-spacing: 0.5px;
+}
+
+.mobileSearchCloseBtn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.2s, opacity 0.2s, background-color 0.2s, border-color 0.2s, color 0.2s, filter 0.2s;
+}
+
+.mobileSearchCloseBtn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: scale(0.95);
+}
+
+.mobileSearchBody {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+
+@keyframes fadeInOverlay {
+    from { opacity: 0; transform: translateY(-10px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
 
 /* Responsiveness */
 @media (max-width: 1400px) {
@@ -364,6 +444,7 @@
     .navSearchContainer { display: none; }
     .navLinks { display: none; }
     .menuTogglePremium { display: flex; }
+    .mobileSearchToggle { display: flex; }
     
     .navMoreDropdown,
     .notifDropdown,

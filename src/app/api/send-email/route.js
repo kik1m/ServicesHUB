@@ -111,6 +111,64 @@ export async function POST(request) {
                 `);
                 break;
 
+            case 'subscription_success':
+                const promoteFeatures = data.planName === 'Elite Tier' || data.planName === 'Featured' ? `
+                    <li style="margin-bottom: 10px;">✅ <strong>Duration:</strong> 30 Days of continuous promotion</li>
+                    <li style="margin-bottom: 10px;">✅ <strong>Visibility:</strong> Premium Homepage Placement</li>
+                    <li style="margin-bottom: 10px;">✅ <strong>Verification:</strong> Automatic Verified Badge</li>
+                ` : `
+                    <li style="margin-bottom: 10px;">✅ <strong>Duration:</strong> 30 Days of continuous promotion</li>
+                    <li style="margin-bottom: 10px;">✅ <strong>Visibility:</strong> High Priority Category Ranking</li>
+                    <li style="margin-bottom: 10px;">✅ <strong>Verification:</strong> Automatic Verified Badge</li>
+                `;
+                htmlContent = getWrapper(`
+                    <span class="badge" style="background: rgba(0,210,255,0.1); color: #00d2ff;">PROMOTION ACTIVATED</span>
+                    <h1>Your Tool is now Promoted! 🚀</h1>
+                    <p>Hello ${data.userName}, we have successfully activated the <strong>${data.planName}</strong> plan for your tool <strong>${data.toolName}</strong>.</p>
+                    <p style="color: #bbb;">Your tool is now receiving priority visibility across the HUBly platform. This promotion is strictly active for the next 30 days as per our terms.</p>
+                    <div class="card">
+                        <ul style="list-style: none; padding: 0; margin: 0;">
+                            ${promoteFeatures}
+                        </ul>
+                    </div>
+                    <div style="text-align: center;">
+                        <a href="https://hubly-tools.com/docs/promote" class="button" style="margin-right: 10px; background: #333; color: white !important;">Read Guidelines</a>
+                        <a href="https://hubly-tools.com/dashboard" class="button">Go to Dashboard</a>
+                    </div>
+                `);
+                break;
+
+            case 'premium_upgrade':
+                const isPremiumElite = data.planName === 'Elite Tier';
+                const premiumFeatures = isPremiumElite ? `
+                    <li style="margin-bottom: 10px;">✨ <strong>Advanced AI Limit:</strong> 500 Queries / 6 Hours</li>
+                    <li style="margin-bottom: 10px;">✨ <strong>Priority Models:</strong> OpenAI o1 & Claude 3.5 Opus</li>
+                    <li style="margin-bottom: 10px;">✨ <strong>Fast-Track:</strong> Instant tool submission approval</li>
+                ` : `
+                    <li style="margin-bottom: 10px;">✨ <strong>Pro AI Limit:</strong> 150 Queries / 6 Hours</li>
+                    <li style="margin-bottom: 10px;">✨ <strong>Standard Models:</strong> Claude 3.5 Sonnet & GPT-4o</li>
+                    <li style="margin-bottom: 10px;">✨ <strong>Core Features:</strong> Full access to comparison tools</li>
+                `;
+                htmlContent = getWrapper(`
+                    <span class="badge" style="background: rgba(191,90,242,0.1); color: #bf5af2;">SUBSCRIPTION ACTIVATED</span>
+                    <h1>Welcome to HUBly ${isPremiumElite ? 'Elite' : 'Pro'}! 💎</h1>
+                    <p>Hello ${data.userName}, your account has been successfully upgraded to the <strong>${data.planName}</strong> subscription.</p>
+                    <p style="color: #bbb;">You now have enhanced access to our AI engine and platform features.</p>
+                    <div style="background: rgba(255,255,255,0.05); padding: 12px; border-radius: 8px; font-size: 13px; color: #aaa; margin-bottom: 20px;">
+                        <strong>Billing Notice:</strong> Your subscription is billed monthly and will renew automatically. You can manage or cancel your subscription at any time from your <a href="https://hubly-tools.com/settings" style="color: #00d2ff; text-decoration: none;">Account Settings</a> before the next billing cycle to avoid future charges.
+                    </div>
+                    <div class="card" style="border-left: 4px solid #bf5af2;">
+                        <ul style="list-style: none; padding: 0; margin: 0;">
+                            ${premiumFeatures}
+                        </ul>
+                    </div>
+                    <div style="text-align: center;">
+                        <a href="https://hubly-tools.com/docs/premium" class="button" style="margin-right: 10px; background: #333; color: white !important;">View Policies</a>
+                        <a href="https://hubly-tools.com/premium" class="button" style="background: #bf5af2; color: white !important;">Access Platform</a>
+                    </div>
+                `);
+                break;
+
             case 'newsletter_broadcast':
                 htmlContent = getWrapper(`
                     <span class="badge" style="background: rgba(0,210,255,0.1); color: #00d2ff;">WEEKLY SPOTLIGHT</span>

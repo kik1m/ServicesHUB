@@ -1,9 +1,9 @@
-﻿const { createClient } = require('@supabase/supabase-js');
+const { createClient } = require('@supabase/supabase-js');
 const { GoogleGenAI } = require('@google/genai');
 const fs = require('fs');
 const path = require('path');
 
-// --- ≡اؤبي╕ CONFIGURATION ---
+// --- 🛠️ CONFIGURATION ---
 // Load environment variables (.env.local or .env)
 const env = {};
 const envPaths = [
@@ -35,15 +35,15 @@ const SUPABASE_KEY = env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVI
 const GEMINI_KEYS = (env.GEMINI_API_KEY || process.env.GEMINI_API_KEY || '').split(',').map(k => k.trim()).filter(Boolean);
 
 if (!SUPABASE_URL || !SUPABASE_KEY || !GEMINI_KEYS.length) {
-    console.error('ظإî Missing required environment variables (SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, or GEMINI_API_KEY)');
+    console.error('❌ Missing required environment variables (SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, or GEMINI_API_KEY)');
     process.exit(1);
 }
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// --- ≡ادب AI FORMATTING ENGINE ---
+// --- 🧠 AI FORMATTING ENGINE ---
 async function formatWithAI(rawContent) {
-    console.log('≡اجû Sending content to Gemini for Elite Formatting...');
+    console.log('🤖 Sending content to Gemini for Elite Formatting...');
     
     const prompt = `
     You are the Elite Content Editor for ServicesHUB/HUBly.
@@ -98,12 +98,12 @@ async function formatWithAI(rawContent) {
         
         return text.trim();
     } catch (error) {
-        console.error('ظإî AI Formatting Error:', error);
+        console.error('❌ AI Formatting Error:', error);
         throw error;
     }
 }
 
-// --- ≡اأ MAIN EXECUTION ---
+// --- 🚀 MAIN EXECUTION ---
 async function main() {
     const args = process.argv.slice(2);
     const targetSlug = args[0];
@@ -112,7 +112,7 @@ async function main() {
         let query = supabase.from('blog_posts').select('*');
         
         if (targetSlug) {
-            console.log(`≡ا¤ Searching for post with slug/id: ${targetSlug}`);
+            console.log(`🔍 Searching for post with slug/id: ${targetSlug}`);
             const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(targetSlug);
             if (isUUID) {
                 query = query.eq('id', targetSlug);
@@ -120,36 +120,36 @@ async function main() {
                 query = query.eq('slug', targetSlug);
             }
         } else {
-            console.log('≡ا¤ No slug provided. Fetching the latest published post...');
+            console.log('🔍 No slug provided. Fetching the latest published post...');
             query = query.order('created_at', { ascending: false }).limit(1);
         }
 
         const { data: post, error: fetchError } = await query.maybeSingle();
 
         if (fetchError || !post) {
-            console.error('ظإî Post not found:', fetchError?.message || 'Empty result');
+            console.error('❌ Post not found:', fetchError?.message || 'Empty result');
             return;
         }
 
-        console.log(`≡اôإ Found Post: "${post.title}"`);
+        console.log(`📝 Found Post: "${post.title}"`);
         
         const formattedContent = await formatWithAI(post.content);
         
-        console.log('≡اôج Updating database...');
+        console.log('📤 Updating database...');
         const { error: updateError } = await supabase
             .from('blog_posts')
             .update({ content: formattedContent })
             .eq('id', post.id);
 
         if (updateError) {
-            console.error('ظإî Update Error:', updateError.message);
+            console.error('❌ Update Error:', updateError.message);
         } else {
-            console.log('ظ£à Success! The post has been formatted and updated.');
-            console.log(`≡ا¤ù Preview locally at: http://localhost:3000/blog/${post.slug || post.id}`);
+            console.log('✅ Success! The post has been formatted and updated.');
+            console.log(`🔗 Preview locally at: http://localhost:3000/blog/${post.slug || post.id}`);
         }
 
     } catch (error) {
-        console.error('ظإî Unexpected Error:', error);
+        console.error('❌ Unexpected Error:', error);
     }
 }
 

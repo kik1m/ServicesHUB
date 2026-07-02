@@ -30,7 +30,12 @@ export default function AuthPage() {
         handleSignUp,
         handleForgotPassword,
         handleSocialLogin,
-        toggleAuthMode
+        toggleAuthMode,
+        lastAttemptedEmail,
+        handleResendVerification,
+        handleSendPasswordSetup,
+        resendLoading,
+        setupLoading
     } = useAuthLogic();
 
     return (
@@ -46,6 +51,11 @@ export default function AuthPage() {
                         isLoading={isInitialLoading} 
                         error={error}
                         onRetry={toggleAuthMode}
+                        lastAttemptedEmail={lastAttemptedEmail}
+                        onResendVerification={handleResendVerification}
+                        onSendPasswordSetup={handleSendPasswordSetup}
+                        resendLoading={resendLoading}
+                        setupLoading={setupLoading}
                     />
 
                     {forgotPasswordMode ? (

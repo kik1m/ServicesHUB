@@ -125,7 +125,7 @@ const AdminToolManager = memo(({
                                     <div className={styles.cardInfo}>
                                         <div className={styles.infoHead}>
                                             <h3 className={styles.toolName}>{tool?.name}</h3>
-                                            <a href={tool?.url} target="_blank" rel="noreferrer" className={styles.linkIcon}>
+                                            <a href={tool?.url} target="_blank" rel="noopener noreferrer" className={styles.linkIcon}>
                                                 <ExternalLink size={14} />
                                             </a>
                                         </div>

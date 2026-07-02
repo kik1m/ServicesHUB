@@ -3,11 +3,12 @@ import Breadcrumbs from '../Breadcrumbs';
 import Skeleton from './Skeleton';
 import styles from './PageHero.module.css';
 
+
 /**
  * 🚀 Elite Standard Page Hero
  * Rule #19: Single source of truth for platform headers
  */
-const PageHero = ({ title, subtitle, highlight, breadcrumbs, icon, badge, children, className, isLoading, variant, rawIcon }) => {
+const PageHero = ({ title, subtitle, highlight, breadcrumbs, icon, badge, children, className, isLoading, variant, rawIcon, hideParticles }) => {
     const isRow = variant === 'row';
 
     if (isLoading) {
@@ -28,6 +29,7 @@ const PageHero = ({ title, subtitle, highlight, breadcrumbs, icon, badge, childr
 
     return (
         <section className={`${styles.heroSection} ${className || ''} ${isRow ? styles.rowHero : ''}`}>
+
             <div className={`${styles.heroContent} ${isRow ? styles.heroRow : ''}`}>
                 {breadcrumbs && (
                     <div className={`${styles.breadcrumbWrapper} ${isRow ? styles.alignLeft : ''}`}>

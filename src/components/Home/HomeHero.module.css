@@ -52,7 +52,8 @@
   height: 60px;
   width: auto;
   object-fit: contain;
-  filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.1));
+  /* Sync logo color with the particle engine: starts grayscale, fades into color natively via CSS transitions */
+  filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.1)) grayscale(calc(100% - var(--dynamic-saturation, 0) * 1%));
 }
 
 .badge {
@@ -86,7 +87,11 @@
 }
 
 .gradientText {
-  background: linear-gradient(135deg, #00d2ff 0%, #3a7bd5 100%);
+  background: linear-gradient(
+    135deg, 
+    hsl(var(--dynamic-hue-1, 280), calc(var(--dynamic-saturation, 0) * 1%), 60%) 0%, 
+    hsl(var(--dynamic-hue-2, 190), calc(var(--dynamic-saturation, 0) * 1%), 50%) 100%
+  );
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -135,23 +140,6 @@
   border-color: #00d2ff !important;
 }
 
-.popularTags {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-  font-size: 0.85rem;
-  color: rgba(255, 255, 255, 0.3);
-}
-
-.tagLink {
-  color: #00d2ff !important;
-  background: rgba(0, 210, 255, 0.03) !important;
-  border: 1px solid rgba(255, 255, 255, 0.05) !important;
-  padding: 5px 14px !important;
-  border-radius: 100px !important;
-}
 
 .trustLogos {
   margin-top: 3rem;

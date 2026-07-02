@@ -1,5 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useMemo, useCallback } from 'react';
 import { supabase } from '../lib/supabaseClient';
+import { emailTriggers } from '../utils/emailService';
+import { notificationsService } from '../services/notificationsService';
 
 const AuthContext = createContext({});
 
@@ -15,7 +17,7 @@ export const AuthProvider = ({ children }) => {
         try {
             const { data, error } = await supabase
                 .from('profiles')
-                .select('full_name, avatar_url, is_premium, role, updated_at')
+                .select('full_name, avatar_url, is_premium, subscription_tier, role, experience_level, primary_goal, updated_at')
                 .eq('id', userId)
                 .maybeSingle();
 
@@ -59,6 +61,41 @@ export const AuthProvider = ({ children }) => {
                 ...sessionUser,
                 full_name: metaName || prev?.full_name
             }));
+            
+            // 🚀 ELITE FIX: Instantly unblock UI. We don't wait for full profile fetch!
+            setLoading(false);
+
+            // --- ELITE WELCOME LOGIC (Email & Notification) ---
+            try {
+                if (sessionUser.created_at && typeof window !== 'undefined') {
+                    const createdTime = new Date(sessionUser.created_at).getTime();
+                    const nowTime = new Date().getTime();
+                    const isNewUser = (nowTime - createdTime) < 60000; // 60 seconds
+                    const welcomeFlagKey = `hubly_welcome_${sessionUser.id}`;
+                    
+                    if (isNewUser && !localStorage.getItem(welcomeFlagKey)) {
+                        localStorage.setItem(welcomeFlagKey, 'true');
+                        console.log("New user detected! Triggering Welcome Protocol...");
+                        
+                        // Fire Welcome Email (non-blocking)
+                        if (sessionUser.email) {
+                            emailTriggers.sendWelcome(sessionUser.email, metaName || 'Explorer').catch(console.error);
+                        }
+                        
+                        // Fire Welcome Notification
+                        notificationsService.createNotification({
+                            userId: sessionUser.id,
+                            title: 'Welcome to HUBly! 🎉',
+                            message: 'Your elite journey starts here. Explore our premium AI directory.',
+                            type: 'system',
+                            link: '/dashboard'
+                        }).catch(console.error);
+                    }
+                }
+            } catch (err) {
+                console.error("Welcome logic failed:", err);
+            }
+            // ------------------------------------------------
 
             // Fetch full profile
             try {
@@ -120,6 +157,19 @@ export const AuthProvider = ({ children }) => {
         await supabase.auth.signOut();
         setUser(null);
     }, []);
+
+    // 🛡️ Global JWT Interceptor: Listen for 401 errors from React Query
+    useEffect(() => {
+        const handleJwtExpired = async () => {
+            console.warn('🛡️ JWT Expired detected. Silently logging out and redirecting...');
+            await signOut();
+            if (typeof window !== 'undefined') {
+                window.location.href = '/login?expired=true';
+            }
+        };
+        window.addEventListener('auth:jwt-expired', handleJwtExpired);
+        return () => window.removeEventListener('auth:jwt-expired', handleJwtExpired);
+    }, [signOut]);
 
     const value = useMemo(() => ({
         user,

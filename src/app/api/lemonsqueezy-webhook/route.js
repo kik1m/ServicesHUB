@@ -37,14 +37,14 @@ export async function POST(request) {
         // 2. Process Order Created
         if (eventName === 'order_created') {
             const customData = event.meta.custom_data || {};
-            const { userId, itemType, toolId } = customData;
+            const { user_id, item_type, tool_id, tier_id } = customData;
 
-            if (!userId || !itemType) {
+            if (!user_id || !item_type) {
                 console.error('Missing metadata in LS custom_data');
                 return NextResponse.json({ error: 'Missing metadata' }, { status: 400 });
             }
 
-            if (itemType === 'tool_promotion' && toolId) {
+            if (item_type === 'tool_promotion' && tool_id) {
                 // Handle Tool Promotion
                 const durationDays = 30;
                 const featuredUntil = new Date();
@@ -57,24 +57,62 @@ export async function POST(request) {
                         featured_until: featuredUntil.toISOString(),
                         is_verified: true
                     })
-                    .eq('id', toolId);
+                    .eq('id', tool_id);
 
                 if (toolError) throw toolError;
-                console.log(`✅ Tool ${toolId} promoted`);
+                console.log(`✅ Tool ${tool_id} promoted`);
 
-            } else if (itemType === 'account_premium') {
+            } else if (item_type === 'account_premium') {
                 // Handle Account Premium
+                const tier = tier_id || 'pro';
                 const { error: profileError } = await supabase
                     .from('profiles')
                     .update({ 
                         is_premium: true,
-                        premium_since: new Date().toISOString(),
-                        membership: 'premium',
+                        subscription_tier: tier
                     })
-                    .eq('id', userId);
+                    .eq('id', user_id);
 
                 if (profileError) throw profileError;
-                console.log(`✅ User ${userId} upgraded to Premium`);
+                console.log(`✅ User ${user_id} upgraded to Premium (${tier})`);
+            }
+        }
+        // 3. Process Refunds & Cancellations
+        if (eventName === 'order_refunded' || eventName === 'subscription_expired') {
+            const customData = event.meta.custom_data || {};
+            const { user_id, item_type, tool_id } = customData;
+
+            if (!user_id || !item_type) {
+                console.error('Missing metadata in LS custom_data for refund/expiration');
+                return NextResponse.json({ error: 'Missing metadata' }, { status: 400 });
+            }
+
+            if (item_type === 'tool_promotion' && tool_id) {
+                // Revoke Tool Promotion
+                const { error: toolError } = await supabase
+                    .from('tools')
+                    .update({ 
+                        is_featured: false,
+                        featured_until: null,
+                        is_verified: false
+                    })
+                    .eq('id', tool_id);
+
+                if (toolError) throw toolError;
+                console.log(`❌ Tool ${tool_id} promotion revoked due to ${eventName}`);
+
+            } else if (item_type === 'account_premium') {
+                // Downgrade Account Premium
+                const { error: profileError } = await supabase
+                    .from('profiles')
+                    .update({ 
+                        is_premium: false,
+                        subscription_tier: 'free'
+                    })
+                    .eq('id', user_id);
+
+                if (profileError) throw profileError;
+                console.log(`❌ User ${user_id} downgraded to Free due to ${eventName}`);
             }
         }
 

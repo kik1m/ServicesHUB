@@ -35,6 +35,7 @@ const CategoryDetailClient = ({ category, bannerTools }) => {
     } = useSearchEngine({ 
         mode: 'category', 
         fixedCategory: category?.name || 'All',
+        fixedCategoryId: category?.id,
         syncUrl: true,
         itemsPerPage: 20
     });

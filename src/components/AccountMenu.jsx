@@ -1,20 +1,20 @@
 'use client';
 import React from 'react';
 import Link from 'next/link';
-import { LogOut, Shield, Award } from 'lucide-react';
+import { LogOut, Shield, Award, Zap } from 'lucide-react';
 import DropdownCard from './ui/DropdownCard';
 import { USER_MENU_LINKS } from '../constants/navbarConstants';
 
 // Import Modular Styles
 import styles from './AccountMenu.module.css';
 
-const AccountMenu = ({ onClose, handleLogout, user, className = '' }) => {
+const AccountMenu = ({ onClose, handleLogout, user, profile, className = '' }) => {
     return (
         <DropdownCard className={`${styles.accountDropdown} ${className}`}>
             <div className={styles.userInfo}>
                 <div className={styles.userNameRow}>
-                    <p className={styles.userName}>{user?.full_name || user?.email?.split('@')[0] || 'User'}</p>
-                    {user?.is_premium && <Award size={14} color="#FFD700" title="Premium Member" />}
+                    <p className={styles.userName}>{profile?.full_name || user?.email?.split('@')[0] || 'User'}</p>
+                    {profile?.is_premium && <Zap size={14} color="#FFD700" fill="#FFD700" title="Premium Member" />}
                 </div>
                 <p className={styles.userEmail}>{user?.email}</p>
             </div>
@@ -28,7 +28,7 @@ const AccountMenu = ({ onClose, handleLogout, user, className = '' }) => {
                 );
             })}
 
-            {user?.role === 'admin' && (
+            {profile?.role === 'admin' && (
                 <Link href="/admin" onClick={onClose} className={styles.menuItem}>
                     <Shield size={18} /> Admin Center
                 </Link>

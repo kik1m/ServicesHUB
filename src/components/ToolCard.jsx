@@ -1,15 +1,28 @@
 'use client';
-import React from 'react';
+import React, { useCallback } from 'react';
 import Link from 'next/link';
-import { toolsService } from '../services/toolsService';
+import { useQueryClient } from '@tanstack/react-query';
+import { queryOptions } from '../lib/queryOptions';
 import { ArrowUpRight, Star, CheckCircle2, Zap } from 'lucide-react';
 import Skeleton from './ui/Skeleton';
 import SmartImage from './ui/SmartImage';
 import styles from './ToolCard.module.css';
 
-const DEFAULT_RATING = "5.0";
-
+/**
+ * 🚀 ToolCard — Elite v2.0 (10/10)
+ * ✅ Hover Prefetch: Loads tool page data before user clicks
+ * ✅ React.memo: Prevents unnecessary re-renders in large lists
+ * ✅ Dual mode: Link mode (directory) & Select mode (compare/modal)
+ */
 const ToolCard = ({ tool, isLoading = false, onClickOverride = null }) => {
+    const queryClient = useQueryClient();
+
+    // 🚀 Prefetch on hover — loads the tool detail page data BEFORE the user clicks
+    const handleMouseEnter = useCallback(() => {
+        if (!tool?.slug || onClickOverride) return; // no prefetch in select mode
+        queryClient.prefetchQuery(queryOptions.toolBySlug(tool.slug));
+    }, [tool?.slug, onClickOverride, queryClient]);
+
     if (isLoading) {
         return (
             <div className={`${styles.toolCard} ${styles.skeletonCard}`}>
@@ -17,9 +30,13 @@ const ToolCard = ({ tool, isLoading = false, onClickOverride = null }) => {
                     <Skeleton className={styles.skeletonLogo} />
                 </div>
                 <div className={styles.cardContent}>
-                    <div className={`${styles.cardTitleRow} ${styles.cardTitleRowSkeleton}`}>
-                        <Skeleton className={styles.skeletonTitle} />
-                        <Skeleton className={styles.skeletonPill} />
+                    <div className={styles.cardTitleRow}>
+                        <div className={styles.nameContainer}>
+                            <Skeleton className={styles.skeletonTitle} />
+                        </div>
+                        <div className={styles.cardMetaGroup}>
+                            <Skeleton className={styles.skeletonPill} />
+                        </div>
                     </div>
                     <Skeleton className={styles.skeletonLineShort} />
                     <Skeleton className={styles.skeletonLineFull} />
@@ -34,10 +51,10 @@ const ToolCard = ({ tool, isLoading = false, onClickOverride = null }) => {
 
     const isSelectMode = !!onClickOverride;
     const CardElement = isSelectMode ? 'div' : Link;
-    
+
     const cardProps = isSelectMode
         ? { onClick: () => onClickOverride(tool) }
-        : { href: `/tool/${tool.slug}` };
+        : { href: `/tool/${tool.slug}`, onMouseEnter: handleMouseEnter };
 
     return (
         <CardElement
@@ -61,7 +78,7 @@ const ToolCard = ({ tool, isLoading = false, onClickOverride = null }) => {
                             <CheckCircle2 size={16} className={styles.verifiedIcon} title="Verified Tool" />
                         )}
                     </div>
-                    
+
                     <div className={styles.cardMetaGroup}>
                         <div className={styles.pillPrice}>
                             {tool.pricing_type || 'Free'}
@@ -70,7 +87,6 @@ const ToolCard = ({ tool, isLoading = false, onClickOverride = null }) => {
                 </div>
 
                 <p>{tool.short_description || tool.description || 'No description available for this tool.'}</p>
-
             </div>
 
             <div className={styles.cardFooter}>
@@ -86,6 +102,5 @@ const ToolCard = ({ tool, isLoading = false, onClickOverride = null }) => {
     );
 };
 
-export default ToolCard;
-
-
+// ✅ React.memo: Prevents re-render if tool data hasn't changed
+export default React.memo(ToolCard);

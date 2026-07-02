@@ -31,8 +31,12 @@ const ProfileMembershipSidebar = memo(({ profile, isLoading, error, onRetry, con
                             </>
                         ) : (
                             <>
-                                <div className={styles.membershipTitle}>{profile?.is_premium ? (content?.PREMIUM_LABEL || "Premium Member") : (content?.FREE_LABEL || "Free Member")}</div>
-                                <p>{profile?.is_premium ? "Active Subscription" : "Standard Access"}</p>
+                                <div className={styles.membershipTitle}>
+                                    {profile?.is_premium ? (
+                                        profile?.subscription_tier === 'elite' ? 'Elite Member' : 'Pro Member'
+                                    ) : (content?.FREE_LABEL || "Free Member")}
+                                </div>
+                                <p>{profile?.is_premium ? "Active Monthly Subscription" : "Standard Access"}</p>
                             </>
                         )}
                     </div>
@@ -52,8 +56,8 @@ const ProfileMembershipSidebar = memo(({ profile, isLoading, error, onRetry, con
                     )}
 
                     {profile?.is_premium && !isLoading && (
-                        <div className={styles.premiumStatusBadge}>
-                            ELITE SUPREME ACCESS
+                        <div className={`${styles.premiumStatusBadge} ${profile.subscription_tier === 'elite' ? styles.eliteBadge : ''}`}>
+                            {profile.subscription_tier === 'elite' ? 'ELITE SUPREME ACCESS' : 'PRO ACCESS ACTIVE'}
                         </div>
                     )}
                 </div>

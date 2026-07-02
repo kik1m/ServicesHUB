@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { useQuery, useInfiniteQuery, keepPreviousData } from '@tanstack/react-query';
+import { useQuery, useInfiniteQuery, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
+import { queryOptions } from '../lib/queryOptions';
 import { toolsService } from '../services/toolsService';
 import { categoriesService } from '../services/categoriesService';
 import { PRICING_MODELS } from '../constants/searchConstants';
@@ -15,6 +16,7 @@ export const useSearchEngine = ({
     mode = 'full', 
     syncUrl = true,
     fixedCategory = 'All',
+    fixedCategoryId = null,
     itemsPerPage = 20,
     debounceMs = 400
 }) => {
@@ -22,43 +24,39 @@ export const useSearchEngine = ({
     const pathname = usePathname();
     const searchParams = useSearchParams();
     
-    // 1. Local State Fallbacks (for modals/syncUrl=false)
-    const [localQuery, setLocalQuery] = useState('');
-    const [localCategory, setLocalCategory] = useState(fixedCategory);
-    const [localPrice, setLocalPrice] = useState('All');
-    const [localSort, setLocalSort] = useState('featured');
-    const [localPage, setLocalPage] = useState(0);
+    // 1. Read URL params once on initial render (server-safe)
+    // Using a function initializer avoids the isMounted double-render flash
+    // that caused the scroll jump bug when selecting a category on first visit.
+    const getInitialParam = (key, fallback) => {
+        if (typeof window === 'undefined') return fallback;
+        const params = new URLSearchParams(window.location.search);
+        return params.get(key) || fallback;
+    };
 
-    // 2. Source of Truth Extraction
-    // Use local states as the primary source of truth after initial mount to prevent Next.js server re-renders
-    const [isMounted, setIsMounted] = useState(false);
-    useEffect(() => setIsMounted(true), []);
+    const [localQuery, setLocalQuery] = useState(() => getInitialParam('q', ''));
+    const [localCategory, setLocalCategory] = useState(() => getInitialParam('category', fixedCategory || 'All'));
+    const [localCategoryId, setLocalCategoryId] = useState(fixedCategoryId);
+    const [localPrice, setLocalPrice] = useState(() => getInitialParam('price', 'All'));
+    const [localSort, setLocalSort] = useState(() => getInitialParam('sort', 'featured'));
+    const [localPage, setLocalPage] = useState(() => parseInt(getInitialParam('page', '0'), 10) || 0);
 
-    const searchQuery = (syncUrl && !isMounted) ? (searchParams.get('q') || '') : localQuery;
-    const selectedCategory = (syncUrl && !isMounted) ? (searchParams.get('category') || 'All') : localCategory;
-    const selectedPrice = (syncUrl && !isMounted) ? (searchParams.get('price') || 'All') : localPrice;
-    const sortBy = (syncUrl && !isMounted) ? (searchParams.get('sort') || 'featured') : localSort;
-    const rawPage = (syncUrl && !isMounted) ? parseInt(searchParams.get('page') || '0', 10) : localPage;
+    // Source of truth is always local state (no isMounted toggle needed)
+    const searchQuery = localQuery;
+    const selectedCategory = localCategory;
+    const selectedPrice = localPrice;
+    const sortBy = localSort;
+    const rawPage = localPage;
     const page = isNaN(rawPage) ? 0 : rawPage;
 
-    // Sync initial URL params to local state on mount
+    // 🎯 Sync fixedCategoryId when it changes
     useEffect(() => {
-        if (syncUrl) {
-            setLocalQuery(searchParams.get('q') || '');
-            setLocalCategory(searchParams.get('category') || fixedCategory || 'All');
-            setLocalPrice(searchParams.get('price') || 'All');
-            setLocalSort(searchParams.get('sort') || 'featured');
-            setLocalPage(parseInt(searchParams.get('page') || '0', 10) || 0);
-        }
-    }, [syncUrl, searchParams, fixedCategory]);
+        if (fixedCategoryId) setLocalCategoryId(fixedCategoryId);
+    }, [fixedCategoryId]);
 
-    // 3. Partitioned States
-    const [isLoading, setIsLoading] = useState(true);
-    const [loadingMore, setLoadingMore] = useState(false);
-    const [error, setError] = useState(null);
-    const [results, setResults] = useState([]);
-    const [hasMore, setHasMore] = useState(true);
-    const [totalResults, setTotalResults] = useState(0);
+    // NOTE: We no longer need to sync URL → local state on mount
+    // because local state is already initialized from the URL above.
+
+    // 3. Partitioned States (Derived synchronously to prevent Scroll Jump & Render Flash)
     const [categories, setCategories] = useState(categoriesCache || []);
     const [catSearchQuery, setCatSearchQuery] = useState('');
     const [showAllCats, setShowAllCats] = useState(false);
@@ -90,9 +88,14 @@ export const useSearchEngine = ({
             if (!Object.keys(newParams).includes('page') && newParams.page === undefined) params.delete('page');
             
             const newUrl = `${pathname}?${params.toString()}`;
+            // ⚡ ELITE FIX: Use native history API to update the URL without triggering Next.js!
+            // If we use router.replace, Next.js re-runs the Server Component (generateMetadata), 
+            // which triggers the <Suspense fallback={null}> boundary, unmounting the page and 
+            // forcing a scroll-to-top! Native history bypasses Next.js completely.
             window.history.replaceState(null, '', newUrl);
         }
-    }, [pathname, syncUrl]);
+
+    }, [pathname, syncUrl, router]);
 
     // 🎯 Rule #10: Sync fixed category when it arrives asynchronously
     useEffect(() => {
@@ -116,18 +119,15 @@ export const useSearchEngine = ({
     const setSort = useCallback((val) => updateParams({ sort: val }), [updateParams]);
 
     // 4. React Query for Categories
-    const { data: queryCategories = [] } = useQuery({
-        queryKey: ['categories', 'all'],
-        queryFn: async () => {
-            const { data } = await categoriesService.getAllCategories();
-            return [{ id: 'All', name: 'All' }, ...(data || [])];
-        },
-        staleTime: 1000 * 60 * 60 * 24, // Categories rarely change (24 hours)
-    });
+    const { data: rawCategories = [] } = useQuery(queryOptions.categories());
+
+    const queryCategories = useMemo(() => {
+        return [{ id: 'All', name: 'All' }, ...rawCategories];
+    }, [rawCategories]);
 
     // Sync categories locally for derived state logic
     useEffect(() => {
-        if (queryCategories.length > 0) {
+        if (queryCategories.length > 1) { // >1 because 'All' is always there
             setCategories(queryCategories);
             categoriesCache = queryCategories;
         }
@@ -143,54 +143,41 @@ export const useSearchEngine = ({
         error: queryError,
         refetch
     } = useInfiniteQuery({
-        queryKey: ['tools_search', { searchQuery, selectedCategory, selectedPrice, sortBy, itemsPerPage }],
+        ...queryOptions.toolsSearch({
+            searchQuery,
+            selectedCategory,
+            selectedCategoryId: localCategoryId,
+            selectedPrice,
+            sortBy,
+            itemsPerPage,
+            queryCategories
+        }),
         initialPageParam: 0,
-        queryFn: async ({ pageParam = 0 }) => {
-            if (selectedCategory !== 'All' && queryCategories.length === 0) {
-                return { data: [], count: 0, offset: pageParam };
-            }
-
-            const { data, count, error: fetchErr } = await toolsService.getToolsPaginated({
-                offset: pageParam,
-                itemsPerPage,
-                searchQuery,
-                categoryName: selectedCategory,
-                priceFilter: selectedPrice,
-                sortBy,
-                categories: queryCategories
-            });
-
-            if (fetchErr) throw fetchErr;
-            return { data: data || [], count, offset: pageParam };
-        },
         getNextPageParam: (lastPage, allPages) => {
             const loadedCount = allPages.reduce((acc, p) => acc + p.data.length, 0);
             const totalCount = lastPage.count !== null ? lastPage.count : loadedCount;
             if (loadedCount >= totalCount || lastPage.data.length === 0) return undefined;
             return loadedCount;
         },
-        staleTime: 1000 * 60 * 5,
         placeholderData: keepPreviousData,
         enabled: queryCategories.length > 0 || selectedCategory === 'All'
     });
 
-    // 6. Map Infinite Query Data to Backward Compatible State
-    useEffect(() => {
-        if (infiniteData) {
-            const allResults = infiniteData.pages.flatMap(p => p.data);
-            setResults(allResults);
-            setHasMore(!!hasNextPage);
-            setTotalResults(infiniteData.pages[0]?.count || allResults.length);
-        }
-    }, [infiniteData, hasNextPage]);
+    // 6. Synchronous Derived State (Crucial for preventing Scroll Jumping!)
+    const isLoading = isPending;
+    const loadingMore = isFetchingNextPage;
+    const error = queryError ? queryError.message : null;
+    const hasMore = !!hasNextPage;
 
-    // 7. Sync loading states
-    useEffect(() => {
-        // Use isPending for initial load (when no data exists), not for background fetching!
-        setIsLoading(isPending);
-        setLoadingMore(isFetchingNextPage);
-        setError(queryError ? queryError.message : null);
-    }, [isPending, isFetchingNextPage, queryError]);
+    const results = useMemo(() => {
+        if (!infiniteData) return [];
+        return infiniteData.pages.flatMap(p => p.data);
+    }, [infiniteData]);
+
+    const totalResults = useMemo(() => {
+        if (!infiniteData) return 0;
+        return infiniteData.pages[0]?.count || results.length;
+    }, [infiniteData, results.length]);
 
     // 🎯 Reset page to 0 if filters change to avoid out-of-bounds pages
     // The queryKey change automatically resets the infinite query!

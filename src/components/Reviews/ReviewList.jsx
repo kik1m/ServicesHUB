@@ -1,6 +1,6 @@
 import React, { memo, useMemo } from 'react';
 import Link from 'next/link';
-import { Star, User, CheckCircle2, Trash2 } from 'lucide-react';
+import { Star, User, CheckCircle2, Trash2, Zap } from 'lucide-react';
 import Button from '../ui/Button';
 import SmartImage from '../ui/SmartImage';
 import Skeleton from '../ui/Skeleton';
@@ -70,7 +70,7 @@ const ReviewList = ({
                                 <CheckCircle2 size={20} className={styles.adminCheck} strokeWidth={2.5} />
                             )}
                             {review?.profiles?.is_premium && (
-                                <span className={styles.premiumBadge}>Premium</span>
+                                <Zap size={16} color="#FFD700" fill="#FFD700" style={{ marginLeft: '6px' }} title="Premium Member" />
                             )}
                             {review.is_owner_reply && (
                                 <span className={styles.ownerBadge}>Tool Owner</span>

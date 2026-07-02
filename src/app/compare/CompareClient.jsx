@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useCallback, useMemo } from 'react';
-import { RefreshCcw, Share2 } from 'lucide-react';
+import { RefreshCcw, Share2, Sparkles } from 'lucide-react';
 import { useCompareData } from '../../hooks/useCompareData';
 import { useBannerData } from '../../hooks/useBannerData';
 
@@ -13,6 +13,10 @@ import ToolCompareColumn from '../../components/Compare/ToolCompareColumn';
 import ComparisonMatrix from '../../components/Compare/ComparisonMatrix';
 import CompareBuilder from '../../components/Compare/CompareBuilder';
 import RecentComparisons from '../../components/Compare/RecentComparisons';
+import CompareReviews from '../../components/Compare/CompareReviews';
+import { profilesService } from '../../services/profilesService';
+import AIChatWidget from '../../components/AIEngine/AIChatWidget';
+import ErrorBoundary from '../../components/ErrorBoundary';
 import Button from '../../components/ui/Button';
 import { useToast } from '../../context/ToastContext';
 
@@ -51,7 +55,9 @@ export default function CompareClient({
         isAiLoading,
         aiError,
         recentComparisons,
-        isRecentLoading
+        isRecentLoading,
+        userIntent,
+        setUserIntent
     } = useCompareData({ 
         initialRecentComparisons,
         initialTool1,
@@ -69,7 +75,10 @@ export default function CompareClient({
 
     const handleShare = () => {
         if (!tool1?.slug || !tool2?.slug) return;
-        const shareUrl = `${window.location.origin}/compare/${tool1.slug}-vs-${tool2.slug}`;
+        let shareUrl = `${window.location.origin}/compare/${tool1.slug}-vs-${tool2.slug}`;
+        if (aiResults?.custom_id) {
+            shareUrl = `${window.location.origin}/compare/custom/${aiResults.custom_id}`;
+        }
         navigator.clipboard.writeText(shareUrl).then(() => {
             addToast('success', 'Comparison link copied to clipboard!');
         });
@@ -123,11 +132,24 @@ export default function CompareClient({
                     />
                 </div>
                 
-                {(!tool1 || !tool2) && (
-                    <RecentComparisons 
-                        comparisons={recentComparisons} 
-                        isLoading={isRecentLoading} 
-                    />
+                {/* 🧠 HUBly AI Expert Chat Widget (Preview) */}
+                {isComparisonReady && (
+                    <div style={{ width: '100%', maxWidth: '900px', margin: '0 auto 2rem auto', textAlign: 'center' }}>
+                        <ErrorBoundary>
+                            <AIChatWidget 
+                                tool1={tool1}
+                                tool2={tool2}
+                                isCompareMode={true}
+                            />
+                        </ErrorBoundary>
+                        <Button 
+                            variant="glow"
+                            onClick={() => window.open(`/ai-engine?t1=${tool1.slug}&t2=${tool2.slug}`, '_blank')}
+                            style={{ marginTop: '1rem', width: 'auto' }}
+                        >
+                            Open in Full AI Studio <Sparkles size={16} />
+                        </Button>
+                    </div>
                 )}
 
                 <ComparisonMatrix 
@@ -142,6 +164,18 @@ export default function CompareClient({
                     content={COMPARE_UI_CONSTANTS?.matrix}
                     error={error}
                     onRetry={resetComparison}
+                    userIntent={userIntent}
+                />
+
+                {/* Review Section using unified component */}
+                {tool1 && tool2 && (
+                    <CompareReviews tool1={tool1} tool2={tool2} />
+                )}
+
+                {/* Recent Comparisons always visible for SEO and discovery */}
+                <RecentComparisons 
+                    comparisons={recentComparisons} 
+                    isLoading={isRecentLoading} 
                 />
 
                 {isComparisonReady && (

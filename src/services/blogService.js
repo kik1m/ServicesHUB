@@ -11,7 +11,7 @@ const normalizePost = (post) => {
     title: post.title || 'Untitled Article',
     excerpt: post.excerpt || 'No description available.',
     category: post.category || 'General',
-    author_name: post.author_name || 'ServicesHUB Team',
+    author_name: post.author_name || 'HUBly Team',
     image_url: post.image_url || 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=1200&auto=format&fit=crop&q=60',
     created_at: post.created_at || new Date().toISOString()
   };
@@ -120,3 +120,4 @@ export const blogService = {
     };
   }
 };
+

@@ -42,6 +42,7 @@ export const usePublicProfileData = (id, initialData = {}) => {
             }
         },
         initialData: initialData.profile,
+        initialDataUpdatedAt: initialData.profile ? Date.now() : undefined,
         enabled: !!id,
         staleTime: 1000 * 60 * 10
     });
@@ -53,6 +54,7 @@ export const usePublicProfileData = (id, initialData = {}) => {
         queryKey: ['social_counts', targetId],
         queryFn: async () => socialService.getSocialCounts(targetId),
         initialData: initialData.socialCounts,
+        initialDataUpdatedAt: initialData.socialCounts ? Date.now() : undefined,
         enabled: !!targetId,
         staleTime: 1000 * 60 * 2
     });
@@ -102,12 +104,12 @@ export const usePublicProfileData = (id, initialData = {}) => {
 
     const handleFollow = useCallback(async () => {
         if (!user) {
-            addToast('Please login to follow users', 'info');
+            addToast?.('Please login to follow users', 'info');
             return;
         }
 
         if (user.id === targetId) {
-            addToast("You can't follow yourself", 'warning');
+            addToast?.("You can't follow yourself", 'warning');
             return;
         }
         
@@ -117,7 +119,7 @@ export const usePublicProfileData = (id, initialData = {}) => {
             if (isFollowing) {
                 await socialService.unfollowUser(user.id, targetId);
                 queryClient.setQueryData(['is_following', user.id, targetId], false);
-                addToast('Unfollowed user', 'success');
+                addToast?.('Unfollowed user', 'success');
             } else {
                 await socialService.followUser(user.id, targetId);
                 queryClient.setQueryData(['is_following', user.id, targetId], true);
@@ -130,7 +132,7 @@ export const usePublicProfileData = (id, initialData = {}) => {
                     { actorId: user.id, type: 'follow' }
                 ).catch(() => {});
 
-                addToast('Following user!', 'success');
+                addToast?.('Following user!', 'success');
             }
             
             queryClient.invalidateQueries({ queryKey: ['social_counts', targetId] });
@@ -140,7 +142,7 @@ export const usePublicProfileData = (id, initialData = {}) => {
                 queryClient.setQueryData(['is_following', user.id, targetId], true);
                 setIsFollowing(true);
             } else {
-                addToast('Failed to sync follow status. Please try again.', 'error');
+                addToast?.('Failed to sync follow status. Please try again.', 'error');
                 setIsFollowing(isFollowing);
                 queryClient.invalidateQueries({ queryKey: ['is_following', user.id, targetId] });
             }
@@ -152,16 +154,11 @@ export const usePublicProfileData = (id, initialData = {}) => {
         const url = window.location.href;
         navigator.clipboard.writeText(url);
         setCopied(true);
-        addToast(PROFILE_UI_CONSTANTS.public.hero.copiedBtn, 'success');
+        addToast?.(PROFILE_UI_CONSTANTS.public.hero.copiedBtn, 'success');
         setTimeout(() => setCopied(false), 2000);
     }, [addToast]);
 
-    const [isMounted, setIsMounted] = useState(false);
-    useEffect(() => {
-        setIsMounted(true);
-    }, []);
-
-    const isLoading = !isMounted || loadingProfile || (!!targetId && (loadingTools || loadingFavorites));
+    const isLoading = loadingProfile || (!!targetId && (loadingTools || loadingFavorites));
     const error = profileError ? profileError.message : null;
 
     return {

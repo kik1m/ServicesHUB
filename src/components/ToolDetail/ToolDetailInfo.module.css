@@ -54,7 +54,7 @@
   background: rgba(255, 255, 255, 0.02);
   border: 1px solid var(--border);
   border-radius: 16px;
-  transition: all 0.3s ease;
+  transition: transform 0.3s ease, opacity 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease, filter 0.3s ease;
 }
 
 .featureItemPremium:hover {
@@ -140,6 +140,6 @@
 }
 
 .useCasesGrid { display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 1rem; }
-.useCaseTag { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 0.6rem 1.2rem; color: var(--text-main); font-size: 0.95rem; display: flex; align-items: center; gap: 0.5rem; backdrop-filter: blur(4px); transition: all 0.3s ease; }
+.useCaseTag { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 0.6rem 1.2rem; color: var(--text-main); font-size: 0.95rem; display: flex; align-items: center; gap: 0.5rem; backdrop-filter: blur(4px); transition: transform 0.3s ease, opacity 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease, filter 0.3s ease; }
 .useCaseTag:hover { background: rgba(255, 255, 255, 0.08); border-color: var(--secondary); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); }
 .useCaseBullet { color: var(--secondary); font-weight: bold; font-size: 1.2rem; }

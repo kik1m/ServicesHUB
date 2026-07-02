@@ -39,7 +39,7 @@ export const SEARCH_UI_CONSTANTS = {
 };
 
 export const PRICING_MODELS = [
-    { value: 'All', label: 'All' },
+    { value: 'All', label: 'All Pricing' },
     { value: 'Free', label: 'Free' },
     { value: 'Freemium', label: 'Freemium' },
     { value: 'Premium', label: 'Premium' },
@@ -69,7 +69,7 @@ export const SEARCH_EMPTY_CONFIG = {
 export const SKELETON_COUNTS = {
     SIDEBAR_CATEGORIES: 8,
     SIDEBAR_PRICING: 4,
-    RESULTS_GRID: 9,
+    RESULTS_GRID: 12,
     RESULTS_MORE: 3
 };
 

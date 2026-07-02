@@ -3,7 +3,7 @@
  * This service handles global event tracking and page view monitoring.
  */
 
-const MEASUREMENT_ID = 'G-EEENREWLGQ';
+const MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || 'G-EEENREWLGQ';
 
 /**
  * Initialize Google Analytics 4

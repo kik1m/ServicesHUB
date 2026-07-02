@@ -13,17 +13,26 @@ export const revalidate = 3600; // 1 hour
  * Implements Rule #2: SSR/ISR Logic
  * Implements Rule #5: SEO Metadata Visibility
  */
+import { seoService } from '../services/seoService';
+import { SEO_CONFIG } from '../constants/seoManifest';
+
 export async function generateMetadata() {
+    // 1. Try fetching AI SEO from database
+    const dynamicSeo = await seoService.getMetadata(SEO_CONFIG.global.pageIds.home, 'page');
+    
+    // 2. Prepare dynamic stats for fallback
     const statsRes = await toolsService.getToolsStats();
     const toolsCount = statsRes.count || 0;
     
-    const title = toolsCount > 0 
+    const title = dynamicSeo?.title || (toolsCount > 0 
         ? `${toolsCount}+ AI Tools, SaaS & Automation Discovery Hub | HUBly` 
-        : 'Ultimate AI & SaaS Discovery Hub | Discover, Compare & Scale';
+        : 'Ultimate AI & SaaS Discovery Hub | Discover, Compare & Scale');
+        
+    const description = dynamicSeo?.description || 'Discover trending AI tools, premium SaaS platforms, and professional automation software. Explore expert picks, latest arrivals, and top-rated solutions on HUBly.';
 
     return {
         title: title,
-        description: 'Discover trending AI tools, premium SaaS platforms, and professional automation software. Explore expert picks, latest arrivals, and top-rated solutions on HUBly.',
+        description: description,
         openGraph: {
             title: title,
             description: 'Discover trending AI tools, premium SaaS platforms, and professional automation software.',

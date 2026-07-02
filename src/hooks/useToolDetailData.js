@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toolsService } from '../services/toolsService';
-import { profilesService } from '../services/profilesService';
+import { queryOptions } from '../lib/queryOptions';
 import { favoritesService } from '../services/favoritesService';
 import { useToast } from '../context/ToastContext';
 import { useAuth } from '../context/AuthContext';
@@ -19,7 +19,8 @@ export const useToolDetailData = ({ initialTool, initialPublisher, initialRelate
     const params = useParams();
     const slug = params?.slug;
     const { user } = useAuth();
-    const { showToast } = useToast();
+    const toastContext = useToast();
+    const addToast = toastContext?.addToast;
     const queryClient = useQueryClient();
 
     const [isReportModalOpen, setIsReportModalOpen] = useState(false);
@@ -31,30 +32,18 @@ export const useToolDetailData = ({ initialTool, initialPublisher, initialRelate
         error: toolError, 
         refetch: refetchTool 
     } = useQuery({
-        queryKey: ['tool', slug],
-        queryFn: async () => {
-            const { data, error } = await toolsService.getToolBySlug(slug);
-            if (error) throw error;
-            if (!data) throw new Error('Tool not found');
-            return data;
-        },
+        ...queryOptions.toolBySlug(slug),
         initialData: initialTool,
-        enabled: !!slug,
-        staleTime: 1000 * 60 * 10 // 10 minutes
+        initialDataUpdatedAt: initialTool ? Date.now() : undefined,
     });
 
     const error = toolError ? (toolError.message || 'Tool not found') : null;
 
     // 2. React Query: Publisher Data (Dependent Query)
     const { data: publisher = null } = useQuery({
-        queryKey: ['profile', tool?.user_id],
-        queryFn: async () => {
-            const { data } = await profilesService.getProfileById(tool.user_id);
-            return data || null;
-        },
+        ...queryOptions.profile(tool?.user_id, initialPublisher),
         initialData: initialPublisher,
-        enabled: !!tool?.user_id,
-        staleTime: 1000 * 60 * 60 * 24 // 24 hours
+        initialDataUpdatedAt: initialPublisher ? Date.now() : undefined,
     });
 
     // 3. React Query: Related Tools (Dependent Query)
@@ -65,6 +54,7 @@ export const useToolDetailData = ({ initialTool, initialPublisher, initialRelate
             return data?.filter(Boolean) || [];
         },
         initialData: initialRelatedTools,
+        initialDataUpdatedAt: initialRelatedTools ? Date.now() : undefined,
         enabled: !!tool?.category_id && !!tool?.id,
         staleTime: 1000 * 60 * 60 // 1 hour
     });
@@ -124,7 +114,7 @@ export const useToolDetailData = ({ initialTool, initialPublisher, initialRelate
                 if (revError) throw revError;
                 
                 queryClient.setQueryData(['favorite', user.id, tool.id], false);
-                showToast(TOOL_DETAIL_CONSTANTS.FAVORITE_REMOVED, 'info');
+                addToast?.(TOOL_DETAIL_CONSTANTS.FAVORITE_REMOVED, 'info');
             } else {
                 const { error: addError } = await favoritesService.addFavorite(user.id, tool.id);
                 if (addError) throw addError;
@@ -138,14 +128,14 @@ export const useToolDetailData = ({ initialTool, initialPublisher, initialRelate
                     'info'
                 ).catch(() => {});
 
-                showToast(TOOL_DETAIL_CONSTANTS.FAVORITE_ADDED, 'success');
+                addToast?.(TOOL_DETAIL_CONSTANTS.FAVORITE_ADDED, 'success');
             }
             return { success: true };
         } catch (err) {
             // Revert Optimistic Update
             setIsFavorited(isFavorited);
             console.error('Error toggling favorite:', err);
-            showToast('Failed to save favorite.', 'error');
+            addToast?.('Failed to save favorite.', 'error');
             return { error: err.message };
         }
     };
@@ -170,10 +160,10 @@ export const useToolDetailData = ({ initialTool, initialPublisher, initialRelate
         } else {
             try {
                 await navigator.clipboard.writeText(currentUrl);
-                showToast(TOOL_DETAIL_CONSTANTS.SHARE_SUCCESS, 'success');
+                addToast?.(TOOL_DETAIL_CONSTANTS.SHARE_SUCCESS, 'success');
             } catch (err) { console.error('Clipboard failed:', err); }
         }
-    }, [tool, showToast]);
+    }, [tool, addToast]);
 
     const handleExternalClick = useCallback(async () => {
         if (!tool?.id) return;

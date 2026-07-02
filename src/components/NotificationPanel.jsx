@@ -13,7 +13,7 @@ import DropdownCard from './ui/DropdownCard';
  * Rule #1: Logic Isolation
  * Rule #2: Modular Styles (Rule #81)
  */
-const NotificationPanel = ({ onClose, className = '' }) => {
+const NotificationPanel = ({ user, onClose, className = '' }) => {
     const router = useRouter();
     const [notifications, setNotifications] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -23,8 +23,7 @@ const NotificationPanel = ({ onClose, className = '' }) => {
 
         let subscription;
         const setupSubscription = async () => {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (user) {
+            if (user?.id) {
                 // Elite Fix: Unique channel name to prevent Strict Mode collisions
                 const channelName = `public:notifications_panel:${user.id}:${Math.random().toString(36).substring(7)}`;
                 
@@ -49,26 +48,28 @@ const NotificationPanel = ({ onClose, className = '' }) => {
                 supabase.removeChannel(subscription);
             }
         };
-    }, []);
+    }, [user]);
 
     const fetchNotifications = async () => {
         setLoading(true);
-        const { data: { user } } = await supabase.auth.getUser();
-        if (user) {
-            const { data } = await supabase
+        if (user?.id) {
+            const { data, error } = await supabase
                 .from('notifications')
                 .select('*')
                 .eq('user_id', user.id)
                 .order('created_at', { ascending: false })
                 .limit(5);
+                
+            if (error) {
+                console.error("Error fetching panel notifications:", error);
+            }
             setNotifications(data || []);
         }
         setLoading(false);
     };
 
     const markAllRead = async () => {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (user) {
+        if (user?.id) {
             await supabase
                 .from('notifications')
                 .update({ is_unread: false })

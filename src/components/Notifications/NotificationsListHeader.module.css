@@ -19,7 +19,7 @@
     gap: 6px !important;
     padding: 8px 16px !important;
     border-radius: 100px !important;
-    transition: all 0.3s ease !important;
+    transition: transform 0.3s ease, opacity 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease, filter 0.3s ease !important;
 }
 
 .clearBtn:hover {

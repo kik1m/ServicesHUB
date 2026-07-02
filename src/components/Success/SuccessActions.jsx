@@ -1,4 +1,5 @@
 import React from 'react';
+import Link from 'next/link';
 import { LayoutDashboard, Compass } from 'lucide-react';
 import Skeleton from '../ui/Skeleton';
 import Button from '../ui/Button';
@@ -11,7 +12,7 @@ const SuccessActions = ({ isLoading, error, onRetry }) => {
 
     if (isLoading) {
         return (
-            <div className={styles.successActionsRow}>
+            <div className={styles.actionsWrapper}>
                 <Skeleton className={styles.skeletonBtnLarge} />
                 <Skeleton className={styles.skeletonBtnSmall} />
             </div>
@@ -20,8 +21,9 @@ const SuccessActions = ({ isLoading, error, onRetry }) => {
     
     return (
         <Safeguard error={error} onRetry={onRetry}>
-            <div className={styles.successActionsRow}>
+            <div className={styles.actionsWrapper}>
                 <Button 
+                    as={Link}
                     href="/dashboard" 
                     variant="primary" 
                     icon={LayoutDashboard}
@@ -31,6 +33,7 @@ const SuccessActions = ({ isLoading, error, onRetry }) => {
                     {actions?.dashboard}
                 </Button>
                 <Button 
+                    as={Link}
                     href="/tools" 
                     variant="secondary" 
                     icon={Compass}

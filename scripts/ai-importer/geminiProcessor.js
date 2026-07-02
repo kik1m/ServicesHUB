@@ -182,6 +182,40 @@ async function processToolData(markdownContent, categories, toolUrl, existingDat
             await new Promise(r => setTimeout(r, 5000));
         }
     }
+
+    // --- 🌐 OPENROUTER FALLBACK ENGINE ---
+    if (process.env.OPENROUTER_API_KEY) {
+        console.warn(`[AI ENGINE] All Gemini keys exhausted or failed. Falling back to OpenRouter (google/gemini-2.5-flash)`);
+        try {
+            const orResponse = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    model: 'google/gemini-2.5-flash',
+                    messages: [{ role: 'user', content: prompt }]
+                })
+            });
+            if (orResponse.ok) {
+                const orData = await orResponse.json();
+                let responseText = orData.choices[0]?.message?.content || "";
+                const startIdx = responseText.indexOf('{');
+                const endIdx = responseText.lastIndexOf('}');
+                if (startIdx !== -1 && endIdx !== -1) {
+                    const parsedData = JSON.parse(responseText.substring(startIdx, endIdx + 1));
+                    console.log(`✅ [AI ENGINE] Success! Data extracted with OpenRouter fallback`);
+                    return parsedData;
+                }
+            } else {
+                console.error('[AI ENGINE] OpenRouter fallback HTTP error', await orResponse.text());
+            }
+        } catch (e) {
+            console.error('[AI ENGINE] OpenRouter fallback failed', e);
+        }
+    }
+
     return null;
 }
 

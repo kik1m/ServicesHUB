@@ -1,4 +1,4 @@
-﻿/* ==========================================================================
+/* ==========================================================================
    GLOBAL UI COMPONENTS (EXTRACTED FROM INDEX.CSS)
    ========================================================================== */
 
@@ -48,7 +48,7 @@
   border: 1px solid var(--border);
   border-radius: 24px;
   padding: 24px;
-  /* ظأة PERF: Replaced 'transition: all' with specific properties to prevent layout thrashing */
+  /* ⚡ PERF: Replaced 'transition: all' with specific properties to prevent layout thrashing */
   transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), 
               background-color 0.4s ease, 
               border-color 0.4s ease,
@@ -166,7 +166,7 @@
   border-radius: 12px;
   font-weight: 700;
   cursor: pointer;
-  /* ظأة PERF: Replaced 'transition: all' */
+  /* ⚡ PERF: Replaced 'transition: all' */
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease, border-color 0.3s ease;
   text-decoration: none;
   display: inline-flex;
@@ -191,7 +191,7 @@
   border-radius: 12px;
   font-weight: 700;
   cursor: pointer;
-  /* ظأة PERF: Replaced 'transition: all' */
+  /* ⚡ PERF: Replaced 'transition: all' */
   transition: transform 0.3s ease, background-color 0.3s ease, border-color 0.3s ease;
   text-decoration: none;
   display: inline-flex;
@@ -215,7 +215,7 @@
   border-radius: 12px;
   font-weight: 700;
   cursor: pointer;
-  /* ظأة PERF: Replaced 'transition: all' */
+  /* ⚡ PERF: Replaced 'transition: all' */
   transition: transform 0.3s ease, background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
   display: inline-flex;
   align-items: center;
@@ -481,7 +481,7 @@
 }
 
 /* --- GLOBAL RESPONSIVE FIXES --- */
-/* NOTE: overflow-x: hidden on html only ظ¤ applying it to body breaks position: sticky */
+/* NOTE: overflow-x: hidden on html only — applying it to body breaks position: sticky */
 html {
   max-width: 100vw;
   overflow-x: hidden;

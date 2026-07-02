@@ -1,6 +1,6 @@
 'use client';
 import React, { memo } from 'react';
-import { Camera, Globe, Twitter, Github, Linkedin, Save, User, Briefcase, FileText } from 'lucide-react';
+import { Camera, Globe, Twitter, Github, Linkedin, Save, User, Briefcase, FileText, Target, Activity } from 'lucide-react';
 import Input from '../ui/Input';
 import Button from '../ui/Button';
 import Skeleton from '../ui/Skeleton';
@@ -100,11 +100,32 @@ const SettingsProfile = memo(({
                         <Input 
                             label="Professional Role"
                             icon={Briefcase}
-                            value={profile?.role || ''}
-                            onChange={(e) => setProfile({...profile, role: e.target.value})}
+                            value={profile?.job_title || ''}
+                            onChange={(e) => setProfile({...profile, job_title: e.target.value})}
                             placeholder="e.g. AI Researcher"
                         />
                     </div>
+
+                    <div className={styles.settingsFormGrid}>
+                        <Input 
+                            label="Experience Level"
+                            icon={Activity}
+                            value={profile?.experience_level || ''}
+                            onChange={(e) => setProfile({...profile, experience_level: e.target.value})}
+                            placeholder="e.g. Intermediate, Advanced"
+                        />
+                    </div>
+
+                    <Input 
+                        label="Primary Goal"
+                        icon={Target}
+                        multiline={true}
+                        rows={2}
+                        value={profile?.primary_goal || ''}
+                        onChange={(e) => setProfile({...profile, primary_goal: e.target.value})}
+                        placeholder="What are you trying to build or discover?"
+                        className={styles.mb3rem}
+                    />
 
                     <Input 
                         label="Short Bio"

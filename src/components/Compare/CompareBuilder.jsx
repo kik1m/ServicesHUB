@@ -54,11 +54,9 @@ const CompareBuilder = ({ isSelectingFor, tool1, tool2, onSelect, onClose, onCle
     // 🏆 Contextual Intelligence: If selecting Tool 2, default the category filter to Tool 1's category!
     useEffect(() => {
         if (isSelectingFor === 'tool2' && tool1?.categories?.name) {
-            if (selectedCategory === 'All') {
-                setSelectedCategory(tool1.categories.name);
-            }
+            setSelectedCategory(tool1.categories.name);
         }
-    }, [isSelectingFor, tool1, selectedCategory, setSelectedCategory]);
+    }, [isSelectingFor, tool1, setSelectedCategory]);
 
     // Rule #11: Isolate scroll locking logic
     useLockBodyScroll(true);
@@ -99,7 +97,7 @@ const CompareBuilder = ({ isSelectingFor, tool1, tool2, onSelect, onClose, onCle
     [isSelectingFor, tool1?.name]);
 
     const stepTrackerExtra = useMemo(() => (
-        <div className={styles.stepIndicator}>
+        <>
             <div 
                 className={`${styles.stepItem} ${isSelectingFor === 'tool1' ? styles.active : styles.done}`}
                 onClick={() => onSwitchStep('tool1')}
@@ -118,13 +116,6 @@ const CompareBuilder = ({ isSelectingFor, tool1, tool2, onSelect, onClose, onCle
                         />
                     )}
                 </div>
-            </div>
-            
-            <div className={styles.stepLinkLine}>
-                <div 
-                    className={styles.stepProgressFill} 
-                    style={{ '--progress-width': tool1 ? '100%' : '0%' }} 
-                />
             </div>
 
             <div 
@@ -146,7 +137,7 @@ const CompareBuilder = ({ isSelectingFor, tool1, tool2, onSelect, onClose, onCle
                     )}
                 </div>
             </div>
-        </div>
+        </>
     ), [isSelectingFor, tool1, tool2, onSwitchStep, onClear]);
     
     return (
@@ -222,6 +213,8 @@ const CompareBuilder = ({ isSelectingFor, tool1, tool2, onSelect, onClose, onCle
                                 setCatSearchQuery={setCatSearchQuery}
                                 showAllCats={showAllCats}
                                 setShowAllCats={setShowAllCats}
+                                sortBy={sortBy}
+                                setSortBy={setSortBy}
                             />
                         </div>
 
@@ -234,6 +227,7 @@ const CompareBuilder = ({ isSelectingFor, tool1, tool2, onSelect, onClose, onCle
                                 setPage={setPage}
                                 sortBy={sortBy}
                                 setSortBy={setSortBy}
+                                pricingFilter={pricingFilter}
                                 error={toolsError}
                                 refetch={refetchTools}
                                 onToolClick={(selectedTool) => onSelect(selectedTool)}

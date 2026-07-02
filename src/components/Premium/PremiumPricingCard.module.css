@@ -1,7 +1,8 @@
 .container {
     padding: 0;
     position: relative;
-    max-width: 1000px;
+    max-width: 950px;
+    /* Slimmer max-width */
     margin: 0 auto;
 }
 
@@ -12,7 +13,7 @@
     left: -100px;
     right: -100px;
     bottom: -100px;
-    background: 
+    background:
         radial-gradient(circle at 20% 30%, rgba(255, 215, 0, 0.08) 0%, transparent 40%),
         radial-gradient(circle at 80% 70%, rgba(255, 165, 0, 0.05) 0%, transparent 40%);
     filter: blur(80px);
@@ -20,30 +21,57 @@
     pointer-events: none;
 }
 
-/* --- THE CARD STRUCTURE (Promote Style) --- */
-.glassPanel {
+/* --- THE CARDS GRID --- */
+.cardsGrid {
     display: grid;
-    grid-template-columns: 1.4fr 1fr;
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.01) 100%);
-    backdrop-filter: blur(25px);
-    border-radius: 24px;
-    border: 1px solid rgba(255, 215, 0, 0.2); /* Subtle Gold Border */
-    overflow: hidden;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.618rem;
+    /* Golden Ratio */
+    margin-top: 3rem;
     position: relative;
     z-index: 1;
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
-    transition: all 0.4s ease;
+    align-items: stretch;
+    /* Force all cards to be the exact same height */
 }
 
-.glassPanel::after {
+.planCard {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.01) 100%);
+    backdrop-filter: blur(25px);
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 1.5rem 1.5rem;
+    /* Smaller padding */
+    display: flex;
+    flex-direction: column;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+}
+
+.planCard:hover {
+    transform: translateY(-4px);
+    border-color: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+}
+
+.planCard.recommended {
+    background: linear-gradient(135deg, rgba(0, 210, 255, 0.05) 0%, rgba(255, 255, 255, 0.01) 100%);
+    box-shadow: 0 0 30px rgba(0, 210, 255, 0.15), inset 0 0 15px rgba(0, 210, 255, 0.05);
+    transform: translateY(-8px);
+    z-index: 2;
+    padding-top: 2.5rem; /* Pushes content down to make room for badge */
+}
+
+.planCard.recommended::after {
     content: '';
     position: absolute;
     top: 0;
     left: 0;
-    right: 0;
+    width: 100%;
     height: 2px;
-    background: linear-gradient(90deg, transparent, #FFD700, transparent); /* Gold Scanning Line */
-    animation: scanning 4s linear infinite;
+    background: linear-gradient(90deg, transparent, rgba(0, 210, 255, 0.8), transparent);
+    animation: scanning 3s linear infinite;
     z-index: 10;
 }
 
@@ -52,26 +80,87 @@
     100% { transform: translateX(100%); }
 }
 
-.glassPanel:hover {
-    transform: translateY(-5px);
-    border-color: rgba(255, 215, 0, 0.4);
-    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
+.planCard.recommended::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 100%;
+    border-radius: 20px;
+    box-shadow: 0 0 20px rgba(0, 210, 255, 0.2);
+    opacity: 0.5;
+    animation: pulseGlow 3s infinite alternate;
+    pointer-events: none;
+    z-index: -1;
 }
 
-/* --- INTERNAL ELEMENTS (Promote Look) --- */
-.featuresCol {
-    padding: 3rem;
-    border-right: 1px solid rgba(255, 255, 255, 0.05);
+@keyframes pulseGlow {
+    0% {
+        opacity: 0.3;
+        transform: scale(0.99);
+    }
+
+    100% {
+        opacity: 0.7;
+        transform: scale(1);
+    }
 }
 
-.pricingCol {
-    padding: 3rem;
-    background: rgba(255, 255, 255, 0.02);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
+.planCard.recommended:hover {
+    transform: translateY(-12px);
+    box-shadow: 0 10px 40px rgba(0, 210, 255, 0.25), inset 0 0 20px rgba(0, 210, 255, 0.08);
+}
+
+
+
+.planCard.elite::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.8), transparent);
+    animation: scanning 3s linear infinite;
+    animation-delay: 1.5s; /* Offset from the Pro card */
+    z-index: 10;
+}
+
+.recommendedBadge {
+    position: absolute;
+    top: 0.8rem;
+    left: 50%;
+    transform: translateX(-50%);
+    background: transparent;
+    color: #00d2ff;
+    padding: 0;
+    font-size: 0.65rem;
+    font-weight: 900;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    z-index: 10;
+}
+
+.cardHeader {
     text-align: center;
+    margin-bottom: 2rem;
+}
+
+.cardHeader h2 {
+    font-size: 1.3rem;
+    /* Smaller title */
+    font-weight: 800;
+    color: white;
+    margin-bottom: 0.5rem;
+}
+
+.pricingAmount {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 4px;
+    margin-bottom: 1rem;
 }
 
 .featureHeader {
@@ -85,7 +174,8 @@
     width: 52px;
     height: 52px;
     background: rgba(0, 210, 255, 0.1);
-    color: var(--primary); /* Back to Blue */
+    color: var(--primary);
+    /* Back to Blue */
     border-radius: 14px;
     display: flex;
     align-items: center;
@@ -111,19 +201,22 @@
     margin: 0;
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: 0.8rem;
+    /* Smaller gap */
 }
 
 .featureItem {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
     color: rgba(255, 255, 255, 0.8);
-    font-size: 0.95rem;
+    font-size: 0.85rem;
+    /* Smaller text */
 }
 
 .checkIconBox {
-    color: #00e676; /* Promote Green Checks */
+    color: #00e676;
+    /* Promote Green Checks */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -140,13 +233,6 @@
     margin-bottom: 1.5rem;
 }
 
-.pricingAmount {
-    display: flex;
-    align-items: baseline;
-    gap: 4px;
-    margin-bottom: 2rem;
-}
-
 .currency {
     font-size: 1.2rem;
     font-weight: 700;
@@ -154,8 +240,9 @@
 }
 
 .amount {
-    font-size: 4rem;
-    font-weight: 950;
+    font-size: 2.5rem;
+    /* Smaller amount */
+    font-weight: 900;
     color: white;
     line-height: 1;
 }
@@ -167,10 +254,12 @@
 
 .upgradeBtn {
     width: 100%;
-    height: 50px !important;
-    border-radius: 14px !important;
+    height: 44px !important;
+    /* Slimmer button */
+    border-radius: 12px !important;
     font-weight: 800 !important;
-    margin-bottom: 1.2rem;
+    font-size: 0.9rem !important;
+    margin-bottom: 1rem;
 }
 
 .statusBadge {
@@ -198,11 +287,26 @@
 }
 
 /* --- SKELETONS --- */
-.skeletonFeatures { margin-top: 1rem; }
-.skeletonInfo { flex: 1; }
-.skeletonTitle { margin-bottom: 8px; }
-.skeletonPricingHeader { margin-bottom: 2.5rem; }
-.skeletonAmount { margin-bottom: 3rem; }
+.skeletonFeatures {
+    margin-top: 1rem;
+}
+
+.skeletonInfo {
+    flex: 1;
+}
+
+.skeletonTitle {
+    margin-bottom: 8px;
+}
+
+.skeletonPricingHeader {
+    margin-bottom: 2.5rem;
+}
+
+.skeletonAmount {
+    margin-bottom: 3rem;
+}
+
 .skeletonFeature {
     display: flex;
     align-items: center;
@@ -211,6 +315,16 @@
 }
 
 @media (max-width: 992px) {
-    .glassPanel { grid-template-columns: 1fr; }
-    .featuresCol { border-right: none; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
+    .cardsGrid {
+        grid-template-columns: 1fr;
+        align-items: stretch;
+    }
+
+    .planCard.recommended {
+        transform: translateY(0);
+    }
+
+    .planCard.recommended:hover {
+        transform: translateY(-4px);
+    }
 }

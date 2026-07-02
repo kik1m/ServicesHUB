@@ -60,7 +60,7 @@ export const usePromoteData = () => {
         };
 
         initializeData();
-    }, [toolId, user, authLoading]);
+    }, [toolId, user?.id, authLoading]);
 
     // Check active plan whenever selectedToolId changes
     useEffect(() => {
@@ -95,6 +95,11 @@ export const usePromoteData = () => {
 
         if (activePlan && activePlan.name === plan.name) {
             showToast('هذه الخطة مفعلة بالفعل لهذه الأداة.', 'warning');
+            return;
+        }
+
+        if (plan.variantId === 'contact') {
+            router.push('/contact');
             return;
         }
 

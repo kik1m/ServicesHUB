@@ -1,7 +1,8 @@
 'use client';
 import React, { useState } from 'react';
-import { Github, Twitter, Linkedin } from 'lucide-react';
+import { Github, Twitter, Linkedin, Sparkles } from 'lucide-react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { supabase } from '../lib/supabaseClient';
 import { useToast } from '../context/ToastContext';
 import { emailTriggers } from '../utils/emailService';
@@ -13,11 +14,15 @@ import Input from './ui/Input';
 // Import Modular Styles
 import Image from 'next/image';
 import styles from './Footer.module.css';
+import { FOOTER_GROUPS } from '../constants/navbarConstants';
 
 const Footer = () => {
     const [email, setEmail] = useState('');
     const [submitting, setSubmitting] = useState(false);
     const { showToast } = useToast();
+    const pathname = usePathname();
+
+    if (pathname && pathname.startsWith('/ai-engine')) return null;
 
     const handleSubscribe = async (e) => {
         e.preventDefault();
@@ -85,27 +90,24 @@ const Footer = () => {
                         </div>
                     </div>
 
-                    {/* Links Sections */}
-                    <div className={styles.footerColumn}>
-                        <h3>Explore</h3>
-                        <ul className={styles.footerLinks}>
-                            <li><Link href="/tools" onClick={() => window.scrollTo(0, 0)}>All Tools</Link></li>
-                            <li><Link href="/blog" onClick={() => window.scrollTo(0, 0)}>Articles</Link></li>
-                            <li><Link href="/categories" onClick={() => window.scrollTo(0, 0)}>Categories</Link></li>
-                            <li><Link href="/promote" onClick={() => window.scrollTo(0, 0)}>Sponsorships</Link></li>
-                        </ul>
-                    </div>
-
-                    <div className={styles.footerColumn}>
-                        <h3>Platform</h3>
-                        <ul className={styles.footerLinks}>
-                            <li><Link href="/submit">Submit Tool</Link></li>
-                            <li><Link href="/about">About Us & FAQ</Link></li>
-                            <li><Link href="/contact">Contact</Link></li>
-                            <li><Link href="/privacy">Privacy Policy</Link></li>
-                            <li><Link href="/terms">Terms of Service</Link></li>
-                        </ul>
-                    </div>
+                    {/* Dynamic Links Sections from Constants */}
+                    {FOOTER_GROUPS.map((group, idx) => (
+                        <div key={idx} className={styles.footerColumn}>
+                            <h3>{group.title}</h3>
+                            <ul className={styles.footerLinks}>
+                                {group.links.map((link, lIdx) => (
+                                    <li key={lIdx}>
+                                        <Link href={link.path} onClick={() => window.scrollTo(0, 0)}>
+                                            {link.label}
+                                            {link.isPremium && (
+                                                <Sparkles size={12} style={{ display: 'inline', marginLeft: '4px', color: 'var(--accent)' }} />
+                                            )}
+                                        </Link>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    ))}
 
                     <div className={styles.footerColumn}>
                         <h3>Never miss an update</h3>

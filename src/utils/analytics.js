@@ -1,45 +1,43 @@
-import { supabase } from '../lib/supabaseClient';
-
 /**
- * دالة تتبع الزيارات - مصممة لتكون خفيفة وآمنة على الخطة المجانية لـ Supabase
+ * 📊 HUBly Visits Tracker Utility
+ * Tracks user visits securely via our server API.
  */
 export const trackVisit = async (path) => {
   try {
     if (typeof window === 'undefined') return;
 
-    // 1. الحصول على أو إنشاء ID فريد للزائر
+    // 🛡️ SMART FILTERS: Ignore Localhost & Bots for 100% accurate human stats
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+      return; // Ignore local development visits
+    }
+
+    const botPattern = /bot|crawler|spider|crawling|googlebot|bingbot|yandex|baiduspider|slurp|lighthouse|vercel/i;
+    if (navigator.userAgent && botPattern.test(navigator.userAgent)) {
+      return; // Ignore automated bot visits
+    }
+
+    // 1. Get or create unique Visitor ID
     let visitorId = localStorage.getItem('hubly_visitor_id');
     if (!visitorId) {
       visitorId = crypto.randomUUID();
       localStorage.setItem('hubly_visitor_id', visitorId);
     }
 
-    // 2. الحصول على الدولة (اختياري)
-    let country = 'Unknown';
-    try {
-      const geoRes = await fetch('https://ipapi.co/json/');
-      if (geoRes.ok) {
-        const geoData = await geoRes.json();
-        country = geoData.country_name || 'Unknown';
-      }
-    } catch (e) {
-      // Silently fail geo-lookups to not block analytics
-    }
+    // 2. Track visit via Server API
+    const response = await fetch('/api/track-visit', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        visitorId,
+        pagePath: path || window.location.pathname
+      })
+    });
 
-    // 3. إرسال البيانات لـ Supabase
-    const { error } = await supabase
-      .from('analytics')
-      .upsert({
-        visitor_id: visitorId,
-        page_path: path || window.location.pathname,
-        country: country,
-        visit_date: new Date().toISOString().split('T')[0]
-      }, {
-        onConflict: 'visitor_id, page_path, visit_date'
-      });
-
-    if (error && error.code !== '23505') {
-      console.error('Analytics Error:', error.message);
+    if (!response.ok) {
+      const errData = await response.json();
+      console.warn('Analytics API warning:', errData.error);
     }
   } catch (err) {
     console.error('Analytics System Error:', err);

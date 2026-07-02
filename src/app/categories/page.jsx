@@ -3,6 +3,9 @@ import { categoriesService } from '../../services/categoriesService';
 import { toolsService } from '../../services/toolsService';
 import CategoriesClient from './CategoriesClient';
 
+import { seoService } from '../../services/seoService';
+import { SEO_CONFIG } from '../../constants/seoManifest';
+
 /**
  * Categories Directory Page - Server Component (Elite 10/10)
  * Rule #2: SSR Logic Implementation
@@ -10,9 +13,11 @@ import CategoriesClient from './CategoriesClient';
 export const revalidate = 3600; // ISR: 1 hour
 
 export async function generateMetadata() {
+    const dynamicSeo = await seoService.getMetadata(SEO_CONFIG.global.pageIds.categories, 'page');
+
     return {
-        title: 'Browse Elite AI & SaaS Tool Categories | Find the Best Software',
-        description: 'Explore our curated directory of AI and SaaS categories. From LLMs to Productivity, find the perfect tools for your workflow.',
+        title: dynamicSeo?.title || 'Browse Elite AI & SaaS Tool Categories | Find the Best Software',
+        description: dynamicSeo?.description || 'Explore our curated directory of AI and SaaS categories. From LLMs to Productivity, find the perfect tools for your workflow.',
         openGraph: {
             title: 'Professional AI & SaaS Categories | HUBly',
             description: 'Discover specialized AI and SaaS software categories curated for professional workflows.',

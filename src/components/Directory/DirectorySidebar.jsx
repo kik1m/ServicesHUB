@@ -12,7 +12,6 @@ import styles from './DirectorySidebar.module.css';
 const DirectorySidebar = memo((props) => {
     const { 
         categoryFilter, 
-        pricingFilter, 
         isLoading, 
         error, 
         refetch, 
@@ -28,7 +27,6 @@ const DirectorySidebar = memo((props) => {
     } = props;
 
     const { selectedCategory, setSelectedCategory } = categoryFilter;
-    const { pricingModels, selectedPrice, setSelectedPrice } = pricingFilter;
 
     // Rule #18: Return Safeguard only if error occurs to avoid wrapping issues
     if (error) return <Safeguard error={error} onRetry={refetch} />;
@@ -64,13 +62,6 @@ const DirectorySidebar = memo((props) => {
                             ))
                         ) : (
                             <>
-                                <button 
-                                    className={`${styles.filterBtn} ${!selectedCategory ? styles.active : ''}`}
-                                    onClick={() => setSelectedCategory(null)}
-                                >
-                                    <span>All Categories</span>
-                                    <ChevronRight size={14} />
-                                </button>
 
                                 {displayedCategories.map(cat => (
                                     <button 
@@ -96,27 +87,7 @@ const DirectorySidebar = memo((props) => {
                     </div>
                 </div>
 
-                {/* 3. Pricing Section */}
-                <div className={styles.filterGroup}>
-                    <span className={styles.filterLabel}>{content?.pricing?.title}</span>
-                    <div className={styles.pricingFilterChips}>
-                        {isLoading ? (
-                            Array.from({ length: 4 }).map((_, i) => (
-                                <Skeleton key={`skeleton-price-${i}`} height="38px" borderRadius="8px" />
-                            ))
-                        ) : (
-                            pricingModels.map(model => (
-                                <button 
-                                    key={model.value}
-                                    className={`${styles.pricingChip} ${selectedPrice === model.value ? styles.active : ''}`}
-                                    onClick={() => setSelectedPrice(selectedPrice === model.value ? null : model.value)}
-                                >
-                                    {model.label}
-                                </button>
-                            ))
-                        )}
-                    </div>
-                </div>
+
 
                 {/* Mobile Close Button */}
                 <button className={styles.mobileCloseBtn} onClick={onClose}>

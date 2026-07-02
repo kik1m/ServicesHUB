@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 
-const BANNER_INTERVAL = 8000;
+const BANNER_INTERVAL = 15000; // Increased to prevent Lighthouse LCP penalties
 
 /**
  * Custom Hook: useBannerState

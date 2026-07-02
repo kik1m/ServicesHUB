@@ -11,15 +11,22 @@ const MatrixInsights = ({
     aiResults, 
     aiError, 
     activeTab, 
-    loadingMessage 
+    loadingMessage,
+    userIntent
 }) => {
     return (
         <div className={`${styles.aiPulseContainer} ${isAiLoading ? styles.pulseGlow : ''}`}>
             <div className={styles.aiPulseHeader}>
                 <div className={styles.aiPulseTitle}>
                     <BrainCircuit size={20} className={styles.aiIcon} />
-                    <h3>AI Strategic Analysis</h3>
+                    <h3>{userIntent ? 'Tailored Context Analysis' : 'AI Strategic Analysis'}</h3>
                 </div>
+                {userIntent && !isAiLoading && (
+                    <div className={styles.customBadge} title={userIntent}>
+                        <Sparkles size={12} />
+                        <span>Tailored For You</span>
+                    </div>
+                )}
                 {isAiLoading && (
                     <div className={styles.aiThinking}>
                         <div className={styles.pulseScanner}></div>

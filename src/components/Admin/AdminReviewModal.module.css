@@ -82,7 +82,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.3s ease;
+    transition: transform 0.3s ease, opacity 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease, filter 0.3s ease;
 }
 
 .closeBtn:hover {
@@ -166,7 +166,7 @@
     color: white;
     font-size: 0.9rem;
     resize: vertical;
-    transition: all 0.3s ease;
+    transition: transform 0.3s ease, opacity 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease, filter 0.3s ease;
     font-family: inherit;
     line-height: 1.6;
     outline: none;
@@ -196,7 +196,7 @@
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
-    transition: all 0.3s;
+    transition: transform 0.3s, opacity 0.3s, background-color 0.3s, border-color 0.3s, color 0.3s, filter 0.3s;
 }
 
 .rowChanged {
@@ -314,7 +314,7 @@
     font-size: 0.95rem;
     line-height: 1.6;
     resize: vertical;
-    transition: all 0.3s;
+    transition: transform 0.3s, opacity 0.3s, background-color 0.3s, border-color 0.3s, color 0.3s, filter 0.3s;
     outline: none;
 }
 

@@ -1,14 +1,17 @@
 import React, { Suspense } from 'react';
 import { compareService } from '../../services/compareService';
 import { toolsService } from '../../services/toolsService';
+import { seoService } from '../../services/seoService';
+import { SEO_CONFIG } from '../../constants/seoManifest';
 import CompareClient from './CompareClient';
 
 // Rule #2: ISR Revalidation
 export const revalidate = 3600; // 1 hour
 
 export async function generateMetadata() {
-    const title = 'Expert AI & SaaS Tool Comparison | HUBly Side-by-Side';
-    const description = 'AI-powered structured comparison engine for software analysis. Compare features, pricing, and performance of leading AI tools side-by-side.';
+    const dynamicSeo = await seoService.getMetadata(SEO_CONFIG.global.pageIds.compare, 'page');
+    const title = dynamicSeo?.title || 'Expert AI & SaaS Tool Comparison | HUBly Side-by-Side';
+    const description = dynamicSeo?.description || 'AI-powered structured comparison engine for software analysis. Compare features, pricing, and performance of leading AI tools side-by-side.';
     const url = 'https://www.hubly-tools.com/compare';
 
     return {
@@ -35,11 +38,8 @@ export async function generateMetadata() {
 }
 
 export default async function ComparePage() {
-    // Parallel Fetching for Elite Performance
-    const [recentRes, bannerRes] = await Promise.all([
-        compareService.getRecentComparisons(),
-        toolsService.getBannerTools(20)
-    ]);
+    // Data is fetched strictly on the client using React Query to ensure 
+    // an instantaneous route transition and display of component-specific Skeletons.
 
     const jsonLd = [
         {
@@ -66,10 +66,7 @@ export default async function ComparePage() {
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
             />
             <Suspense fallback={null}>
-                <CompareClient 
-                    initialRecentComparisons={recentRes.data || []}
-                    bannerTools={bannerRes.data || []}
-                />
+                <CompareClient />
             </Suspense>
         </>
     );

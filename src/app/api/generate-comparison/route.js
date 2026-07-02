@@ -1,4 +1,4 @@
-﻿import { NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { GoogleGenAI } from '@google/genai';
 import { generateAISeo } from '../utils/seoGenerator';
@@ -30,7 +30,7 @@ export async function GET(request) {
         let isPremium = false;
         let profileData = null;
 
-        // --- ≡اؤةي╕ ELITE USER QUOTA PROTECTION ---
+        // --- 🛡️ ELITE USER QUOTA PROTECTION ---
         if (userId) {
             const { data: profile } = await supabase.from('profiles').select('*').eq('id', userId).single();
             if (profile) {
@@ -81,7 +81,7 @@ export async function GET(request) {
 
             if (cachedComparison && cachedComparison.ai_report_json) {
             let report = cachedComparison.ai_report_json;
-            console.log(`ظأة Serving cached comparison for ${slug1} vs ${slug2}`);
+            console.log(`⚡ Serving cached comparison for ${slug1} vs ${slug2}`);
 
             if (cachedComparison.tool1_id === idB) {
                 // Swap logic for consistent output
@@ -122,7 +122,7 @@ export async function GET(request) {
 
         // 3. No cache found or Custom Intent - Generate with AI
         const promptContext = intentQuery 
-            ? `The user has a VERY SPECIFIC context/task: "${intentQuery}". You MUST tailor your ENTIRE analysisظ¤verdict, scores, why_buy, and matrix insightsظ¤explicitly to determine which tool is best for this exact scenario. Do not give a generic comparison.` 
+            ? `The user has a VERY SPECIFIC context/task: "${intentQuery}". You MUST tailor your ENTIRE analysis—verdict, scores, why_buy, and matrix insights—explicitly to determine which tool is best for this exact scenario. Do not give a generic comparison.` 
             : `Analyze these tools deeply in a general, objective manner.`;
 
         const prompt = `
@@ -203,14 +203,14 @@ export async function GET(request) {
 
                 } catch (err) {
                     lastError = err;
-                    console.warn(`  ظأبي╕ Attempt failed with key ${k+1} / model ${currentModel}:`, err.message);
+                    console.warn(`  ⚠️ Attempt failed with key ${k+1} / model ${currentModel}:`, err.message);
                     continue; 
                 }
             }
             if (keySuccess) break; 
         }
 
-        // --- ≡اî OPENROUTER FALLBACK ENGINE ---
+        // --- 🌐 OPENROUTER FALLBACK ENGINE ---
         if (!aiReport && process.env.OPENROUTER_API_KEY) {
             console.warn(`[AI-API] All Gemini keys exhausted. Falling back to OpenRouter (google/gemini-2.5-flash)`);
             try {
@@ -232,7 +232,7 @@ export async function GET(request) {
                     const endIdx = responseText.lastIndexOf('}');
                     if (startIdx !== -1 && endIdx !== -1) {
                         aiReport = JSON.parse(responseText.substring(startIdx, endIdx + 1));
-                        console.log(`  ظ£à Comparison Analysis successful with OpenRouter fallback`);
+                        console.log(`  ✅ Comparison Analysis successful with OpenRouter fallback`);
                     }
                 } else {
                     console.error('[AI-API] OpenRouter fallback HTTP error', await orResponse.text());
@@ -254,7 +254,7 @@ export async function GET(request) {
                     strategic_overview: aiReport.strategic_overview
                 }, 'comparison');
             } catch (seoErr) {
-                console.warn(`ظأبي╕ SEO Error:`, seoErr.message);
+                console.warn(`⚠️ SEO Error:`, seoErr.message);
             }
         }
 
@@ -298,7 +298,7 @@ export async function GET(request) {
         return NextResponse.json({ data: aiReport, source: 'ai' });
 
     } catch (error) {
-        console.error('ظإî Comparison Error:', error);
+        console.error('❌ Comparison Error:', error);
         return NextResponse.json({ error: error.message || 'Comparison failed' }, { status: 500 });
     }
 }

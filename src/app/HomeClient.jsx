@@ -1,10 +1,9 @@
 'use client';
-import React, { useState, useCallback } from 'react';
+import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useBannerState } from '../hooks/useBannerState';
+import { useHomeData } from '../hooks/useHomeData';
 
 // Import Modular Home Components
-import SmartBanner from '../components/SmartBanner';
 import VideoGuide from '../components/VideoGuide';
 import HomeHero from '../components/Home/HomeHero';
 import HomeStatsBar from '../components/Home/HomeStatsBar';
@@ -18,6 +17,7 @@ import HomeValueProp from '../components/Home/HomeValueProp';
 import HomePublisherCTA from '../components/Home/HomePublisherCTA';
 import HomeBlogSection from '../components/Home/HomeBlogSection';
 import { HOME_UI_CONSTANTS } from '../constants/homeConstants';
+import AIFloatingButton from '../components/ui/AIFloatingButton';
 import styles from './page.module.css';
 
 /**
@@ -37,65 +37,68 @@ export default function HomeClient({
     const [searchQuery, setSearchQuery] = useState('');
     const router = useRouter();
     
-    // Rule #1: Logic Isolation via custom hook
-    const banner = useBannerState(initialBannerTools, false);
-
-    const handleExternalClick = useCallback((id) => {
-        // Analytics tracking would go here
-        console.log('External click tracked:', id);
-    }, []);
+    // 🚀 Elite: Use React Query to manage Home Data
+    // This allows prefetching from the Navbar to make this page instant!
+    const { 
+        categories, 
+        featuredTools, 
+        latestTools, 
+        trendingTools, 
+        blogPosts, 
+        stats, 
+        comparisons,
+        loading 
+    } = useHomeData({
+        initialCategories,
+        initialFeatured,
+        initialLatest,
+        initialTrending,
+        initialPosts,
+        initialStats,
+        initialComparisons
+    });
 
     return (
         <div className={styles.homeContainer}>
-            <SmartBanner 
-                tools={initialBannerTools}
-                currentIndex={banner.currentIndex}
-                next={banner.next}
-                prev={banner.prev}
-                isLoading={false}
-                onExternalClick={handleExternalClick}
-            />
-            
             <HomeHero 
                 searchQuery={searchQuery} 
                 setSearchQuery={setSearchQuery} 
-                statsCount={initialStats} 
-                isLoading={false}
+                statsCount={stats} 
+                isLoading={loading}
                 content={HOME_UI_CONSTANTS.hero}
-                popularCategories={initialCategories}
             />
 
             <HomeStatsBar 
-                statsCount={initialStats} 
-                categoriesCount={initialCategories?.length || 0} 
-                isLoading={false}
+                statsCount={stats} 
+                categoriesCount={categories?.length || 0} 
+                isLoading={loading}
             />
 
             <HomeHowItWorks content={HOME_UI_CONSTANTS.howItWorks} />
 
             <HomeCategories 
-                categories={initialCategories} 
-                isLoading={false} 
+                categories={categories} 
+                isLoading={loading} 
             />
 
             <HomeTrending 
-                trendingTools={initialTrending} 
-                isLoading={false} 
+                trendingTools={trendingTools} 
+                isLoading={loading} 
             />
 
             <HomeComparisons
-                comparisons={initialComparisons}
-                isLoading={false}
+                comparisons={comparisons}
+                isLoading={loading}
             />
 
             <HomeLatestArrivals 
-                latestTools={initialLatest} 
-                isLoading={false} 
+                latestTools={latestTools} 
+                isLoading={loading} 
             />
 
             <HomeFeatured 
-                tools={initialFeatured} 
-                isLoading={false} 
+                tools={featuredTools} 
+                isLoading={loading} 
             />
 
             <HomeValueProp content={HOME_UI_CONSTANTS.valueProp} />
@@ -103,11 +106,14 @@ export default function HomeClient({
             <HomePublisherCTA content={HOME_UI_CONSTANTS.publisherCTA} />
 
             <HomeBlogSection 
-                latestPosts={initialPosts} 
-                isLoading={false}
+                latestPosts={blogPosts} 
+                isLoading={loading}
             />
 
             <VideoGuide />
+
+            {/* AI Copilot Floating Action Button */}
+            <AIFloatingButton onClick={() => router.push('/ai-engine')} />
         </div>
     );
 }

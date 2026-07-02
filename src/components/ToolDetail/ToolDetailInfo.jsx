@@ -76,9 +76,8 @@ const ToolDetailInfo = ({ tool, isLoading, error, onRetry, content }) => {
                         const rawDescription = tool?.description || tool?.short_description || content?.tabs?.defaultDesc || '';
                         let sections = [];
 
-                        // 🧠 SMART PARSER (V2) - Rule #32: Defensive & Resilient
+                        // 🧠 SMART PARSER (V3) - Auto-injects default headings for raw paragraphs
                         try {
-                            // Case 1: Is it a JSON string? (Happens with some AI imports like CrewAI)
                             if (rawDescription.trim().startsWith('{')) {
                                 const parsed = JSON.parse(rawDescription);
                                 sections = Object.entries(parsed).map(([title, text]) => ({
@@ -86,10 +85,11 @@ const ToolDetailInfo = ({ tool, isLoading, error, onRetry, content }) => {
                                     contentText: text
                                 }));
                             } 
-                            // Case 2: Standard Text with Headers or [TITLE] tags
                             else {
-                                const rawSections = rawDescription.split('\n\n');
-                                sections = rawSections.map(section => {
+                                const rawSections = rawDescription.split('\n\n').filter(s => s.trim().length > 0);
+                                const defaultTitles = ['OVERVIEW', 'INNOVATION', 'IMPACT', 'SUMMARY'];
+                                
+                                sections = rawSections.map((section, index) => {
                                     // Sub-case: [TITLE] format
                                     const titleMatch = section.match(/\[TITLE\](.*?)\[CONTENT\]/s);
                                     if (titleMatch) {
@@ -108,13 +108,17 @@ const ToolDetailInfo = ({ tool, isLoading, error, onRetry, content }) => {
                                         };
                                     }
 
-                                    // Sub-case: Plain paragraph
-                                    return { title: null, contentText: section.trim() };
+                                    // Sub-case: Plain paragraph without explicit header
+                                    // Assign default title based on index so it matches the UI design perfectly
+                                    return { 
+                                        title: defaultTitles[index] || null, 
+                                        contentText: section.trim() 
+                                    };
                                 }).filter(s => s.contentText);
                             }
                         } catch (err) {
                             console.warn('Description Parsing Failed:', err);
-                            sections = [{ title: null, contentText: rawDescription }];
+                            sections = [{ title: 'OVERVIEW', contentText: rawDescription }];
                         }
 
                         return sections.map((sec, i) => (

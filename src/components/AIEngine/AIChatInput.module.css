@@ -1,0 +1,176 @@
+/* ── Input Area ─────────────────────────────────────────────── */
+.inputArea {
+    padding: 1.25rem 12px 0 12px;
+    background: transparent;
+    border: none;
+}
+
+.inputWrapper {
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    background: rgba(255, 255, 255, 0.04);
+    border-radius: 21px;
+    z-index: 1;
+}
+
+.inputWrapper::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 21px;
+    padding: 1px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.02) 100%);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+    transition: all 0.3s ease;
+}
+
+@keyframes borderShimmer {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+@keyframes glowPulse {
+    0%, 100% { box-shadow: 0 10px 30px -10px rgba(0, 210, 255, 0.2), inset 0 0 15px rgba(0, 210, 255, 0.05); }
+    50% { box-shadow: 0 10px 35px -5px rgba(0, 210, 255, 0.35), inset 0 0 25px rgba(0, 210, 255, 0.08); }
+}
+
+.inputWrapper:focus-within::before {
+    background: linear-gradient(90deg, #00d2ff, #3a7bd5, rgba(0, 210, 255, 0.4), #3a7bd5, #00d2ff);
+    background-size: 300% 100%;
+    animation: borderShimmer 5s ease-in-out infinite;
+    padding: 1.5px;
+}
+
+.inputWrapper:focus-within {
+    animation: glowPulse 4s ease-in-out infinite;
+}
+
+.inputField {
+    flex: 1;
+    background: transparent;
+    border: none;
+    padding: 14px 1.25rem;
+    padding-right: 3.5rem;
+    color: #f1f5f9;
+    font-size: 0.93rem;
+    outline: none;
+    font-family: inherit;
+    resize: none;
+    min-height: 50px;
+    max-height: 150px;
+    overflow-y: auto;
+    line-height: 1.5;
+    box-sizing: border-box;
+}
+
+.inputField::-webkit-scrollbar { width: 0px; background: transparent; }
+
+.inputField::placeholder { color: #4b5563; }
+
+.sendButton {
+    position: absolute;
+    right: 0.5rem;
+    bottom: 5px;
+    background: transparent;
+    color: #00d2ff;
+    border: none;
+    border-radius: 50%;
+    width: 38px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.sendButton:hover:not(:disabled) {
+    background: rgba(0, 210, 255, 0.12);
+    transform: scale(1.08);
+}
+
+.sendButton:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.spinner { animation: spin 1s linear infinite; }
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+}
+
+/* ── Usage Indicator ────────────────────────────────────────── */
+.usageIndicator {
+    margin-top: 12px;
+    padding: 0 8px;
+}
+
+.premiumControls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.75rem;
+    color: #64748b;
+    font-weight: 500;
+}
+
+.premiumActions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.modelBtn, .workspaceBtn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: #cbd5e1;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-weight: 500;
+}
+
+.modelBtn:hover, .workspaceBtn:hover {
+    background: rgba(255,255,255,0.1);
+    border-color: rgba(255,255,255,0.2);
+    color: #fff;
+    transform: translateY(-1px);
+}
+
+/* ── Mobile Layout Fixes ── */
+@media (max-width: 768px) {
+    .inputArea {
+        padding: 0.5rem 8px 0 8px;
+    }
+
+    .inputField {
+        padding: 12px 1rem;
+        padding-right: 3rem;
+        min-height: 48px;
+        font-size: 0.9rem;
+    }
+
+    .sendButton {
+        width: 36px;
+        height: 36px;
+        bottom: 5px;
+        right: 4px;
+    }
+
+    .usageIndicator {
+        margin-top: 8px;
+    }
+}

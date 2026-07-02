@@ -1,0 +1,403 @@
+/* ═══════════════════════════════════════════════════════════
+   🔵 MARKDOWN BODY STYLES
+   ═══════════════════════════════════════════════════════════ */
+
+.markdownBody {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.markdownBody > * {
+    animation: markdownFadeIn 0.4s ease-out forwards;
+}
+
+@keyframes markdownFadeIn {
+    0% { opacity: 0; transform: translateY(6px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+
+.mdSpacer {
+    height: 0.5rem;
+}
+
+.mdP {
+    margin: 0 0 0.1rem;
+    line-height: 1.75;
+    color: #cbd5e1;
+}
+
+.mdH1 {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: #ffffff;
+    margin: 1.25rem 0 0.5rem;
+    padding-bottom: 0.4rem;
+    border-bottom: 1px solid rgba(0, 210, 255, 0.15);
+    letter-spacing: -0.3px;
+}
+
+.mdH2 {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #f1f5f9;
+    margin: 1rem 0 0.4rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.mdH2::before {
+    content: '';
+    display: inline-block;
+    width: 3px;
+    height: 1em;
+    background: linear-gradient(180deg, #00d2ff, #3a7bd5);
+    border-radius: 2px;
+    flex-shrink: 0;
+}
+
+.mdH3 {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #00d2ff;
+    margin: 0.75rem 0 0.3rem;
+    letter-spacing: 0.2px;
+}
+
+/* H4 — most common from AI responses, shown as a bold accent label */
+.mdH4 {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #93c5fd;
+    margin: 0.65rem 0 0.25rem;
+    padding-left: 0.5rem;
+    border-left: 2px solid rgba(147, 197, 253, 0.35);
+}
+
+.mdH5 {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #94a3b8;
+    margin: 0.5rem 0 0.2rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.mdH6 {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #64748b;
+    margin: 0.4rem 0 0.15rem;
+}
+
+.mdUl {
+    margin: 0.25rem 0 0.5rem 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+.mdUl li {
+    padding-left: 1.25rem;
+    position: relative;
+    color: #cbd5e1;
+    line-height: 1.65;
+}
+
+.mdUl li::before {
+    content: '•';
+    position: absolute;
+    left: 0;
+    color: #00d2ff;
+    font-weight: 700;
+}
+
+.mdOl {
+    margin: 0.25rem 0 0.5rem 0;
+    padding-left: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+.mdOl li {
+    color: #cbd5e1;
+    line-height: 1.65;
+    padding-left: 0.25rem;
+}
+
+.mdOl li::marker {
+    color: #00d2ff;
+    font-weight: 700;
+}
+
+.mdBlockquote {
+    margin: 0.5rem 0;
+    padding: 0.75rem 1rem;
+    border-left: 3px solid rgba(0, 210, 255, 0.4);
+    background: rgba(0, 210, 255, 0.05);
+    border-radius: 0 8px 8px 0;
+    color: #94a3b8;
+    font-style: italic;
+}
+
+.mdHr {
+    border: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.07);
+    margin: 0.75rem 0;
+}
+
+/* ── Inline Formatting ──────────────────────────────────────── */
+.mdBold {
+    font-weight: 700;
+    color: #ffffff;
+}
+
+.mdItalic {
+    font-style: italic;
+    color: #94a3b8;
+}
+
+.mdInlineCode {
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+    font-size: 0.85em;
+    padding: 0.15em 0.5em;
+    background: rgba(0, 210, 255, 0.08);
+    border: 1px solid rgba(0, 210, 255, 0.15);
+    border-radius: 5px;
+    color: #7dd3fc;
+}
+
+/* ── Code Block ─────────────────────────────────────────────── */
+.codeBlock {
+    position: relative;
+    margin: 0.5rem 0;
+    border-radius: 10px;
+    overflow: hidden;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    max-width: 100%;
+}
+
+.codeLang {
+    display: block;
+    padding: 0.4rem 1rem;
+    background: rgba(255, 255, 255, 0.03);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    font-size: 0.72rem;
+    color: #475569;
+    font-family: monospace;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.codeBlock pre {
+    margin: 0;
+    padding: 1rem;
+    overflow-x: auto;
+}
+
+.codeBlock code {
+    font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+    font-size: 0.85rem;
+    color: #7dd3fc;
+    line-height: 1.6;
+    white-space: pre;
+}
+
+/* ── Markdown Tables ─────────────────────────────────────────── */
+.tableWrapper {
+    width: 100%;
+    overflow-x: auto;
+    margin: 1rem 0;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(11, 15, 25, 0.4);
+}
+
+.mdTable {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+    color: #cbd5e1;
+}
+
+.mdTable th, .mdTable td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    border-left: 1px solid rgba(255, 255, 255, 0.05);
+    text-align: right;
+}
+
+.mdTable th:first-child, .mdTable td:first-child {
+    border-left: none;
+}
+
+.mdTable th {
+    background: rgba(255, 255, 255, 0.03);
+    font-weight: 600;
+    color: #f1f5f9;
+}
+
+.mdTable tr:last-child td {
+    border-bottom: none;
+}
+
+.mdTable tr:hover td {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+/* ── Reasoning Block ─────────────────────────────────────────── */
+.reasoningBlock {
+    margin: 8px 0;
+    border-radius: 6px;
+    background: transparent;
+    overflow: hidden;
+}
+
+.reasoningHeader {
+    display: flex;
+    align-items: center;
+    padding: 6px 10px;
+    cursor: pointer;
+    background: rgba(11, 15, 25, 0.7); /* Very dark gray/slate */
+    color: #64748b; /* Subtle gray text */
+    font-size: 0.8rem;
+    font-weight: 500;
+    user-select: none;
+    transition: all 0.2s ease;
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.02);
+}
+
+.reasoningHeader:hover {
+    background: rgba(11, 15, 25, 1);
+    color: #94a3b8;
+}
+
+.reasoningIcon {
+    margin-right: 8px;
+    color: #64748b;
+}
+
+.reasoningContent {
+    padding: 12px;
+    margin-top: 4px;
+    color: #94a3b8;
+    background: rgba(15, 23, 42, 0.2);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+/* ── Tool Cards (Inline) ─────────────────────────────────────── */
+.mdToolCardWrapper {
+    display: block;
+    width: 100%;
+    max-width: 450px;
+    margin: 12px 0;
+    text-decoration: none;
+}
+
+.mdToolCard {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    border-radius: 12px;
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    transition: all 0.2s ease;
+    text-decoration: none;
+}
+
+.mdToolCard:hover {
+    background: rgba(15, 23, 42, 0.9);
+    border-color: rgba(0, 210, 255, 0.3);
+    transform: translateY(-2px);
+}
+
+.mdToolIconFallback {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    flex-shrink: 0;
+}
+
+.mdToolInfo {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    text-align: start;
+}
+
+.mdToolInfo strong {
+    font-size: 1.05rem;
+    color: #f1f5f9;
+    margin-bottom: 4px;
+    font-weight: 600;
+}
+
+.mdToolBadge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 6px;
+    align-self: flex-start;
+}
+
+.mdToolLink {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 14px;
+    border-radius: 6px;
+    background: linear-gradient(135deg, #00d2ff, #3a7bd5);
+    color: #fff;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: opacity 0.2s;
+    white-space: nowrap;
+}
+
+.mdToolLink:hover {
+    opacity: 0.9;
+    color: #fff;
+}
+
+@media (max-width: 768px) {
+    .mdToolCard {
+        padding: 8px;
+        gap: 8px;
+    }
+    
+    .mdToolIconFallback {
+        width: 36px;
+        height: 36px;
+    }
+    
+    .mdToolInfo strong {
+        font-size: 0.95rem;
+    }
+    
+    .mdToolLink {
+        padding: 6px 10px;
+        font-size: 0.8rem;
+    }
+    
+    .tableWrapper {
+        font-size: 0.8rem;
+    }
+}

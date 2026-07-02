@@ -1,8 +1,8 @@
-﻿import { createClient } from '@supabase/supabase-js';
+import { createClient } from '@supabase/supabase-js';
 
 /**
  * Server-only Supabase Admin Client.
- * Uses the SERVICE_ROLE key ظ¤ bypasses Row-Level Security.
+ * Uses the SERVICE_ROLE key — bypasses Row-Level Security.
  * NEVER import this in client components.
  */
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;

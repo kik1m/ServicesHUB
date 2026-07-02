@@ -25,6 +25,7 @@ export default function DashboardClient() {
         chartData,
         isCreator,
         isPremium,
+        subscriptionTier,
         stats,
         isLoading,
         toolsLoading,
@@ -50,6 +51,7 @@ export default function DashboardClient() {
                 <DashboardStats 
                     isCreator={isCreator} 
                     isPremium={isPremium}
+                    subscriptionTier={subscriptionTier}
                     stats={stats}
                     isLoading={toolsLoading || favoritesLoading}
                     content={DASHBOARD_CONSTANTS?.stats}

@@ -1,4 +1,4 @@
-﻿import { NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '../../../../lib/supabaseAdmin';
 
 export const dynamic = 'force-dynamic';
@@ -34,13 +34,13 @@ export async function GET(request) {
             .select('visitor_id, page_path, country');
 
         if (dbError) {
-            console.error('ظإî [Admin Analytics DB Error]:', dbError.message);
+            console.error('❌ [Admin Analytics DB Error]:', dbError.message);
             return NextResponse.json({ error: dbError.message }, { status: 500 });
         }
 
         return NextResponse.json(allData || []);
     } catch (err) {
-        console.error('ظإî [Admin Analytics Route Error]:', err.message);
+        console.error('❌ [Admin Analytics Route Error]:', err.message);
         return NextResponse.json({ error: err.message }, { status: 500 });
     }
 }

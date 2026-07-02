@@ -41,13 +41,13 @@ const Select = ({
     const getDisplayLabel = () => {
         if (isMulti) {
             const selectedOptions = options.filter(opt => 
-                Array.isArray(activeValue) && activeValue.includes(opt.value || opt.id)
+                Array.isArray(activeValue) && activeValue.includes(opt.value !== undefined ? opt.value : opt.id)
             );
             if (selectedOptions.length === 0) return <span className={styles.placeholder}>{placeholder}</span>;
             return (
                 <div className={styles.multiValueBox}>
                     {selectedOptions.map(opt => (
-                        <span key={opt.value || opt.id} className={styles.chip}>
+                        <span key={opt.value !== undefined ? opt.value : opt.id} className={styles.chip}>
                             {opt.label || opt.name}
                         </span>
                     ))}
@@ -55,7 +55,7 @@ const Select = ({
             );
         }
 
-        const selected = options.find(opt => (opt.value || opt.id) === activeValue);
+        const selected = options.find(opt => (opt.value !== undefined ? opt.value : opt.id) === activeValue);
         return selected ? (selected.label || selected.name) : <span className={styles.placeholder}>{placeholder}</span>;
     };
 
@@ -120,7 +120,7 @@ const Select = ({
             case 'Enter':
                 e.preventDefault();
                 if (focusedIndex >= 0 && filteredOptions[focusedIndex]) {
-                    toggleOption(filteredOptions[focusedIndex].value || filteredOptions[focusedIndex].id);
+                    toggleOption(filteredOptions[focusedIndex].value !== undefined ? filteredOptions[focusedIndex].value : filteredOptions[focusedIndex].id);
                 }
                 break;
             case 'Escape':
@@ -179,7 +179,7 @@ const Select = ({
                 <div className={styles.optionsList} role="listbox" aria-label={`${ariaLabel || label || name || placeholder} options`}>
                     {filteredOptions.length > 0 ? (
                         filteredOptions.map((opt, index) => {
-                            const optVal = opt.value || opt.id;
+                            const optVal = opt.value !== undefined ? opt.value : opt.id;
                             const isSelected = isMulti 
                                 ? activeValue?.includes(optVal)
                                 : activeValue === optVal;

@@ -4,8 +4,8 @@ import { toolsService } from '../../../services/toolsService';
 import { profilesService } from '../../../services/profilesService';
 import ToolDetailClient from './ToolDetailClient';
 
-// Rule #2: ISR Revalidation
-export const revalidate = 3600; // Revalidate every hour
+// Rule #2: ISR Revalidation - 60s ensures data changes propagate to production quickly
+export const revalidate = 60; // Revalidate every 60 seconds
 
 // 1. Static Generation for Elite Performance
 export async function generateStaticParams() {

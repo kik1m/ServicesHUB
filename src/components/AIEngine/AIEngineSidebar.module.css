@@ -1,0 +1,297 @@
+                                                                                                                        .sidebar {
+    width: 280px;
+    min-width: 280px;
+    max-width: 280px;
+    flex-shrink: 0;
+    background: transparent;
+    border-right: 1px solid rgba(255, 255, 255, 0.05);
+    display: flex;
+    flex-direction: column;
+    padding: 21px 13px;
+    height: 100%;
+}
+
+.sidebarHeaderRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 34px;
+    padding: 0 8px;
+}
+
+.sidebarHeader {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 0;
+}
+
+.sparkleIcon {
+    filter: drop-shadow(0 0 8px rgba(0, 210, 255, 0.5));
+}
+
+.sidebarHeader h2 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin: 0;
+    background: linear-gradient(135deg, #fff 0%, #a5b4fc 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: 0.5px;
+}
+
+.backButton {
+    padding: 8px;
+    color: #94a3b8;
+}
+
+.newSessionBtn {
+    width: calc(100% - 16px);
+    margin: 0 8px 34px 8px;
+    justify-content: center;
+    border-radius: 13px;
+    padding: 13px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px dashed rgba(255, 255, 255, 0.2) !important;
+    transition: all 0.3s ease !important;
+}
+
+.newSessionBtn:hover {
+    background: rgba(0, 210, 255, 0.1) !important;
+    border-color: rgba(0, 210, 255, 0.4) !important;
+    box-shadow: 0 0 15px rgba(0, 210, 255, 0.1) !important;
+}
+
+.historySection {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    margin-right: -8px;
+    padding-right: 8px;
+}
+
+.historySection::-webkit-scrollbar { width: 4px; }
+.historySection::-webkit-scrollbar-track { background: transparent; }
+.historySection::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+}
+
+.historySection h3 {
+    font-size: 0.8rem;
+    color: #475569;
+    margin: 0 0 21px 8px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.618px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.searchContainer {
+    display: flex;
+    align-items: center;
+    background: rgba(255,255,255,0.03);
+    border-radius: 13px;
+    padding: 8px 13px;
+    margin: 0 8px 21px 8px;
+    border: 1px solid rgba(255,255,255,0.08);
+}
+
+.searchIcon {
+    color: #aaa;
+    margin-right: 8px;
+}
+
+.searchInput {
+    background: transparent;
+    border: none;
+    color: #fff;
+    outline: none;
+    width: 100%;
+    font-size: 14px;
+}
+
+.emptyHistory {
+    text-align: center;
+    color: #64748b;
+    font-size: 0.9rem;
+    padding: 2rem 1rem;
+    line-height: 1.5;
+}
+
+.emptyHistoryIcon {
+    opacity: 0.3;
+    margin-bottom: 1rem;
+}
+
+.sessionsLoadingList {
+    display: flex;
+    flex-direction: column;
+}
+
+.skeletonItem {
+    margin-bottom: 0.5rem;
+}
+
+.sessionsList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.sessionItem {
+    padding: 13px;
+    border-radius: 13px;
+    margin: 0 8px 8px 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.sessionItem:hover {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.sessionItemActive {
+    background: rgba(0, 210, 255, 0.08) !important;
+    border-color: rgba(0, 210, 255, 0.2) !important;
+    box-shadow: 0 4px 12px rgba(0, 210, 255, 0.05);
+}
+
+.sessionItemActive .sessionTitle {
+    color: #fff !important;
+}
+
+.sessionContent {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    gap: 12px;
+}
+
+.sessionToolIcons {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(0, 0, 0, 0.2);
+    padding: 4px 6px;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.05);
+}
+
+.sessionToolImg {
+    border-radius: 4px;
+}
+
+.sessionToolFallback {
+    width: 20px;
+    height: 20px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #94a3b8;
+}
+
+.sessionVs {
+    font-size: 0.65rem;
+    color: #64748b;
+    font-weight: 800;
+}
+
+.sessionInfo {
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.sessionTitle {
+    color: #cbd5e1;
+    font-size: 0.9rem;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: color 0.2s;
+}
+
+.sessionDate {
+    color: #64748b;
+    font-size: 0.75rem;
+    margin-top: 2px;
+}
+
+.sessionActions {
+    display: flex;
+    gap: 8px;
+    opacity: 0.4;
+    transition: opacity 0.2s;
+    padding-left: 4px;
+}
+
+.sessionItem:hover .sessionActions {
+    opacity: 1;
+}
+
+.actionBtn {
+    background: none;
+    border: none;
+    color: #aaa;
+    cursor: pointer;
+    padding: 0;
+}
+
+.actionBtn:hover {
+    color: #fff;
+}
+
+.deleteBtn {
+    color: #ff6b6b;
+}
+
+.deleteBtn:hover {
+    color: #ff4c4c;
+}
+
+.brandWatermark {
+    padding: 21px 13px 21px 55px;
+    text-align: left;
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: rgba(255, 255, 255, 0.1);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-top: 13px;
+}
+
+@media (max-width: 1024px) {
+    .sidebar {
+        position: fixed;
+        top: 0;
+        left: -100%;
+        bottom: 0;
+        z-index: 1000;
+        background: #1a1a1a;
+        transition: left 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+        box-shadow: 5px 0 25px rgba(0, 0, 0, 0.5);
+    }
+    
+    .sidebarOpen {
+        left: 0;
+    }
+}

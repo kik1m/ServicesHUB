@@ -4,8 +4,8 @@
  */
 export const PREMIUM_UI_CONSTANTS = {
     seo: {
-        title: "Go Premium | Unlock Elite AI Features on ServicesHUB",
-        description: "Upgrade to ServicesHUB Premium to showcase your tools with elite badges, priority support, and exclusive directory features."
+        title: "Go Premium | Unlock Elite AI Features on HUBly",
+        description: "Upgrade to HUBly Premium to showcase your tools with elite badges, priority support, and exclusive directory features."
     },
     hero: {
         title: "Join the Elite",
@@ -18,22 +18,57 @@ export const PREMIUM_UI_CONSTANTS = {
             { label: 'Premium' }
         ]
     },
-    pricing: {
-        planName: "Prime Member",
-        price: "99",
-        period: "/one-time",
-        features: [
-            "Elite Verified Badge",
-            "Priority Tool Approval",
-            "Advanced Profile Analytics",
-            "Unlimited Tool Submissions",
-            "Exclusive 'Prime' Community Access"
-        ],
-        buttonText: "Upgrade Now",
-        buttonLoading: "Preparing Checkout...",
-        guarantee: "Safe & Secure Checkout via Lemon Squeezy",
-        variantId: "1597126"
-    },
+    plans: [
+        {
+            id: 'free',
+            planName: "Basic Member",
+            price: "0",
+            period: "/forever",
+            features: [
+                "Standard Directory Access",
+                "10 AI Messages / 12 Hours",
+                "Gemini Flash 2.5 Model",
+                "Standard Support"
+            ],
+            buttonText: "Current Plan",
+            variantId: null
+        },
+        {
+            id: 'pro',
+            planName: "Pro Tier",
+            price: "19.9",
+            period: "/month",
+            features: [
+                "Elite Verified Badge",
+                "Fast Tool Approval",
+                "120 AI Messages / 6 Hours",
+                "GPT-4o & Claude Access",
+                "Priority Support"
+            ],
+            buttonText: "Upgrade to Pro",
+            buttonLoading: "Preparing Checkout...",
+            guarantee: "Secure Checkout",
+            variantId: "1714775",
+            isRecommended: true
+        },
+        {
+            id: 'elite',
+            planName: "Elite Tier",
+            price: "69",
+            period: "/month",
+            features: [
+                "All Pro Features",
+                "Instant Tool Approval",
+                "500 AI Messages / 6 Hours",
+                "Priority Model Access (O1, Opus)",
+                "24/7 Dedicated Support"
+            ],
+            buttonText: "Upgrade to Elite",
+            buttonLoading: "Preparing Checkout...",
+            guarantee: "Secure Checkout",
+            variantId: "1714789"
+        }
+    ],
     faq: {
         title: "Common",
         highlight: "Questions",
@@ -43,12 +78,12 @@ export const PREMIUM_UI_CONSTANTS = {
                 a: "A professional badge that appears on your profile and next to your published tools, signaling trust to the community."
             },
             {
-                q: "Is this a monthly subscription?",
-                a: "No. This is a one-time payment for lifetime access to all current and future Premium features."
+                q: "How does the AI Quota work?",
+                a: "Your AI message limit resets automatically every 6 hours for Pro/Elite users (12 hours for Free). If you exceed the limit, you will be paused until the next cycle to ensure fair usage."
             },
             {
-                q: "How fast is priority approval?",
-                a: "Premium submissions are reviewed within 24 hours, compared to the standard 3-5 days."
+                q: "Which AI models are included?",
+                a: "Free users have access to Gemini Flash. Pro and Elite users unlock premium models like Claude Sonnet 4.6 and GPT-4o, with Elite getting priority processing."
             }
         ]
     },
@@ -60,8 +95,10 @@ export const PREMIUM_UI_CONSTANTS = {
         title: "Trusted by thousands of makers",
         badges: {
             secure: "Secure Payments",
+            compliance: "PCI-DSS Compliant",
             growth: "Instant Visibility",
             support: "Elite Support"
         }
     }
 };
+
