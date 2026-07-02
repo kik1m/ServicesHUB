@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { Twitter, Facebook, Linkedin, ExternalLink, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import Skeleton from '../ui/Skeleton';
@@ -65,7 +65,7 @@ const BlogPostContent = ({ post, isLoading, error, onRetry, readingTime }) => {
     const shareUrl = typeof window !== 'undefined' ? window.location.href : '';
 
     /**
-     * 🧠 Elite Content Parser (v3.0)
+     * ≡ادب Elite Content Parser (v3.0)
      * Rule #12: Transform shortcodes into rich UI components
      */
     const renderContent = () => {
@@ -97,7 +97,7 @@ const BlogPostContent = ({ post, isLoading, error, onRetry, readingTime }) => {
                                     {toolData?.rating > 0 && (
                                         <div className={styles.toolRating}>
                                             <span className={styles.ratingValue}>{toolData.rating}</span>
-                                            <span className={styles.starIcon}>★</span>
+                                            <span className={styles.starIcon}>ظءà</span>
                                         </div>
                                     )}
                                 </div>
@@ -161,7 +161,7 @@ const BlogPostContent = ({ post, isLoading, error, onRetry, readingTime }) => {
                 );
             }
 
-            return <div key={index} dangerouslySetInnerHTML={{ __html: part }} />;
+            return <div key={index} className="blog-prose" dangerouslySetInnerHTML={{ __html: part }} />;
         });
     };
     
@@ -178,7 +178,7 @@ const BlogPostContent = ({ post, isLoading, error, onRetry, readingTime }) => {
                         <span className={styles.readingTime}>{readingTime || 3} min read</span>
                     </div>
 
-                    <div className={styles.proseContent}>
+                    <div className="blog-prose">
                         {renderContent()}
                     </div>
 
