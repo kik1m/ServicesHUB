@@ -1,11 +1,11 @@
-import { NextResponse } from 'next/server';
+﻿import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { GoogleGenAI } from '@google/genai';
 import { generateAISeo } from '../utils/seoGenerator';
 
 // Initialize Supabase Client
-const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY;
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY;
 
 if (!supabaseUrl || !supabaseKey) {
     throw new Error('Missing Supabase Environment Variables');
@@ -18,8 +18,9 @@ export async function GET(request) {
     const slug1 = searchParams.get('slug1');
     const slug2 = searchParams.get('slug2');
     const userId = searchParams.get('userId');
+    const intentQuery = searchParams.get('intentQuery');
 
-    console.log(`[AI-API] Request received for: ${slug1} vs ${slug2}`);
+    console.log(`[AI-API] Request received for: ${slug1} vs ${slug2} | Intent: ${intentQuery || 'None'}`);
 
     if (!slug1 || !slug2) {
         return NextResponse.json({ error: 'Both slug1 and slug2 are required.' }, { status: 400 });
@@ -33,7 +34,7 @@ export async function GET(request) {
         let isPremium = false;
         let profileData = null;
 
-        // --- 🛡️ ELITE USER QUOTA PROTECTION ---
+        // --- ≡اؤةي╕ ELITE USER QUOTA PROTECTION ---
         if (userId) {
             const { data: profile } = await supabase.from('profiles').select('*').eq('id', userId).single();
             if (profile) {
@@ -74,16 +75,17 @@ export async function GET(request) {
         const idA = toolA.id;
         const idB = toolB.id;
 
-        // 2. Check DB cache FIRST
-        const { data: cachedComparison } = await supabase
-            .from('tool_comparisons')
-            .select('tool1_id, tool2_id, ai_report_json')
-            .or(`and(tool1_id.eq.${idA},tool2_id.eq.${idB}),and(tool1_id.eq.${idB},tool2_id.eq.${idA})`)
-            .maybeSingle();
+        // 2. Check DB cache FIRST (Only if no custom intent is provided)
+        if (!intentQuery) {
+            const { data: cachedComparison } = await supabase
+                .from('tool_comparisons')
+                .select('tool1_id, tool2_id, ai_report_json')
+                .or(`and(tool1_id.eq.${idA},tool2_id.eq.${idB}),and(tool1_id.eq.${idB},tool2_id.eq.${idA})`)
+                .maybeSingle();
 
-        if (cachedComparison && cachedComparison.ai_report_json) {
+            if (cachedComparison && cachedComparison.ai_report_json) {
             let report = cachedComparison.ai_report_json;
-            console.log(`⚡ Serving cached comparison for ${slug1} vs ${slug2}`);
+            console.log(`ظأة Serving cached comparison for ${slug1} vs ${slug2}`);
 
             if (cachedComparison.tool1_id === idB) {
                 // Swap logic for consistent output
@@ -120,10 +122,15 @@ export async function GET(request) {
 
             return NextResponse.json({ data: report, source: 'cache' });
         }
+        } // End of intentQuery cache check
 
-        // 3. No cache found - Generate with AI
+        // 3. No cache found or Custom Intent - Generate with AI
+        const promptContext = intentQuery 
+            ? `The user has a VERY SPECIFIC context/task: "${intentQuery}". You MUST tailor your ENTIRE analysisظ¤verdict, scores, why_buy, and matrix insightsظ¤explicitly to determine which tool is best for this exact scenario. Do not give a generic comparison.` 
+            : `Analyze these tools deeply in a general, objective manner.`;
+
         const prompt = `
-        You are an elite AI SaaS consultant. Analyze these tools deeply:
+        You are an elite AI SaaS consultant. ${promptContext}
         
         TOOL 1: ${toolA.name}
         Description: ${toolA.description}
@@ -182,16 +189,16 @@ export async function GET(request) {
             for (const currentModel of targetModels) {
                 try {
                     const ai = new GoogleGenAI({ apiKey: currentKey });
-                    const model = ai.getGenerativeModel({ model: currentModel });
-                    const result = await model.generateContent({
+                    const response = await ai.models.generateContent({
+                        model: currentModel,
                         contents: [{ role: 'user', parts: [{ text: prompt }] }],
-                        generationConfig: { 
+                        config: { 
                             responseMimeType: "application/json",
                             temperature: 0.2
                         }
                     });
 
-                    const responseText = result.response?.candidates?.[0]?.content?.parts?.[0]?.text || "";
+                    const responseText = response.candidates?.[0]?.content?.parts?.[0]?.text || "";
                     if (!responseText) throw new Error('EMPTY_AI_RESPONSE');
 
                     aiReport = JSON.parse(responseText);
@@ -200,34 +207,88 @@ export async function GET(request) {
 
                 } catch (err) {
                     lastError = err;
-                    console.warn(`  ⚠️ Attempt failed with key ${k+1} / model ${currentModel}:`, err.message);
+                    console.warn(`  ظأبي╕ Attempt failed with key ${k+1} / model ${currentModel}:`, err.message);
                     continue; 
                 }
             }
             if (keySuccess) break; 
         }
 
+        // --- ≡اî OPENROUTER FALLBACK ENGINE ---
+        if (!aiReport && process.env.OPENROUTER_API_KEY) {
+            console.warn(`[AI-API] All Gemini keys exhausted. Falling back to OpenRouter (google/gemini-2.5-flash)`);
+            try {
+                const orResponse = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        model: 'google/gemini-2.5-flash',
+                        messages: [{ role: 'user', content: prompt }]
+                    })
+                });
+                if (orResponse.ok) {
+                    const orData = await orResponse.json();
+                    let responseText = orData.choices[0]?.message?.content || "";
+                    const startIdx = responseText.indexOf('{');
+                    const endIdx = responseText.lastIndexOf('}');
+                    if (startIdx !== -1 && endIdx !== -1) {
+                        aiReport = JSON.parse(responseText.substring(startIdx, endIdx + 1));
+                        console.log(`  ظ£à Comparison Analysis successful with OpenRouter fallback`);
+                    }
+                } else {
+                    console.error('[AI-API] OpenRouter fallback HTTP error', await orResponse.text());
+                }
+            } catch (e) {
+                console.error('[AI-API] OpenRouter fallback failed', e);
+            }
+        }
+
         if (!aiReport) throw lastError || new Error('AI_GENERATION_FAILED');
 
-        // Background SEO Generation (Don't wait)
-        try {
-            generateAISeo(`${slug1}-vs-${slug2}`, {
-                tool1: toolA,
-                tool2: toolB,
-                verdict: aiReport.verdict.winner,
-                strategic_overview: aiReport.strategic_overview
-            }, 'comparison');
-        } catch (seoErr) {
-            console.warn(`⚠️ SEO Error:`, seoErr.message);
+        // Background SEO Generation (Only for generic comparisons)
+        if (!intentQuery) {
+            try {
+                generateAISeo(`${slug1}-vs-${slug2}`, {
+                    tool1: toolA,
+                    tool2: toolB,
+                    verdict: aiReport.verdict.winner,
+                    strategic_overview: aiReport.strategic_overview
+                }, 'comparison');
+            } catch (seoErr) {
+                console.warn(`ظأبي╕ SEO Error:`, seoErr.message);
+            }
         }
 
         // Cache and Usage Update logic...
         const sortedIds = [idA, idB].sort();
-        await supabase.from('tool_comparisons').upsert({
-            tool1_id: sortedIds[0],
-            tool2_id: sortedIds[1],
-            ai_report_json: aiReport
-        }, { onConflict: 'tool1_id,tool2_id' });
+        
+        if (!intentQuery) {
+            // Standard cache
+            await supabase.from('tool_comparisons').upsert({
+                tool1_id: sortedIds[0],
+                tool2_id: sortedIds[1],
+                ai_report_json: aiReport
+            }, { onConflict: 'tool1_id,tool2_id' });
+        } else {
+            // Save to custom_comparisons
+            try {
+                const { data: customRecord } = await supabase.from('custom_comparisons').insert({
+                    tool1_id: idA,
+                    tool2_id: idB,
+                    user_query: intentQuery,
+                    ai_report_json: aiReport
+                }).select('id').single();
+                
+                if (customRecord) {
+                    aiReport.custom_id = customRecord.id;
+                }
+            } catch (err) {
+                console.warn("Failed to save custom comparison (table might not exist yet):", err.message);
+            }
+        }
 
         if (userId && !isPremium) {
             const now = new Date();
@@ -241,7 +302,7 @@ export async function GET(request) {
         return NextResponse.json({ data: aiReport, source: 'ai' });
 
     } catch (error) {
-        console.error('❌ Comparison Error:', error);
+        console.error('ظإî Comparison Error:', error);
         return NextResponse.json({ error: error.message || 'Comparison failed' }, { status: 500 });
     }
 }

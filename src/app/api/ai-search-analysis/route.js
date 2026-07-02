@@ -1,9 +1,9 @@
-import { NextResponse } from 'next/server';
+﻿import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { GoogleGenAI } from '@google/genai';
 
 // Initialize Supabase Client
-const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL;
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 if (!supabaseUrl || !supabaseKey) {
@@ -59,7 +59,7 @@ export async function POST(req) {
 
         // 3. AI SEMANTIC ANALYSIS (Multi-Key Resilience)
         const prompt = `
-        You are the Elite AI Curator for ServicesHUB. 
+        You are the Elite AI Curator for HUBly. 
         USER REQUEST: "${query}"
 
         TOOLS DATABASE:
@@ -77,7 +77,7 @@ export async function POST(req) {
         }
         `;
 
-        // --- 🛡️ ROBUST KEY ROTATION ENGINE ---
+        // --- ≡اؤةي╕ ROBUST KEY ROTATION ENGINE ---
         const rawKeys = process.env.GEMINI_API_KEY || '';
         const apiKeys = rawKeys.split(',').map(k => k.trim()).filter(k => k.startsWith('AIza'));
         
@@ -85,7 +85,7 @@ export async function POST(req) {
         let lastError = null;
         const targetModels = ['gemini-2.5-flash', 'gemini-flash-latest', 'gemini-2.0-flash'];
         
-        // --- 🚀 ULTRA-ELITE LOAD BALANCER ---
+        // --- ≡اأ ULTRA-ELITE LOAD BALANCER ---
         const startIndex = Math.floor(Math.random() * apiKeys.length);
 
         for (let i = 0; i < apiKeys.length; i++) {
@@ -105,7 +105,7 @@ export async function POST(req) {
                         }
                     });
 
-                    // --- 🛡️ HARDENED EXTRACTION LAYER ---
+                    // --- ≡اؤةي╕ HARDENED EXTRACTION LAYER ---
                     let responseText = "";
                     try {
                         responseText = typeof result.text === 'function' ? result.text() : 
@@ -121,7 +121,7 @@ export async function POST(req) {
                     if (startIdx === -1 || endIdx === -1) throw new Error('NO_JSON_FOUND');
 
                     analysis = JSON.parse(responseText.substring(startIdx, endIdx + 1));
-                    console.log(`  ✅ Search Analysis successful with ${currentModel} (Key ${k + 1})`);
+                    console.log(`  ظ£à Search Analysis successful with ${currentModel} (Key ${k + 1})`);
                     keySuccess = true;
                     break; // Success! Break model loop.
                 } catch (err) {
@@ -131,11 +131,11 @@ export async function POST(req) {
                     const isBusy = errStr.includes('503') || errStr.includes('UNAVAILABLE') || errStr.includes('500');
 
                     if (isQuota) {
-                        console.warn(`  ⚠️ Search Key ${k + 1} Quota Exhausted. Switching Key immediately...`);
+                        console.warn(`  ظأبي╕ Search Key ${k + 1} Quota Exhausted. Switching Key immediately...`);
                         break; // Circuit Breaker: Key is dead. Break model loop, go to NEXT KEY.
                     }
                     if (isBusy) {
-                        console.warn(`  ⚠️ Model ${currentModel} Busy. Trying next model on same key...`);
+                        console.warn(`  ظأبي╕ Model ${currentModel} Busy. Trying next model on same key...`);
                         continue; // Model busy. Try next model on SAME KEY.
                     }
                     
@@ -145,6 +145,38 @@ export async function POST(req) {
 
             if (keySuccess) break; // If we got a result, break the key loop
             if (i < apiKeys.length - 1) await new Promise(r => setTimeout(r, 800)); // Small pause before next key
+        }
+
+        // --- ≡اî OPENROUTER FALLBACK ENGINE ---
+        if (!analysis && process.env.OPENROUTER_API_KEY) {
+            console.warn(`[AI-Search-API] All Gemini keys exhausted. Falling back to OpenRouter (google/gemini-2.5-flash)`);
+            try {
+                const orResponse = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        model: 'google/gemini-2.5-flash',
+                        messages: [{ role: 'user', content: prompt }]
+                    })
+                });
+                if (orResponse.ok) {
+                    const orData = await orResponse.json();
+                    let responseText = orData.choices[0]?.message?.content || "";
+                    const startIdx = responseText.indexOf('{');
+                    const endIdx = responseText.lastIndexOf('}');
+                    if (startIdx !== -1 && endIdx !== -1) {
+                        analysis = JSON.parse(responseText.substring(startIdx, endIdx + 1));
+                        console.log(`  ظ£à Search Analysis successful with OpenRouter fallback`);
+                    }
+                } else {
+                    console.error('[AI-Search-API] OpenRouter fallback HTTP error', await orResponse.text());
+                }
+            } catch (e) {
+                console.error('[AI-Search-API] OpenRouter fallback failed', e);
+            }
         }
 
         if (!analysis) throw lastError || new Error('AI_GENERATION_FAILED');
