@@ -613,3 +613,179 @@ html[data-page='ai-engine'] .content {
   max-height: 100vh !important;
   overflow: hidden !important;
 }
+
+/* ==========================================================================
+   BLOG PROSE TYPOGRAPHY (GLOBAL SELECTORS FOR INJECTED HTML)
+   ========================================================================== */
+.blog-prose {
+  color: var(--text-light, rgba(220, 225, 235, 0.85));
+  line-height: 1.8;
+  font-size: 1.15rem;
+}
+
+.blog-prose h1 {
+  font-size: 2.6rem;
+  color: white;
+  margin: 0 0 1.5rem;
+  font-weight: 900;
+  letter-spacing: -1.5px;
+  line-height: 1.2;
+}
+
+.blog-prose h2 {
+  font-size: 2rem;
+  color: white;
+  margin: 3.5rem 0 1.2rem;
+  font-weight: 800;
+  letter-spacing: -0.8px;
+  line-height: 1.3;
+  padding-bottom: 0.6rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.blog-prose h2:first-child {
+  margin-top: 0;
+}
+
+.blog-prose h3 {
+  font-size: 1.5rem;
+  color: white;
+  margin: 2.5rem 0 1rem;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.blog-prose h4 {
+  font-size: 1.2rem;
+  color: white;
+  margin: 2rem 0 0.8rem;
+  font-weight: 700;
+}
+
+.blog-prose p {
+  margin-bottom: 1.6rem;
+  color: rgba(220, 225, 235, 0.85);
+}
+
+.blog-prose p:last-child {
+  margin-bottom: 0;
+}
+
+.blog-prose ul, .blog-prose ol {
+  margin-bottom: 2rem;
+  padding-left: 2rem;
+}
+
+.blog-prose ul {
+  list-style-type: disc;
+}
+
+.blog-prose ol {
+  list-style-type: decimal;
+}
+
+.blog-prose li {
+  margin-bottom: 0.7rem;
+  color: rgba(220, 225, 235, 0.85);
+  line-height: 1.7;
+}
+
+.blog-prose li::marker {
+  color: var(--primary, #00d2ff);
+}
+
+.blog-prose strong, .blog-prose b {
+  color: white;
+  font-weight: 700;
+}
+
+.blog-prose em, .blog-prose i {
+  color: rgba(220, 225, 235, 0.9);
+  font-style: italic;
+}
+
+.blog-prose a {
+  color: var(--primary, #00d2ff);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  transition: 0.3s;
+}
+
+.blog-prose a:hover {
+  color: white;
+}
+
+.blog-prose blockquote {
+  margin: 2.5rem 0;
+  padding: 1.5rem 2rem;
+  border-left: 4px solid var(--primary, #00d2ff);
+  background: rgba(0, 210, 255, 0.05);
+  border-radius: 0 16px 16px 0;
+  color: rgba(220, 225, 235, 0.9);
+  font-style: italic;
+  font-size: 1.1rem;
+}
+
+.blog-prose hr {
+  border: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  margin: 3rem 0;
+}
+
+.blog-prose code {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  padding: 2px 8px;
+  font-size: 0.9em;
+  color: var(--primary, #00d2ff);
+  font-family: 'Fira Code', 'Courier New', monospace;
+}
+
+.blog-prose pre {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 1.5rem 2rem;
+  overflow-x: auto;
+  margin: 2rem 0;
+}
+
+.blog-prose pre code {
+  background: transparent;
+  border: none;
+  padding: 0;
+  color: rgba(220, 225, 235, 0.9);
+}
+
+.blog-prose table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 2rem 0;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.blog-prose table th {
+  background: rgba(0, 210, 255, 0.1);
+  color: white;
+  font-weight: 700;
+  padding: 1rem 1.5rem;
+  text-align: left;
+  border-bottom: 1px solid rgba(0, 210, 255, 0.2);
+}
+
+.blog-prose table td {
+  padding: 0.9rem 1.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  color: rgba(220, 225, 235, 0.85);
+}
+
+.blog-prose table tr:last-child td {
+  border-bottom: none;
+}
+
+.blog-prose table tr:hover td {
+  background: rgba(255, 255, 255, 0.02);
+}
+

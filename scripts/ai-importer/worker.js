@@ -33,7 +33,7 @@ const processJob = async (job) => {
                 command = `node scripts/ai-importer/fixSingleSeo.js "${job.payload.url || job.payload.target}"`;
                 break;
             case 'FORMAT_BLOG':
-                command = `echo "Blog formatting script not yet implemented. Received URL: ${job.payload.url}"`;
+                command = `node scripts/format-blog.cjs "${job.payload.url || job.payload.target}"`;
                 break;
             default:
                 command = `echo "Unknown job type: ${job.job_type}"`;

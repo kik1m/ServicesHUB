@@ -161,7 +161,7 @@ const BlogPostContent = ({ post, isLoading, error, onRetry, readingTime }) => {
                 );
             }
 
-            return <div key={index} dangerouslySetInnerHTML={{ __html: part }} />;
+            return <div key={index} className="blog-prose" dangerouslySetInnerHTML={{ __html: part }} />;
         });
     };
     
@@ -178,7 +178,7 @@ const BlogPostContent = ({ post, isLoading, error, onRetry, readingTime }) => {
                         <span className={styles.readingTime}>{readingTime || 3} min read</span>
                     </div>
 
-                    <div className={styles.proseContent}>
+                    <div className="blog-prose">
                         {renderContent()}
                     </div>
 

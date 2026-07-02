@@ -20,12 +20,23 @@ const AdminAnalytics = () => {
     try {
       setStats(prev => ({ ...prev, loading: true }));
 
-      // 1. Fetch data
-      const { data: allData, error: allError } = await supabase
-        .from('analytics')
-        .select('visitor_id, page_path, country');
+      // 1. Get session token for authentication
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
 
-      if (allError) throw allError;
+      // 2. Fetch data from secure server route
+      const res = await fetch('/api/admin/analytics', {
+        headers: {
+          'Authorization': `Bearer ${token || ''}`
+        }
+      });
+
+      if (!res.ok) {
+        const errData = await res.json();
+        throw new Error(errData.error || 'Failed to fetch analytics');
+      }
+
+      const allData = await res.json();
 
       if (!allData || allData.length === 0) {
         setStats({
