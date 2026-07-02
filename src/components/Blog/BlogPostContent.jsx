@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { Twitter, Facebook, Linkedin, ExternalLink, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import Skeleton from '../ui/Skeleton';
@@ -65,7 +65,7 @@ const BlogPostContent = ({ post, isLoading, error, onRetry, readingTime }) => {
     const shareUrl = typeof window !== 'undefined' ? window.location.href : '';
 
     /**
-     * ≡ادب Elite Content Parser (v3.0)
+     * 🧠 Elite Content Parser (v3.0)
      * Rule #12: Transform shortcodes into rich UI components
      */
     const renderContent = () => {
@@ -97,7 +97,7 @@ const BlogPostContent = ({ post, isLoading, error, onRetry, readingTime }) => {
                                     {toolData?.rating > 0 && (
                                         <div className={styles.toolRating}>
                                             <span className={styles.ratingValue}>{toolData.rating}</span>
-                                            <span className={styles.starIcon}>ظءà</span>
+                                            <span className={styles.starIcon}>★</span>
                                         </div>
                                     )}
                                 </div>
