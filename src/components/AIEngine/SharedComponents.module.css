@@ -1,0 +1,105 @@
+.wrapper {
+  background: rgba(15, 23, 42, 0.3);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: var(--hub-radius);
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+  font-family: 'Inter', system-ui, sans-serif;
+  color: var(--hub-text);
+  margin: 16px 0;
+}
+
+.header {
+  padding: 14px 18px;
+  background: rgba(255,255,255,0.02);
+  border-bottom: 1px solid var(--hub-border);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.icon {
+  font-size: 1.1rem;
+}
+
+.title {
+  font-weight: 800;
+  font-size: 0.95rem;
+  letter-spacing: 0.2px;
+  color: #f1f5f9;
+  flex: 1;
+}
+
+.badge {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 3px 8px;
+  border-radius: 99px;
+  font-weight: 800;
+  background: var(--hub-border);
+}
+
+.body {
+  padding: 18px;
+}
+
+.rawFallback {
+  margin: 16px 0;
+  border: 1px dashed var(--hub-red);
+  background: var(--hub-red-bg);
+  border-radius: var(--hub-radius);
+  padding: 16px;
+  font-family: monospace;
+  font-size: 0.85rem;
+  overflow-x: auto;
+  position: relative;
+}
+
+.rawFallbackTitle {
+  color: var(--hub-red);
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 0.85rem;
+  font-weight: 500;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.svgFrameWrapper {
+  width: 100%;
+  overflow-x: auto;
+  margin: 16px 0;
+  padding: 1rem;
+  box-sizing: border-box;
+}
+
+.svgFrameContainer {
+  width: 100%;
+  display: block;
+}
+
+.iframeFrameContainer {
+  overflow: hidden;
+  margin: 16px 0;
+}
+
+.iframeFrame {
+  width: 100%;
+  border: none;
+  display: block;
+  transition: height 0.2s ease-in-out;
+}
+
+.loadingBody {
+  opacity: 0.7;
+  padding: 1rem;
+}
+
+.largePaddingBody {
+  padding: 1.25rem;
+}
+
+

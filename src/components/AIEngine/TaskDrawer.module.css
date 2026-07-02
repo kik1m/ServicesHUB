@@ -1,0 +1,286 @@
+/* ── TaskDrawer ──────────────────────────────────────────────────────────── */
+.backdrop {
+    position: fixed;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    background: rgba(4, 8, 16, 0.8);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 9999;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    animation: fadeInBackdrop 0.3s ease-out forwards;
+}
+
+.backdropMobile {
+    justify-content: flex-end;
+    align-items: flex-end;
+}
+
+@keyframes fadeInBackdrop {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+.panel {
+    width: 480px;
+    height: 100%;
+    background: #0d1117;
+    border-right: 1px solid rgba(255, 255, 255, 0.07);
+    padding: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    box-shadow: -10px 0 30px rgba(0, 0, 0, 0.5);
+    animation: slideInLeft 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    overflow-y: auto;
+}
+
+.panelMobile {
+    width: 100%;
+    height: 80vh;
+    border-right: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 24px 24px 0 0;
+    animation: slideInBottom 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes slideInLeft {
+    from { transform: translateX(-100%); }
+    to   { transform: translateX(0); }
+}
+
+@keyframes slideInBottom {
+    from { transform: translateY(100%); }
+    to   { transform: translateY(0); }
+}
+
+/* Header */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.headerMeta {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.badge {
+    font-size: 10px;
+    background: rgba(0, 210, 255, 0.08);
+    color: #00d2ff;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-weight: 600;
+    align-self: flex-start;
+}
+
+.title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #fff;
+    margin: 0;
+}
+
+.closeBtn {
+    background: rgba(255, 255, 255, 0.05);
+    border: none;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    cursor: pointer;
+    transition: background 0.2s;
+    flex-shrink: 0;
+}
+
+.closeBtn:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* Status row */
+.statusRow {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.03);
+    border-radius: 16px;
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.statusLeft {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.checkIcon {
+    cursor: pointer;
+    display: flex;
+}
+
+.statusLabel {
+    font-size: 12px;
+    font-weight: 600;
+    color: #fff;
+    display: block;
+}
+
+.statusSubLabel {
+    font-size: 11px;
+    color: #8e9099;
+    margin-top: 2px;
+    display: block;
+}
+
+/* Description */
+.descSection {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.descLabel {
+    font-size: 12px;
+    font-weight: 600;
+    color: #8e9099;
+}
+
+.descText {
+    font-size: 12px;
+    color: #e2e8f0;
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* Tool card */
+.toolCard {
+    background: rgba(0, 210, 255, 0.03);
+    border: 1px solid rgba(0, 210, 255, 0.08);
+    border-radius: 16px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.toolCardHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.toolName {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #fff;
+}
+
+.toolDot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #00d2ff;
+}
+
+.toolLink {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 11px;
+    color: #00d2ff;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.toolGuideBox {
+    background: rgba(4, 8, 16, 0.5);
+    border-radius: 12px;
+    padding: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.toolGuideLabel {
+    font-size: 10px;
+    color: #8e9099;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-bottom: 6px;
+}
+
+.toolGuideText {
+    font-size: 11px;
+    color: #b2ccd6;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    margin: 0;
+}
+
+/* Notes */
+.notesSection {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: auto;
+}
+
+.notesLabel {
+    font-size: 12px;
+    font-weight: 600;
+    color: #8e9099;
+    margin: 0;
+}
+
+.notesTextarea {
+    width: 100%;
+    height: 100px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 12px;
+    color: #fff;
+    font-size: 12px;
+    outline: none;
+    resize: none;
+    font-family: inherit;
+    transition: border-color 0.2s ease;
+    box-sizing: border-box;
+}
+
+.notesTextarea:focus {
+    border-color: rgba(0, 210, 255, 0.4);
+}
+
+.notesHint {
+    font-size: 10px;
+    color: #8e9099;
+    text-align: left;
+}
+
+.completedIcon {
+    color: #10b981;
+}
+
+.pendingIcon {
+    color: #8e9099;
+}
+
+.playIcon {
+    color: #00d2ff;
+}
+

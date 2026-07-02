@@ -1,0 +1,188 @@
+/* ═══════════════════════════════════════════════════════════
+   🔵 WorkflowPaywall — Premium subscription paywall styling
+   ═══════════════════════════════════════════════════════════ */
+
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100dvh;
+    width: 100%;
+    background: linear-gradient(135deg, #090e17 0%, #040810 100%);
+    padding: 2rem 1.5rem;
+    overflow-y: auto;
+    color: #f8fafc;
+    font-family: 'Outfit', 'Inter', sans-serif;
+}
+
+.paywallCard {
+    max-width: 680px;
+    width: 100%;
+    background: rgba(15, 23, 42, 0.45);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 24px;
+    padding: 3rem 2.5rem;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 0 0 40px rgba(0, 210, 255, 0.05);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.radialGlow {
+    position: absolute;
+    top: -10%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 300px;
+    height: 150px;
+    background: radial-gradient(circle, rgba(0, 210, 255, 0.15) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+.iconWrapper {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 64px;
+    height: 64px;
+    border-radius: 20px;
+    background: rgba(0, 210, 255, 0.1);
+    border: 1px solid rgba(0, 210, 255, 0.25);
+    color: #00d2ff;
+    margin-bottom: 1.5rem;
+    position: relative;
+    z-index: 1;
+}
+
+.lockIcon {
+    filter: drop-shadow(0 0 8px rgba(0, 210, 255, 0.5));
+}
+
+.title {
+    font-size: 2rem;
+    font-weight: 800;
+    margin-bottom: 0.75rem;
+    background: linear-gradient(90deg, #ffffff, #94a3b8);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: -0.5px;
+    position: relative;
+    z-index: 1;
+}
+
+.description {
+    color: #94a3b8;
+    font-size: 1rem;
+    line-height: 1.6;
+    max-width: 520px;
+    margin: 0 auto 2.5rem;
+    position: relative;
+    z-index: 1;
+}
+
+.featuresGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 3rem;
+    text-align: left;
+    position: relative;
+    z-index: 1;
+}
+
+.featureCard {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    padding: 16px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+}
+
+.featureIcon {
+    color: #00d2ff;
+    margin-top: 2px;
+    flex-shrink: 0;
+}
+
+.featureTitle {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #f8fafc;
+    margin-bottom: 4px;
+}
+
+.featureDesc {
+    font-size: 0.8rem;
+    color: #64748b;
+    margin: 0;
+    line-height: 1.4;
+}
+
+.actionsContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-items: center;
+    position: relative;
+    z-index: 1;
+}
+
+.upgradeBtn {
+    width: 100% !important;
+    padding: 14px 28px !important;
+    border-radius: 12px !important;
+    font-size: 1rem !important;
+    font-weight: 700 !important;
+    background: linear-gradient(135deg, #00d2ff 0%, #3a7bd5 100%) !important;
+    box-shadow: 0 4px 20px rgba(0, 210, 255, 0.35) !important;
+    border: none !important;
+    color: #020617 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+}
+
+.backLink {
+    color: #64748b;
+    font-size: 0.85rem;
+    text-decoration: none;
+    transition: color 0.2s;
+    font-weight: 500;
+    margin-top: 8px;
+}
+
+.backLink:hover {
+    color: #cbd5e1;
+}
+
+.secureFooter {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 1.5rem;
+    color: #475569;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+/* Responsiveness */
+@media (max-width: 640px) {
+    .featuresGrid {
+        grid-template-columns: 1fr;
+    }
+    
+    .paywallCard {
+        padding: 2rem 1.5rem;
+    }
+    
+    .title {
+        font-size: 1.6rem;
+    }
+}

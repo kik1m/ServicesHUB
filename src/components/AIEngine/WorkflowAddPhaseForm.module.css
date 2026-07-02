@@ -1,0 +1,106 @@
+.container {
+    position: absolute;
+    top: 70px;
+    right: 28px;
+    width: 320px;
+    z-index: 100;
+    background: #16171b;
+    border: 1px solid rgba(0, 210, 255, 0.2);
+    border-radius: 16px;
+    padding: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+.title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 12px;
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.input {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    color: #fff;
+    padding: 8px 12px;
+    font-size: 12px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.input:focus {
+    border-color: rgba(0, 210, 255, 0.4);
+}
+
+.textarea {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    color: #fff;
+    padding: 8px 12px;
+    font-size: 12px;
+    outline: none;
+    height: 60px;
+    resize: none;
+    transition: border-color 0.2s;
+}
+
+.textarea:focus {
+    border-color: rgba(0, 210, 255, 0.4);
+}
+
+.actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    margin-top: 4px;
+}
+
+.cancelBtn {
+    background: transparent;
+    border: none;
+    color: #8e9099;
+    font-size: 11px;
+    padding: 6px 12px;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.cancelBtn:hover {
+    color: #fff;
+}
+
+.submitBtn {
+    background: #00d2ff;
+    color: #090e17;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 11px;
+    padding: 6px 14px;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.submitBtn:hover {
+    opacity: 0.9;
+}

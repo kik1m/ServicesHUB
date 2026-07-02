@@ -1,0 +1,105 @@
+.artifactWrapper {
+    margin: 16px 0;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    animation: fadeSlideUp 0.5s ease-out forwards;
+}
+
+.artifactWrapper.expanded {
+    position: fixed;
+    top: 5vh;
+    left: 5vw;
+    width: 90vw;
+    height: 90vh;
+    z-index: 1000;
+    margin: 0;
+    background: rgba(15, 23, 42, 0.98);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+    display: flex;
+    flex-direction: column;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 4px;
+    background: transparent;
+    border-bottom: none;
+}
+
+.titleInfo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.typeIcon {
+    color: #e2e8f0;
+    opacity: 0.8;
+}
+
+.titleText {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: #f8fafc;
+    letter-spacing: 0.3px;
+}
+
+.actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.iconBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    background: transparent;
+    border: 1px solid transparent;
+    color: #94a3b8;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.iconBtn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #f8fafc;
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
+.contentArea {
+    padding: 0;
+}
+
+.expanded .contentArea {
+    max-height: none;
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.markdownArea {
+    color: #e2e8f0;
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+@keyframes fadeSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(15px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

@@ -1,0 +1,146 @@
+/* ── TableNode ───────────────────────────────────────────────────────────── */
+.node {
+    position: absolute;
+    width: 290px;
+    background: rgba(22, 23, 27, 0.65);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    pointer-events: auto;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+}
+
+.node:hover {
+    background: rgba(26, 28, 34, 0.75);
+    border-color: rgba(168, 85, 247, 0.3);
+    box-shadow: 0 10px 30px rgba(168, 85, 247, 0.08);
+}
+
+.nodeDragging {
+    z-index: 1000;
+}
+
+/* Grip header */
+.nodeHeader {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: grab;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    padding-bottom: 8px;
+    user-select: none;
+}
+
+.nodeHeader:active {
+    cursor: grabbing;
+}
+
+.nodeTitle {
+    font-size: 13px;
+    font-weight: 700;
+    color: #a855f7;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.tableBadge {
+    font-size: 9px;
+    background: rgba(168, 85, 247, 0.12);
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-weight: 700;
+}
+
+/* Description */
+.nodeDesc {
+    font-size: 11px;
+    color: #8e9099;
+    margin: 0;
+    line-height: 1.5;
+    min-height: 33px;
+}
+
+/* Columns */
+.columnsList {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.columnRow {
+    border-radius: 8px;
+    padding: 8px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.columnRowPK {
+    background: rgba(0, 210, 255, 0.02);
+    border: 1px solid rgba(0, 210, 255, 0.08);
+}
+
+.columnRowFK {
+    background: rgba(168, 85, 247, 0.02);
+    border: 1px solid rgba(168, 85, 247, 0.08);
+}
+
+.columnRowDefault {
+    background: rgba(255, 255, 255, 0.01);
+    border: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.columnHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.columnName {
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.columnNamePK {
+    color: #00d2ff;
+}
+
+.columnNameDefault {
+    color: #fff;
+}
+
+.columnType {
+    font-size: 8px;
+    background: rgba(255, 255, 255, 0.04);
+    padding: 1px 4px;
+    border-radius: 4px;
+    font-weight: 700;
+}
+
+.columnTypePK {
+    color: #00d2ff;
+}
+
+.columnTypeFK {
+    color: #a855f7;
+}
+
+.columnTypeDefault {
+    color: #94a3b8;
+}
+
+.columnDesc {
+    font-size: 9px;
+    color: #8e9099;
+}
+
+.gripIcon {
+    color: #8e9099;
+}
+
