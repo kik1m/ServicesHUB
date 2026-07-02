@@ -1,7 +1,6 @@
-import { supabase } from '../lib/supabaseClient';
-
 /**
- * دالة تتبع الزيارات - مصممة لتكون خفيفة وآمنة على الخطة المجانية لـ Supabase
+ * 📊 HUBly Visits Tracker Utility
+ * Tracks user visits securely via our server API.
  */
 export const trackVisit = async (path) => {
   try {
@@ -17,47 +16,28 @@ export const trackVisit = async (path) => {
       return; // Ignore automated bot visits
     }
 
-    // 1. الحصول على أو إنشاء ID فريد للزائر
+    // 1. Get or create unique Visitor ID
     let visitorId = localStorage.getItem('hubly_visitor_id');
     if (!visitorId) {
       visitorId = crypto.randomUUID();
       localStorage.setItem('hubly_visitor_id', visitorId);
     }
 
-    // 2. الحصول على الدولة مع fallback مزدوج لتقليل Unknown
-    let country = 'Unknown';
-    try {
-      // Primary: geojs.io (no CORS issues, free)
-      const geoRes = await fetch('https://get.geojs.io/v1/ip/geo.json', { signal: AbortSignal.timeout(3000) });
-      if (geoRes.ok) {
-        const geoData = await geoRes.json();
-        country = geoData.country || 'Unknown';
-      }
-    } catch (e) {
-      // Fallback: ipapi.is (alternative free geo service)
-      try {
-        const fallbackRes = await fetch('https://ipapi.is/json/', { signal: AbortSignal.timeout(3000) });
-        if (fallbackRes.ok) {
-          const fallbackData = await fallbackRes.json();
-          country = fallbackData.location?.country || 'Unknown';
-        }
-      } catch (e2) {
-        // Silently fail - Unknown is acceptable
-      }
-    }
+    // 2. Track visit via Server API
+    const response = await fetch('/api/track-visit', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        visitorId,
+        pagePath: path || window.location.pathname
+      })
+    });
 
-    // 3. إرسال البيانات لـ Supabase (Simple Insert for maximum compatibility)
-    const { error } = await supabase
-      .from('analytics')
-      .insert([{
-        visitor_id: visitorId,
-        page_path: path || window.location.pathname,
-        country: country,
-        visit_date: new Date().toISOString().split('T')[0]
-      }]);
-
-    if (error && error.code !== '23505') {
-      console.error('Analytics Error:', error.message);
+    if (!response.ok) {
+      const errData = await response.json();
+      console.warn('Analytics API warning:', errData.error);
     }
   } catch (err) {
     console.error('Analytics System Error:', err);
