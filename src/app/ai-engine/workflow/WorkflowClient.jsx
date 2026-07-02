@@ -166,20 +166,18 @@ export default function WorkflowClient() {
                 <div className={styles.container}>
                     <div className={styles.studioLayout}>
 
-                        {/* ── Sidebar (optional) ── */}
-                        {!isSidebarCollapsed && (
-                            <AIEngineSidebar
-                                user={user} router={router}
-                                sessions={sessions} sessionsLoading={sessionsLoading || isAuthenticating}
-                                searchQuery={searchQuery} setSearchQuery={setSearchQuery}
-                                activeSessionId={activeSessionId} setActiveSessionId={setActiveSessionId}
-                                setActionModal={setActionModal} setEditingTitle={setEditingTitle}
-                                handleSessionClick={handleSessionClick}
-                                onNewChatClick={() => { router.push('/ai-engine/workflow'); setNewChatNonce(prev => prev + 1); }}
-                                isOpen={isMobileSidebarOpen} setIsOpen={setIsMobileSidebarOpen}
-                                workspaceProps={workspaceProps}
-                            />
-                        )}
+                        {/* ── Sidebar (always rendered, toggled via CSS) ── */}
+                        <AIEngineSidebar
+                            user={user} router={router}
+                            sessions={sessions} sessionsLoading={sessionsLoading || isAuthenticating}
+                            searchQuery={searchQuery} setSearchQuery={setSearchQuery}
+                            activeSessionId={activeSessionId} setActiveSessionId={setActiveSessionId}
+                            setActionModal={setActionModal} setEditingTitle={setEditingTitle}
+                            handleSessionClick={handleSessionClick}
+                            onNewChatClick={() => { router.push('/ai-engine/workflow'); setNewChatNonce(prev => prev + 1); }}
+                            isOpen={!isSidebarCollapsed} setIsOpen={(open) => setIsSidebarCollapsed(!open)}
+                            workspaceProps={workspaceProps}
+                        />
 
                         <div className={`${styles.mobileOverlay} ${isMobileSidebarOpen ? styles.mobileOverlayOpen : ''}`} onClick={() => setIsMobileSidebarOpen(false)} />
 

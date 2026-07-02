@@ -345,10 +345,14 @@ export default function WorkflowPresenter({ blueprint, projectId, onWorkflowStat
         }
     };
 
+    // Total steps = 1 (Project Info) + N (AI custom steps) + 1 (Timeline)
+    const totalWizardSteps = 1 + customSteps.length + 1;
+    const timelineStep = 1 + customSteps.length + 1; // last step index
+
     const handleNextStep = () => {
         if (wizardStep === 1) {
             handleFetchCustomSteps();
-        } else if (wizardStep < 4) {
+        } else if (wizardStep < timelineStep) {
             setWizardStep(prev => prev + 1);
         }
     };
@@ -414,7 +418,8 @@ Please update the structured blueprint JSON to reflect this modification.`;
         setRefineText('');
     };
 
-    const currentStep = customSteps[wizardStep - 2];
+    // wizardStep 2 = customSteps[0], step 3 = customSteps[1], etc.
+    const currentStep = wizardStep >= 2 && wizardStep < timelineStep ? customSteps[wizardStep - 2] : null;
 
     if (!state || !state.phases || state.phases.length === 0) {
         if (isLoading) {
@@ -429,27 +434,38 @@ Please update the structured blueprint JSON to reflect this modification.`;
             <div className={styles.emptyContainer}>
                 <div className={styles.emptyGlow} />
                 
-                {/* ── Progress Indicators for Wizard ── */}
+                {/* ── Progress Indicators for Wizard (Dynamic) ── */}
                 <div className={styles.wizardProgressContainer}>
+                    {/* Step 1: Project Info */}
                     <div className={`${styles.wizardProgressStep} ${wizardStep >= 1 ? styles.stepDone : ''} ${wizardStep === 1 ? styles.stepCurrent : ''}`}>
                         <div className={styles.stepNum}>1</div>
                         <span className={styles.stepLabel}>Project Info</span>
                     </div>
-                    <div className={styles.stepDivider} />
-                    <div className={`${styles.wizardProgressStep} ${wizardStep >= 2 ? styles.stepDone : ''} ${wizardStep === 2 ? styles.stepCurrent : ''}`}>
-                        <div className={styles.stepNum}>2</div>
-                        <span className={styles.stepLabel}>{customSteps[0]?.title || 'Customizing A'}</span>
-                    </div>
-                    <div className={styles.stepDivider} />
-                    <div className={`${styles.wizardProgressStep} ${wizardStep >= 3 ? styles.stepDone : ''} ${wizardStep === 3 ? styles.stepCurrent : ''}`}>
-                        <div className={styles.stepNum}>3</div>
-                        <span className={styles.stepLabel}>{customSteps[1]?.title || 'Customizing B'}</span>
-                    </div>
-                    <div className={styles.stepDivider} />
-                    <div className={`${styles.wizardProgressStep} ${wizardStep >= 4 ? styles.stepDone : ''} ${wizardStep === 4 ? styles.stepCurrent : ''}`}>
-                        <div className={styles.stepNum}>4</div>
-                        <span className={styles.stepLabel}>Timeline</span>
-                    </div>
+
+                    {/* AI-generated dynamic steps */}
+                    {customSteps.map((step, idx) => {
+                        const stepNum = idx + 2;
+                        return (
+                            <React.Fragment key={step.title || idx}>
+                                <div className={styles.stepDivider} />
+                                <div className={`${styles.wizardProgressStep} ${wizardStep > stepNum ? styles.stepDone : ''} ${wizardStep === stepNum ? styles.stepCurrent : ''}`}>
+                                    <div className={styles.stepNum}>{stepNum}</div>
+                                    <span className={styles.stepLabel}>{step.title}</span>
+                                </div>
+                            </React.Fragment>
+                        );
+                    })}
+
+                    {/* Last step: Timeline (only shown after AI steps are loaded) */}
+                    {customSteps.length > 0 && (
+                        <React.Fragment>
+                            <div className={styles.stepDivider} />
+                            <div className={`${styles.wizardProgressStep} ${wizardStep >= timelineStep ? styles.stepDone : ''} ${wizardStep === timelineStep ? styles.stepCurrent : ''}`}>
+                                <div className={styles.stepNum}>{timelineStep}</div>
+                                <span className={styles.stepLabel}>Timeline</span>
+                            </div>
+                        </React.Fragment>
+                    )}
                 </div>
 
                 <div className={styles.wizardCard}>
@@ -509,8 +525,8 @@ Please update the structured blueprint JSON to reflect this modification.`;
                         </div>
                     )}
 
-                    {/* DYNAMIC CUSTOM STEPS (2 & 3) */}
-                    {!wizardLoading && (wizardStep === 2 || wizardStep === 3) && currentStep && (
+                    {/* DYNAMIC CUSTOM STEPS (all AI-generated steps) */}
+                    {!wizardLoading && wizardStep >= 2 && wizardStep < timelineStep && currentStep && (
                         <div className={styles.wizardStepContent}>
                             <h3 className={styles.wizardStepTitle}>
                                 {currentStep.title}
@@ -604,8 +620,8 @@ Please update the structured blueprint JSON to reflect this modification.`;
                         </div>
                     )}
 
-                    {/* STEP 4: TIMELINE & TARGET CONSTRAINTS */}
-                    {!wizardLoading && wizardStep === 4 && (
+                    {/* FINAL STEP: TIMELINE & TARGET CONSTRAINTS */}
+                    {!wizardLoading && wizardStep === timelineStep && (
                         <div className={styles.wizardStepContent}>
                             <h3 className={styles.wizardStepTitle}>
                                 Timeline & Launch Constraints 📅

@@ -21,7 +21,6 @@ export async function POST(req) {
             return new Response(JSON.stringify({ error: 'BAD_REQUEST', message: 'Missing projectName or ideaDescription.' }), { status: 400, headers: corsHeaders });
         }
 
-        // Authenticate the user
         const { verifiedUserId, error: authError, message: authMessage } = await authenticateAndCheckQuota(req, 'chat');
         if (authError) {
             return new Response(JSON.stringify({ error: authError, message: authMessage }), { status: 403, headers: corsHeaders });
@@ -35,29 +34,46 @@ export async function POST(req) {
         const apiKey = keys[Math.floor(Math.random() * keys.length)];
         const ai = new GoogleGenAI({ apiKey });
 
-        const prompt = `You are a Project Architecture Designer. The user wants to build/create a project.
+        const prompt = `You are a senior Project Architecture Consultant. A user wants to build the following project and needs your expert guidance to create a truly comprehensive plan.
+
 Project Name: "${projectName}"
 Project Goal/Description: "${ideaDescription}"
 
-Based on the project concept, dynamically generate exactly 2 custom questions/steps that you, as an AI, need to ask the user to tailor the ultimate plan. These questions must be extremely specific to the project type (e.g., if it's an AI movie/story, ask about voice narrations, plot styles, mood; if it's a SaaS coding project, ask about backend databases, auth providers; if it's a design portfolio, ask about visual aesthetic, page transitions).
-Output ONLY a valid JSON array containing exactly 2 step objects. Do not wrap in markdown tags like \`\`\`json. Raw JSON string only.
+Your task: Analyze the project deeply and generate as many question-steps as needed (minimum 3, maximum 8) to fully understand every dimension of this project. The number of steps should be determined by the complexity and nature of the project — a simple landing page needs fewer steps than a complex SaaS platform or AI system.
 
-Each step object in the array must look exactly like this:
+Each step should cover a distinct, critical dimension of the project. Do NOT generate generic or redundant questions. Every question must be highly specific to THIS exact project type.
+
+Examples of dimensions to consider (use only those relevant to this project):
+- For a SaaS app: Tech stack, auth system, database schema, subscription model, user roles
+- For an AI project: AI models used, data pipeline, training approach, output format, evaluation metrics
+- For a mobile app: Target platform (iOS/Android/both), offline support, push notifications, app store strategy
+- For a creative project (film/music): Style, genre, target audience, distribution platform, production tools
+- For an e-commerce project: Product catalog, payment gateway, shipping logic, inventory management
+- For any project: Target audience, success metrics, MVP scope vs full scope, team size/resources
+
+Output ONLY a valid JSON array. Do not wrap in markdown tags. Raw JSON string only.
+
+Each step object must follow this exact schema:
 {
-  "title": "Short title of the step (e.g. Visual Style & Mood)",
-  "desc": "Short description of what the user defines in this step",
+  "title": "Concise step title (max 5 words)",
+  "desc": "One sentence explaining what this step clarifies about the project",
   "fields": [
     {
-      "id": "uniqueCamelCaseId (e.g. artStyle, DBType)",
-      "label": "Human readable label (e.g. Select Art Style)",
+      "id": "uniqueCamelCaseId",
+      "label": "Human readable question label",
       "type": "select" | "multiselect" | "text" | "textarea",
-      "options": ["Option 1", "Option 2", "Option 3"], // Only include this array if type is 'select' or 'multiselect'
-      "placeholder": "Helper placeholder text"
+      "options": ["Option A", "Option B", "Option C"],
+      "placeholder": "Helpful hint text for the user"
     }
   ]
 }
 
-Ensure the fields are highly relevant and creative. Limit fields per step to maximum 3.`;
+Rules:
+- Each step must have 2 to 4 fields (not more, not less)
+- Use "select" for single-choice questions, "multiselect" for multi-choice, "textarea" for open-ended long answers, "text" for short inputs
+- Only include "options" array for "select" and "multiselect" field types
+- Make options specific and relevant — no generic "Option A/B" placeholders
+- Generate between 3 and 8 steps based on project complexity`;
 
         const response = await ai.models.generateContent({
             model: 'gemini-2.5-flash',
@@ -67,6 +83,10 @@ Ensure the fields are highly relevant and creative. Limit fields per step to max
 
         const text = response.text.trim();
         const customSteps = JSON.parse(text);
+
+        if (!Array.isArray(customSteps) || customSteps.length === 0) {
+            throw new Error('AI returned invalid steps array');
+        }
 
         return new Response(JSON.stringify({ customSteps }), {
             status: 200,
