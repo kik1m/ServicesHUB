@@ -113,7 +113,7 @@ const nextConfig = {
           },
           {
             key: 'Content-Security-Policy',
-            value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' blob: data: https:; font-src 'self' https://fonts.gstatic.com data:; connect-src 'self' https://uwyidshwfvjlzfgbtmac.supabase.co wss://uwyidshwfvjlzfgbtmac.supabase.co https://api.openrouter.ai https://generativelanguage.googleapis.com;",
+            value: "default-src 'self'; frame-src 'self' data: about:; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; img-src 'self' blob: data: https:; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:; media-src 'self' blob: data: https:; connect-src 'self' https://uwyidshwfvjlzfgbtmac.supabase.co wss://uwyidshwfvjlzfgbtmac.supabase.co https://api.openrouter.ai https://generativelanguage.googleapis.com https://www.google-analytics.com https://*.google-analytics.com https://*.analytics.google.com;",
           },
         ],
       },
