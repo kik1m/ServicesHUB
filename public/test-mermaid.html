@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({ startOnLoad: false });
+    
+    async function test() {
+      const code = `mindmap
+  root(("Root with (parens)"))
+    child("Child (parens)")
+    child2["Child2 (parens)"]
+`;
+      try {
+        const { svg } = await mermaid.render('graphDiv', code);
+        document.body.innerHTML += svg;
+        document.body.innerHTML += '<div id="res">SUCCESS</div>';
+      } catch (e) {
+        document.body.innerHTML += '<div id="res">ERROR: ' + e.message + '</div>';
+      }
+    }
+    test();
+  </script>
+</head>
+<body></body>
+</html>
