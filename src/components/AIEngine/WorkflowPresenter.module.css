@@ -653,17 +653,19 @@
     justify-content: center;
     gap: 0.75rem;
     width: 100%;
-    max-width: 580px;
-    margin: 0 auto 2rem auto;
+    max-width: 720px;
+    margin: 0 auto 2.5rem auto;
     z-index: 2;
+    padding: 0 1rem;
+    box-sizing: border-box;
 }
 
 .wizardProgressStep {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    opacity: 0.4;
-    transition: all 0.3s ease;
+    gap: 0.6rem;
+    opacity: 0.5;
+    transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
 .stepCurrent {
@@ -675,37 +677,49 @@
 }
 
 .stepNum {
-    width: 24px;
-    height: 24px;
+    width: 28px;
+    height: 28px;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1.5px solid rgba(255, 255, 255, 0.25);
-    color: #fff;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1.5px solid rgba(255, 255, 255, 0.15);
+    color: #94a3b8;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 0.8rem;
+    font-size: 0.85rem;
     font-weight: 700;
-    transition: all 0.3s ease;
+    transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
 .stepCurrent .stepNum {
     background: #00d2ff;
     border-color: #00d2ff;
-    box-shadow: 0 0 10px rgba(0, 210, 255, 0.4);
+    color: #0b0f19;
+    box-shadow: 0 0 15px rgba(0, 210, 255, 0.3);
 }
 
 .stepDone:not(.stepCurrent) .stepNum {
-    background: rgba(16, 185, 129, 0.2);
-    border-color: #10b981;
+    background: rgba(16, 185, 129, 0.1);
+    border-color: rgba(16, 185, 129, 0.4);
     color: #10b981;
 }
 
 .stepLabel {
-    font-size: 0.85rem;
+    font-size: 0.9rem;
     font-weight: 600;
     color: #94a3b8;
-    font-family: 'Inter', sans-serif;
+    font-family: 'Cairo', 'Inter', sans-serif;
+    white-space: nowrap;
+    animation: fadeInLabel 0.3s ease;
+}
+
+.wizardProgressStep:not(.stepCurrent) .stepLabel {
+    display: none;
+}
+
+@keyframes fadeInLabel {
+    from { opacity: 0; transform: translateX(-4px); }
+    to { opacity: 1; transform: translateX(0); }
 }
 
 .stepCurrent .stepLabel {
@@ -714,10 +728,13 @@
 
 .stepDivider {
     flex: 1;
-    height: 1px;
-    background: rgba(255, 255, 255, 0.08);
-    max-width: 60px;
+    height: 2px;
+    background: rgba(255, 255, 255, 0.05);
+    max-width: 80px;
+    min-width: 20px;
+    transition: background 0.3s ease;
 }
+
 
 .wizardCard {
     width: 100%;

@@ -438,7 +438,9 @@ Please update the structured blueprint JSON to reflect this modification.`;
                 <div className={styles.wizardProgressContainer}>
                     {/* Step 1: Project Info */}
                     <div className={`${styles.wizardProgressStep} ${wizardStep >= 1 ? styles.stepDone : ''} ${wizardStep === 1 ? styles.stepCurrent : ''}`}>
-                        <div className={styles.stepNum}>1</div>
+                        <div className={styles.stepNum}>
+                            {wizardStep > 1 ? <Check size={14} /> : 1}
+                        </div>
                         <span className={styles.stepLabel}>Project Info</span>
                     </div>
 
@@ -449,7 +451,9 @@ Please update the structured blueprint JSON to reflect this modification.`;
                             <React.Fragment key={step.title || idx}>
                                 <div className={styles.stepDivider} />
                                 <div className={`${styles.wizardProgressStep} ${wizardStep > stepNum ? styles.stepDone : ''} ${wizardStep === stepNum ? styles.stepCurrent : ''}`}>
-                                    <div className={styles.stepNum}>{stepNum}</div>
+                                    <div className={styles.stepNum}>
+                                        {wizardStep > stepNum ? <Check size={14} /> : stepNum}
+                                    </div>
                                     <span className={styles.stepLabel}>{step.title}</span>
                                 </div>
                             </React.Fragment>
@@ -461,7 +465,9 @@ Please update the structured blueprint JSON to reflect this modification.`;
                         <React.Fragment>
                             <div className={styles.stepDivider} />
                             <div className={`${styles.wizardProgressStep} ${wizardStep >= timelineStep ? styles.stepDone : ''} ${wizardStep === timelineStep ? styles.stepCurrent : ''}`}>
-                                <div className={styles.stepNum}>{timelineStep}</div>
+                                <div className={styles.stepNum}>
+                                    {wizardStep > timelineStep ? <Check size={14} /> : timelineStep}
+                                </div>
                                 <span className={styles.stepLabel}>Timeline</span>
                             </div>
                         </React.Fragment>
