@@ -860,24 +860,27 @@ Please update the structured blueprint JSON to reflect this modification.`;
                                         <HelpCircle size={22} />
                                     </div>
                                     <h4 className={styles.checkpointQuestion}>
-                                        {(activeStep.question || '').replace(/[❓✅🆘]/g, '').trim()}
+                                        {(activeStep.question || '').replace(/[❓✅🆘❌⚠️💡🔑]/g, '').trim()}
                                     </h4>
-                                    <div className={styles.checkpointOptions}>
+                                    <div className={styles.checkpointOptionsGrid}>
                                         {activeStep.options?.map((opt, oIdx) => {
-                                            const isHelp = opt.includes('🆘') || opt.toLowerCase().includes('help') || opt.toLowerCase().includes('refine');
-                                            const cleanOpt = opt.replace(/[❓✅🆘]/g, '').trim();
+                                            const cleanOpt = opt.replace(/[❓✅🆘❌⚠️💡🔑]/g, '').trim();
+                                            const colors = [
+                                                { bg: 'rgba(0,210,255,0.06)', border: 'rgba(0,210,255,0.25)', color: '#00d2ff' },
+                                                { bg: 'rgba(139,92,246,0.06)', border: 'rgba(139,92,246,0.25)', color: '#a78bfa' },
+                                                { bg: 'rgba(16,185,129,0.06)', border: 'rgba(16,185,129,0.25)', color: '#34d399' },
+                                                { bg: 'rgba(245,158,11,0.06)', border: 'rgba(245,158,11,0.25)', color: '#fbbf24' },
+                                            ];
+                                            const c = colors[oIdx % colors.length];
                                             return (
-                                                <button 
-                                                    key={oIdx} 
+                                                <button
+                                                    key={oIdx}
                                                     onClick={() => handleCheckpointClick(opt, activeStep)}
-                                                    className={isHelp ? styles.checkpointBtnGlassHelp : styles.checkpointBtnGlassSuccess}
+                                                    className={styles.checkpointOptionCard}
+                                                    style={{ background: c.bg, borderColor: c.border }}
                                                 >
-                                                    {isHelp ? (
-                                                        <LifeBuoy size={16} />
-                                                    ) : (
-                                                        <Check size={16} />
-                                                    )}
-                                                    <span>{cleanOpt}</span>
+                                                    <span className={styles.checkpointOptionDot} style={{ background: c.color }} />
+                                                    <span className={styles.checkpointOptionLabel} style={{ color: c.color }}>{cleanOpt}</span>
                                                 </button>
                                             );
                                         })}

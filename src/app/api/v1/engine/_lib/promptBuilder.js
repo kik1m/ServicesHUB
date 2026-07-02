@@ -129,7 +129,7 @@ Wrap your JSON Blueprint EXACTLY inside <<<VISUAL_START>>> and <<<VISUAL_END>>> 
    - Do NOT use a unified or repetitive design template. The AI should generate unique drawings, flowcharts, analytics dashboards, database schema layouts, interactive forms, live simulations, or feature mockups depending on the step's specific goal.
    - Use vibrant colors, glassmorphic cards (\`bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-6\`), smooth micro-animations, hover transitions, and interactive JavaScript elements (e.g. simulation sliders, tab switches, dynamic stats, custom SVG charts with CSS graphs).
    - Ensure the HTML code is completely self-contained and ready to execute (Tailwind CSS and FontAwesome are preloaded in the sandbox iframe).
-   - To avoid token limit cutoffs, keep each \`visualCode\` component under 150 lines of clean, high-efficiency HTML/CSS/JS. Keep the number of phases to 3 or 4, and tasks per phase to 2 or 3.
+   - Keep each \`visualCode\` component under 150 lines of clean, high-efficiency HTML/CSS/JS to avoid token limit cutoffs.
    - **Real AI API Capabilities (SDK Bridge)**: You can build FULLY FUNCTIONAL components that generate real outputs. You have access to a global helper object \`window.HUBlyAPI\` inside the iframe. It provides the following methods returning Promises:
      - \`HUBlyAPI.generateSpeech({ text: "string", voice: "optional_voice_id" })\` ➡️ returns \`Promise<audioDataUrl_base64>\`. Excellent for character voice studios, preview playbacks, narration checks.
      - \`HUBlyAPI.generateImage({ prompt: "string" })\` ➡️ returns \`Promise<imageUrl>\`. Excellent for scene previews, visual assets, storyboard generators.
@@ -137,13 +137,25 @@ Wrap your JSON Blueprint EXACTLY inside <<<VISUAL_START>>> and <<<VISUAL_END>>> 
      \`const audioUrl = await HUBlyAPI.generateSpeech({ text: "Hello Jason" }); const audio = new Audio(audioUrl); audio.play();\`
      Utilize these functions to build functional playground panels (e.g. prompt inputs, generate buttons, voice option dropdowns) instead of just static mock designs.
 2. **100% Contextual Content**: Every tool, task, and phase MUST be directly relevant to the user's specific request.
-3. **No Code Block Fences inside JSON**: Do NOT wrap the inner \`visualCode\` in markdown block fences inside the JSON. Escape quotes and write raw stringified HTML.
-4. **Incremental Updates**: If \`ACTIVE USER WORKFLOW STATE\` is provided, preserve completed tasks and existing nodes.
-5. **Strict Formatting**: NO markdown code fences inside <<<VISUAL_START>>> block. Raw valid JSON only.
-6. **Output Trigger**: ONLY generate a JSON Blueprint if the user explicitly asks to create/update a project plan or phases. For general questions, answer in plain markdown.
-7. **DO NOT Output Visual Code Blocks Directly in Chat**: When in WORKFLOW MODE, you are STRICTLY FORBIDDEN from generating visual components, HTML mockups, or \`<<<VISUAL_START>>>\` blocks directly in your chat response. All interactive drawings, mockups, and layout structures must be embedded inside the JSON blueprint under step objects of type "visual" in the \`visualCode\` property. The chat response should only contain a conversational, professional text walkthrough or explanation in the user's language.
-8. **True Tool Logo URLs**: When generating recommended tools under "steps" or "tasks", search the database first. If the tool exists, retrieve its actual logo URL and official link (via get_tool_details database tool) and use them. Otherwise, use a valid official logo URL or fallback to the Google favicon provider (e.g., https://www.google.com/s2/favicons?domain=domain.com&sz=128 matching the tool's actual domain). Do not guess logo URLs or use broken placeholder links.
+3. **NO LITERAL BACKSLASH-N IN visualCode (CRITICAL)**: NEVER write literal \\n (backslash + n) characters inside any \`visualCode\` string. This causes broken rendering. Instead:
+   - Use proper HTML elements: \`<br>\`, \`<p>\`, \`<div>\`, etc. for line breaks.
+   - Write HTML as continuous single-line string or use proper JSON escaped newlines inside the string value.
+   - WRONG: \`"visualCode": "<div>\\n<h1>Title</h1>\\n</div>"\`
+   - CORRECT: \`"visualCode": "<div><h1>Title</h1><p>Description</p></div>"\`
+4. **Flexible Phase Count — Determined by Project Scope**: Generate as many phases and steps as genuinely needed to explain the project lifecycle. Do NOT artificially cap to 3 or 4 phases. A simple landing page might need 3 phases; a complex SaaS platform might need 6-7. Let the project complexity dictate the count.
+5. **Flexible Steps Per Phase — Cover the Phase Completely**: Each phase MUST have enough steps (\`typewriter\`, \`visual\`, \`tool\`) to FULLY explain what needs to happen in that phase. Do NOT restrict to exactly 3 steps per phase. A phase about "AI Integration" might need 5 steps to cover the architecture, the tools, the data pipeline, and testing. A simpler phase might only need 2. Use your judgment.
+6. **Unique & Phase-Specific Checkpoint Questions (CRITICAL)**: Each phase MUST end with exactly ONE \`"type": "checkpoint"\` step. The question and options MUST be:
+   - Directly relevant to what was just explained in that specific phase (NOT generic "Does this look good?").
+   - Actionable and specific: e.g., "Which authentication method fits your project best?" with options like ["JWT Tokens", "OAuth with Google", "Magic Link Email"].
+   - Use the phase's content to generate the question. A design phase checkpoint asks about design choices; a backend phase checkpoint asks about architectural decisions; a deployment phase checkpoint asks about hosting preferences.
+   - Options must be meaningful multiple-choice answers, not just "Yes/No" or "Looks Good/Need Help".
+7. **Incremental Updates**: If \`ACTIVE USER WORKFLOW STATE\` is provided, preserve completed tasks and existing nodes.
+8. **Strict Formatting**: NO markdown code fences inside <<<VISUAL_START>>> block. Raw valid JSON only.
+9. **Output Trigger**: ONLY generate a JSON Blueprint if the user explicitly asks to create/update a project plan or phases. For general questions, answer in plain markdown.
+10. **DO NOT Output Visual Code Blocks Directly in Chat**: When in WORKFLOW MODE, you are STRICTLY FORBIDDEN from generating visual components, HTML mockups, or \`<<<VISUAL_START>>>\` blocks directly in your chat response. All interactive drawings, mockups, and layout structures must be embedded inside the JSON blueprint under step objects of type "visual" in the \`visualCode\` property. The chat response should only contain a conversational, professional text walkthrough or explanation in the user's language.
+11. **True Tool Logo URLs**: When generating recommended tools under "steps" or "tasks", search the database first. If the tool exists, retrieve its actual logo URL and official link (via get_tool_details database tool) and use them. Otherwise, use a valid official logo URL or fallback to the Google favicon provider (e.g., https://www.google.com/s2/favicons?domain=domain.com&sz=128 matching the tool's actual domain). Do not guess logo URLs or use broken placeholder links.
 `;
+
     if (activeWorkflowState) {
       workflowInstructionsPrompt += `
 ### ACTIVE USER WORKFLOW STATE (CURRENT CONTEXT):

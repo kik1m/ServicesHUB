@@ -135,6 +135,11 @@ export function useVisualRenderer({ code, onWorkflowStateUpdate, messageId }) {
 function transformCode(rawCode) {
     let result = (rawCode || '').trim();
 
+    // Clean up literal \n, \t, \r sequences that might be left by double-escaping
+    result = result.replace(/\\n/g, '\n');
+    result = result.replace(/\\t/g, '\t');
+    result = result.replace(/\\r/g, '\r');
+
     // External tool cards
     result = result.replace(
         /\[\s*EXTERNAL_TOOL_CARD\s*:\s*(.*?)\|\|(.*?)\|(.*?)\s*\]/gi,
