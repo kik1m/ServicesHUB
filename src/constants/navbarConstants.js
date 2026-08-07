@@ -68,7 +68,7 @@ export const MORE_GROUPS = [
 
 // 👤 User Specific Links
 export const USER_MENU_LINKS = [
-    { label: 'Public Profile', path: '/profile', icon: User },
+    { label: 'Private Profile', path: '/profile', icon: User },
     { label: 'My Dashboard', path: '/dashboard', icon: LayoutDashboard },
     { label: 'Account Settings', path: '/settings', icon: Settings },
     { label: 'Notifications', path: '/notifications', icon: Bell },
