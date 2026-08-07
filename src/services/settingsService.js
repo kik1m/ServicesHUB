@@ -47,55 +47,51 @@ export const settingsService = {
     },
 
     /**
-     * Upload user avatar to Supabase Storage.
-     * - Validates file size (max 2MB)
-     * - Removes any existing avatar for this user
-     * - Uploads new file to the 'avatars' bucket
-     * - Updates Supabase Auth user_metadata so the picture propagates
-     *   to every component (Navbar, AI Chat, etc.) without a page reload
+     * Upload user avatar via the secure server-side API route.
      *
-     * @param {string} userId
-     * @param {File} file
-     * @returns {string} publicUrl of the uploaded avatar
+     * The server route uses the Supabase Admin client which bypasses all
+     * RLS policies — this is the correct pattern for user-owned storage
+     * operations that need both security (auth check server-side) and
+     * permission (admin write to storage).
+     *
+     * @param {string} userId  - The authenticated user's ID
+     * @param {File}   file    - The image File object from the input element
+     * @returns {string}       - The public URL of the uploaded avatar
      */
     async uploadAvatar(userId, file) {
         if (!userId) throw new Error('User ID is required');
 
-        // 1. Validate file size (max 2MB)
+        // 1. Client-side validation (prevents unnecessary round-trip)
         const MAX_SIZE = 2 * 1024 * 1024;
         if (file.size > MAX_SIZE) {
-            throw new Error('Image size must be under 2MB. Please choose a smaller file.');
+            throw new Error('Image must be under 2MB. Please choose a smaller file.');
         }
 
-        // 2. Build a deterministic path so we can replace (not accumulate) files
-        const fileExt = file.name.split('.').pop().toLowerCase();
-        const filePath = `avatars/${userId}.${fileExt}`;
+        // 2. Get the current auth session token to authenticate the API call
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session?.access_token) {
+            throw new Error('You must be signed in to upload an image.');
+        }
 
-        // 3. Remove old avatar if it exists (ignore errors — it may not exist yet)
-        await supabase.storage.from('avatars').remove([filePath]).catch(() => {});
+        // 3. Send the file to our secure server-side API route
+        const formData = new FormData();
+        formData.append('file', file);
 
-        // 4. Upload the new avatar (upsert: true overwrites if same path exists)
-        const { error: uploadError } = await supabase.storage
-            .from('avatars')
-            .upload(filePath, file, { upsert: true, cacheControl: '3600' });
+        const response = await fetch('/api/user/upload-avatar', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${session.access_token}`
+            },
+            body: formData
+        });
 
-        if (uploadError) throw uploadError;
+        const result = await response.json();
 
-        // 5. Get the public URL
-        const { data } = supabase.storage
-            .from('avatars')
-            .getPublicUrl(filePath);
+        if (!response.ok) {
+            throw new Error(result.error || 'Upload failed. Please try again.');
+        }
 
-        // Add a cache-busting timestamp so the browser fetches the new image
-        const publicUrl = `${data.publicUrl}?t=${Date.now()}`;
-
-        // 6. Update Supabase Auth Metadata — this propagates the new avatar
-        //    to useAuth() → Navbar, AI Chat, and any component reading user_metadata
-        await supabase.auth.updateUser({
-            data: { avatar_url: publicUrl }
-        }).catch(err => console.warn('Could not sync avatar to auth metadata:', err));
-
-        return publicUrl;
+        return result.url;
     }
 };
 
