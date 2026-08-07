@@ -140,9 +140,6 @@ const Footer = () => {
                 {/* Bottom Bar */}
                 <div className={styles.footerBottom}>
                     <p>© 2026 HUBly. Built with excellence for the AI community.</p>
-                    <div className={styles.statusGroup}>
-                        <span>Service Status: <span className={styles.statusOnline}>Online</span></span>
-                    </div>
                 </div>
             </div>
         </footer>
