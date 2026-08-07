@@ -186,7 +186,9 @@ export const useSettingsData = () => {
                 avatar_url: url
             }));
         } catch (err) {
-            setActionError('Failed to upload image.');
+            const message = err?.message || 'Failed to upload image.';
+            setActionError(message);
+            showToast(message, 'error');
         } finally {
             setUploading(false);
         }
