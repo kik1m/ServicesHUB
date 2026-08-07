@@ -14,7 +14,7 @@ export function useAIChatWidgetLogic({
     initialMessages, 
     aiSettings,
     isCompareMode,
-    workspaceProps
+    workspaceProps = {}
 }) {
     const { user, loading } = useAuth();
     // user.is_premium is undefined until the profile is fetched from the DB.
@@ -41,7 +41,7 @@ export function useAIChatWidgetLogic({
     const getSelectedModelConfig = () => getModelById(selectedModel);
 
     // Core Chat State (will be cleaned up next)
-    const chatProps = useAIChat(tool1, tool2, user, onSessionCreated, initialSessionId, initialMessages, onSessionTitleGenerated, aiSettings, workspaceProps.workspaceContext, selectedModel, isCompareMode);
+    const chatProps = useAIChat(tool1, tool2, user, onSessionCreated, initialSessionId, initialMessages, onSessionTitleGenerated, aiSettings, workspaceProps?.workspaceContext, selectedModel, isCompareMode);
     
     const { messages, input, setInput, sendMessage, isLoading, isLimitReached, limitResetTime } = chatProps;
 
