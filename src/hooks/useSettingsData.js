@@ -23,6 +23,12 @@ export const useSettingsData = () => {
     const [saving, setSaving] = useState(false);
     const [uploading, setUploading] = useState(false);
     const [actionError, setActionError] = useState(null);
+
+    // Pending avatar — the raw File chosen by the user, not yet uploaded.
+    // The actual upload happens only when Save Changes is pressed.
+    const [pendingAvatarFile, setPendingAvatarFile] = useState(null);
+    // Local blob URL used purely for the avatar preview in the UI.
+    const [avatarPreview, setAvatarPreview] = useState(null);
     
     const [profile, setProfile] = useState({
         full_name: '',
@@ -74,6 +80,13 @@ export const useSettingsData = () => {
         }
     }, [serverProfile, authUser]);
 
+    // Revoke the object URL when the component unmounts to prevent memory leaks.
+    useEffect(() => {
+        return () => {
+            if (avatarPreview) URL.revokeObjectURL(avatarPreview);
+        };
+    }, [avatarPreview]);
+
     const handleProfileUpdate = useCallback(async (e) => {
         e.preventDefault();
         if (!authUser) return;
@@ -82,14 +95,29 @@ export const useSettingsData = () => {
             setSaving(true);
             setActionError(null);
 
-            // Only update columns that definitely exist in the profiles table
+            // Step 1: If the user selected a new avatar, upload it now as part of Save.
+            let finalAvatarUrl = profile.avatar_url;
+            if (pendingAvatarFile) {
+                setUploading(true);
+                try {
+                    finalAvatarUrl = await settingsService.uploadAvatar(authUser.id, pendingAvatarFile);
+                    // Clear the pending file and revoke the local preview URL
+                    setPendingAvatarFile(null);
+                    setAvatarPreview(null);
+                    setProfile(prev => ({ ...prev, avatar_url: finalAvatarUrl }));
+                } finally {
+                    setUploading(false);
+                }
+            }
+
+            // Step 2: Save all profile data (including the new avatar URL if uploaded)
             const sanitizedProfile = {
                 full_name: profile.full_name,
                 job_title: profile.job_title,
                 experience_level: profile.experience_level,
                 primary_goal: profile.primary_goal,
                 bio: profile.bio,
-                avatar_url: profile.avatar_url,
+                avatar_url: finalAvatarUrl,
                 website: profile.website,
                 twitter: profile.twitter,
                 github: profile.github,
@@ -97,16 +125,16 @@ export const useSettingsData = () => {
             };
 
             await settingsService.updateProfile(authUser.id, sanitizedProfile);
-            
-            // 1. Internal Notification
+
+            // Step 3: Internal Notification
             await sendNotification(
-                authUser.id, 
-                'Identity Synchronized', 
-                'Your profile information has been successfully updated across our ecosystem.', 
+                authUser.id,
+                'Identity Synchronized',
+                'Your profile information has been successfully updated across our ecosystem.',
                 'success'
             ).catch(() => {});
 
-            // 2. Elite Email Security Alert
+            // Step 4: Elite Email Security Alert
             if (authUser.email) {
                 await emailTriggers.sendSecurityAlert(
                     authUser.email,
@@ -122,12 +150,12 @@ export const useSettingsData = () => {
 
             showToast('Profile updated successfully!', 'success');
         } catch (err) {
-            setActionError('Could not save changes.');
+            setActionError(err?.message || 'Could not save changes.');
             showToast('Failed to update profile', 'error');
         } finally {
             setSaving(false);
         }
-    }, [authUser, profile, showToast, queryClient]);
+    }, [authUser, profile, pendingAvatarFile, showToast, queryClient]);
 
     const handlePasswordUpdate = useCallback(async (e) => {
         e.preventDefault();
@@ -171,28 +199,34 @@ export const useSettingsData = () => {
         }
     }, [passwords, showToast, authUser, profile]);
 
-    const handleAvatarUpload = useCallback(async (e) => {
-        const file = e.target.files[0];
-        if (!file || !authUser) return;
+    /**
+     * handleAvatarUpload — Preview Only (no server upload yet)
+     *
+     * Stores the chosen File in state and generates a local blob URL for
+     * the preview. The actual upload is deferred to handleProfileUpdate
+     * so the avatar change is committed together with all other field edits
+     * when the user presses "Save Changes".
+     */
+    const handleAvatarUpload = useCallback((e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
 
-        try {
-            setUploading(true);
-            setActionError(null);
-            const url = await settingsService.uploadAvatar(authUser.id, file);
-            setProfile(prev => ({ ...prev, avatar_url: url }));
-            
-            queryClient.setQueryData(['profile', authUser.id], old => ({
-                ...(old || {}),
-                avatar_url: url
-            }));
-        } catch (err) {
-            const message = err?.message || 'Failed to upload image.';
-            setActionError(message);
-            showToast(message, 'error');
-        } finally {
-            setUploading(false);
+        // Client-side size check before anything else
+        const MAX_SIZE = 2 * 1024 * 1024;
+        if (file.size > MAX_SIZE) {
+            showToast('Image must be under 2MB. Please choose a smaller file.', 'error');
+            e.target.value = '';
+            return;
         }
-    }, [authUser, queryClient]);
+
+        // Revoke any existing preview URL to free memory
+        if (avatarPreview) URL.revokeObjectURL(avatarPreview);
+
+        // Create a local preview URL — no network request at this point
+        const localPreviewUrl = URL.createObjectURL(file);
+        setAvatarPreview(localPreviewUrl);
+        setPendingAvatarFile(file);
+    }, [avatarPreview, showToast]);
 
     /**
      * handleNotificationToggle - Strategy Shift
@@ -252,6 +286,8 @@ export const useSettingsData = () => {
         loading, saving, uploading,
         error, actionError, setActionError,
         profile, setProfile,
+        avatarPreview,
+        pendingAvatarFile,
         passwords, setPasswords,
         showNewPassword, setShowNewPassword,
         showConfirmPassword, setShowConfirmPassword,

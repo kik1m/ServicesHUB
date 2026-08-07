@@ -16,6 +16,7 @@ const SettingsProfile = memo(({
     setProfile, 
     handleProfileUpdate, 
     handleAvatarUpload, 
+    avatarPreview,
     saving, 
     uploading,
     isLoading,
@@ -59,12 +60,18 @@ const SettingsProfile = memo(({
                                     <Skeleton width="100%" height="100%" borderRadius="100px" />
                                 ) : (
                                     <SmartImage 
-                                        src={profile?.avatar_url} 
+                                        src={avatarPreview || profile?.avatar_url} 
                                         alt="Avatar" 
                                         fallbackIcon={User}
                                         className={styles.avatarImg}
                                         containerClassName={styles.avatarContainer}
                                     />
+                                )}
+                                {/* Unsaved badge — shown when a new photo is selected but not yet saved */}
+                                {avatarPreview && (
+                                    <div className={styles.avatarPendingBadge} title="Unsaved — click Save Changes to apply">
+                                        <Camera size={10} />
+                                    </div>
                                 )}
                             </div>
                             <label htmlFor="avatar-upload" className={styles.settingsAvatarUploadBtn}>
@@ -75,7 +82,7 @@ const SettingsProfile = memo(({
                                     hidden 
                                     accept="image/*" 
                                     onChange={handleAvatarUpload} 
-                                    disabled={uploading}
+                                    disabled={uploading || saving}
                                 />
                             </label>
                         </div>

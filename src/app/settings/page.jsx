@@ -44,7 +44,8 @@ export default function SettingsPage() {
         handleNotificationToggle,
         handleDeleteAIMemory,
         fetchSettings,
-        authUser
+        authUser,
+        avatarPreview
     } = useSettingsData();
 
     const tabs = useMemo(() => [
@@ -62,6 +63,7 @@ export default function SettingsPage() {
                     setProfile={setProfile} 
                     handleProfileUpdate={handleProfileUpdate} 
                     handleAvatarUpload={handleAvatarUpload} 
+                    avatarPreview={avatarPreview}
                     saving={saving} 
                     uploading={uploading}
                     isLoading={loading}
