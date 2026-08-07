@@ -2,6 +2,18 @@
     /* Positioning handled centrally in Navbar.module.css */
     width: 260px;
     z-index: 10001;
+    max-height: calc(100vh - 170px);
+    overflow-y: auto;
+}
+
+/* Custom subtle scrollbar for the account dropdown if needed on low-height viewports */
+.accountDropdown::-webkit-scrollbar {
+    width: 4px;
+}
+
+.accountDropdown::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 4px;
 }
 
 .userInfo {
