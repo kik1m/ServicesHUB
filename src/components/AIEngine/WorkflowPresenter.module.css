@@ -321,6 +321,60 @@
     font-family: 'Cairo', sans-serif;
 }
 
+.formattedHtmlContent {
+    color: #cbd5e1;
+    font-size: 0.85rem;
+    line-height: 1.6;
+    font-family: 'Cairo', 'Inter', sans-serif;
+    margin-top: 0.5rem;
+}
+
+.formattedHtmlContent h1,
+.formattedHtmlContent h2,
+.formattedHtmlContent h3,
+.formattedHtmlContent h4,
+.formattedHtmlContent h5,
+.formattedHtmlContent h6 {
+    color: #ffffff;
+    font-weight: 700;
+    margin: 0.85rem 0 0.4rem 0;
+    font-size: 0.95rem;
+    font-family: 'Cairo', 'Inter', sans-serif;
+}
+
+.formattedHtmlContent p {
+    margin: 0 0 0.5rem 0;
+    color: #cbd5e1;
+    line-height: 1.6;
+}
+
+.formattedHtmlContent ol,
+.formattedHtmlContent ul {
+    margin: 0.5rem 0;
+    padding-left: 1.25rem;
+}
+
+.formattedHtmlContent li {
+    margin-bottom: 0.4rem;
+    color: #cbd5e1;
+    line-height: 1.5;
+}
+
+.formattedHtmlContent strong,
+.formattedHtmlContent b {
+    color: #ffffff;
+    font-weight: 700;
+}
+
+.formattedHtmlContent code {
+    background: rgba(255, 255, 255, 0.08);
+    color: #00d2ff;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 0.8rem;
+}
+
 /* ── Interactive Checkpoint ── */
 .checkpointWrapper {
     text-align: center;

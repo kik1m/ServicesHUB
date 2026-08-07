@@ -94,7 +94,14 @@ export default function TaskDrawer({
                                 <Play size={10} className={styles.playIcon} />
                                 Onboarding & Integration Guide:
                             </span>
-                            <p className={styles.toolGuideText}>{task.tool.guide}</p>
+                            {/<[a-z][\s\S]*>/i.test(task.tool.guide) ? (
+                                <div 
+                                    className={styles.formattedHtmlContent}
+                                    dangerouslySetInnerHTML={{ __html: task.tool.guide }}
+                                />
+                            ) : (
+                                <p className={styles.toolGuideText}>{task.tool.guide}</p>
+                            )}
                         </div>
                     </div>
                 )}

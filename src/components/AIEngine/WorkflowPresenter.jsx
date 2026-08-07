@@ -3,7 +3,33 @@ import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { ChevronRight, ChevronLeft, Layers, Check, HelpCircle, ArrowRight, Sparkles, BookOpen, ExternalLink, Settings, RefreshCw, Edit2, LifeBuoy } from 'lucide-react';
 import { useArtifact } from '../../context/ArtifactContext';
 import VisualRenderer from './VisualRenderer';
+import MarkdownRenderer from './MarkdownRenderer';
 import styles from './WorkflowPresenter.module.css';
+
+// ── Helper to render guide content (HTML string, Markdown, or plain text) ──
+function FormattedGuide({ text }) {
+    if (!text) return null;
+
+    // Check if the string contains raw HTML tags (e.g. <h3>, <ol>, <li>, <strong>, etc.)
+    const hasHtmlTags = /<[a-z][\s\S]*>/i.test(text);
+
+    if (hasHtmlTags) {
+        return (
+            <div 
+                className={styles.formattedHtmlContent}
+                dangerouslySetInnerHTML={{ __html: text }} 
+            />
+        );
+    }
+
+    // Check if text has Markdown syntax
+    const hasMarkdown = /^(#|\*|-|\d+\.|`|>)/m.test(text);
+    if (hasMarkdown) {
+        return <MarkdownRenderer content={text} />;
+    }
+
+    return <p>{text}</p>;
+}
 
 // ── Typewriter Helper Component ──
 function TypewriterText({ text, speed = 25, onComplete }) {
@@ -411,7 +437,7 @@ Please modify my project plan.
 Specifically, in Phase "${activePhase.title}", for the step "${stepIdentifier}":
 "${refineText}"
 
-Please update the structured blueprint JSON to reflect this modification.`;
+Please update the structured blueprint JSON to reflect this modification. Formating rule: Use clean Markdown or plain text for tool guides and descriptions; do not output raw unparsed HTML tags.`;
 
         onStartProjectPlan?.(promptText);
         setIsRefining(false);
@@ -847,7 +873,7 @@ Please update the structured blueprint JSON to reflect this modification.`;
                                         <p className={styles.toolDesc}>{activeStep.description}</p>
                                         <div className={styles.toolGuide}>
                                             <h5><BookOpen size={14} /> Quick Start Guide:</h5>
-                                            <p>{activeStep.guide}</p>
+                                            <FormattedGuide text={activeStep.guide} />
                                         </div>
                                     </div>
                                 </div>
