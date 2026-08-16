@@ -191,3 +191,65 @@
     background: transparent;
 }
 
+/* --------------------------------------
+   Sections Builder Styling
+-------------------------------------- */
+.sectionsBuilderWrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin-top: 1rem;
+}
+
+.sectionsHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.sectionBlock {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 20px;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    position: relative;
+    transition: 0.3s ease;
+}
+
+.sectionBlock:hover {
+    border-color: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.sectionBlockHeader {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.sectionTitleInput {
+    flex: 1;
+}
+
+.removeSectionBtn {
+    background: rgba(255, 50, 50, 0.1);
+    color: #ff4444;
+    border: 1px solid rgba(255, 50, 50, 0.2);
+    border-radius: 12px;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.removeSectionBtn:hover {
+    background: rgba(255, 50, 50, 0.2);
+    color: #ff6666;
+}
+

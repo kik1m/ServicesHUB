@@ -1,5 +1,5 @@
 import React, { memo } from 'react';
-import { ImageIcon, Info, Upload, Loader2, Type, AlignLeft } from 'lucide-react';
+import { ImageIcon, Info, Upload, Loader2, Type, AlignLeft, Plus, Trash2 } from 'lucide-react';
 import Button from '../ui/Button';
 import Input from '../ui/Input';
 import Skeleton from '../ui/Skeleton';
@@ -24,7 +24,10 @@ const ToolFormMedia = memo(({
     isFetchingInitialData,
     error,
     onRetry,
-    content
+    content,
+    handleSectionChange,
+    addSection,
+    removeSection
 }) => {
     const media = content?.sections?.media;
 
@@ -127,17 +130,61 @@ const ToolFormMedia = memo(({
                     error={fieldErrors?.short_description}
                 />
 
-                <Input 
-                    label={media?.fields?.desc?.label}
-                    icon={AlignLeft}
-                    multiline={true}
-                    value={formData?.description || ''} 
-                    onChange={(e) => setFormData({...formData, description: e.target.value})} 
-                    placeholder={media?.fields?.desc?.placeholder}
-                    error={fieldErrors?.description}
-                    fieldClassName={styles.textareaField}
-                    wrapperClassName={styles.textareaWrapper}
-                />
+                <div className={styles.sectionsBuilderWrapper}>
+                    <div className={styles.sectionsHeader}>
+                        <label className={styles.slimHeaderLabel}>{media?.fields?.desc?.label}</label>
+                        <Button 
+                            variant="ghost" 
+                            onClick={addSection} 
+                            icon={Plus}
+                            iconSize={16}
+                            type="button"
+                        >
+                            {media?.fields?.desc?.addSection}
+                        </Button>
+                    </div>
+
+                    <div className={styles.premiumInfoBanner}>
+                        <div className={styles.bannerIconBg}>
+                            <Info size={22} />
+                        </div>
+                        <div className={styles.bannerContent}>
+                            <h4>{media?.fields?.desc?.guidelines?.title}</h4>
+                            <p>{media?.fields?.desc?.guidelines?.text}</p>
+                        </div>
+                    </div>
+
+                    {(formData?.content_sections || []).map((section, index) => (
+                        <div key={index} className={styles.sectionBlock}>
+                            <div className={styles.sectionBlockHeader}>
+                                <Input 
+                                    placeholder={media?.fields?.desc?.titlePlaceholder}
+                                    value={section.title}
+                                    onChange={(e) => handleSectionChange(index, 'title', e.target.value)}
+                                    wrapperClassName={styles.sectionTitleInput}
+                                />
+                                {formData?.content_sections?.length > 1 && (
+                                    <button 
+                                        type="button" 
+                                        className={styles.removeSectionBtn} 
+                                        onClick={() => removeSection(index)}
+                                    >
+                                        <Trash2 size={18} />
+                                    </button>
+                                )}
+                            </div>
+                            <Input 
+                                multiline={true}
+                                value={section.contentText} 
+                                onChange={(e) => handleSectionChange(index, 'contentText', e.target.value)} 
+                                placeholder={media?.fields?.desc?.contentPlaceholder}
+                                fieldClassName={styles.textareaField}
+                                wrapperClassName={styles.textareaWrapper}
+                            />
+                        </div>
+                    ))}
+                    {fieldErrors?.description && <p className="text-error text-xs font-bold mt-1">{fieldErrors?.description}</p>}
+                </div>
             </div>
         </Safeguard>
     );

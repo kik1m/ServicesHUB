@@ -2,6 +2,8 @@ import React, { Suspense } from 'react';
 import ToolsClient from './ToolsClient';
 import { toolsService } from '../../services/toolsService';
 import { TOOLS_UI_CONSTANTS } from '../../constants/toolsConstants';
+import { dehydrate, HydrationBoundary, QueryClient } from '@tanstack/react-query';
+import { queryOptions } from '../../lib/queryOptions';
 
 import { seoService } from '../../services/seoService';
 import { SEO_CONFIG } from '../../constants/seoManifest';
@@ -16,8 +18,11 @@ export async function generateMetadata(props) {
     const dynamicSeo = await seoService.getMetadata(SEO_CONFIG.global.pageIds.tools, 'page');
     const staticSeo  = SEO_CONFIG.pages.tools;
 
-    const baseTitle       = dynamicSeo?.title       || staticSeo.title;
-    const baseDescription = dynamicSeo?.description || staticSeo.description;
+    const stats = await toolsService.getToolsStats();
+    const toolsCount = stats.count || 85;
+
+    const baseTitle = (dynamicSeo?.title || staticSeo.title).replace('500+', `${toolsCount}+`);
+    const baseDescription = (dynamicSeo?.description || staticSeo.description).replace('500+', `${toolsCount}+`);
 
     return {
         title: isTextSearch
@@ -54,16 +59,27 @@ export async function generateMetadata(props) {
 }
 
 export default async function ToolsPage() {
-    // We no longer block the route transition with an SSR fetch here.
-    // The banner tools will be fetched on the client side to ensure 
-    // an instantaneous, skeleton-first navigation experience.
+    const queryClient = new QueryClient();
 
-    // We pass banner tools down. The actual search results are managed 
-    // by useSearchEngine on the client to preserve the dynamic interactive experience.
-    
+    // 🚀 Elite SEO: Prefetch the initial page of tools on the server
+    await queryClient.prefetchInfiniteQuery({
+        ...queryOptions.toolsSearch({
+            searchQuery: '',
+            selectedCategory: 'All',
+            selectedCategoryId: null,
+            selectedPrice: 'All',
+            sortBy: 'featured',
+            itemsPerPage: 20,
+            queryCategories: [{ id: 'All', name: 'All' }]
+        }),
+        initialPageParam: 0
+    });
+
     return (
-        <Suspense fallback={null}>
-            <ToolsClient />
-        </Suspense>
+        <HydrationBoundary state={dehydrate(queryClient)}>
+            <Suspense fallback={null}>
+                <ToolsClient />
+            </Suspense>
+        </HydrationBoundary>
     );
 }

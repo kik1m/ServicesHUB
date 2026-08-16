@@ -78,7 +78,7 @@ class Particle {
         this.x = isLeft ? -300 - Math.random() * 500 : canvas.width + 300 + Math.random() * 500;
         this.y = (canvas.height / 2) + (Math.random() - 0.5) * canvas.height * 1.5;
         this.z = 200 + Math.random() * 1200;
-        
+
         // Store original spawn points for the dramatic fly-in calculation
         this.startX = this.x; this.startY = this.y; this.startZ = this.z;
 
@@ -188,10 +188,10 @@ class Particle {
 
             // 💎 FLUID BUTTERY SPRING: Moves perfectly to the target, very soft and elegant.
             // When transitioning, it's a bit looser. When fully formed, it's tighter.
-            const spr  = 0.15;
+            const spr = 0.15;
             const damp = 0.65;
             this.speedX += dx * spr; this.speedY += dy * spr; this.speedZ += dz * spr;
-            this.speedX *= damp;     this.speedY *= damp;     this.speedZ *= damp;
+            this.speedX *= damp; this.speedY *= damp; this.speedZ *= damp;
             this.x += this.speedX; this.y += this.speedY; this.z += this.speedZ;
         } else {
             if (phaseName === 'WANDER') {
@@ -515,7 +515,7 @@ export default function InteractiveParticles() {
                     const t = globalTime / 90;
                     // Quartic ease-out: extremely fast entrance that smoothly settles into the shape
                     const ease = 1 - Math.pow(1 - t, 4);
-                    
+
                     // Add a dynamic sweeping arc on the Y and Z axis as they fly in
                     const sweepY = Math.sin(t * Math.PI) * (i % 3 === 0 ? 250 : -250) * (1 - ease);
                     const sweepZ = Math.sin(t * Math.PI) * 400 * (1 - ease);
@@ -523,7 +523,7 @@ export default function InteractiveParticles() {
                     p.targetX = p.startX + (p.idealX - p.startX) * ease;
                     p.targetY = p.startY + (p.idealY - p.startY) * ease + sweepY;
                     p.targetZ = p.startZ + (p.idealZ - p.startZ) * ease + sweepZ;
-                    
+
                     // Chromatic shift glows intensely while moving fast
                     p.chromaticShift = Math.sin(t * Math.PI) * 0.8;
                     // Particles appear larger and "streaky" as they fly in

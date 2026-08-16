@@ -4,7 +4,7 @@
  */
 export const TOOLS_UI_CONSTANTS = {
     seo: {
-        title: "Explore 500+ Premium AI Tools | HUBly Directory",
+        title: "Explore {{toolsCount}}+ Premium AI Tools | HUBly Directory",
         description: "Discover the most powerful AI and SaaS solutions curated for professionals. Filter by category, price, and popularity."
     },
     hero: {

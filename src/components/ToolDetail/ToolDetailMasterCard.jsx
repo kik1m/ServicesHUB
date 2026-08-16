@@ -1,5 +1,5 @@
 import React from 'react';
-import { ExternalLink, Heart, Star, CheckCircle2, HelpCircle, GitCompare } from 'lucide-react';
+import { ExternalLink, Heart, CheckCircle2, HelpCircle, GitCompare, Star, Info } from 'lucide-react';
 import { getIcon } from '../../utils/iconMap.jsx';
 import Button from '../ui/Button';
 import SmartImage from '../ui/SmartImage';
@@ -7,8 +7,8 @@ import Safeguard from '../ui/Safeguard';
 import styles from './ToolDetailMasterCard.module.css';
 
 /**
- * ToolDetailMasterCard - The Advanced Elite Identity
- * Version 2.3: Zero-Background Icon Guarantee.
+ * ToolDetailMasterCard - Elite Identity Card v3.0
+ * Premium redesign: crisp layout, grouped actions, affiliate badge.
  */
 const ToolDetailMasterCard = ({ 
     tool, 
@@ -35,20 +35,25 @@ const ToolDetailMasterCard = ({
 
     if (!tool) return null;
 
+    const targetUrl = tool?.affiliate_url || tool?.url;
+    const isAffiliate = targetUrl?.includes('ref=') || targetUrl?.includes('aff=') || !!tool?.affiliate_url;
+    const relValue = isAffiliate ? "sponsored noopener noreferrer" : "noopener noreferrer";
+
     const IconComponent = getIcon(tool?.icon_name) || HelpCircle;
 
     return (
         <Safeguard error={error} onRetry={onRetry}>
             <div className={styles.premiumCardContainer}>
+
+                {/* ── LEFT: LOGO + NAME + TAGLINE ── */}
                 <div className={styles.identitySection}>
-                    {/* 100% PURE IDENTITY ANCHOR */}
                     <div className={styles.pureAvatarAnchor}>
                         <SmartImage 
                             src={tool?.image_url} 
                             alt={tool?.name} 
                             fallbackIcon={IconComponent}
                             className={styles.toolIconImg}
-                            containerClassName={styles.pureImageContainer} // Rule #19: Forcing zero background
+                            containerClassName={styles.pureImageContainer}
                         />
                     </div>
 
@@ -56,11 +61,11 @@ const ToolDetailMasterCard = ({
                         <div className={styles.topRow}>
                             <h1 className={styles.titleText}>{tool?.name}</h1>
                             {tool?.is_verified && (
-                                <CheckCircle2 size={20} className={styles.verifiedCheck} />
+                                <CheckCircle2 size={20} className={styles.verifiedCheck} strokeWidth={2.5} />
                             )}
                             {tool?.is_featured && (
                                 <div className={styles.featuredBadgeMini}>
-                                    <Star size={10} fill="currentColor" /> {content?.badges?.featured}
+                                    <Star size={9} fill="currentColor" /> {content?.badges?.featured}
                                 </div>
                             )}
                         </div>
@@ -68,13 +73,15 @@ const ToolDetailMasterCard = ({
                     </div>
                 </div>
 
+                {/* ── RIGHT: ACTIONS ── */}
                 <div className={styles.actionSection}>
                     <div className={styles.buttonStack}>
+                        {/* Primary CTA */}
                         <Button 
                             as="a"
-                            href={tool?.affiliate_url || tool?.url} 
+                            href={targetUrl} 
                             target="_blank" 
-                            rel="noopener noreferrer" 
+                            rel={relValue} 
                             variant="primary"
                             className={styles.primaryVisitBtn} 
                             icon={ExternalLink}
@@ -83,6 +90,11 @@ const ToolDetailMasterCard = ({
                         >
                             {content?.actions?.visit}
                         </Button>
+
+                        {/* Visual separator */}
+                        <div className={styles.buttonDivider} aria-hidden="true" />
+
+                        {/* Compare */}
                         <Button 
                             variant="secondary"
                             className={styles.iconicActionBtn} 
@@ -90,8 +102,10 @@ const ToolDetailMasterCard = ({
                             title="Compare Tool"
                             aria-label="Compare Tool"
                         >
-                            <GitCompare size={20} />
+                            <GitCompare size={19} />
                         </Button>
+
+                        {/* Favourite */}
                         <Button 
                             variant="secondary"
                             className={`${styles.iconicFavBtn} ${isFavorited ? styles.isActive : ''}`} 
@@ -99,13 +113,22 @@ const ToolDetailMasterCard = ({
                             aria-label={isFavorited ? "Remove from favorites" : "Add to favorites"}
                         >
                             <Heart 
-                                size={20} 
+                                size={19} 
                                 fill={isFavorited ? 'currentColor' : 'none'} 
                                 className={isFavorited ? styles.heartActive : ''} 
                             />
                         </Button>
                     </div>
+
+                    {/* Affiliate disclosure */}
+                    {isAffiliate && (
+                        <div className={styles.affiliateDisclosure}>
+                            <Info size={12} />
+                            <small>This link may include an affiliate code and does not affect our review.</small>
+                        </div>
+                    )}
                 </div>
+
             </div>
         </Safeguard>
     );

@@ -9,8 +9,14 @@ export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
 
+    const userRef = React.useRef(null);
     const lastFetchedId = React.useRef(null);
     const lastMetaRef = React.useRef(null);
+
+    // Keep ref in sync
+    useEffect(() => {
+        userRef.current = user;
+    }, [user]);
 
     const fetchProfile = useCallback(async (userId) => {
         if (!userId) return null;
@@ -35,7 +41,7 @@ export const AuthProvider = ({ children }) => {
             if (!mounted) return;
 
             if (!sessionUser) {
-                if (user !== null) setUser(null);
+                if (userRef.current !== null) setUser(null);
                 setLoading(false);
                 lastFetchedId.current = null;
                 lastMetaRef.current = null;
@@ -47,7 +53,7 @@ export const AuthProvider = ({ children }) => {
             const currentMetaStr = JSON.stringify({ metaName, metaAvatar });
 
             // If it's the same user and metadata hasn't changed, and we already have profile data, just stop
-            if (lastFetchedId.current === sessionUser.id && lastMetaRef.current === currentMetaStr && user?.updated_at) {
+            if (lastFetchedId.current === sessionUser.id && lastMetaRef.current === currentMetaStr && userRef.current?.updated_at) {
                 setLoading(false);
                 return;
             }

@@ -29,6 +29,8 @@ export default function SubmitToolPage() {
         imagePreview, setImagePreview, useManualUrl, setUseManualUrl,
         addFeature, removeFeature, handleFeatureChange,
         addUseCase, removeUseCase, handleUseCaseChange,
+        handleSectionChange, addSection, removeSection,
+        handlePlanChange, handlePlanFeatureChange, addPlan, removePlan, addPlanFeature, removePlanFeature,
         handleFileChange, handleSubmit, currentStep, nextStep, prevStep, goToStep, error, resetForm, router
     } = useToolForm({ mode: 'submit' });
 
@@ -45,6 +47,9 @@ export default function SubmitToolPage() {
         1: <ToolFormBasicInfo 
                 formData={formData} setFormData={setFormData} categories={categories} 
                 fieldErrors={fieldErrors} isFetchingInitialData={isFetchingInitialData}
+                handlePlanChange={handlePlanChange} handlePlanFeatureChange={handlePlanFeatureChange}
+                addPlan={addPlan} removePlan={removePlan} 
+                addPlanFeature={addPlanFeature} removePlanFeature={removePlanFeature}
                 content={SUBMIT_TOOL_CONSTANTS}
             />,
         2: <ToolFormMedia 
@@ -52,6 +57,7 @@ export default function SubmitToolPage() {
                 setImagePreview={setImagePreview} isUploading={isUploading}
                 useManualUrl={useManualUrl} setUseManualUrl={setUseManualUrl}
                 handleFileChange={handleFileChange} fieldErrors={fieldErrors}
+                handleSectionChange={handleSectionChange} addSection={addSection} removeSection={removeSection}
                 isFetchingInitialData={isFetchingInitialData} content={SUBMIT_TOOL_CONSTANTS}
             />,
         3: <ToolFormFeatures 

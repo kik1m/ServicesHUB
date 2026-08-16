@@ -55,6 +55,137 @@
     align-items: stretch;
 }
 
+/* --------------------------------------
+   Pricing Builder Styling
+-------------------------------------- */
+.pricingBuilderWrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin-top: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    padding-top: 2rem;
+}
+
+.sectionsHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.slimHeaderLabel {
+    font-size: 0.85rem;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+}
+
+.premiumInfoBanner {
+    background: rgba(0, 210, 255, 0.05);
+    border: 1px solid rgba(0, 210, 255, 0.1);
+    padding: 1.2rem;
+    border-radius: 16px;
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.bannerIconBg {
+    color: var(--primary);
+}
+
+.bannerContent h4 {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 4px;
+}
+
+.bannerContent p {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.planBlock {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 20px;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    position: relative;
+    transition: 0.3s ease;
+}
+
+.planBlock:hover {
+    border-color: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.planBlockHeader {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.planNameInput {
+    flex: 1;
+}
+
+.removePlanBtn, .removeFeatureBtn {
+    background: rgba(255, 50, 50, 0.1);
+    color: #ff4444;
+    border: 1px solid rgba(255, 50, 50, 0.2);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.removePlanBtn {
+    width: 44px;
+    height: 44px;
+}
+
+.removeFeatureBtn {
+    width: 36px;
+    height: 36px;
+}
+
+.removePlanBtn:hover, .removeFeatureBtn:hover {
+    background: rgba(255, 50, 50, 0.2);
+    color: #ff6666;
+}
+
+.planFeaturesList {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-left: 1rem;
+    padding-left: 1rem;
+    border-left: 2px solid rgba(255, 255, 255, 0.05);
+}
+
+.featureRow {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+}
+
+.planFeatureInput {
+    flex: 1;
+}
+
+.addFeatureBtn {
+    align-self: flex-start;
+    margin-left: 1rem;
+    margin-top: 0.5rem;
+}
+
 @media (max-width: 992px) {
     .inputGrid3, .inputGrid2 {
         grid-template-columns: 1fr;

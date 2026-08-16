@@ -8,11 +8,11 @@ import styles from './SmartImage.module.css';
  * Shared UI Atom: SmartImage (Elite v2.0 - Next.js Optimized)
  * Handles loading states, error fallbacks, and automatic performance optimization.
  */
-const SmartImage = ({ 
-    src, 
-    alt, 
+const SmartImage = ({
+    src,
+    alt,
     fallbackIcon: FallbackIcon = Sparkles,
-    className = '', 
+    className = '',
     containerClassName = '',
     objectFit = 'cover',
     priority = false,
@@ -42,22 +42,10 @@ const SmartImage = ({
     }, [src]);
 
     // --- 🛡️ Elite Hybrid Strategy (Rule #3) ---
-    // If it's an external host we don't control, use standard <img> 
-    // to prevent Next.js image-unconfigured-host crashes.
-    const isWildHost = React.useMemo(() => {
-        if (!src || typeof src !== 'string') return false;
-        if (src.startsWith('/') || src.startsWith('.') || src.includes('localhost')) return false;
-        
-        const trustedHosts = [
-            'supabase.co', 
-            'supabase.in',
-            'gstatic.com', 
-            'googleusercontent.com', 
-            'unsplash.com', 
-            'bing.net',
-        ];
-        return src.startsWith('http') && !trustedHosts.some(host => src.includes(host));
-    }, [src]);
+    // With Next.js 14 '**' remotePatterns, we now proxy ALL external images
+    // safely through Next.js Image Optimization to protect original URLs and 
+    // prevent hotlinking breaks without requiring paid storage.
+    const isWildHost = false;
 
     const handleLoad = () => {
         setIsLoading(false);
@@ -82,7 +70,7 @@ const SmartImage = ({
                     <Skeleton width="100%" height="100%" borderRadius="inherit" />
                 </div>
             )}
-            
+
             {hasError || !src ? (
                 <div className={styles.fallbackWrapper}>
                     {React.isValidElement(FallbackIcon) ? (

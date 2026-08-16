@@ -22,6 +22,9 @@ export const useToolForm = ({ mode = 'submit' } = {}) => {
     const router = useRouter();
     const { user, loading: authLoading } = useAuth();
     const { showToast } = useToast();
+    
+    const userId = user?.id;
+    const userRole = user?.role;
 
     // UI States
     const [currentStep, setCurrentStep] = useState(1);
@@ -46,23 +49,35 @@ export const useToolForm = ({ mode = 'submit' } = {}) => {
             const saved = typeof window !== 'undefined' ? localStorage.getItem(STORAGE_KEY) : null;
             return saved ? JSON.parse(saved) : {
                 name: '', url: '', short_description: '', description: '',
-                category_id: '', pricing_type: 'Free', pricing_details: '',
-                image_url: '', features: [], use_cases: []
+                category_id: '', pricing_type: 'Free', pricing_details: '', pricing_details_full: '',
+                image_url: '', features: [], use_cases: [],
+                content_sections: [{ title: 'Overview', contentText: '' }, { title: 'Innovation', contentText: '' }, { title: 'Impact', contentText: '' }],
+                pricing_plans: [{ name: 'Freemium', features: [''] }]
             };
         }
         return {
             name: '', url: '', short_description: '', description: '',
-            category_id: '', pricing_type: 'Free', pricing_details: '',
-            image_url: '', features: [], use_cases: [], is_approved: false
+            category_id: '', pricing_type: 'Free', pricing_details: '', pricing_details_full: '',
+            image_url: '', features: [], use_cases: [], is_approved: false,
+            content_sections: [],
+            pricing_plans: []
         };
     });
+
+    const hasInitializedRef = useRef(false);
+    const previousIdRef = useRef(id);
 
     // 1. Initial Data Fetching & Authorization
     useEffect(() => {
         const initialize = async () => {
             if (authLoading) return;
-            if (!user) {
+            if (!userId) {
                 router.push('/auth');
+                return;
+            }
+
+            // Prevent re-fetching if already initialized for the same tool ID (fixes tab-switch reload bug)
+            if (hasInitializedRef.current && previousIdRef.current === id) {
                 return;
             }
 
@@ -75,19 +90,54 @@ export const useToolForm = ({ mode = 'submit' } = {}) => {
 
                 if (mode === 'submit') {
                     // Check Limits for Submit Mode
-                    const isReached = await toolsService.checkSubmissionLimit(user.id);
+                    const isReached = await toolsService.checkSubmissionLimit(userId);
                     setIsLimitReached(isReached);
                     if (catData?.length > 0 && !formData.category_id) {
                         setFormData(prev => ({ ...prev, category_id: catData[0].id }));
                     }
+                    hasInitializedRef.current = true;
+                    previousIdRef.current = id;
                 } else {
                     // Fetch Tool Data for Edit Mode
                     const { data: tool, error: toolErr } = await toolsService.getToolByIdOrSlug(id);
                     if (toolErr) throw toolErr;
 
                     // Auth Check
-                    if (tool.user_id !== user.id && user.role !== 'admin') {
+                    if (tool.user_id !== userId && userRole !== 'admin') {
                         throw new Error('Unauthorized access to this tool');
+                    }
+
+                    // Parse existing description into sections if formatted
+                    let initialSections = [{ title: 'Overview', contentText: '' }, { title: 'Innovation', contentText: '' }, { title: 'Impact', contentText: '' }];
+                    if (tool.description) {
+                        try {
+                            if (tool.description.includes('[TITLE]')) {
+                                const rawSections = tool.description.split('[TITLE]').filter(Boolean);
+                                initialSections = rawSections.map(sec => {
+                                    const parts = sec.split('[CONTENT]');
+                                    return { title: parts[0]?.trim(), contentText: parts[1]?.trim() || '' };
+                                });
+                            }
+                        } catch (e) {
+                            // fallback
+                        }
+                    }
+
+                    // Parse existing pricing plans
+                    let initialPlans = [{ name: 'Freemium', features: [''] }];
+                    if (tool.pricing_details_full) {
+                        try {
+                            const planParts = tool.pricing_details_full.split('[SPLIT]');
+                            initialPlans = planParts.map(part => {
+                                const planMatch = part.match(/\[(.*?)\]/);
+                                const name = planMatch ? planMatch[1] : 'Plan';
+                                const remainingText = part.replace(/\[.*?\]/, '').trim();
+                                const features = remainingText.split('|').map(f => f.trim()).filter(Boolean);
+                                return { name, features: features.length > 0 ? features : [''] };
+                            });
+                        } catch (e) {
+                            // fallback
+                        }
                     }
 
                     const toolSnapshot = {
@@ -98,10 +148,13 @@ export const useToolForm = ({ mode = 'submit' } = {}) => {
                         category_id: tool.category_id,
                         pricing_type: tool.pricing_type,
                         pricing_details: tool.pricing_details || '',
+                        pricing_details_full: tool.pricing_details_full || '',
                         features: tool.features || [],
                         use_cases: tool.use_cases || [],
                         image_url: tool.image_url,
-                        is_approved: tool.is_approved
+                        is_approved: tool.is_approved,
+                        content_sections: initialSections,
+                        pricing_plans: initialPlans
                     };
                     // Store a deep copy of the original data for dirty checking
                     originalDataRef.current = JSON.parse(JSON.stringify(toolSnapshot));
@@ -110,6 +163,8 @@ export const useToolForm = ({ mode = 'submit' } = {}) => {
                     if (tool.image_url && !tool.image_url.includes('supabase.co')) {
                         setUseManualUrl(true);
                     }
+                    hasInitializedRef.current = true;
+                    previousIdRef.current = id;
                 }
             } catch (err) {
                 setError(err.message);
@@ -120,7 +175,7 @@ export const useToolForm = ({ mode = 'submit' } = {}) => {
         };
 
         initialize();
-    }, [id, user, authLoading, router, mode]);
+    }, [id, userId, userRole, authLoading, router, mode, formData.category_id, showToast]);
 
     // 2. Draft Persistence (Submit Mode Only)
     useEffect(() => {
@@ -141,7 +196,16 @@ export const useToolForm = ({ mode = 'submit' } = {}) => {
         }
         if (step === 2) {
             if (!formData.short_description || formData.short_description.length < rules.shortDesc.min) errors.short_description = rules.shortDesc.error;
-            if (!formData.description || formData.description.length < rules.fullDesc.min) errors.description = rules.fullDesc.error;
+            
+            let tempDesc = formData.description || '';
+            if (formData.content_sections && formData.content_sections.length > 0) {
+                tempDesc = formData.content_sections
+                    .filter(sec => sec.title?.trim() || sec.contentText?.trim())
+                    .map(sec => `[TITLE]${sec.title?.trim() || 'Section'}[CONTENT]${sec.contentText?.trim() || ''}`)
+                    .join('\n\n');
+            }
+            
+            if (!tempDesc || tempDesc.length < rules.fullDesc.min) errors.description = rules.fullDesc.error;
             if (!formData.image_url) errors.image_url = rules.image.error;
         }
 
@@ -204,6 +268,70 @@ export const useToolForm = ({ mode = 'submit' } = {}) => {
         setFormData(prev => ({ ...prev, use_cases: (prev.use_cases || []).filter((_, i) => i !== index) }));
     }, []);
 
+    // 5.2 Content Sections Logic
+    const handleSectionChange = useCallback((index, field, value) => {
+        setFormData(prev => {
+            const newSections = [...(prev.content_sections || [])];
+            newSections[index] = { ...newSections[index], [field]: value };
+            return { ...prev, content_sections: newSections };
+        });
+    }, []);
+
+    const addSection = useCallback(() => {
+        setFormData(prev => ({ ...prev, content_sections: [...(prev.content_sections || []), { title: '', contentText: '' }] }));
+    }, []);
+
+    const removeSection = useCallback((index) => {
+        setFormData(prev => ({ ...prev, content_sections: (prev.content_sections || []).filter((_, i) => i !== index) }));
+    }, []);
+
+    // 5.3 Pricing Plans Logic
+    const handlePlanChange = useCallback((planIndex, field, value) => {
+        setFormData(prev => {
+            const newPlans = [...(prev.pricing_plans || [])];
+            newPlans[planIndex] = { ...newPlans[planIndex], [field]: value };
+            return { ...prev, pricing_plans: newPlans };
+        });
+    }, []);
+
+    const handlePlanFeatureChange = useCallback((planIndex, featureIndex, value) => {
+        setFormData(prev => {
+            const newPlans = JSON.parse(JSON.stringify(prev.pricing_plans || [])); // deep copy
+            if (newPlans[planIndex]) {
+                newPlans[planIndex].features[featureIndex] = value;
+            }
+            return { ...prev, pricing_plans: newPlans };
+        });
+    }, []);
+
+    const addPlan = useCallback(() => {
+        setFormData(prev => ({ ...prev, pricing_plans: [...(prev.pricing_plans || []), { name: '', features: [''] }] }));
+    }, []);
+
+    const removePlan = useCallback((planIndex) => {
+        setFormData(prev => ({ ...prev, pricing_plans: (prev.pricing_plans || []).filter((_, i) => i !== planIndex) }));
+    }, []);
+
+    const addPlanFeature = useCallback((planIndex) => {
+        setFormData(prev => {
+            const newPlans = JSON.parse(JSON.stringify(prev.pricing_plans || []));
+            if (newPlans[planIndex]) {
+                newPlans[planIndex].features.push('');
+            }
+            return { ...prev, pricing_plans: newPlans };
+        });
+    }, []);
+
+    const removePlanFeature = useCallback((planIndex, featureIndex) => {
+        setFormData(prev => {
+            const newPlans = JSON.parse(JSON.stringify(prev.pricing_plans || []));
+            if (newPlans[planIndex]) {
+                newPlans[planIndex].features = newPlans[planIndex].features.filter((_, i) => i !== featureIndex);
+            }
+            return { ...prev, pricing_plans: newPlans };
+        });
+    }, []);
+
     // 6. Media Upload Logic
     const handleFileChange = async (e) => {
         const file = e.target.files?.[0];
@@ -239,14 +367,46 @@ export const useToolForm = ({ mode = 'submit' } = {}) => {
             return;
         }
 
+        // Prepare finalized string fields before submitting
+        const finalizedData = { ...formData };
+        
+        // 1. Serialize Description
+        if (finalizedData.content_sections && finalizedData.content_sections.length > 0) {
+            const serializedDesc = finalizedData.content_sections
+                .filter(sec => sec.title?.trim() || sec.contentText?.trim())
+                .map(sec => `[TITLE]${sec.title?.trim() || 'Section'}[CONTENT]${sec.contentText?.trim() || ''}`)
+                .join('\n\n');
+            if (serializedDesc) {
+                finalizedData.description = serializedDesc;
+            }
+        }
+
+        // 2. Serialize Pricing Plans
+        if (finalizedData.pricing_plans && finalizedData.pricing_plans.length > 0) {
+            const serializedPlans = finalizedData.pricing_plans
+                .filter(plan => plan.name?.trim() || plan.features?.some(f => f.trim()))
+                .map(plan => {
+                    const name = plan.name?.trim() || 'Plan';
+                    const features = plan.features.filter(f => f.trim()).join(' | ');
+                    return `[${name}] ${features}`;
+                })
+                .join(' [SPLIT] ');
+            
+            if (serializedPlans) {
+                finalizedData.pricing_details_full = serializedPlans;
+            }
+        }
+
         setIsSubmitting(true);
         try {
             if (mode === 'submit') {
-                const { error: submitErr } = await toolsService.createTool({ ...formData, user_id: user.id });
-                if (submitErr) throw submitErr;
+                const { submitToolAction } = await import('../actions/submitToolAction');
+                const result = await submitToolAction({ ...finalizedData, user_id: userId }, 'submit');
+                
+                if (!result.success) throw new Error(result.error);
 
                 await sendNotification(
-                    user.id,
+                    userId,
                     'Submission Successfully Logged!',
                     `We've received your request for "${formData.name}". Our curators will review it for elite quality standards within 24-48 hours.`,
                     'info'
@@ -256,7 +416,7 @@ export const useToolForm = ({ mode = 'submit' } = {}) => {
             } else {
                 // Dirty Check: Compare current form data with original snapshot
                 const orig = originalDataRef.current;
-                const COMPARABLE_FIELDS = ['name', 'url', 'short_description', 'description', 'category_id', 'pricing_type', 'pricing_details', 'image_url'];
+                const COMPARABLE_FIELDS = ['name', 'url', 'short_description', 'description', 'category_id', 'pricing_type', 'pricing_details', 'pricing_details_full', 'image_url'];
                 const hasFieldChanges = orig && COMPARABLE_FIELDS.some(k => (formData[k] || '').toString().trim() !== (orig[k] || '').toString().trim());
                 const hasFeaturesChanges = orig && JSON.stringify(formData.features || []) !== JSON.stringify(orig.features || []);
                 const hasUseCasesChanges = orig && JSON.stringify(formData.use_cases || []) !== JSON.stringify(orig.use_cases || []);
@@ -267,12 +427,14 @@ export const useToolForm = ({ mode = 'submit' } = {}) => {
                     return;
                 }
 
-                const isApproved = formData.is_approved;
-                const { error: updateErr } = await toolsService.updateTool(id, formData, isApproved);
-                if (updateErr) throw updateErr;
+                const isApproved = finalizedData.is_approved;
+                const { submitToolAction } = await import('../actions/submitToolAction');
+                const result = await submitToolAction(finalizedData, 'edit', id);
+                
+                if (!result.success) throw new Error(result.error);
 
                 await sendNotification(
-                    user.id,
+                    userId,
                     'Modifications Received',
                     `The updates for "${formData.name}" have been submitted for review. They will appear live once verified.`,
                     'info'
@@ -294,7 +456,9 @@ export const useToolForm = ({ mode = 'submit' } = {}) => {
         setFormData({
             name: '', url: '', short_description: '', description: '',
             category_id: categories[0]?.id || '', pricing_type: 'Free',
-            pricing_details: '', image_url: '', features: [], use_cases: []
+            pricing_details: '', pricing_details_full: '', image_url: '', features: [], use_cases: [],
+            content_sections: [{ title: 'Overview', contentText: '' }, { title: 'Innovation', contentText: '' }, { title: 'Impact', contentText: '' }],
+            pricing_plans: [{ name: 'Freemium', features: [''] }]
         });
         setImagePreview(null);
         setCurrentStep(1);
@@ -306,6 +470,8 @@ export const useToolForm = ({ mode = 'submit' } = {}) => {
         isUploading, isSuccess, isLimitReached, fieldErrors, imagePreview,
         useManualUrl, setUseManualUrl, addFeature, removeFeature,
         handleFeatureChange, handleUseCaseChange, addUseCase, removeUseCase,
+        handleSectionChange, addSection, removeSection,
+        handlePlanChange, handlePlanFeatureChange, addPlan, removePlan, addPlanFeature, removePlanFeature,
         handleFileChange, handleSubmit, setImagePreview,
         currentStep, nextStep, prevStep, goToStep, error, resetForm, router
     };

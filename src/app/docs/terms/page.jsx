@@ -41,7 +41,7 @@ export default function DocsLegalPage() {
                 Founders and agencies submitting software to the directory ("Makers") are bound by strict obligations:
             </p>
             <ul>
-                <li><strong>Accuracy of Listings:</strong> You warrant that all provided pricing, features, and screenshots are accurate and not misleading.</li>
+                <li><strong>Accuracy of Listings:</strong> You warrant that all provided pricing, features, and logos are accurate and not misleading.</li>
                 <li><strong>Malware & Harmful Code:</strong> Submitting software that contains malware, spyware, or violates user privacy will result in permanent removal and reporting to relevant authorities.</li>
                 <li><strong>DMCA & Copyright:</strong> You must own or have the explicit right to promote the submitted software. If you believe your intellectual property has been infringed upon (e.g., someone else claimed your tool), please submit a formal DMCA takedown notice to <code>legal@hubly-tools.com</code>.</li>
             </ul>

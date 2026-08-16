@@ -55,7 +55,7 @@ export const SEO_CONFIG = {
             keywords: ["AI directory", "SaaS comparison", "Top AI tools 2026", "AI discovery", "best AI software"]
         },
         tools: {
-            title: "AI & SaaS Tools Directory — Browse 500+ Premium Resources | HUBly",
+            title: "AI & SaaS Tools Directory — Browse {{toolsCount}}+ Premium Resources | HUBly",
             description: "Explore our curated library of elite AI tools, SaaS platforms, and automation software. Advanced filters by category, pricing, and ratings help you find the perfect match.",
             keywords: ["Software search", "Tool discovery", "SaaS comparison", "AI tools library", "browse AI software"]
         },

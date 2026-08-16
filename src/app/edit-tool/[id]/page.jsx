@@ -28,6 +28,8 @@ export default function EditToolPage() {
         isSubmitting, isUploading, fieldErrors, imagePreview, setImagePreview,
         useManualUrl, setUseManualUrl, addFeature, removeFeature, handleFeatureChange,
         addUseCase, removeUseCase, handleUseCaseChange,
+        handleSectionChange, addSection, removeSection,
+        handlePlanChange, handlePlanFeatureChange, addPlan, removePlan, addPlanFeature, removePlanFeature,
         handleFileChange, handleSubmit, currentStep, nextStep, prevStep, goToStep, error, refresh, router
     } = useToolForm({ mode: 'edit' });
 
@@ -35,14 +37,18 @@ export default function EditToolPage() {
         1: <ToolFormBasicInfo 
                 formData={formData} setFormData={setFormData} categories={categories} 
                 fieldErrors={fieldErrors} isFetchingInitialData={isFetchingInitialData}
-                content={SUBMIT_TOOL_CONSTANTS}
+                handlePlanChange={handlePlanChange} handlePlanFeatureChange={handlePlanFeatureChange}
+                addPlan={addPlan} removePlan={removePlan} 
+                addPlanFeature={addPlanFeature} removePlanFeature={removePlanFeature}
+                content={EDIT_TOOL_CONSTANTS}
             />,
         2: <ToolFormMedia 
                 formData={formData} setFormData={setFormData} imagePreview={imagePreview}
                 setImagePreview={setImagePreview} isUploading={isUploading}
                 useManualUrl={useManualUrl} setUseManualUrl={setUseManualUrl}
                 handleFileChange={handleFileChange} fieldErrors={fieldErrors}
-                isFetchingInitialData={isFetchingInitialData} content={SUBMIT_TOOL_CONSTANTS}
+                handleSectionChange={handleSectionChange} addSection={addSection} removeSection={removeSection}
+                isFetchingInitialData={isFetchingInitialData} content={EDIT_TOOL_CONSTANTS}
             />,
         3: <ToolFormFeatures 
                 formData={formData} addFeature={addFeature} removeFeature={removeFeature}

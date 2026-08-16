@@ -144,6 +144,7 @@ const AdminReviewModal = ({
                                         <Input label="Short Pitch (Tagline)" value={editData?.short_description || ''} onChange={e => setEditData({...editData, short_description: e.target.value})} />
                                         <Input label="Full Description" multiline rows={4} value={editData?.description || ''} onChange={e => setEditData({...editData, description: e.target.value})} />
                                         <Input label="Pricing Details / Notes" value={editData?.pricing_details || ''} onChange={e => setEditData({...editData, pricing_details: e.target.value})} />
+                                        <Input label="Detailed Pricing Plans (Raw)" multiline rows={4} value={editData?.pricing_details_full || ''} onChange={e => setEditData({...editData, pricing_details_full: e.target.value})} />
                                     </div>
                                 </div>
 

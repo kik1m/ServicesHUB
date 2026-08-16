@@ -30,7 +30,7 @@ export default function DocsPage() {
             </p>
             <ul>
                 <li><strong>Basic Identity:</strong> The core metadata of your software. You will provide the Tool Name, the official URL, the Pricing Model (Free, Freemium, Paid), and select the most accurate Category so users can find you instantly.</li>
-                <li><strong>Media Assets:</strong> Visuals sell software. You will upload a crisp Icon and a high-resolution hero image or screenshot that represents your product's UI.</li>
+                <li><strong>Media Assets:</strong> Visuals sell software. You must upload a high-resolution, transparent official logo that represents your brand.</li>
                 <li><strong>Deep Details:</strong> This is where you convince the buyer. You will input your core features, target use-cases, and a comprehensive description. The description fully supports rich <strong>Markdown</strong> formatting, allowing you to build beautiful, highly structured presentation pages.</li>
             </ul>
 

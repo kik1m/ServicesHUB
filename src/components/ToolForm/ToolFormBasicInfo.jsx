@@ -1,5 +1,6 @@
 import React, { memo } from 'react';
-import { Info, Zap, Globe, Layout, Star, MousePointer2 } from 'lucide-react';
+import { Info, Zap, Globe, Layout, Star, MousePointer2, Plus, Trash2 } from 'lucide-react';
+import Button from '../ui/Button';
 import Input from '../ui/Input';
 import Select from '../ui/Select';
 import Skeleton from '../ui/Skeleton';
@@ -11,7 +12,10 @@ import styles from './ToolFormBasicInfo.module.css';
  * Rule #25: Stable memoization for form sections
  * Rule #14: Centralized Constants Pattern
  */
-const ToolFormBasicInfo = memo(({ formData, setFormData, categories, fieldErrors, isFetchingInitialData, error, onRetry, content }) => {
+const ToolFormBasicInfo = memo(({ 
+    formData, setFormData, categories, fieldErrors, isFetchingInitialData, error, onRetry, content,
+    handlePlanChange, handlePlanFeatureChange, addPlan, removePlan, addPlanFeature, removePlanFeature
+}) => {
     const basic = content?.sections?.basic;
 
     if (isFetchingInitialData) {
@@ -91,6 +95,86 @@ const ToolFormBasicInfo = memo(({ formData, setFormData, categories, fieldErrors
                         value={formData?.pricing_details || ''}
                         onChange={(e) => setFormData({ ...formData, pricing_details: e.target.value })}
                     />
+                </div>
+
+                <div className={styles.pricingBuilderWrapper}>
+                    <div className={styles.sectionsHeader}>
+                        <label className={styles.slimHeaderLabel}>{basic?.fields?.pricing_plans?.label}</label>
+                        <Button 
+                            variant="ghost" 
+                            onClick={addPlan} 
+                            icon={Plus}
+                            iconSize={16}
+                            type="button"
+                        >
+                            {basic?.fields?.pricing_plans?.addPlan}
+                        </Button>
+                    </div>
+
+                    <div className={styles.premiumInfoBanner}>
+                        <div className={styles.bannerIconBg}>
+                            <Info size={22} />
+                        </div>
+                        <div className={styles.bannerContent}>
+                            <h4>{basic?.fields?.pricing_plans?.guidelines?.title}</h4>
+                            <p>{basic?.fields?.pricing_plans?.guidelines?.text}</p>
+                        </div>
+                    </div>
+
+                    {(formData?.pricing_plans || []).map((plan, planIndex) => (
+                        <div key={planIndex} className={styles.planBlock}>
+                            <div className={styles.planBlockHeader}>
+                                <Input 
+                                    placeholder={basic?.fields?.pricing_plans?.planNamePlaceholder}
+                                    value={plan.name}
+                                    onChange={(e) => handlePlanChange(planIndex, 'name', e.target.value)}
+                                    wrapperClassName={styles.planNameInput}
+                                />
+                                {formData?.pricing_plans?.length > 1 && (
+                                    <button 
+                                        type="button" 
+                                        className={styles.removePlanBtn} 
+                                        onClick={() => removePlan(planIndex)}
+                                    >
+                                        <Trash2 size={18} />
+                                    </button>
+                                )}
+                            </div>
+
+                            <div className={styles.planFeaturesList}>
+                                {plan.features.map((feature, featureIndex) => (
+                                    <div key={featureIndex} className={styles.featureRow}>
+                                        <Input 
+                                            placeholder={basic?.fields?.pricing_plans?.featurePlaceholder}
+                                            value={feature}
+                                            onChange={(e) => handlePlanFeatureChange(planIndex, featureIndex, e.target.value)}
+                                            wrapperClassName={styles.planFeatureInput}
+                                        />
+                                        {plan.features.length > 1 && (
+                                            <button 
+                                                type="button" 
+                                                className={styles.removeFeatureBtn} 
+                                                onClick={() => removePlanFeature(planIndex, featureIndex)}
+                                            >
+                                                <Trash2 size={16} />
+                                            </button>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+                            
+                            <Button 
+                                variant="ghost" 
+                                onClick={() => addPlanFeature(planIndex)} 
+                                icon={Plus}
+                                iconSize={14}
+                                type="button"
+                                className={styles.addFeatureBtn}
+                            >
+                                {basic?.fields?.pricing_plans?.addFeature}
+                            </Button>
+                        </div>
+                    ))}
                 </div>
             </div>
         </Safeguard>

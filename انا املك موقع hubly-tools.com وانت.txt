@@ -1,0 +1,3900 @@
+انا املك موقع hubly-tools.com وانت عارف ده كنت عايز اكلمك في حاجه بخصوص اضافة علي السوشيال ميديا عايز اعملها بحيث تخدم الموقع الخاص بي وتبقي رسمية وبتظهر الموقع بشكل احترافي جدا الخطوة هي عايز ابدا اعمل قناة يوتيوب وانستجرام وتيكتوك وفيسبوك يبقو خاصين بالمنصة باسم HUBly media او HUBly tools ايا كان الاسم المناسب لكل قناة المهم انه يبقي باسم المنصة HUBly وصورة لوجو المنصة كحسابات تواصل اجتماعي خاصة بالمنصة وطبعا هحط اللينكات دي في الفوتور في المنصة وفي الاماكن التي بها ايقونات خاصة بحسابات التواصل الاجتماعي لمنصة HUBly ثانيا بعد ان اقوم بعمل الحسابات علي كل منصة انا بالفعل اعمل علي انتاج فيلم بالذكاء الاصطناعي بالكامل وبمشاهد واقعية جدا وحقيقية 100% وتفاضيل بيئة وشخصيات واقعية حقيقية وتم بالفعل توليد عدد كبير من المشاهد الخاصة بهذا الفيلم القصير لذا فكرت في ان اقوم بشئ يخدم منصة hubly لانني برمجت بالفعل محرك اسمه workflow موجود داخل المنصة في صفحة AI-studio هذا الشات او النموذج يقوم المستخدمين يكتابة المشروع الذي يريدون العمل عليه ايا كان نوع المشروع ويقومون بكتابة تفاصيل المشروع وبنائا علي طبيعة ونوع مشروعهم يتم تقديم اسئلة مختلفة يتم توليدها في المرحلة التي تلي ملا بيانات المشروع من قبل النموذج ليعرف ويستفسر اكثر عن فكرة المشروع ويعرف جميع الجوانبي وبعد ان يحدد المستخدم جميع الاجوبة في المراحل التي تم توليدها ديناميكا يقوم النموذج بتوليد عناصر ومكونات بصرية وتفاعلية للمستخدم تخطط له وتتيح له فهم كيفية تنفيذ كل جزء من هذا المشروع ليس بالكلام فقط بل بالمكونات البصرية والمكونات التفاعلية التي تشرح كل جزء في الخطة او المشروع الذي يريد تنفيذه المستخدم وتشرح له ما الادوات التي يستخدمها وما النماذج التي يستخدمها وكيف يدمج نتائج الادوات مع بعضها وكيف ينظم كل مرحلة وينفذها بدقة في كل جانب من جوانب المشروع ويتيح له عمل ملفات وتقارير كاملة وتعديل اي جزء في ال workflow وتطويرة باداة refine step التي تتيح تعديل مكون او مرحلة معينة من المراحل التي قدمها النموذج لتنفيذ الخطة او المشروع بحيث ان يكون لدي المستخدم القدرة في الاستعانة بالنموذج في تخطيط المشروع بالكامل وبعد ذلك من قبل المستخدم يمكنه تعديل اي جزء من اجزاء الخطة بالكامل لتناسب متطلباته او لتقديم شرح مفصل عن هذه الخطوة او لاقتراح استخدام اداة اخري او لاي سبب قد يواجهه المستخدم عند توليد الخطة لذا اريد ان اقوم باضافة صفحة تسمي workflow projects او workflow media في المنصة هذه الصفحة عبارة عن صفحة رئيسية لجميع المستخدمين يمكن لكل مستخدم ان يقوم فيها بتحديد الworkflow التي قام بتوليدها لبناء شئ ما سواء تطبيق او فيلم قصير او اي خطة لتنفيذ اي مشروع بشكل صحيح ومفصل وبعد ذلك يقوم برفع المشروع الذي تم تنفيذ بالفعل بهذه ال workflow بحيث يكون برهان علي ال workflow بالفعل اذا قام المستخدمين باتباعها واستخدامها سيتمكنون من توليد نفس هذه النتائج التي نشرها صاحب ال workflow او فكرة المشروع والخطة التي ستنفذ بحيث مثلا اذا قمت انا بنشر اول جزء للفيلم الذي اقوم بانتاجه يمكنني ان ادخل علي محرك ال workflow واقوم بوصف المشروع الذي قمت به بالظبط وتعديل الخطوات وضبط ال workflow بحيث ان تكون بالظبط بنفس الطريقة التي اتبعتها لتوليد هذا الفيلم بشكل صحيح ومثالي واقوم بنشر ال workflow لمن يريد العمل علي انتاج افلام ولا يعرف كيف يحافظ علي اتساق الشخصية او البيئة او اي شئ وهكذا لتكون ال workflows الخاصة بالمستخدمين بشكل عام يتم نشرها علي حسابات التواصل الاجتماعي بشكل عام وفي نفس الوقت يمكنهم مشاركة ال workflow الخاصة بهم علي موقع hubly بحيث ان تجلب لهم فرصة عمل او تجلب لهم مستخدمين وتعليقات واعجابات وهكذا لذا اريد ان اقوم بعمل قنوات التواصل الاجتماعي بحيث ان تخدم المنصة في مشاهدات لمحبين مجال الذكاء الاصطناعي وتوليد الافلام والمحتوي لانني ساقوم بمشاركة لينك ال workflow الذي تم توليد الفيدية به في وصف كل فيديو ساقوم بنشره بحيث اذا كان هناك مستخدمين يريدون معرفة كيفية انشاء محتوي او البدء يمكنهم ان يدخلو علي الموقع سيجدو كل الادوات والمحركات والنماذج والطرق وال workflows الجاهزة التي يمكنهم ان يستخدموها ويتبعو الطرق الموضحة بها وبعد ذلك يقومون بالتعلم وبدء تنفيذ فكرتهم ومشروعهم الخاص علي محرك hubly ايضا ليبداو في تنفيذ ال workflow الخاصة بهم لذا انا لا اركذ علي مستخدمين يشاهدون الفيدوهات فقط بل اركز علي اكثر من نوع مستخدم واريد ان اقوم بضبط هذه الدورة او ال looop حتي يصل المستخدمين او جزء بسيط منهم الي محرك ال workflow ويبداو في زيارة المنصة باستمرار وعمل حسابات عليها 
+Worked for 7s
+
+أيوه، وأنا شايف إن الفكرة اللي بتوصفها أقوى بكتير من مجرد “نعمل سوشيال ميديا لـ HUBly”. أنت فعليًا بتبني حلقة نمو كاملة حول الـ Workflow Engine، والـ AI film اللي بتعمله حاليًا ممكن يكون أول Case Study حقيقي يثبت الفكرة.
+
+وأنا فاكر إن هدفك من البداية مش مجرد جذب Traffic، لكن جذب ناس عندها نية فعلية لاستخدام أدوات AI وتنفيذ مشاريع. والفكرة الحالية مناسبة جدًا لهذا الهدف.
+
+راجعت وضع HUBly الحالي أيضًا؛ الموقع بالفعل يقدّم نفسه كمنظومة لاكتشاف ومقارنة أدوات AI/SaaS، وAI Studio جزء أساسي من طريقة استخدام المنصة.
+
+1. أولًا: أنا لا أنصحك بـ "HUBly Media"
+
+أنا أميل جدًا إلى:
+
+HUBly
+
+ويكون نفس الـ Brand Name على كل المنصات:
+
+YouTube → HUBly
+Instagram → HUBly
+TikTok → HUBly
+Facebook → HUBly
+Website → HUBly Tools
+Logo → نفس Logo
+Username → أقرب شكل موحّد ممكن في كل المنصات
+
+لأن HUBly Media يوحي أن الشركة نفسها شركة Media/Production.
+
+لكن أنت لا تريد ذلك.
+
+أنت تريد أن تقول:
+
+HUBly is the platform.
+
+والـ Media مجرد قناة توزيع للـ platform.
+
+مثلاً في YouTube:
+
+HUBly
+AI Tools • Workflows • Creative Projects
+
+وفي الـ bio:
+
+Discover the tools. Build the workflow. Create the result.
+
+وبالتالي لما شخص يشاهد فيلمًا عندك، لا يشعر أنه شاهد فيديو من قناة منفصلة اسمها "HUBly Media"، وإنما شاهد مشروعًا تم إنتاجه بواسطة HUBly.
+
+2. والأهم: لا تجعل الفيلم هو المنتج
+
+دي نقطة مهمة جدًا.
+
+الفيلم الذي تعمل عليه ليس الهدف النهائي.
+
+الفيلم هو:
+
+Proof of Workflow.
+
+يعني أنت لا تقول:
+
+"شوفوا الفيلم اللي عملناه بالـ AI."
+
+بل تقول ضمنيًا:
+
+"This is what happens when you follow a properly designed AI production workflow."
+
+وهنا يتحول الفيلم من Content إلى Demonstration للمنتج.
+
+وهذا أقوى بكثير.
+
+3. الـ Loop الذي أنت تصفه ممتاز
+
+أنا هعيد صياغته بالشكل الذي أراه الأنسب:
+
+SOCIAL CONTENT
+      ↓
+Interesting AI Project
+      ↓
+"I want to know how this was made"
+      ↓
+HUBly Workflow
+      ↓
+Complete visual workflow
+      ↓
+Tools + Models + Prompts + Assets + Steps
+      ↓
+User follows workflow
+      ↓
+Creates his own project
+      ↓
+Publishes Project + Workflow
+      ↓
+HUBly Workflow Media
+      ↓
+New Content
+      ↓
+SOCIAL MEDIA
+      ↓
+...
+
+وده مهم جدًا لأن الحلقة مش بتعتمد عليك وحدك إلى الأبد.
+
+في البداية:
+
+You → Content
+
+بعد ذلك:
+
+You + Users → Content
+
+ثم في مرحلة متقدمة:
+
+Users → Workflows → Projects → Content → Users
+
+وهنا تبدأ المنصة في بناء Network Effect حقيقي.
+
+4. وهنا أرى أن اسم الصفحة يحتاج تعديل بسيط
+
+أنت اقترحت:
+
+Workflow Projects
+Workflow Media
+
+أنا أفضّل أن تفصل بين مفهومين:
+
+Projects
+
+المشروع النهائي.
+
+مثلاً:
+
+AI Short Film — "The Last Warehouse"
+
+وفي الصفحة تشاهد:
+
+الفيديو
+الصور
+صاحب المشروع
+الأدوات المستخدمة
+مدة المشروع
+مستوى المشروع
+Workflow
+
+ثم:
+
+Workflow
+
+الطريقة التي تم بها بناء المشروع.
+
+يعني:
+
+PROJECT
+The Last Warehouse
+
+Created by Karim
+
+[Watch Project]
+
+Built with HUBly Workflow
+        ↓
+[View Workflow]
+
+والـ Workflow نفسها تحتوي على:
+
+Idea
+ ↓
+Story Development
+ ↓
+Character Design
+ ↓
+Character Consistency
+ ↓
+Environment Design
+ ↓
+First Frames
+ ↓
+Image Generation
+ ↓
+Video Generation
+ ↓
+Voice
+ ↓
+Sound Design
+ ↓
+Editing
+ ↓
+Final Output
+
+لكن كل Step تكون Interactive وليست مجرد Text.
+
+5. وهنا تأتي أقوى نقطة في HUBly
+
+الـ Workflow التي وصفتها ليست:
+
+"استخدم Kling ثم Runway ثم ElevenLabs."
+
+ده موجود في آلاف الـ tutorials.
+
+أنت تريد أن تجعلها:
+
+Reproducible Project Blueprint
+
+مثلاً:
+
+STEP 04 — Character Consistency
+
+داخلها:
+
+Goal
+
+الحفاظ على نفس Jason في جميع المشاهد.
+
+References
+
+Character Sheet
+
+Tools
+
+Image model
+Image editing model
+Video model
+
+Input
+
+Character reference
+
+Prompt
+
+...
+
+Settings
+
+...
+
+Output
+
+Character reference image
+
+Next Step
+
+Environment integration
+
+وبالتالي المستخدم لا يحصل على:
+
+"معلومة"
+
+بل يحصل على:
+
+طريقة تنفيذ.
+
+وده فرق ضخم.
+
+6. والأهم: الـ Workflow يجب أن تثبت نفسها بالـ Result
+
+وهنا فكرة الفيلم عندك تصبح قوية جدًا.
+
+مثلاً صفحة مشروعك:
+
+The Last Warehouse
+
+Result
+
+[🎬 Watch Film]
+
+ثم:
+
+How it was made
+
+This project was created using a HUBly Workflow.
+
+27 Steps
+
+14 Tools
+
+8 AI Models
+
+43 Assets
+
+12 Character References
+
+9 Environment References
+
+ثم:
+
+[Explore Full Workflow]
+
+وده يجعل الـ Workflow نفسها جزءًا من الـ Content.
+
+7. وهنا أريد إضافة شيء مهم جدًا: "Proof"
+
+كل Workflow منشورة لا تجعلها مجرد Workflow.
+
+اعمل لها:
+
+Workflow Proof
+
+مثلاً:
+
+Verified Project
+
+This workflow was used to produce the project shown above.
+
+ثم:
+
+Result Preview
+
+🎬
+
+Workflow Version
+
+v1.4
+
+Creator
+
+HUBly / Karim
+
+Tools
+
+Kling
+Runway
+ElevenLabs
+...
+
+Execution
+
+Completed
+
+لأن أكبر مشكلة في أي Workflow marketplace هي:
+
+"هل الكلام ده فعلاً بيشتغل؟"
+
+أنت تستطيع حلها عن طريق ربط:
+
+Workflow → Actual Result
+
+وهذا يعطي النظام قيمة كبيرة.
+
+8. وهنا Social Media تصبح طبقة تسويق للـ Workflow
+
+مثلاً تعمل فيديو TikTok مدته 25 ثانية:
+
+"I wanted to create a realistic cinematic fight scene entirely with AI."
+
+ثم تعرض:
+
+لقطة من الفيلم
+character
+environment
+action
+final shot
+
+وفي النهاية:
+
+Want to see exactly how it was made?
+
+ثم:
+
+Full Workflow → HUBly
+
+الرابط ليس:
+
+Home page
+
+بل:
+
+hubly-tools.com/workflows/the-last-warehouse
+
+ودي نقطة مهمة جدًا.
+
+لا ترسل الشخص إلى Homepage إذا كان عنده Intent محدد.
+
+9. الرابط في كل فيديو يجب أن يكون Deep Link
+
+مثلاً:
+
+TikTok
+
+Full workflow ↓
+hubly-tools.com/workflow/...
+
+Instagram
+
+Full workflow in bio.
+
+YouTube
+
+Description:
+
+🎬 BUILD THIS PROJECT
+
+Explore the complete HUBly Workflow used to create this film:
+
+→ Full Workflow
+
+🛠 Tools & Models
+
+See every tool, model, prompt, asset and production step inside HUBly.
+
+وهكذا.
+
+10. والأجمل أن الـ Workflow نفسها تصبح SEO pages
+
+هنا HUBly يبدأ يتجاوز Social Media.
+
+مثلاً شخص يبحث:
+
+How to maintain AI character consistency
+
+أو:
+
+How to make AI short film
+
+أو:
+
+Kling cinematic workflow
+
+ويجد Workflow عندك.
+
+فتصبح الصفحة:
+
+AI Short Film Production Workflow
+
+وتحتها:
+
+A complete production workflow for creating a consistent cinematic AI short film.
+
+ثم:
+
+Tools
+Models
+Steps
+Prompts
+References
+Result
+
+وبالتالي عندك:
+
+Social Traffic + Search Traffic + Product Traffic
+
+كلهم داخل نفس النظام.
+
+11. وأنت هنا تبني شيئًا مختلفًا عن Directory
+
+وده مهم جدًا بالنسبة لـ HUBly.
+
+الموقع حاليًا في صورته الأساسية يقول:
+
+Find the right AI tools.
+
+لكن الـ Workflow ecosystem يمكن أن يجعل الرسالة:
+
+Find the right tools → Learn how to use them → Build a workflow → Create a project → Share the result.
+
+وده تطور كبير جدًا في Positioning.
+
+يعني HUBly يصبح:
+
+AI Project Execution Platform
+
+وليس فقط:
+
+AI Tools Directory
+12. عندي تصور أقوى للـ Homepage نفسها في المستقبل
+
+بدل ما يكون المسار:
+
+Find Tools
+Compare Tools
+AI Studio
+
+يصبح:
+
+DISCOVER
+   ↓
+PLAN
+   ↓
+BUILD
+   ↓
+PROVE
+   ↓
+SHARE
+DISCOVER
+
+اكتشف الأدوات.
+
+PLAN
+
+استخدم AI Studio / Workflow Engine.
+
+BUILD
+
+نفّذ المشروع.
+
+PROVE
+
+اربط النتيجة بالـ Workflow.
+
+SHARE
+
+انشر المشروع والـ Workflow.
+
+ثم:
+
+SHARE
+   ↓
+NEW USERS
+   ↓
+DISCOVER
+   ↓
+PLAN
+   ↓
+BUILD
+   ↓
+PROVE
+   ↓
+SHARE
+
+وده هو الـ Flywheel الحقيقي.
+
+13. والـ Social Accounts تصبح "واجهة إعلامية" للـ Flywheel
+
+أنا أقترح توزيع الأدوار هكذا:
+
+YouTube
+
+المحتوى الطويل:
+
+Short Films
+Behind the Scenes
+Full AI Production
+Workflow Tutorials
+Project Breakdowns
+Case Studies
+
+YouTube هو المكتبة الرئيسية للمحتوى.
+
+TikTok
+
+Discovery.
+
+أسرع وأكثر إثارة:
+
+cinematic shots
+before/after
+AI transformations
+15–45 sec scenes
+"How I made this"
+interesting AI workflows
+
+الهدف:
+
+Curiosity → HUBly
+
+Instagram
+
+نفس الـ visual identity لكن أكثر احترافية:
+
+Reels
+Carousels
+Cinematic stills
+Workflow snippets
+Project showcases
+Facebook
+
+يمكن أن يكون توزيعًا إضافيًا للمحتوى + Community لاحقًا.
+
+14. لكن لا تجعل Social Media تبدو كإعلان لـ HUBly طوال الوقت
+
+دي نقطة خطيرة.
+
+لو كل فيديو:
+
+HUBly! HUBly! HUBly! Sign up! HUBly!
+
+الناس ستشعر أنه Advertisement.
+
+الأفضل:
+
+90% Value / Entertainment
+
+و
+
+10% Brand
+
+مثلاً:
+
+"This entire scene was generated with AI."
+
+وبعدها:
+
+Full workflow available on HUBly.
+
+كفاية.
+
+الـ Brand يظهر من:
+
+logo
+visual identity
+account name
+description
+link
+workflow page
+
+بدون إجبار المستخدم على شراء شيء.
+
+15. وأعتقد أن أول فيلم لك يجب أن يكون Case Study رسمي
+
+بمعنى أنك لا تنشر الفيلم فقط.
+
+تعمل له Project Page كاملة.
+
+مثلاً:
+
+THE LAST WAREHOUSE
+
+An AI-generated cinematic short film
+
+WATCH
+
+🎬 Film
+
+PROJECT
+
+Genre
+Action / Thriller
+
+CREATED WITH
+
+Kling
+Runway
+ElevenLabs
+...
+
+PRODUCTION
+
+Characters
+Environments
+Scenes
+Voice
+Sound
+Editing
+
+WORKFLOW
+
+27 production steps
+
+[Open Full Workflow]
+
+CREATOR
+
+HUBly
+
+ثم كل فيديو Social متعلق بالفيلم يربط بهذه الصفحة.
+
+16. وبعدها تبدأ تعمل سلسلة كاملة
+
+بدل:
+
+فيديو → فيديو → فيديو → فيديو
+
+تعمل:
+
+HUBly Projects
+
+مثلاً:
+
+Project 001
+
+The Last Warehouse
+
+ثم:
+
+Project 002
+
+AI Product Commercial
+
+ثم:
+
+Project 003
+
+AI Horror Short
+
+ثم:
+
+Project 004
+
+AI Music Video
+
+ثم:
+
+Project 005
+
+AI Animated Short
+
+وكل مشروع له:
+
+Result + Workflow
+
+17. وهنا المستخدم الآخر يدخل اللعبة
+
+شخص عنده Workflow ممتازة.
+
+ينشر:
+
+Cinematic AI Product Commercial Workflow
+
+ويضع:
+
+🎬 Result
+
+ثم:
+
+🧩 Workflow
+
+ثم:
+
+🛠 Tools
+
+ثم:
+
+📁 Assets
+
+ثم:
+
+👤 Creator
+
+ثم:
+
+❤️ Likes
+
+💬 Comments
+
+👁 Views
+
+والأهم:
+
+Follow Creator
+
+وهنا تبدأ HUBly تتحول من:
+
+Tool Directory
+
+إلى:
+
+AI Creation Community
+
+18. ويمكن أن يكون هناك "Fork Workflow"
+
+دي ميزة أراها شديدة الأهمية مستقبلًا.
+
+لو أعجبتني Workflow:
+
+Create Cinematic AI Film
+
+أضغط:
+
+Use This Workflow
+
+فتُنسخ إلى حسابي.
+
+ثم:
+
+Adapt this workflow to my project.
+
+وهنا الـ Workflow Engine يبدأ العمل.
+
+المستخدم لا يبدأ من الصفر.
+
+يأخذ:
+
+Proven Workflow
+
+ويعدلها.
+
+19. وبالتالي يصبح عندك 4 أنواع من المستخدمين
+
+وده متوافق جدًا مع الفكرة التي وصفتها.
+
+1. Viewer
+
+يشاهد المحتوى فقط.
+
+لا مشكلة.
+
+هو أعلى طبقة في الـ funnel.
+
+2. Explorer
+
+دخل HUBly لأنه يريد معرفة:
+
+"How was this made?"
+
+يبدأ يتصفح Workflow.
+
+3. Creator
+
+يستخدم Workflow Engine ويبدأ مشروعه.
+
+4. Workflow Creator
+
+أنهى المشروع، وينشر:
+
+Project + Workflow
+
+وهذا الشخص هو الذي يبدأ بإنتاج محتوى جديد للمنصة.
+
+20. وفي مرحلة لاحقة يمكن أن تضيف Creator Reputation
+
+مثلاً:
+
+Creator Profile
+
+Karim
+
+Projects: 12
+Workflows: 8
+Successful Uses: 347
+Likes: 2.4K
+Followers: 890
+
+ثم Badges:
+
+Verified Workflow
+
+Featured Creator
+
+Top Workflow
+
+AI Filmmaker
+
+وهذا يعطي الناس حافزًا حقيقيًا للنشر.
+
+21. وأنت تحديدًا لديك ميزة قوية جدًا كبداية
+
+أنت لا تبدأ بمنصة فارغة.
+
+عندك بالفعل مشروع حقيقي:
+
+AI Short Film
+
+وتقوم بإنتاجه الآن بالفعل.
+
+فأنت تستطيع أن تكون:
+
+First Creator
+
+وتعمل:
+
+HUBly Official Workflows
+
+ثم عندما يبدأ المستخدمون في الدخول:
+
+Community Workflows
+
+وبالتالي عند إطلاق الصفحة لا تكون فارغة.
+
+22. لكن هناك نقطة مهمة جدًا في التنفيذ
+
+أنا لا أنصحك أن تبدأ بتطوير Marketplace ضخم من أول يوم.
+
+ابدأ بـ MVP صغير جدًا:
+
+Workflow Projects
+
+كل Project يحتوي:
+
+Title
+Description
+Creator
+Category
+Cover
+Video / Result
+Workflow ID
+Tools
+Models
+Difficulty
+Tags
+Likes
+Views
+Comments
+
+ثم:
+
+[View Workflow]
+
+والـ Workflow تكون موجودة أصلًا داخل محرك HUBly.
+
+يعني أنت لا تبني Workflow System جديد.
+
+أنت فقط تبني:
+
+Publishing + Discovery Layer
+
+فوق الـ Workflow Engine الموجود.
+
+وده يوفر عليك كمية ضخمة من العمل.
+
+23. وأهم شيء: لا تجعل الـ Workflow المنشورة Static
+
+لو عندك Workflow:
+
+AI Short Film Production
+
+يجب أن يكون هناك:
+
+Use Workflow
+
+وليس فقط:
+
+View Workflow
+
+لأن الفرق كبير.
+
+View = قراءة.
+
+Use = بداية مشروع.
+
+أنت تريد:
+
+Watch
+ ↓
+Interested
+ ↓
+View Workflow
+ ↓
+Use Workflow
+ ↓
+HUBly AI Studio
+ ↓
+Create Project
+
+هنا يتحول الـ Content إلى Product Activation.
+
+24. وأعتقد أن الـ CTA الأقوى ليس "Sign Up"
+
+بدل:
+
+Create an account
+
+استخدم:
+
+Build This Yourself
+
+أو:
+
+Use This Workflow
+
+أو:
+
+Recreate This Project
+
+ثم لو المستخدم غير مسجل:
+
+Create your free HUBly account to use this workflow.
+
+ده أفضل بكثير من:
+
+Join HUBly.
+
+لأنك تربط التسجيل بهدف حقيقي.
+
+25. وبالتالي الـ funnel النهائي الذي سأبنيه لو كنت مكانك
+             SOCIAL MEDIA
+                   │
+        ┌──────────┴──────────┐
+        ↓                     ↓
+   ENTERTAINMENT          EDUCATION
+   AI FILMS               AI CREATION
+        │                     │
+        └──────────┬──────────┘
+                   ↓
+             PROJECT PAGE
+                   ↓
+          "HOW WAS IT MADE?"
+                   ↓
+             WORKFLOW
+                   ↓
+           "USE WORKFLOW"
+                   ↓
+              HUBly AI
+                STUDIO
+                   ↓
+            CREATE PROJECT
+                   ↓
+             GET RESULT
+                   ↓
+          PUBLISH PROJECT
+                   ↓
+          PUBLISH WORKFLOW
+                   ↓
+           CREATOR PROFILE
+                   ↓
+          SOCIAL DISTRIBUTION
+                   ↓
+                 LOOP
+
+وده في رأيي أقوى جزء في الفكرة كلها.
+
+26. والأهم من الـ Views: الـ Metrics التي يجب أن تراقبها
+
+لا تقيس نجاح Social Media بـ:
+
+1M views
+
+فقط.
+
+أنت تريد:
+
+Social
+
+Views
+
+↓
+
+Profile Visits
+
+↓
+
+HUBly Clicks
+
+↓
+
+Workflow Views
+
+↓
+
+Workflow Uses
+
+↓
+
+Signups
+
+↓
+
+Projects Created
+
+↓
+
+Workflows Published
+
+وده هو الـ Funnel الحقيقي.
+
+مثلاً:
+
+100,000 Views
+      ↓
+4,000 Profile Visits
+      ↓
+1,500 HUBly Visits
+      ↓
+700 Workflow Views
+      ↓
+250 Workflow Uses
+      ↓
+120 Signups
+      ↓
+50 Projects
+      ↓
+10 New Workflows
+
+الـ 10 Workflows الجديدة أهم بالنسبة لك من ملايين المشاهدات الفارغة.
+
+لأن هؤلاء يبدأون بتغذية النظام من الداخل.
+
+27. وبالتالي أنا أرى أن الـ Positioning النهائي لـ HUBly يمكن أن يتطور إلى شيء أقوى
+
+الموقع حاليًا يقول بشكل أساسي:
+
+Discover, Compare & Launch the World's Best AI & SaaS Tools.
+
+ومع إضافة النظام الذي تصفه، يمكن أن يصبح المفهوم:
+
+Discover the tools. Build the workflow. Create the project. Share the result.
+
+وده يلخص المنظومة كلها في جملة واحدة.
+
+الخلاصة
+
+أنا مؤيد جدًا للفكرة، لكن ليس باعتبارها "إضافة Social Media".
+
+أنا أراها كالتالي:
+
+HUBly
+
+The AI Project Execution Ecosystem
+
+وفي داخله:
+
+Tools
+→ ماذا أستخدم؟
+
+AI Studio / Workflow
+→ كيف أنفذ؟
+
+Projects
+→ ماذا تم إنشاؤه؟
+
+Workflow Media
+→ كيف تم إنشاؤه؟
+
+Creators
+→ من أنشأه؟
+
+Social Media
+→ كيف نكتشفه؟
+
+والحلقة:
+
+Content → Project → Workflow → HUBly → Creation → Result → Published Workflow → Content
+
+هي بالضبط النوع من الـ loop الذي يمكن أن يجعل الـ Social Media تخدم المنتج، والمنتج يخدم الـ Social Media، بدل أن تكون قنوات منفصلة لا علاقة لها بالمنصة.
+
+وبالنسبة لي، أول خطوة عملية ليست إنشاء Facebook/TikTok عشوائيًا؛ بل تثبيت Brand Architecture + اسم الحسابات + هيكل صفحة Project + هيكل صفحة Workflow + الـ CTA والـ Funnel، وبعدها نبني أول Project رسمي للفيلم الذي تعمل عليه بحيث يصبح HUBly's first flagship case study.
+
+حاليا لو هبدا من الجانب البرمجي في الخطة دي عايزك تديني جميع النقاط البرمجية الكاملة من ال ا الي ال ي بالظبط وبالتفصيل عن  كل الي ذككؤته بحيث ابدا اشتغل عليها واعمل السيستيم بالكامل الي هيبقي متوقف علي شغل السوشيال ميديا والصفحات 
+Worked for 8s
+
+تمام. بما إنك قررت تبدأ من الجانب البرمجي أولًا، فأنا أنصحك ألا تتعامل مع الموضوع كإضافة صفحة Workflow Projects فقط. النظام الذي وصفته يحتاج أن يتبني كـ طبقة كاملة فوق الـ Workflow Engine الموجود حاليًا في HUBly، بحيث يصبح الـ Workflow نفسه أصلًا قابلًا للنشر، والمشاركة، والاستخدام، والربط بنتيجة حقيقية.
+
+وأنا هبني الخطة التالية على البنية التي تستخدمها حاليًا في HUBly: Next.js 16 + React 19 + Supabase + Vercel، مع قواعدك الحالية Logic Isolation / Hooks / Service Layer / CSS Modules / Unified UI Atoms، ومن غير ما نكسر الـ Workflow Engine الحالي أو نعيد بناءه من الصفر.
+
+1. الصورة البرمجية الكاملة للنظام
+
+قبل كتابة أي كود، ثبت هذه المعمارية في ذهنك:
+
+                         ┌──────────────────────┐
+                         │     SOCIAL MEDIA     │
+                         │ YouTube / TikTok     │
+                         │ Instagram / Facebook │
+                         └──────────┬───────────┘
+                                    │
+                                    │ Traffic
+                                    ↓
+                         ┌──────────────────────┐
+                         │    HUBly PROJECT     │
+                         │      PUBLIC PAGE    │
+                         └──────────┬───────────┘
+                                    │
+                    ┌───────────────┴──────────────┐
+                    ↓                              ↓
+             WATCH RESULT                    VIEW WORKFLOW
+                                                   │
+                                                   ↓
+                                          USE THIS WORKFLOW
+                                                   │
+                                                   ↓
+                                          HUBly AI STUDIO
+                                                   │
+                                                   ↓
+                                          CREATE / EDIT
+                                                   │
+                                                   ↓
+                                              PROJECT
+                                                   │
+                                                   ↓
+                                     PUBLISH PROJECT + WORKFLOW
+                                                   │
+                                                   ↓
+                                          CREATOR PROFILE
+                                                   │
+                                                   ↓
+                                        NEW DISCOVERY CONTENT
+                                                   │
+                                                   └──────────→ SOCIAL
+
+والـ backend يكون تقريبًا:
+
+Auth
+ │
+ ├── Profiles
+ │
+ ├── Projects
+ │      │
+ │      └── Project Results / Media
+ │
+ ├── Workflows
+ │      │
+ │      ├── Versions
+ │      ├── Steps
+ │      ├── Tools
+ │      ├── Assets
+ │      └── Outputs
+ │
+ ├── Workflow Usage
+ │
+ ├── Likes
+ │
+ ├── Comments
+ │
+ ├── Follows
+ │
+ ├── Saves
+ │
+ ├── Views
+ │
+ ├── Reports
+ │
+ └── Analytics
+2. أهم قرار معماري: Workflow ليست Project
+
+دي أهم نقطة في النظام كله.
+
+لا تعمل:
+
+project.workflow_data
+
+وتعتبرها كل شيء.
+
+لأن عندك أصلين مختلفين:
+
+Project
+
+هو النتيجة.
+
+مثال:
+
+The Last Warehouse
+
+ويحتوي على:
+
+فيديو
+صور
+وصف
+Creator
+Category
+Cover
+أدوات
+Workflow المستخدمة
+Workflow
+
+هي طريقة التنفيذ.
+
+مثلاً:
+
+Cinematic AI Short Film Production Workflow
+
+وتحتوي على:
+
+Project Brief
+Questions
+Answers
+Steps
+Tools
+Models
+Prompts
+Inputs
+Outputs
+Dependencies
+Instructions
+Refinements
+Versions
+
+وبالتالي:
+
+Project
+   │
+   └── uses
+          ↓
+       Workflow
+
+وليس:
+
+Workflow = Project
+3. اعمل Layer جديدة اسمها Publishing Layer
+
+الـ Workflow Engine الموجود لديك وظيفته:
+
+Generate / Edit / Refine Workflow
+
+لكن النظام الجديد يحتاج Layer:
+
+Publish / Discover / Use / Share
+
+إذن لا تدخل Publishing Logic داخل الـ Workflow Engine نفسه.
+
+المعمارية:
+
+src/
+│
+├── app/
+│
+├── components/
+│
+├── hooks/
+│
+├── services/
+│
+├── lib/
+│
+└── features/
+       │
+       ├── workflow/
+       │
+       ├── projects/
+       ├── creators/
+       ├── social/
+       └── publishing/
+
+والـ Workflow Engine يظل مستقلًا.
+
+4. قاعدة البيانات — الجزء الأهم
+
+ابدأ من Database Schema.
+
+profiles
+
+لو عندك profiles بالفعل، استخدم الموجود ولا تعمل جدولًا موازيًا.
+
+مثلاً:
+
+profiles
+--------
+id
+username
+display_name
+avatar_url
+bio
+website_url
+is_creator
+is_verified
+created_at
+updated_at
+
+ولا تخزن بيانات المستخدم الأساسية في Projects.
+
+Project يحتفظ فقط بـ:
+
+creator_id
+5. جدول workflows
+
+الـ Workflow المنشورة تحتاج Entity مستقلة.
+
+workflows
+---------
+id
+owner_id
+title
+slug
+description
+short_description
+cover_image_url
+category_id
+status
+visibility
+difficulty
+estimated_time
+version
+source_workflow_id
+created_at
+updated_at
+published_at
+status
+draft
+published
+archived
+visibility
+private
+unlisted
+public
+6. لكن لا تخزن Workflow كاملة في صف واحد فقط
+
+عندك Workflow Engine معقد.
+
+لذلك لا تجعل:
+
+workflows.data = giant JSON
+
+هو الحل الوحيد.
+
+الأفضل:
+
+workflow
+   │
+   ├── workflow_versions
+   │       │
+   │       └── workflow_steps
+   │
+   ├── workflow_tools
+   ├── workflow_assets
+   └── workflow_outputs
+7. workflow_versions
+
+هذه مهمة جدًا.
+
+لأن المستخدم قد ينشر:
+
+v1.0
+
+ثم يكتشف:
+
+Step 8 يحتاج تعديل.
+
+فيعمل:
+
+v1.1
+
+لكن المشروع القديم يجب ألا يتغير.
+
+لذلك:
+
+workflow_versions
+-----------------
+id
+workflow_id
+version_number
+title
+description
+snapshot
+created_by
+created_at
+is_current
+
+والـ snapshot يمكن أن يحتوي الحالة الكاملة للـ Workflow في تلك النسخة.
+
+وهذا مهم جدًا للأمان التاريخي.
+
+8. لماذا Snapshot مهم؟
+
+تخيل:
+
+أنت نشرت:
+
+AI Film Workflow v1
+
+وأنتجت الفيلم فعلًا باستخدام:
+
+Step 1
+Step 2
+Step 3
+...
+
+بعد شهر عدلت:
+
+Step 7
+
+لو Project مرتبط بالـ live Workflow مباشرة، ستتغير طريقة إنتاج المشروع التاريخية.
+
+لذلك:
+
+PROJECT
+   ↓
+workflow_id
+workflow_version_id
+
+وبالتالي:
+
+هذا المشروع تم إنتاجه باستخدام Workflow v1.0.
+
+حتى لو أصبحت النسخة الحالية:
+
+v3.2
+9. workflow_steps
+
+لو الـ Workflow Engine عندك لديه structure بالفعل، لا تعيد اختراعها.
+
+لكن منطقيًا كل Step يجب أن تحتوي على:
+
+workflow_steps
+--------------
+id
+workflow_version_id
+step_key
+position
+title
+description
+type
+objective
+instructions
+input_schema
+output_schema
+metadata
+created_at
+updated_at
+
+والـ type ممكن يكون:
+
+planning
+generation
+editing
+validation
+tool
+prompt
+integration
+export
+decision
+10. أهم جزء في الـ Step
+
+كل Step يجب أن تعرف:
+
+INPUT
+   ↓
+PROCESS
+   ↓
+OUTPUT
+
+مثال:
+
+Step:
+Character Reference Creation
+
+INPUT:
+Character description
+
+PROCESS:
+Generate reference sheet
+
+TOOL:
+Image Model
+
+OUTPUT:
+Character Reference Image
+
+NEXT:
+Scene Composition
+
+وده هو الذي سيجعل الـ Workflow Interactive فعلًا.
+
+11. workflow_tools
+
+لا تنسخ معلومات الأدوات كاملة داخل Workflow.
+
+اربطها بالـ Tools الموجودة أصلًا في HUBly.
+
+مثلاً:
+
+workflow_tools
+--------------
+id
+workflow_version_id
+tool_id
+step_id
+usage_type
+configuration
+position
+
+وبالتالي:
+
+Workflow
+   ↓
+Tool
+   ↓
+HUBly Tool Detail
+
+وده مهم جدًا لأن عندك أصلًا Tool Directory.
+
+إذا تغيرت بيانات الأداة في HUBly:
+
+Tool Detail يتحدث
+
+لكن الـ Workflow تحتفظ بالمعلومة التاريخية المطلوبة في configuration.
+
+12. Models
+
+نفس الفكرة.
+
+لو عندك Models منفصلة:
+
+workflow_models
+---------------
+workflow_version_id
+model_id
+step_id
+configuration
+
+ولا تكتب:
+
+"Kling"
+
+فقط كنص حر في كل مكان.
+
+اربطه بـ Entity.
+
+13. workflow_assets
+
+مثلاً:
+
+Character Reference
+Environment Reference
+Prompt file
+Image
+Video
+Audio
+PDF
+JSON
+workflow_assets
+--------------
+id
+workflow_version_id
+step_id
+owner_id
+asset_type
+file_path
+thumbnail_path
+metadata
+created_at
+
+والملفات نفسها:
+
+Supabase Storage
+
+وليس Database.
+
+14. projects
+
+الـ Project:
+
+projects
+--------
+id
+owner_id
+title
+slug
+description
+short_description
+cover_image_url
+category_id
+status
+visibility
+project_type
+created_at
+updated_at
+published_at
+
+مثلاً:
+
+project_type:
+film
+image
+video
+application
+website
+music
+marketing
+design
+research
+other
+15. project_workflows
+
+بدل:
+
+projects.workflow_id
+
+فقط، أفضل أن يكون عندك association:
+
+project_workflows
+----------------
+project_id
+workflow_id
+workflow_version_id
+relationship_type
+is_primary
+created_at
+
+لأن المشروع مستقبلًا ممكن يعتمد على أكثر من Workflow.
+
+مثلاً:
+
+Film
+ ├── Story Workflow
+ ├── Character Workflow
+ ├── Video Workflow
+ └── Sound Workflow
+16. project_media
+
+لا تجعل الفيديو داخل projects.
+
+اعمل:
+
+project_media
+-------------
+id
+project_id
+media_type
+file_path
+thumbnail_path
+title
+description
+position
+duration
+metadata
+created_at
+
+والـ media types:
+
+video
+image
+audio
+document
+gallery
+17. Project Result
+
+الـ Project يجب أن يكون له مفهوم واضح:
+
+Project
+   ↓
+Result
+
+مثلاً:
+
+result_type = video
+result_url = ...
+thumbnail = ...
+
+لكن خلي project_media عامة بما يكفي.
+
+18. Publishing Draft
+
+أنا أنصح جدًا ألا يتم النشر مباشرة.
+
+المستخدم يعمل:
+
+Draft
+ ↓
+Preview
+ ↓
+Validation
+ ↓
+Publish
+
+وليس:
+
+Save → Public
+19. workflow_publications
+
+يمكنك إما استخدام status في workflows أو تعمل publishing entity.
+
+لو تريد نظام قوي:
+
+workflow_publications
+---------------------
+id
+workflow_id
+workflow_version_id
+published_by
+published_at
+unpublished_at
+
+لكن في MVP يمكن الاكتفاء بـ:
+
+status
+published_at
+20. أهم شيء: Public Slugs
+
+كل Project وWorkflow يحتاج:
+
+slug
+
+مثلاً:
+
+/workflows/cinematic-ai-short-film
+
+و:
+
+/projects/the-last-warehouse
+
+وليس:
+
+/workflow?id=83273
+
+لأننا نريد:
+
+SEO
+Sharing
+Social Links
+Readability
+21. Routes
+
+أقترح:
+
+/app
+
+للتطبيق.
+
+و:
+
+/workflows
+
+للاكتشاف.
+
+/workflows/[slug]
+
+لـ Workflow.
+
+/projects
+
+للمشاريع.
+
+/projects/[slug]
+
+للمشروع.
+
+/creators/[username]
+
+لصفحة Creator.
+
+22. ويمكن لاحقًا إضافة
+/explore
+
+لكن لا تحتاجه بالضرورة إذا كان /workflows و/projects هما discovery hubs.
+
+23. Workflow Public Page
+
+هذه الصفحة من أهم صفحات HUBly.
+
+الترتيب:
+
+Hero
+│
+├── Cover
+├── Title
+├── Creator
+├── Description
+├── Stats
+└── Use Workflow
+
+ثم:
+
+Project Result
+
+ثم:
+
+Workflow Overview
+
+ثم:
+
+Steps
+
+ثم:
+
+Tools
+
+ثم:
+
+Models
+
+ثم:
+
+Assets
+
+ثم:
+
+Requirements
+
+ثم:
+
+Creator
+
+ثم:
+
+Comments
+24. أهم CTA
+
+زر رئيسي:
+
+Use this workflow
+
+وزر ثانوي:
+
+Save
+
+وزر:
+
+Share
+
+وليس فقط:
+
+View
+25. Use Workflow Logic
+
+عندما يضغط المستخدم:
+
+Use this workflow
+
+لا تنسخ الـ workflow بطريقة عشوائية.
+
+اعمل:
+
+source_workflow_id
+source_workflow_version_id
+
+في الـ Workflow الجديدة.
+
+مثلاً:
+
+Original:
+The Last Warehouse Workflow v1.0
+
+User Copy:
+My Sci-Fi Film Workflow
+
+ويظل هناك:
+
+Forked from HUBly Workflow
+26. هذه الميزة اسمها Fork
+
+Database:
+
+workflows
+----------
+source_workflow_id
+source_workflow_version_id
+
+ثم:
+
+Original Workflow
+       ↓
+      Fork
+       ↓
+User Workflow
+
+وده لاحقًا يسمح لك بإظهار:
+
+Forked from...
+
+27. Workflow Engine Integration
+
+هنا أهم تعديل على الـ AI Studio.
+
+أنت بالفعل عندك:
+
+Project Brief
+ ↓
+Dynamic Questions
+ ↓
+Answers
+ ↓
+Workflow Generation
+ ↓
+Refine Step
+
+لا تغير هذا.
+
+أضف في النهاية:
+
+Save Workflow
+      ↓
+Create Draft
+      ↓
+Edit
+      ↓
+Preview
+      ↓
+Publish
+28. لذلك AI Studio يحتاج Action جديد
+
+مثلاً:
+
+Save as Workflow
+
+بعد توليد الـ Workflow.
+
+ثم:
+
+Publish Workflow
+
+لكن Publish لا يظهر إلا إذا اكتملت متطلبات النشر.
+
+29. Workflow Validation
+
+قبل Publish اعمل validator.
+
+مثلاً:
+
+validateWorkflow()
+
+يتأكد من:
+
+title
+description
+category
+cover
+at least 1 step
+step order
+inputs
+outputs
+tools
+
+ولو الـ Workflow مرتبطة بـ Project:
+
+project result
+
+يجب التحقق منه أيضًا.
+
+30. Validation Result
+
+مثلاً:
+
+Workflow Readiness
+
+✓ Title
+✓ Description
+✓ Cover
+✓ Steps
+✓ Tools
+✓ Inputs
+✓ Outputs
+✓ Project Result
+
+Ready to publish
+
+وهذا UI مهم جدًا.
+
+31. Project Publishing
+
+نفس النظام:
+
+Project Draft
+ ↓
+Add Cover
+ ↓
+Add Result
+ ↓
+Add Description
+ ↓
+Select Workflow
+ ↓
+Preview
+ ↓
+Publish
+32. Project ↔ Workflow Relationship
+
+عندما تنشر Project:
+
+Select workflow used for this project
+
+ثم:
+
+Workflow
+v1.3
+
+ويتم تسجيلها.
+
+إذا لم يكن لديه Workflow:
+
+Create Workflow
+
+وهذا يحفز استخدام الـ Workflow Engine.
+
+33. likes
+
+اعمل:
+
+likes
+-----
+id
+user_id
+target_type
+target_id
+created_at
+
+لكن لو تريد database integrity أفضل:
+
+workflow_likes
+project_likes
+
+أنا أفضل في حالتك فصل الجداول لأن الاستعلامات أبسط وأكثر وضوحًا.
+
+34. saves
+
+نفس الشيء:
+
+workflow_saves
+--------------
+user_id
+workflow_id
+created_at
+
+وده مهم جدًا لأن:
+
+Like = أعجبني
+
+لكن:
+
+Save = أريد استخدامه لاحقًا
+
+والـ Save أهم بالنسبة للـ Workflow.
+
+35. comments
+comments
+--------
+id
+user_id
+target_type
+target_id
+parent_id
+content
+status
+created_at
+updated_at
+
+وجود parent_id يسمح:
+
+Comment
+ └── Reply
+      └── Reply
+
+لكن لا تجعل nesting عميقًا جدًا في الـ UI.
+
+36. follows
+
+لـ Creator:
+
+creator_follows
+---------------
+follower_id
+following_id
+created_at
+
+مع:
+
+UNIQUE(follower_id, following_id)
+
+حتى لا تتكرر المتابعة.
+
+37. Views
+
+لا تعمل:
+
+views = views + 1
+
+بشكل مباشر في client.
+
+لأن المستخدم يستطيع spam.
+
+اعمل:
+
+content_views
+------------
+id
+content_type
+content_id
+viewer_id
+session_id
+created_at
+
+ثم aggregation.
+
+38. لكن لا تسجل View كل ثانية
+
+في Frontend:
+
+Page Loaded
+ ↓
+Wait / visibility threshold
+ ↓
+Record view
+
+مثلاً بعد ظهور المحتوى فعليًا.
+
+واستخدم session throttling.
+
+39. Social Metrics
+
+لكل Project:
+
+views
+likes
+comments
+saves
+shares
+
+ولكل Workflow:
+
+views
+likes
+saves
+uses
+forks
+
+وأنا أعتبر:
+
+uses
+
+من أهم الـ metrics في HUBly.
+
+لأن:
+
+10,000 views + 2 uses
+
+أقل قيمة بالنسبة لك من:
+
+2,000 views + 300 uses.
+
+40. workflow_usage_events
+
+اعمل جدول:
+
+workflow_usage_events
+---------------------
+id
+workflow_id
+workflow_version_id
+user_id
+event_type
+created_at
+metadata
+
+مثلاً:
+
+view
+save
+use
+fork
+publish_result
+41. Analytics لا تضعها داخل Tables الأساسية
+
+لا تجعل:
+
+workflows.uses
+
+هو مصدر الحقيقة الوحيد.
+
+خلي الـ event هو المصدر:
+
+Event
+ ↓
+Aggregation
+ ↓
+Counters
+
+ويمكن أن يكون عندك counters cache لأداء القراءة.
+
+42. Creator Profile
+
+صفحة:
+
+/creators/[username]
+
+تحتوي:
+
+Avatar
+Name
+Bio
+Verified
+Followers
+Following
+Projects
+Workflows
+
+ثم tabs:
+
+Projects
+Workflows
+About
+43. Creator Dashboard
+
+داخل الحساب:
+
+/dashboard
+
+ثم:
+
+My Projects
+My Workflows
+Drafts
+Analytics
+Saved Workflows
+
+مثلاً:
+
+Creator Dashboard
+
+Projects
+ ├── Published
+ ├── Drafts
+
+Workflows
+ ├── Published
+ ├── Drafts
+
+Analytics
+ ├── Views
+ ├── Uses
+ ├── Saves
+ ├── Followers
+44. Workflow Dashboard
+
+كل Workflow لها:
+
+Edit
+Duplicate
+New Version
+Analytics
+Unpublish
+Archive
+
+ولا تجعل تعديل الـ published workflow يعدل النسخة المستخدمة في مشروع قديم.
+
+45. Versioning UI
+
+مثلاً:
+
+Cinematic AI Film Workflow
+
+v1.0
+Published
+Used by 32 creators
+
+v1.1
+Published
+Used by 81 creators
+
+v2.0
+Draft
+46. Refinement يجب أن يصبح Version
+
+عند استخدام:
+
+Refine Step
+
+لا تعدل published version مباشرة.
+
+بل:
+
+Published v1.2
+      ↓
+Refine Step
+      ↓
+Draft v1.3
+      ↓
+Review
+      ↓
+Publish
+
+دي مهمة جدًا.
+
+47. Project Page يجب أن تعرض Version
+
+مثلاً:
+
+Built using Cinematic AI Film Workflow v1.4
+
+والـ v1.4 تكون clickable.
+
+هذا يجعل الـ Project إثباتًا حقيقيًا.
+
+48. Tool Integration
+
+بما أن HUBly عنده Tool Directory، كل Tool داخل Workflow يجب أن يكون قابلًا للفتح:
+
+Kling
+ ↓
+HUBly Tool Detail
+
+وليس رابطًا خارجيًا فقط.
+
+وهذا يربط:
+
+Workflow → Tools
+
+داخل ecosystem نفسه.
+
+49. Model Integration
+
+نفس الشيء:
+
+Workflow Step
+ ↓
+Model
+ ↓
+Model Page
+
+إذا عندك Models كـ entities.
+
+50. الـ Workflow Editor
+
+أنت عندك Workflow Generator.
+
+لكن الآن تحتاج Editor.
+
+أقترح:
+
+Workflow Editor
+│
+├── Overview
+├── Steps
+├── Tools
+├── Assets
+├── Settings
+└── Publish
+51. Step Editor
+
+عند الضغط على Step:
+
+Step 04
+
+Title
+Description
+Objective
+
+Input
+Output
+
+Tool
+Model
+
+Instructions
+
+Prompt
+
+Dependencies
+
+Notes
+
+ويمكن:
+
+Move Up
+Move Down
+Duplicate
+Delete
+Refine
+52. لا تجعل Step Editor مربوطًا مباشرة بالـ Database
+
+حسب Architecture الخاصة بك:
+
+UI
+ ↓
+Hook
+ ↓
+Service
+ ↓
+Supabase
+
+وليس:
+
+Component
+ ↓
+supabase.from(...)
+
+في كل مكان.
+
+53. Services التي ستحتاجها
+
+مثلاً:
+
+services/
+├── workflows/
+│   ├── workflowService.js
+│   ├── workflowVersionService.js
+│   ├── workflowPublishService.js
+│   └── workflowUsageService.js
+│
+├── projects/
+│   ├── projectService.js
+│   ├── projectPublishService.js
+│   └── projectMediaService.js
+│
+├── creators/
+│   ├── creatorService.js
+│   └── followService.js
+│
+├── engagement/
+│   ├── likeService.js
+│   ├── saveService.js
+│   ├── commentService.js
+│   └── viewService.js
+│
+└── analytics/
+    └── analyticsService.js
+
+الأسماء يمكن أن تتوافق مع naming convention الموجودة عندك.
+
+54. Hooks
+
+مثلاً:
+
+hooks/
+├── workflows/
+│   ├── useWorkflow.js
+│   ├── useWorkflows.js
+│   ├── useWorkflowEditor.js
+│   ├── usePublishWorkflow.js
+│   └── useWorkflowUsage.js
+│
+├── projects/
+│   ├── useProject.js
+│   ├── useProjects.js
+│   └── usePublishProject.js
+│
+├── creators/
+│   ├── useCreator.js
+│   └── useFollowCreator.js
+│
+└── engagement/
+    ├── useLike.js
+    ├── useSave.js
+    └── useComments.js
+55. API Layer
+
+بما أنك على Next.js، لا تجعل Client يتعامل مع كل شيء مباشرة.
+
+استخدم Server-side/API functions حسب architecture الحالية.
+
+مثلاً:
+
+/api/workflows
+/api/workflows/[id]
+/api/workflows/[id]/publish
+/api/workflows/[id]/fork
+
+/api/projects
+/api/projects/[id]
+/api/projects/[id]/publish
+
+/api/engagement/like
+/api/engagement/save
+/api/engagement/comment
+
+/api/analytics/event
+
+ولو عندك server actions بالفعل في بعض الأماكن، حافظ على نمط واحد متسق.
+
+56. Security — مهمة جدًا
+
+كل عملية:
+
+Edit Workflow
+Delete Workflow
+Publish Workflow
+Edit Project
+Delete Project
+
+يجب أن تتحقق من:
+
+authenticated user
++
+resource ownership
+
+ولا تعتمد على:
+
+user_id
+
+المرسل من Frontend.
+
+57. Supabase RLS
+
+هذه نقطة أساسية.
+
+مثلاً:
+
+Workflows
+
+المستخدم يستطيع:
+
+SELECT public workflows
+
+ويستطيع:
+
+SELECT own private workflows
+
+ويستطيع:
+
+INSERT own
+UPDATE own
+DELETE own
+
+ولا يستطيع تعديل Workflow مستخدم آخر.
+
+58. Projects
+
+نفس القاعدة.
+
+Public:
+
+SELECT
+
+Owner:
+
+CRUD
+
+والـ Admin:
+
+moderation
+59. Comments
+
+المستخدم يستطيع:
+
+create own
+edit own
+delete own
+
+لكن لا يستطيع تعديل Comment شخص آخر.
+
+Admin يستطيع moderation.
+
+60. Storage Security
+
+لا ترفع كل شيء في Bucket عام واحد.
+
+استخدم buckets منظمة.
+
+مثلاً:
+
+project-media
+workflow-assets
+avatars
+covers
+
+والـ path:
+
+user_id/project_id/file
+
+أو:
+
+user_id/workflow_id/file
+61. Image / Video Optimization
+
+لا تعرض الفيديو الأصلي في كل مكان.
+
+Project card:
+
+thumbnail
+
+Project page:
+
+optimized preview
+
+Full video:
+
+stream / optimized asset
+
+وهذه نقطة مهمة جدًا لأداء HUBly.
+
+62. Social Preview
+
+كل Project يجب أن يولد:
+
+title
+description
+og:image
+og:url
+
+مثلاً عند مشاركة:
+
+https://hubly-tools.com/projects/the-last-warehouse
+
+يظهر:
+
+[Film Thumbnail]
+
+The Last Warehouse
+An AI-generated cinematic short film...
+HUBly
+
+وليس preview فارغ.
+
+63. Workflow Social Preview
+
+نفس الشيء:
+
+/workflows/cinematic-ai-film
+
+ويظهر:
+
+[Workflow Cover]
+
+Cinematic AI Film Production Workflow
+
+Create consistent cinematic AI films...
+64. SEO
+
+كل public Workflow يجب أن يكون Server Rendered.
+
+ويكون له:
+
+title
+description
+canonical
+OpenGraph
+Twitter metadata
+JSON-LD
+
+وأنت أصلًا عندك useSEO / manifest-driven SEO architecture، فالأفضل إضافة content types جديدة إلى نفس النظام بدل إنشاء SEO system منفصل.
+
+65. Structured Data
+
+لـ Project يمكن استخدام Schema مناسب حسب نوع المحتوى.
+
+ولـ Workflow يمكن أن يكون:
+
+Article-like structured content
+HowTo-like structure عندما يكون المحتوى فعلًا إرشاديًا
+
+لكن لا تستخدم Schema بشكل مصطنع لمجرد SEO.
+
+66. Sitemap
+
+أضف:
+
+/workflows/*
+/projects/*
+/creators/*
+
+إلى sitemap الديناميكي.
+
+ولا تدخل:
+
+draft
+private
+unlisted
+
+إلا وفق قواعدك المقصودة.
+
+67. Robots
+
+لا تجعل:
+
+/dashboard
+/studio
+/editor
+
+قابلة للفهرسة.
+
+68. Discovery Page
+
+صفحة:
+
+/workflows
+
+تكون مثل Marketplace.
+
+أعلى الصفحة:
+
+Explore AI Workflows
+
+ثم:
+
+Search
+
+ثم:
+
+Categories
+
+ثم:
+
+Popular
+Trending
+Newest
+Most Used
+69. Filters
+
+مثلاً:
+
+Category
+Difficulty
+Tools
+Models
+Project Type
+Duration
+Creator
+
+لكن لا تضف 50 filter من البداية.
+
+ابدأ:
+
+Category
+Project Type
+Tool
+Difficulty
+Sort
+70. Search
+
+يجب أن يكون البحث:
+
+workflow title
+description
+tools
+models
+tags
+creator
+
+ولو عندك Search architecture بالفعل في HUBly، الأفضل دمج الـ Workflow entities داخلها بدل بناء Search engine منفصل.
+
+71. Tags
+
+اعمل:
+
+workflow_tags
+-------------
+workflow_id
+tag_id
+
+مثلاً:
+
+AI Film
+Kling
+Character Consistency
+Cinematic
+Video Generation
+72. Project Categories
+
+يجب أن تكون normalized:
+
+categories
+
+بدل أن تكتب:
+
+"Film"
+"film"
+"AI Film"
+"ai-film"
+
+في كل مكان.
+
+73. Featured System
+
+أنت تحتاج لاحقًا:
+
+featured_workflows
+featured_projects
+
+لكن لا تجعل المستخدم يتحكم فيها.
+
+Admin فقط.
+
+74. Moderation
+
+من البداية اعمل:
+
+reports
+-------
+id
+reporter_id
+target_type
+target_id
+reason
+description
+status
+created_at
+
+Reasons:
+
+spam
+copyright
+inappropriate
+misleading
+abuse
+other
+75. Content Status
+
+للـ Projects وWorkflows:
+
+draft
+published
+hidden
+archived
+
+ولو Reported:
+
+moderation_status
+76. Admin Panel
+
+بما أن عندك Admin Page بالفعل، أضف:
+
+Content Moderation
+│
+├── Projects
+├── Workflows
+├── Reports
+├── Creators
+└── Featured
+77. Creator Verification
+
+لا تبدأ Verification آلية معقدة.
+
+في البداية:
+
+is_verified
+
+والـ Admin يستطيع تغييره.
+
+لاحقًا يمكن بناء نظام كامل.
+
+78. Social Accounts داخل HUBly
+
+بما أنك ستضيف الحسابات الرسمية، لا تكتب الروابط في Footer hardcoded في كل component.
+
+اعمل config مركزي.
+
+مثلاً:
+
+socialLinks
+{
+  youtube: "...",
+  instagram: "...",
+  tiktok: "...",
+  facebook: "..."
+}
+
+ثم:
+
+Footer
+SocialLinks
+About
+Contact
+
+كلهم يقرؤون نفس الـ config.
+
+79. لا تنشئ Social Links في Database حاليًا
+
+الحسابات الرسمية الخاصة بـ HUBly ثابتة.
+
+Config كافية.
+
+Database تصبح مفيدة لاحقًا فقط إذا المستخدم لديه Social Links في Profile.
+
+80. Creator Social Links
+
+أما المستخدم:
+
+creator_social_links
+--------------------
+creator_id
+platform
+url
+
+مع validation.
+
+مثلاً:
+
+youtube
+instagram
+tiktok
+x
+linkedin
+81. Project Sharing
+
+زر Share:
+
+Copy Link
+
+ويستخدم:
+
+canonical public URL
+
+ثم يمكن إضافة:
+
+Share to X
+Share to Facebook
+
+لكن لا تجعل الـ UI يعتمد على APIs خارجية في البداية.
+
+الرابط نفسه يكفي.
+
+82. UTM Tracking
+
+وهذه مهمة جدًا لربط Social بالـ Product.
+
+مثلاً رابط YouTube:
+
+?utm_source=youtube
+&utm_medium=video
+&utm_campaign=last_warehouse
+&utm_content=workflow
+
+TikTok:
+
+utm_source=tiktok
+
+Instagram:
+
+utm_source=instagram
+
+وهكذا.
+
+83. لا تجعل الـ UTM يلوث canonical URL
+
+الـ canonical يظل:
+
+/workflows/cinematic-ai-film
+
+والـ UTM فقط للـ analytics.
+
+84. Internal Analytics
+
+سجل:
+
+source
+medium
+campaign
+content
+landing_page
+workflow_id
+project_id
+
+ثم تستطيع معرفة:
+
+هذا الـ Workflow جلب 200 مستخدم من TikTok.
+
+85. Funnel Analytics
+
+أنت تحتاج Event System.
+
+مثلاً:
+
+page_view
+workflow_view
+project_view
+workflow_save
+workflow_use
+workflow_fork
+signup
+workflow_publish
+project_publish
+creator_follow
+86. أهم Funnel
+
+اعمل Dashboard داخلي:
+
+Social
+ ↓
+Landing
+ ↓
+Workflow View
+ ↓
+Use
+ ↓
+Signup
+ ↓
+Project Created
+ ↓
+Project Published
+87. Creator Funnel
+
+ثم:
+
+Workflow View
+ ↓
+Use
+ ↓
+Project Created
+ ↓
+Project Published
+ ↓
+Workflow Published
+
+وده سيخبرك:
+
+هل الناس تستفيد فعليًا من الـ Workflow؟
+
+88. Database Indexes
+
+من البداية اعمل indexes على:
+
+workflows.slug
+workflows.owner_id
+workflows.status
+workflows.category_id
+workflows.created_at
+
+و:
+
+projects.slug
+projects.owner_id
+projects.status
+projects.created_at
+
+و:
+
+workflow_versions.workflow_id
+workflow_steps.workflow_version_id
+project_workflows.project_id
+project_workflows.workflow_id
+
+و:
+
+likes.workflow_id
+likes.user_id
+saves.workflow_id
+saves.user_id
+comments.target_id
+89. Unique Constraints
+
+مثلاً:
+
+username UNIQUE
+workflow.slug UNIQUE
+project.slug UNIQUE
+
+و:
+
+(user_id, workflow_id) UNIQUE
+
+في Likes/Saves/Follows.
+
+90. Slug Generation
+
+عند إنشاء:
+
+title = Cinematic AI Film Workflow
+
+تولد:
+
+cinematic-ai-film-workflow
+
+لكن لا تعتمد على slug فقط.
+
+لو حصل conflict:
+
+cinematic-ai-film-workflow-2
+
+أو suffix مناسب.
+
+91. Draft Autosave
+
+الـ Workflow Editor طويل.
+
+لذلك:
+
+User edits
+ ↓
+Debounced autosave
+
+لكن لا تعمل database request مع كل keystroke.
+
+مثلاً:
+
+500–1500ms debounce
+
+حسب architecture.
+
+92. Optimistic UI
+
+للـ:
+
+Like
+Save
+Follow
+
+يمكن استخدام optimistic update.
+
+لكن:
+
+Publish
+Delete
+Fork
+
+تحتاج confirmation/server result.
+
+93. Loading States
+
+بما أنك بالفعل تستخدم Skeletons في HUBly، كل صفحات النظام الجديد يجب أن تستخدم نفس atoms وليس loading text عشوائي.
+
+مثلاً:
+
+WorkflowCardSkeleton
+ProjectCardSkeleton
+CreatorSkeleton
+WorkflowStepSkeleton
+94. Empty States
+
+مهم جدًا.
+
+مثلاً:
+
+My Workflows
+
+You haven't created a workflow yet.
+
+CTA:
+
+Create Workflow
+
+Saved Workflows
+
+Save workflows you want to use later.
+
+CTA:
+
+Explore Workflows
+
+Creator Projects
+
+No published projects yet.
+
+95. Error States
+
+لا تستخدم:
+
+Something went wrong
+
+فقط.
+
+مثلاً:
+
+We couldn't publish this workflow because 2 required steps are incomplete.
+
+ثم:
+
+Review Workflow
+
+96. Workflow Publish Checklist
+
+هذه من أفضل الـ UX features التي يمكنك عملها:
+
+Publish Checklist
+
+✓ Workflow title
+✓ Description
+✓ Cover
+✓ Category
+✓ At least one step
+✓ Every step has an output
+✓ Tools identified
+✓ Workflow result attached
+
+[Publish Workflow]
+97. Project Publish Checklist
+✓ Title
+✓ Description
+✓ Cover
+✓ Result
+✓ Project category
+✓ Workflow linked
+
+ثم:
+
+Publish
+
+98. "Built with HUBly"
+
+كل Project Page يمكن أن تعرض:
+
+Built with HUBly
+
+مع:
+
+View Workflow
+
+وهذه branding مجانية داخل محتوى المستخدمين.
+
+99. Embeddable Workflow Badge — لاحقًا
+
+ميزة قوية مستقبلًا:
+
+Built with HUBly
+[View Workflow]
+
+يمكن Creator وضعها في:
+
+Portfolio
+Website
+YouTube description
+Blog
+
+لكن ليست ضمن أول MVP.
+
+100. Project → Social Content Generator
+
+وهنا تبدأ تربط AI Studio بالـ Social Media.
+
+بعد نشر Project:
+
+Generate Social Content
+
+ثم HUBly يستطيع توليد:
+
+YouTube Description
+TikTok Caption
+Instagram Caption
+X Post
+Short Hook
+
+لكن هذه مرحلة لاحقة.
+
+لا تجعلها شرطًا لإطلاق النظام الأساسي.
+
+101. Workflow → Social Content
+
+نفس الشيء لاحقًا:
+
+Generate:
+- 30 sec video script
+- caption
+- title
+- description
+- hashtags
+
+لكن القيمة الأساسية أولًا:
+
+Workflow → Project → Publish
+
+102. الصفحة الرئيسية للـ Workflows
+
+أنا أقترح أن تكون:
+
+Explore Workflows
+
+[Search workflows...]
+
+Featured
+────────────────
+
+Trending Workflows
+────────────────
+
+Most Used
+────────────────
+
+Latest
+────────────────
+
+Categories
+────────────────
+103. Project Cards
+
+Card:
+
+┌─────────────────────────┐
+│                         │
+│        THUMBNAIL        │
+│                         │
+├─────────────────────────┤
+│ The Last Warehouse      │
+│ AI Cinematic Short Film │
+│                         │
+│ 👤 HUBly                │
+│                          │
+│ 👁 2.4K   ♥ 184         │
+│                         │
+│ [View Project]          │
+└─────────────────────────┘
+104. Workflow Cards
+┌─────────────────────────┐
+│         COVER           │
+├─────────────────────────┤
+│ Cinematic AI Film       │
+│ Production Workflow     │
+│                         │
+│ 27 Steps • 14 Tools     │
+│                         │
+│ 👤 HUBly                │
+│                         │
+│ 382 Uses • 1.2K Saves   │
+│                         │
+│ [Use Workflow]          │
+└─────────────────────────┘
+105. "Uses" يجب أن يكون واضحًا
+
+بدل:
+
+382 Views
+
+أبرز:
+
+382 creators used this workflow
+
+لأنه social proof أقوى بكثير.
+
+106. Creator Attribution
+
+في كل Project:
+
+Created by
+[Avatar] Karim
+
+وفي Workflow:
+
+Workflow by
+[Avatar] Karim
+
+والاسم يفتح Creator Profile.
+
+107. Official HUBly Creator
+
+أنت تحتاج حساب رسمي:
+
+HUBly
+
+ويكون:
+
+is_verified = true
+
+ويصبح:
+
+HUBly Official
+
+وتنشر عليه أول المشاريع والـ Workflows.
+
+108. أول Workflow عندك
+
+أنا سأبني أول Workflow رسمي حول الفيلم الحالي.
+
+ليس:
+
+AI Film Workflow
+
+بشكل عام.
+
+بل:
+
+How We Created a Photorealistic AI Short Film
+
+ثم تكون Workflow حقيقية من خطواتك الفعلية.
+
+وهذا يعطيها Proof حقيقي.
+
+109. Workflow نفسها يجب أن توثق الـ Production Decisions
+
+مثلاً:
+
+Project Planning
+ ↓
+Character Reference
+ ↓
+Environment Reference
+ ↓
+Camera Planning
+ ↓
+Scene Breakdown
+ ↓
+First Frame
+ ↓
+Video Generation
+ ↓
+Consistency Validation
+ ↓
+Voice
+ ↓
+Sound
+ ↓
+Editing
+
+وكل خطوة تحتوي التفاصيل الفعلية التي استخدمتها.
+
+110. هنا تظهر قيمة HUBly الحقيقية
+
+المستخدم يشاهد الفيلم:
+
+"كيف عملوا ده؟"
+
+يضغط:
+
+View Workflow
+
+فيجد:
+
+بالضبط كيف.
+
+ثم:
+
+Use Workflow
+
+فيبدأ مشروعه.
+
+دي هي التجربة التي أريد أن يكون النظام كله مبنيًا حولها.
+
+111. ترتيب التنفيذ البرمجي الذي أنصحك به
+
+لا تبدأ بالـ Likes.
+
+ولا تبدأ بالـ Comments.
+
+ولا تبدأ بالـ Creator Profiles.
+
+ابدأ بهذا الترتيب:
+
+Phase 1 — Core Data Model
+profiles
+workflows
+workflow_versions
+workflow_steps
+workflow_tools
+workflow_assets
+
+projects
+project_media
+project_workflows
+Phase 2 — Workflow Publishing
+Draft
+ ↓
+Edit
+ ↓
+Preview
+ ↓
+Validate
+ ↓
+Publish
+Phase 3 — Project Publishing
+Project Draft
+ ↓
+Media
+ ↓
+Workflow Link
+ ↓
+Preview
+ ↓
+Publish
+Phase 4 — Public Pages
+/workflows
+/workflows/[slug]
+
+/projects
+/projects/[slug]
+Phase 5 — Use Workflow
+Public Workflow
+ ↓
+Use Workflow
+ ↓
+Fork
+ ↓
+AI Studio
+
+وده في رأيي أهم feature بعد Publishing.
+
+Phase 6 — Creator
+/creators/[username]
+Phase 7 — Engagement
+Likes
+Saves
+Follows
+Comments
+Phase 8 — Analytics
+Views
+Uses
+Forks
+Shares
+Signups
+Conversions
+Phase 9 — Moderation
+Reports
+Admin
+Featured
+Verification
+Phase 10 — Social Integration
+UTM
+Share
+Social Preview
+Campaign Tracking
+112. ترتيب الـ Pages
+
+في النهاية ستكون عندك تقريبًا:
+
+PUBLIC
+│
+├── /workflows
+├── /workflows/[slug]
+│
+├── /projects
+├── /projects/[slug]
+│
+└── /creators/[username]
+
+
+AUTHENTICATED
+│
+├── /studio
+│
+├── /dashboard
+│
+├── /dashboard/projects
+├── /dashboard/workflows
+├── /dashboard/saved
+│
+├── /studio/workflows/[id]
+└── /studio/projects/[id]
+
+
+ADMIN
+│
+├── /admin/workflows
+├── /admin/projects
+├── /admin/reports
+├── /admin/creators
+└── /admin/featured
+
+الأسماء الفعلية تتوافق مع الـ routing conventions الموجودة عندك.
+
+113. Component Architecture
+
+مثلاً:
+
+components/
+│
+├── workflow/
+│   ├── WorkflowCard
+│   ├── WorkflowHero
+│   ├── WorkflowSteps
+│   ├── WorkflowStep
+│   ├── WorkflowTools
+│   ├── WorkflowAssets
+│   ├── WorkflowStats
+│   ├── WorkflowActions
+│   └── WorkflowPublishChecklist
+│
+├── project/
+│   ├── ProjectCard
+│   ├── ProjectHero
+│   ├── ProjectMedia
+│   ├── ProjectResult
+│   ├── ProjectWorkflow
+│   └── ProjectStats
+│
+├── creator/
+│   ├── CreatorCard
+│   ├── CreatorHeader
+│   ├── CreatorStats
+│   └── CreatorTabs
+│
+└── engagement/
+    ├── LikeButton
+    ├── SaveButton
+    ├── FollowButton
+    ├── ShareButton
+    └── Comments
+
+وكلها CSS Modules طبقًا لقاعدة HUBly الحالية.
+
+114. لا تعمل Giant Components
+
+لا تعمل:
+
+WorkflowPage.jsx
+
+بـ 3000 سطر.
+
+اعمل:
+
+WorkflowPage
+ ├── WorkflowHero
+ ├── WorkflowResult
+ ├── WorkflowOverview
+ ├── WorkflowSteps
+ ├── WorkflowTools
+ ├── WorkflowAssets
+ ├── WorkflowCreator
+ └── WorkflowComments
+115. أهم قاعدة في النظام الجديد
+
+الـ Workflow Engine لا يعرف Social Media.
+
+و:
+
+Social/Publishing لا يعرف كيف يولد Workflow.
+
+الـ boundaries تكون:
+
+AI Studio
+    ↓
+Workflow Domain
+    ↓
+Publishing Domain
+    ↓
+Discovery Domain
+    ↓
+Engagement Domain
+
+وده مهم جدًا حتى لا يتحول المشروع إلى spaghetti architecture.
+
+116. Domain Model النهائي
+
+أنا أريدك أن تعتبر HUBly عند هذه المرحلة يحتوي على:
+
+USER
+ │
+ ├── CREATOR
+ │
+ ├── WORKFLOWS
+ │      └── VERSIONS
+ │            └── STEPS
+ │
+ ├── PROJECTS
+ │      └── MEDIA
+ │
+ ├── SAVES
+ ├── LIKES
+ ├── FOLLOWS
+ └── COMMENTS
+
+والعلاقة الأساسية:
+
+USER
+ ↓
+WORKFLOW
+ ↓
+VERSION
+ ↓
+STEPS
+ ↓
+PROJECT
+ ↓
+RESULT
+ ↓
+SOCIAL
+117. أهم Flow في النظام كله
+
+اختبر النظام بهذه الحالة قبل أي شيء:
+
+Karim
+ ↓
+AI Studio
+ ↓
+Generate Workflow
+ ↓
+Edit Step 4
+ ↓
+Refine Step 7
+ ↓
+Save
+ ↓
+Create v1.0
+ ↓
+Attach Project
+ ↓
+Upload Film
+ ↓
+Publish Project
+ ↓
+Publish Workflow
+
+ثم افتح Browser بدون Login:
+
+/workflows/...
+
+وشاهد:
+
+Result
+ ↓
+Workflow
+ ↓
+Steps
+ ↓
+Tools
+ ↓
+Creator
+
+ثم اضغط:
+
+Use Workflow
+
+وسجل دخول.
+
+ثم:
+
+Fork Workflow
+
+ثم تدخل Workflow الخاصة بك.
+
+إذا نجحت هذه الرحلة بالكامل، فأنت بنيت قلب النظام.
+
+118. ثم اختبر الـ Flywheel
+
+بعد ذلك:
+
+Public Project
+ ↓
+View Workflow
+ ↓
+Use Workflow
+ ↓
+Signup
+ ↓
+Fork
+ ↓
+Edit
+ ↓
+Create Project
+ ↓
+Publish Project
+ ↓
+Publish Workflow
+
+هذا هو الـ Golden Path الذي يجب أن يكون كل شيء في النظام محسوبًا لخدمته.
+
+119. وأخيرًا: ما الذي لا أريدك أن تبرمجه الآن؟
+
+رغم أنك طلبت النظام كاملًا، هناك أشياء أريد أن تبقى Phase 2/3 حتى لا تضخم المشروع:
+
+نظام رسائل بين المستخدمين
+Marketplace مالي
+Creator payouts
+اشتراكات خاصة بالـ Creators
+نظام Affiliate
+Social API integrations
+Automatic YouTube publishing
+Automatic TikTok publishing
+Advanced recommendation engine
+AI-generated social content
+Embeddable workflows
+Creator reputation algorithm المعقد
+
+كل هذه ممكنة لاحقًا.
+
+لكن Core Loop لا يحتاجها.
+
+120. الـ MVP الحقيقي الذي يجب أن تصل إليه
+
+لو أردت اختصار كل الكلام السابق إلى أول Release برمجي فعلي:
+
+                 HUBly
+                   │
+          ┌────────┴────────┐
+          ↓                 ↓
+       PROJECT           WORKFLOW
+          │                 │
+          │            Generate/Edit
+          │                 │
+          └────────┬────────┘
+                   ↓
+               PUBLISH
+                   ↓
+             PUBLIC PAGE
+                   ↓
+              DISCOVERY
+                   ↓
+              USE WORKFLOW
+                   ↓
+                 FORK
+                   ↓
+              AI STUDIO
+
+ومعها:
+
+Auth
+Profiles
+Likes
+Saves
+Follows
+Views
+Basic Comments
+SEO
+Social Sharing
+UTM Tracking
+Admin Moderation
+
+هذا بالنسبة لي هو HUBly Workflow Ecosystem v1.0.
+
+ترتيب العمل الفعلي الذي أقترح أن نبدأ به
+
+بما أنك تريد الآن البدء بالبرمجة وليس مجرد التخطيط، فلا أنصح أن تبدأ بكتابة الـ Components مباشرة.
+
+ابدأ بالترتيب:
+
+1. Database ERD
+
+↓
+
+2. Supabase SQL migrations + RLS
+
+↓
+
+3. Workflow domain/service layer
+
+↓
+
+4. Workflow versioning
+
+↓
+
+5. Publishing engine
+
+↓
+
+6. Project domain
+
+↓
+
+7. Project ↔ Workflow relationship
+
+↓
+
+8. Public Workflow page
+
+↓
+
+9. Public Project page
+
+↓
+
+10. Fork / Use Workflow
+
+↓
+
+11. Creator profiles
+
+↓
+
+12. Likes / Saves / Follows / Comments
+
+↓
+
+13. Analytics
+
+↓
+
+14. SEO + Social metadata
+
+↓
+
+15. Admin moderation
+
+↓
+
+16. Social campaign/UTM tracking
+
+↓
+
+17. بعدها فقط نبدأ توصيل حسابات YouTube / Instagram / TikTok / Facebook بالمحتوى المنشور.
+
+والأهم: لا نعدل الـ Workflow Engine الحالي عشوائيًا أثناء ذلك. سنعمل Adapter/Service layer بين الـ Engine الحالي وبين نظام الـ Publishing، بحيث يظل الـ Engine مسؤولًا عن توليد وتعديل الـ Workflow، بينما الـ Publishing System مسؤول عن تحويل نسخة منها إلى محتوى عام قابل للاكتشاف والاستخدام.
+
+إذا نفذت هذه البنية بهذه الطريقة، فأنت لا تكون أضفت Workflow Projects إلى HUBly فقط؛ أنت تكون بنيت الـ infrastructure التي ستجعل حسابات HUBly على YouTube وInstagram وTikTok وFacebook امتدادًا مباشرًا للمنتج نفسه بدل أن تكون مجرد حسابات تسويقية منفصلة.

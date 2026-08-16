@@ -13,7 +13,7 @@ export default function DocsPage() {
         <article className={styles.article}>
             <h1>Edit & Manage Tools</h1>
             <p>
-                Software is a living organism. Features are shipped weekly, pricing models pivot, and UI screenshots become outdated. 
+                Software is a living organism. Features are shipped weekly, pricing models pivot, and brand identities evolve. 
                 Unlike static directories that lock your submission permanently, HUBly empowers Founders to continuously edit and manage their listings to ensure maximum accuracy and conversion rates.
             </p>
 
@@ -35,7 +35,7 @@ export default function DocsPage() {
             </p>
             <ul>
                 <li><strong>Pricing Updates:</strong> If you transition from a "Freemium" to a "Paid" model, update your HUBly listing immediately to ensure the Compare Builder reflects your true competitive advantage.</li>
-                <li><strong>Fresh Screenshots:</strong> If you redesign your app's dashboard, swap out the old hero image. High-quality, modern UI screenshots dramatically increase click-through rates.</li>
+                <li><strong>Official Logo:</strong> If your brand identity changes, swap out the old logo. High-quality, transparent official logos dramatically increase click-through rates and maintain directory quality.</li>
                 <li><strong>Feature Expansion:</strong> As you ship new features, add them to your use-case and feature checklists. This ensures your tool surfaces in more specific Global Searches and AI Assistant prompts.</li>
             </ul>
 
@@ -47,7 +47,7 @@ export default function DocsPage() {
 
             <h2>2. Preserving Your SEO and Ratings</h2>
             <p>
-                When you edit a tool, you are only updating its metadata. Your tool's unique URL (slug), its accumulated views, and all of its Community Reviews remain completely intact. You never lose your hard-earned SEO ranking or social proof by updating your pricing or screenshots.
+                When you edit a tool, you are only updating its metadata. Your tool's unique URL (slug), its accumulated views, and all of its Community Reviews remain completely intact. You never lose your hard-earned SEO ranking or social proof by updating your pricing or logos.
             </p>
 
             

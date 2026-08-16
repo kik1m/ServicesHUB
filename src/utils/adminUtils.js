@@ -14,11 +14,13 @@ export const getChangedFields = (oldVal, newVal, categories = []) => {
         url: 'Website URL', 
         category_id: 'Category',
         short_description: 'Marketing Tagline',
-        description: 'Full Description', 
+        description: 'Full Description (Sections)', 
         image_url: 'Visual Identity',
         pricing_type: 'Pricing Model', 
         pricing_details: 'Pricing Notes',
-        features: 'Core Capabilities'
+        pricing_details_full: 'Detailed Pricing Plans',
+        features: 'Core Capabilities',
+        use_cases: 'Use Cases'
     };
     
     const resolveValue = (key, val) => {

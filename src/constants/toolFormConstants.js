@@ -31,23 +31,43 @@ export const SUBMIT_TOOL_CONSTANTS = {
                         { id: 'Contact', name: 'Contact' }
                     ]
                 },
-                details: { label: "PRICE DETAILS", placeholder: "e.g. $10/mo" }
+                pricing_plans: {
+                    label: "PRICING PLANS",
+                    planNamePlaceholder: "e.g. Pro Plan",
+                    featurePlaceholder: "e.g. Unlimited projects",
+                    addPlan: "Add Plan",
+                    addFeature: "Add Feature",
+                    guidelines: {
+                        title: "How to write Pricing Plans",
+                        text: "Add the name of each plan (e.g. Free, Pro) and list its specific features below it. You can add multiple plans and features to give users a clear comparison."
+                    }
+                },
+                details: { label: "PRICE DETAILS (Optional)", placeholder: "e.g. $10/mo" }
             }
         },
         media: {
             title: "Media & Content",
             upload: {
-                label: "THUMBNAIL IMAGE",
+                label: "OFFICIAL LOGO",
                 guidelines: {
-                    title: "Image Guidelines",
-                    text: "1200 x 630px is recommended. Supports WebP, PNG, JPG."
+                    title: "Logo Guidelines",
+                    text: "High-resolution, transparent official logo is required. Supports WebP, PNG, JPG."
                 },
-                dropzone: "Click to select or drag thumbnail",
+                dropzone: "Click to select or drag logo",
                 uploading: "Uploading to Cloud..."
             },
             fields: {
                 pitch: { label: "SHORT PITCH", placeholder: "The catchy one-liner for your tool..." },
-                desc: { label: "FULL DESCRIPTION", placeholder: "Detailed breakdown of features and value proposition..." }
+                desc: { 
+                    label: "FULL DESCRIPTION (SECTIONS)", 
+                    addSection: "Add New Section",
+                    titlePlaceholder: "e.g. Overview",
+                    contentPlaceholder: "Enter section content...",
+                    guidelines: {
+                        title: "How to structure the Description",
+                        text: "Break your tool's description into clear sections (e.g., 'Overview', 'Key Benefits', 'How it Works'). Give each section a concise title and a detailed explanation."
+                    }
+                }
             }
         },
         features: {
@@ -86,7 +106,7 @@ export const SUBMIT_TOOL_CONSTANTS = {
         category: { required: true, error: "Category required" },
         shortDesc: { min: 10, error: "Min 10 characters" },
         fullDesc: { min: 50, error: "Min 50 characters" },
-        image: { required: true, error: "Thumbnail is required" }
+        image: { required: true, error: "Logo is required" }
     },
     // 6. Labels & Strings
     labels: {

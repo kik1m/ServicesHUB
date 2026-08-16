@@ -1,41 +1,61 @@
-/* ToolDetailMasterCard.module.css - Version 2.2 FINAL PURE IDENTITY */
+/* ToolDetailMasterCard.module.css - Version 3.0 ELITE REDESIGN */
 
+/* ─────────────────────────────────────────────
+   OUTER CARD CONTAINER
+   ───────────────────────────────────────────── */
 .premiumCardContainer {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 35px 45px;
-    background: rgba(15, 17, 22, 0.6); /* Deep Elite Glass */
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    gap: 2rem;
+    padding: 32px 40px;
+    background: linear-gradient(145deg, rgba(18, 20, 27, 0.85), rgba(10, 11, 16, 0.95));
+    border: 1px solid rgba(255, 255, 255, 0.07);
     border-radius: 28px;
-    backdrop-filter: blur(20px);
-    margin-bottom: 40px;
-    box-shadow: 
-        0 20px 50px rgba(0, 0, 0, 0.3),
-        inset 0 0 20px rgba(255, 255, 255, 0.02);
+    backdrop-filter: blur(28px);
+    -webkit-backdrop-filter: blur(28px);
+    margin-bottom: 36px;
+    box-shadow:
+        0 32px 64px rgba(0, 0, 0, 0.45),
+        inset 0 1px 0 rgba(255, 255, 255, 0.09),
+        inset 0 0 40px rgba(255, 255, 255, 0.015);
     position: relative;
     z-index: 10;
+    /* contain: paint clips ALL paint operations (box-shadow, glows) within the border-box */
+    contain: layout paint;
+    isolation: isolate;
 }
 
+/* Subtle glow accent top-left */
+.premiumCardContainer::before {
+    content: '';
+    position: absolute;
+    top: -60px;
+    left: -60px;
+    width: 240px;
+    height: 240px;
+    background: radial-gradient(circle, rgba(99, 102, 241, 0.08) 0%, transparent 70%);
+    pointer-events: none;
+}
+
+/* ─────────────────────────────────────────────
+   LEFT: IDENTITY (LOGO + NAME + BADGES + TAGLINE)
+   ───────────────────────────────────────────── */
 .identitySection {
     display: flex;
     align-items: center;
-    gap: 2.2rem;
+    gap: 2rem;
+    flex: 1;
+    min-width: 0;
 }
 
-.pureImageContainer {
-    background: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-    overflow: visible !important;
-}
-
-/* THE FIX: TARGETING ALL POSSIBLE WRAPPERS TO ENSURE PURE ICON */
-.pureAvatarAnchor, 
-.pureAvatarAnchor div, 
+/* Avatar wrapper */
+.pureAvatarAnchor,
+.pureAvatarAnchor div,
 .pureAvatarAnchor span {
-    width: 96px;
-    height: 96px;
+    width: 88px;
+    height: 88px;
+    flex-shrink: 0;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -45,168 +65,268 @@
     outline: none !important;
 }
 
+.pureImageContainer {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+}
+
 .toolIconImg {
     width: 100% !important;
     height: 100% !important;
-    object-fit: cover !important; 
-    border-radius: 22px !important;
+    object-fit: cover !important;
+    border-radius: 20px !important;
     border: none !important;
     background: transparent !important;
-    /* Using drop-shadow to only highlight the rounded icon shape */
-    filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.6)) !important;
+    filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.55)) !important;
 }
 
+/* Text block */
 .identityDetails {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 6px;
+    min-width: 0;
 }
 
 .topRow {
-    display: block; /* Change to block/inline-block to allow natural text wrapping with badges */
-    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 2px;
 }
 
 .titleText {
-    display: inline; /* Allow badges to follow text naturally */
-    font-size: 2.1rem; /* Reduced from 2.5rem for better elite fit */
-    font-weight: 950;
-    color: white;
+    font-size: 2rem;
+    font-weight: 900;
+    color: #fff;
     margin: 0;
-    letter-spacing: -1px;
-    line-height: 1.2;
-    vertical-align: middle;
+    letter-spacing: -0.5px;
+    line-height: 1.15;
+    white-space: nowrap;
 }
 
 .verifiedCheck {
-    display: inline-block;
-    vertical-align: middle;
-    margin-left: 12px;
-    color: #3b82f6; /* Unified Premium Blue */
-    filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.4));
+    color: #3b82f6;
+    flex-shrink: 0;
+    filter: drop-shadow(0 0 6px rgba(59, 130, 246, 0.5));
 }
 
 .featuredBadgeMini {
     display: inline-flex;
-    vertical-align: middle;
-    margin-left: 12px;
     align-items: center;
-    gap: 5px;
-    padding: 4px 12px;
+    gap: 4px;
+    padding: 4px 11px;
     background: var(--gradient);
     color: #000;
-    font-size: 0.6rem;
+    font-size: 0.58rem;
     font-weight: 900;
     border-radius: 100px;
     text-transform: uppercase;
-    letter-spacing: 0.8px;
-    box-shadow: 0 4px 15px hsl(var(--dynamic-hue-1, 195), calc(var(--dynamic-saturation, 0) * 1%), 50%, 0.35);
+    letter-spacing: 0.9px;
+    box-shadow: 0 4px 14px hsl(var(--dynamic-hue-1, 195), 70%, 50%, 0.35);
+    flex-shrink: 0;
 }
- 
+
 .tagline {
-    font-size: 1.15rem;
+    font-size: 1rem;
     color: var(--text-muted);
     margin: 0;
-    opacity: 0.8;
+    opacity: 0.75;
+    line-height: 1.5;
+    max-width: 480px;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
 }
- 
+
+/* ─────────────────────────────────────────────
+   RIGHT: ACTION SECTION
+   ───────────────────────────────────────────── */
 .actionSection {
     display: flex;
-    align-items: center;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 12px;
+    flex-shrink: 0;
 }
- 
+
+/* Row containing all buttons */
 .buttonStack {
     display: flex;
-    gap: 1.2rem;
     align-items: center;
+    gap: 10px;
 }
- 
+
+/* Divider between Visit and icon buttons */
+.buttonDivider {
+    width: 1px;
+    height: 36px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 100px;
+    flex-shrink: 0;
+}
+
+/* ─────────────────────────────────────────────
+   PRIMARY CTA: VISIT WEBSITE
+   ───────────────────────────────────────────── */
 .primaryVisitBtn {
-    padding: 12px 28px !important;
+    padding: 13px 30px !important;
     border-radius: 14px !important;
     font-weight: 800 !important;
     font-size: 0.95rem !important;
+    letter-spacing: 0.2px !important;
     background: var(--gradient) !important;
-    box-shadow: 0 8px 25px hsl(var(--dynamic-hue-1, 195), calc(var(--dynamic-saturation, 0) * 1%), 50%, 0.3) !important;
+    /* Use filter: drop-shadow — it stays inside the element, unlike box-shadow which bleeds out */
+    filter: drop-shadow(0 6px 18px hsl(var(--dynamic-hue-1, 195), 70%, 50%, 0.4)) !important;
+    transform: translateZ(0) !important;
+    will-change: transform, filter !important;
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), filter 0.25s ease !important;
+    white-space: nowrap !important;
 }
 
+.primaryVisitBtn:hover {
+    transform: translateY(-3px) translateZ(0) !important;
+    filter: drop-shadow(0 10px 28px hsl(var(--dynamic-hue-1, 195), 70%, 55%, 0.65)) !important;
+}
+
+/* ─────────────────────────────────────────────
+   ICON BUTTONS: COMPARE + FAVOURITE
+   ───────────────────────────────────────────── */
 .iconicActionBtn,
 .iconicFavBtn {
-    height: 52px; /* Adjusted from 58px for tighter fit */
-    width: 52px;
-    padding: 0 !important; /* OVERRIDE .md PADDING */
-    border-radius: 16px;
+    height: 50px;
+    width: 50px;
+    padding: 0 !important;
+    border-radius: 14px;
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    background: rgba(255, 255, 255, 0.03);
-    color: var(--text-muted);
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1), color 0.3s cubic-bezier(0.4, 0, 0.2, 1), filter 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid rgba(255, 255, 255, 0.09) !important;
+    background: rgba(255, 255, 255, 0.04) !important;
+    color: rgba(255, 255, 255, 0.55) !important;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    flex-shrink: 0;
 }
 
 .iconicActionBtn:hover {
-    background: rgba(var(--secondary-rgb), 0.1);
-    border-color: var(--secondary);
-    color: var(--secondary);
+    background: rgba(99, 102, 241, 0.12) !important;
+    border-color: rgba(99, 102, 241, 0.5) !important;
+    color: #818cf8 !important;
     transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(99, 102, 241, 0.2);
 }
 
 .iconicFavBtn:hover {
-    background: rgba(255, 71, 87, 0.1);
-    border-color: #ff4757;
-    color: #ff4757;
+    background: rgba(255, 71, 87, 0.1) !important;
+    border-color: rgba(255, 71, 87, 0.45) !important;
+    color: #ff4757 !important;
     transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(255, 71, 87, 0.2);
+}
+
+.iconicFavBtn.isActive {
+    background: rgba(255, 71, 87, 0.12) !important;
+    border-color: rgba(255, 71, 87, 0.4) !important;
+    color: #ff4757 !important;
 }
 
 .heartActive {
-    color: #ff4757;
-    fill: #ff4757;
+    color: #ff4757 !important;
 }
 
+/* ─────────────────────────────────────────────
+   AFFILIATE DISCLOSURE
+   ───────────────────────────────────────────── */
+.affiliateDisclosure {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.35);
+    text-align: right;
+    line-height: 1.4;
+    padding: 6px 12px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 8px;
+}
+
+.affiliateDisclosure svg {
+    flex-shrink: 0;
+    opacity: 0.6;
+}
+
+/* ─────────────────────────────────────────────
+   RESPONSIVE
+   ───────────────────────────────────────────── */
 @media (max-width: 1024px) {
     .premiumCardContainer {
         flex-direction: column;
-        align-items: center; /* Center on Tablet/Mobile */
-        padding: 35px 30px;
+        align-items: center;
+        padding: 30px 28px;
         text-align: center;
-        gap: 2rem;
+        gap: 1.8rem;
     }
 
     .identitySection {
         flex-direction: column;
         align-items: center;
-        gap: 1.5rem;
+        gap: 1.2rem;
     }
 
     .identityDetails {
         align-items: center;
     }
 
+    .topRow {
+        justify-content: center;
+    }
+
+    .tagline {
+        text-align: center;
+        max-width: 480px;
+    }
+
+    .actionSection {
+        width: 100%;
+        align-items: center;
+    }
+
+    .affiliateDisclosure {
+        text-align: center;
+    }
+
     .titleText {
-        font-size: 1.8rem;
+        font-size: 1.75rem;
     }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 640px) {
     .premiumCardContainer {
-        padding: 25px 20px;
-        border-radius: 24px;
-        width: 100%;
-        margin-bottom: 30px;
+        padding: 24px 18px;
+        border-radius: 22px;
+        margin-bottom: 28px;
     }
 
-    .pureAvatarAnchor, 
-    .pureAvatarAnchor div, 
+    .pureAvatarAnchor,
+    .pureAvatarAnchor div,
     .pureAvatarAnchor span {
-        width: 80px;
-        height: 80px;
+        width: 76px;
+        height: 76px;
     }
 
     .buttonStack {
-        flex-direction: column;
-        width: 100%;
-        gap: 1rem;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .buttonDivider {
+        display: none;
     }
 
     .primaryVisitBtn {
@@ -214,34 +334,38 @@
         justify-content: center !important;
     }
 
-    .actionSection {
-        width: 100%;
-    }
-
     .iconicActionBtn,
     .iconicFavBtn {
-        width: 100%;
+        flex: 1;
+        width: auto !important;
         height: 48px;
+    }
+
+    .titleText {
+        font-size: 1.5rem;
     }
 }
 
-/* Skeletons */
+/* ─────────────────────────────────────────────
+   SKELETON LOADING
+   ───────────────────────────────────────────── */
 .masterCardSkeleton {
     display: flex;
     align-items: center;
-    gap: 2.2rem;
-    padding: 35px 45px;
+    gap: 2rem;
+    padding: 32px 40px;
     background: rgba(15, 17, 22, 0.4);
     border: 1px solid var(--border);
     border-radius: 28px;
-    margin-bottom: 40px;
+    margin-bottom: 36px;
 }
 
 .skeletonAvatar {
-    width: 96px;
-    height: 96px;
+    width: 88px;
+    height: 88px;
     background: rgba(255, 255, 255, 0.05);
-    border-radius: 22px;
+    border-radius: 20px;
+    flex-shrink: 0;
 }
 
 .skeletonContent {
@@ -254,7 +378,7 @@
 .skeletonLine {
     height: 14px;
     background: rgba(255, 255, 255, 0.05);
-    border-radius: 4px;
+    border-radius: 6px;
 }
 
 .width40 { width: 40%; }
